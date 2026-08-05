@@ -1,0 +1,12 @@
+{
+  "name": "wasmtts-benchmark",
+  "private": true,
+  "type": "commonjs",
+  "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
+    "sherpa-onnx": "1.13.4"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.62.1"
+  }
+}

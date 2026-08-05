@@ -1,0 +1,43 @@
+{
+  "environment": {
+    "node": "v24.19.0",
+    "sherpaOnnx": "1.13.4",
+    "arch": "arm64",
+    "platform": "darwin",
+    "numThreads": 1
+  },
+  "text": "清晨的阳光穿过窗帘。轻轻落在安静的房间里。远处传来清脆的鸟鸣。微风带着花草的清香。让崭新的一天显得格外明亮。",
+  "results": [
+    {
+      "name": "piper_huayan_medium",
+      "initMs": 2089.4315,
+      "sampleRate": 22050,
+      "runs": [
+        {
+          "wallMs": 2428.574042,
+          "cpuMs": 2474.19,
+          "audioSeconds": 11.38938775510204,
+          "cpuMsPer10s": 2172.364356364679,
+          "wallMsPer10s": 2132.313074433773
+        },
+        {
+          "wallMs": 2462.2408749999995,
+          "cpuMs": 2483.819,
+          "audioSeconds": 11.407936507936508,
+          "cpuMsPer10s": 2177.2728120217057,
+          "wallMsPer10s": 2158.357800542646
+        },
+        {
+          "wallMs": 2433.175083,
+          "cpuMs": 2459.659,
+          "audioSeconds": 11.243356009070295,
+          "cpuMsPer10s": 2187.655534535891,
+          "wallMsPer10s": 2164.1003638389616
+        }
+      ],
+      "medianCpuMsPer10s": 2177.2728120217057,
+      "medianWallMsPer10s": 2158.357800542646,
+      "cpuRelativeToPiper": 1
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+<!doctype html><meta charset="utf-8"><title>Kokoro WASM benchmark</title>
+<script type="importmap">{"imports":{
+  "onnxruntime-web/webgpu":"/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort.webgpu.mjs",
+  "onnxruntime-common":"/node_modules/.pnpm/onnxruntime-common@1.24.0-dev.20251116-b39e144322/node_modules/onnxruntime-common/dist/esm/index.js"
+}}</script>
+<script type="module">
+import { AutoModel, AutoTokenizer, env, Tensor } from '/node_modules/@huggingface/transformers/dist/transformers.web.js';
+import * as ORT from 'onnxruntime-web/webgpu';
+env.backends.onnx.wasm.numThreads = 1;
+env.backends.onnx.wasm.proxy = false;
+const model = 'onnx-community/Kokoro-82M-v1.1-zh-ONNX';
+const text = '清晨的阳光穿过窗帘。轻轻落在安静的房间里。远处传来清脆的鸟鸣。微风带着花草的清香。让崭新的一天显得格外明亮。';
+const sid = 45;
+window.bench = {
+  async inspectModel(path) {
+    ORT.env.wasm.numThreads = 1;
+    const session = await ORT.InferenceSession.create(path, { executionProviders: ['wasm'] });
+    const result = { inputNames: session.inputNames, inputMetadata: session.inputMetadata, outputNames: session.outputNames };
+    await session.release();
+    return result;
+  },
+  async init(skipWarmup = false, dtype = 'int8') {
+    const start = performance.now();
+    const [ttsModel, tokenizer] = await Promise.all([
+      AutoModel.from_pretrained(model, { device: 'wasm', dtype }),
+      AutoTokenizer.from_pretrained(model),
+    ]);
+    this.tts = { model: ttsModel, tokenizer };
+    const base = '/benchmarks/models/kokoro-int8-multi-lang-v1_1/';
+    const [tokenText, lexiconText] = await Promise.all([
+      fetch(base + 'tokens.txt').then(x => x.text()),
+      fetch(base + 'lexicon-zh.txt').then(x => x.text()),
+    ]);
+    const tokenIds = new Map(tokenText.trim().split('\n').map(line => {
+      const cut = line.lastIndexOf(' ');
+      return [line.slice(0, cut), Number(line.slice(cut + 1))];
+    }));
+    const lexicon = new Map(lexiconText.trim().split('\n').map(line => {
+      const [word, ...phones] = line.split(' ');
+      return [word, phones];
+    }));
+    const phones = [];
+    for (const char of text) {
+      if (char === '。') phones.push('.');
+      else if (lexicon.has(char)) phones.push(...lexicon.get(char));
+      else if (tokenIds.has(char)) phones.push(char);
+    }
+    const ids = [0, ...phones.map(x => tokenIds.get(x)).filter(Number.isFinite), 0];
+    this.inputs = { input_ids: new Tensor('int64', BigInt64Array.from(ids, BigInt), [1, ids.length]) };
+    const voices = new Float32Array(await (await fetch('/benchmarks/models/kokoro-int8-multi-lang-v1_1/voices.bin')).arrayBuffer());
+    const tokenCount = Math.min(ids.length, 509);
+    const startStyle = (sid * 510 + tokenCount) * 256;
+    this.style = new Tensor('float32', voices.slice(startStyle, startStyle + 256), [1, 256]);
+    this.speed = new Tensor('float32', new Float32Array([1]), [1]);
+    this.initMs = performance.now() - start;
+    if (!skipWarmup) await this.synthesize();
+    return this.initMs;
+  },
+  async synthesize() {
+    const output = await this.tts.model({ ...this.inputs, style: this.style, speed: this.speed });
+    return output.waveform;
+  },
+  async run() {
+    const start = performance.now();
+    const waveform = await this.synthesize();
+    let finite = 0, peak = 0, sumSquares = 0;
+    for (const value of waveform.data) if (Number.isFinite(value)) { finite++; peak = Math.max(peak, Math.abs(value)); sumSquares += value * value; }
+    return {
+      wallMs: performance.now() - start,
+      audioSeconds: waveform.data.length / 24000,
+      sampleRate: 24000,
+      samples: waveform.data.length,
+      finite,
+      peak,
+      rms: Math.sqrt(sumSquares / Math.max(1, finite)),
+    };
+  },
+  async capture() {
+    const waveform = await this.synthesize();
+    const samples = Array.from(waveform.data);
+    let finite = 0, peak = 0, sumSquares = 0;
+    for (const value of samples) if (Number.isFinite(value)) { finite++; peak = Math.max(peak, Math.abs(value)); sumSquares += value * value; }
+    return { samples, sampleRate: 24000, finite, peak, rms: Math.sqrt(sumSquares / Math.max(1, finite)) };
+  }
+};
+window.ready = true;
+</script>

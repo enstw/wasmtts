@@ -1,0 +1,47 @@
+<!doctype html><meta charset="utf-8"><title>VITS WASM benchmark</title>
+<script type="importmap">{"imports":{
+  "onnxruntime-web/webgpu":"/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort.webgpu.mjs"
+}}</script>
+<script type="module">
+import * as ORT from 'onnxruntime-web/webgpu';
+ORT.env.wasm.numThreads = 1;
+ORT.env.wasm.proxy = false;
+const text = '清晨的阳光穿过窗帘。轻轻落在安静的房间里。远处传来清脆的鸟鸣。微风带着花草的清香。让崭新的一天显得格外明亮。';
+const i64 = (values, dims) => new ORT.Tensor('int64', BigInt64Array.from(values, BigInt), dims);
+const f32 = value => new ORT.Tensor('float32', new Float32Array([value]), [1]);
+async function maps(base) {
+  const [tokensText, lexiconText] = await Promise.all([fetch(base + 'tokens.txt').then(x => x.text()), fetch(base + 'lexicon.txt').then(x => x.text())]);
+  const tokens = new Map(tokensText.trim().split('\n').map(line => { const i=line.lastIndexOf(' '); return [line.slice(0,i),Number(line.slice(i+1))]; }));
+  const lexicon = new Map(lexiconText.trim().split('\n').map(line => { const [word,...rest]=line.split(' '); return [word,rest]; }));
+  return {tokens,lexicon};
+}
+window.bench = {
+  async init(name, piperSentences) {
+    this.name=name;
+    if (name==='piper_huayan_medium') {
+      this.sampleRate=22050; this.sequences=piperSentences;
+      this.session=await ORT.InferenceSession.create('/benchmarks/models/vits-piper-zh_CN-huayan-medium/zh_CN-huayan-medium.onnx',{executionProviders:['wasm']});
+    } else if (name==='vits_aishell3') {
+      this.sampleRate=8000; const base='/benchmarks/models/vits-icefall-zh-aishell3/'; const {tokens,lexicon}=await maps(base);
+      const phones=['sil']; for(const c of text){if(c==='。')phones.push('sp');else if(lexicon.has(c))phones.push(...lexicon.get(c));} phones.push('eos');
+      this.ids=phones.map(x=>tokens.get(x)).filter(Number.isFinite);
+      this.session=await ORT.InferenceSession.create(base+'model.onnx',{executionProviders:['wasm']});
+    } else {
+      this.sampleRate=44100; const base='/benchmarks/models/vits-melo-tts-zh_en/'; const {tokens,lexicon}=await maps(base);
+      const phones=[],tones=[]; for(const c of text){if(c==='。'){phones.push('.');tones.push(0);}else if(lexicon.has(c)){const row=lexicon.get(c), n=row.length/2; phones.push(...row.slice(0,n)); tones.push(...row.slice(n).map(Number));}}
+      const p=[],t=[]; for(let i=0;i<phones.length;i++){p.push('_',phones[i]);t.push(0,tones[i]);} p.push('_');t.push(0);
+      this.ids=p.map(x=>tokens.get(x)??tokens.get('UNK')); this.tones=t;
+      this.session=await ORT.InferenceSession.create(base+'model.onnx',{executionProviders:['wasm']});
+    }
+    await this.run();
+  },
+  async run() {
+    let samples=0;
+    if(this.name==='piper_huayan_medium') for(const ids of this.sequences){const o=await this.session.run({input:i64(ids,[1,ids.length]),input_lengths:i64([ids.length],[1]),scales:new ORT.Tensor('float32',new Float32Array([0.667,1,0.8]),[3])});samples+=o.output.data.length;}
+    else if(this.name==='vits_aishell3'){const n=this.ids.length,o=await this.session.run({tokens:i64(this.ids,[1,n]),tokens_lens:i64([n],[1]),noise_scale:f32(0.667),alpha:f32(1),noise_scale_dur:f32(0.8),speaker:i64([66],[1])});samples=o.audio.data.length;}
+    else {const n=this.ids.length,o=await this.session.run({x:i64(this.ids,[1,n]),x_lengths:i64([n],[1]),tones:i64(this.tones,[1,n]),sid:i64([0],[1]),noise_scale:f32(0.667),length_scale:f32(1),noise_scale_w:f32(0.8)});samples=o.y.data.length;}
+    return {audioSeconds:samples/this.sampleRate,sampleRate:this.sampleRate};
+  }
+};
+window.ready=true;
+</script>

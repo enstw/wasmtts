@@ -1,0 +1,50 @@
+{
+  "environment": {
+    "browser": "149.0.7827.55",
+    "runtime": "Transformers.js 4.2.0 / ONNX Runtime Web 1.26.0-dev.20260416-b7804b056c",
+    "executionProvider": "wasm",
+    "numThreads": 1,
+    "measurement": "Chromium CDP Performance.TaskDuration"
+  },
+  "model": "onnx-community/Kokoro-82M-v1.1-zh-ONNX (fp32)",
+  "speaker": "sid 45 (zf_078)",
+  "initMs": 15463.200000047684,
+  "runs": [
+    {
+      "wallMs": 18741.200000047684,
+      "audioSeconds": 13.175,
+      "sampleRate": 24000,
+      "samples": 316200,
+      "finite": 316200,
+      "peak": 0.3256680965423584,
+      "rms": 0.03896162976231883,
+      "taskMs": 18741.987999999998,
+      "taskMsPer10s": 14225.417836812141
+    },
+    {
+      "wallMs": 18713.5,
+      "audioSeconds": 13.175,
+      "sampleRate": 24000,
+      "samples": 316200,
+      "finite": 316200,
+      "peak": 0.3326094448566437,
+      "rms": 0.038970081596357516,
+      "taskMs": 18715.777,
+      "taskMsPer10s": 14205.523339658443
+    },
+    {
+      "wallMs": 18782.899999976158,
+      "audioSeconds": 13.175,
+      "sampleRate": 24000,
+      "samples": 316200,
+      "finite": 316200,
+      "peak": 0.32826727628707886,
+      "rms": 0.03895165223367359,
+      "taskMs": 18783.378,
+      "taskMsPer10s": 14256.83339658444
+    }
+  ],
+  "medianTaskMsPer10s": 14225.417836812141,
+  "piperHuaYanBaselineCpuMsPer10s": 1575.7706292656726,
+  "relativeToPiperHuaYan": 9.02759422762014
+}

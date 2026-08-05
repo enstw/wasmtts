@@ -1,0 +1,16 @@
+.DS_Store
+.pnpm-store/
+node_modules/
+
+# Downloaded third-party model artifacts are not redistributed.
+benchmarks/models/
+*.onnx
+*.tar
+*.tar.bz2
+*.zip
+
+# Local environment and agent state.
+.env*
+.claude/
+.codex/
+.agents/

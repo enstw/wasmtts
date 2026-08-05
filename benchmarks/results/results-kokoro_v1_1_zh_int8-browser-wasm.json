@@ -1,0 +1,21 @@
+{
+  "environment": {
+    "browser": "Chrome for Testing 149.0.7827.55 arm64",
+    "runtime": "Transformers.js 4.2.0 / ONNX Runtime Web 1.26.0-dev.20260416-b7804b056c",
+    "executionProvider": "wasm",
+    "numThreads": 1,
+    "measurement": "Chromium CDP Performance.TaskDuration"
+  },
+  "model": "onnx-community/Kokoro-82M-v1.1-zh-ONNX model_int8.onnx",
+  "speaker": "sid 45 (zf_078)",
+  "audioSeconds": 13.175,
+  "sampleRate": 24000,
+  "runs": [
+    { "wallMs": 55777.7, "taskMs": 55780.778, "taskMsPer10s": 42338.3514 },
+    { "wallMs": 55766.0, "taskMs": 55766.3, "taskMsPer10s": 42327.3624 },
+    { "wallMs": 55778.3, "taskMs": 55778.676, "taskMsPer10s": 42336.7560 }
+  ],
+  "medianTaskMsPer10s": 42336.756,
+  "piperHuaYanBaselineCpuMsPer10s": 2177.2728,
+  "relativeToPiperHuaYan": 19.445
+}

@@ -1,0 +1,96 @@
+{
+  "environment": {
+    "browser": "149.0.7827.55",
+    "runtime": "ONNX Runtime Web 1.26.0-dev.20260416-b7804b056c",
+    "executionProvider": "wasm",
+    "numThreads": 1,
+    "measurement": "Chromium CDP Performance.TaskDuration"
+  },
+  "text": "清晨的阳光穿过窗帘。轻轻落在安静的房间里。远处传来清脆的鸟鸣。微风带着花草的清香。让崭新的一天显得格外明亮。",
+  "results": [
+    {
+      "name": "piper_huayan_medium",
+      "runs": [
+        {
+          "audioSeconds": 11.609977324263038,
+          "sampleRate": 22050,
+          "wallMs": 1837.0144169999999,
+          "taskMs": 1837.411,
+          "taskMsPer10s": 1582.613771484375
+        },
+        {
+          "audioSeconds": 11.586757369614512,
+          "sampleRate": 22050,
+          "wallMs": 1815.7918339999997,
+          "taskMs": 1815.254,
+          "taskMsPer10s": 1566.6626495177857
+        },
+        {
+          "audioSeconds": 11.482267573696145,
+          "sampleRate": 22050,
+          "wallMs": 1809.880791999999,
+          "taskMs": 1809.342,
+          "taskMsPer10s": 1575.7706292656726
+        }
+      ],
+      "medianTaskMsPer10s": 1575.7706292656726,
+      "relativeToPiper": 1
+    },
+    {
+      "name": "vits_aishell3",
+      "runs": [
+        {
+          "audioSeconds": 10.528,
+          "sampleRate": 8000,
+          "wallMs": 756.0291660000003,
+          "taskMs": 755.5649999999999,
+          "taskMsPer10s": 717.6719224924011
+        },
+        {
+          "audioSeconds": 12.224,
+          "sampleRate": 8000,
+          "wallMs": 859.8314999999984,
+          "taskMs": 859.4009999999998,
+          "taskMsPer10s": 703.0440117801046
+        },
+        {
+          "audioSeconds": 11.2,
+          "sampleRate": 8000,
+          "wallMs": 792.4077500000003,
+          "taskMs": 792.913,
+          "taskMsPer10s": 707.9580357142858
+        }
+      ],
+      "medianTaskMsPer10s": 707.9580357142858,
+      "relativeToPiper": 0.44927733933218594
+    },
+    {
+      "name": "vits_melotts_zh_en",
+      "runs": [
+        {
+          "audioSeconds": 7.22140589569161,
+          "sampleRate": 44100,
+          "wallMs": 10429.063499999997,
+          "taskMs": 10428.629,
+          "taskMsPer10s": 14441.272448377213
+        },
+        {
+          "audioSeconds": 7.22140589569161,
+          "sampleRate": 44100,
+          "wallMs": 10418.41025,
+          "taskMs": 10418.574999999999,
+          "taskMsPer10s": 14427.349951642884
+        },
+        {
+          "audioSeconds": 7.22140589569161,
+          "sampleRate": 44100,
+          "wallMs": 10400.102959000003,
+          "taskMs": 10401.486000000003,
+          "taskMsPer10s": 14403.685584555873
+        }
+      ],
+      "medianTaskMsPer10s": 14427.349951642884,
+      "relativeToPiper": 9.155742392765752
+    }
+  ]
+}

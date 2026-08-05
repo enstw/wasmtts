@@ -1,0 +1,42 @@
+{
+  "environment": {
+    "node": "v24.19.0",
+    "sherpaOnnx": "1.13.4",
+    "arch": "arm64",
+    "platform": "darwin",
+    "numThreads": 1
+  },
+  "text": "清晨的阳光穿过窗帘。轻轻落在安静的房间里。远处传来清脆的鸟鸣。微风带着花草的清香。让崭新的一天显得格外明亮。",
+  "results": [
+    {
+      "name": "vits_aishell3",
+      "initMs": 1251.706083,
+      "sampleRate": 8000,
+      "runs": [
+        {
+          "wallMs": 1246.937625,
+          "cpuMs": 1282.634,
+          "audioSeconds": 10.2035,
+          "cpuMsPer10s": 1257.0529720194052,
+          "wallMsPer10s": 1222.0685304062333
+        },
+        {
+          "wallMs": 1210.57775,
+          "cpuMs": 1241.953,
+          "audioSeconds": 9.45775,
+          "cpuMsPer10s": 1313.1590494567945,
+          "wallMsPer10s": 1279.9849329914618
+        },
+        {
+          "wallMs": 1249.6865829999997,
+          "cpuMs": 1269.231,
+          "audioSeconds": 10.137375,
+          "cpuMsPer10s": 1252.0312211001367,
+          "wallMsPer10s": 1232.751657110445
+        }
+      ],
+      "medianCpuMsPer10s": 1257.0529720194052,
+      "medianWallMsPer10s": 1232.751657110445
+    }
+  ]
+}
