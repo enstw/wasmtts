@@ -1,0 +1,65 @@
+{
+  "environment": {
+    "browser": "HeadlessChrome 145.0.7632.6 arm64 (gstack browse)",
+    "runtime": "ONNX Runtime Web 1.26.0-dev.20260416-b7804b056c",
+    "executionProvider": "wasm",
+    "numThreads": 1,
+    "measurement": "performance.now() wall time; single-threaded WASM"
+  },
+  "model": {
+    "name": "Kokoro v1.1 zh selective INT8",
+    "recipe": "QInt8 dynamic MatMul/LSTM outside /decoder/; all Conv/ConvTranspose and decoder remain FP32",
+    "fp32Bytes": 339369442,
+    "selectiveInt8Bytes": 311127414,
+    "sizeReductionPercent": 8.321912495586448
+  },
+  "speaker": "sid 45 (zf_078)",
+  "initMs": 2696.7000000029802,
+  "warmup": {
+    "wallMs": 20083,
+    "audioSeconds": 13.2,
+    "samples": 316800,
+    "finite": 316800,
+    "peak": 0.3316764533519745,
+    "rms": 0.03892187995853316
+  },
+  "runs": [
+    {
+      "wallMs": 19996,
+      "audioSeconds": 13.2,
+      "samples": 316800,
+      "finite": 316800,
+      "peak": 0.3309806287288666,
+      "rms": 0.038886221400848964,
+      "wallMsPer10s": 15148.48484848485
+    },
+    {
+      "wallMs": 20040.39999999106,
+      "audioSeconds": 13.2,
+      "samples": 316800,
+      "finite": 316800,
+      "peak": 0.3169670104980469,
+      "rms": 0.038891563030931595,
+      "wallMsPer10s": 15182.12121211444
+    },
+    {
+      "wallMs": 20059.90000000596,
+      "audioSeconds": 13.2,
+      "samples": 316800,
+      "finite": 316800,
+      "peak": 0.320050448179245,
+      "rms": 0.038902377835456865,
+      "wallMsPer10s": 15196.893939398456
+    }
+  ],
+  "medianWallMsPer10s": 15182.12121211444,
+  "sameBrowserFp32Comparison": {
+    "runsWallMsPer10s": [
+      15041.669829226536,
+      15042.656546491824,
+      15029.449715367757
+    ],
+    "medianWallMsPer10s": 15041.669829226536,
+    "selectiveInt8RelativeToFp32": 1.0093374860957924
+  }
+}

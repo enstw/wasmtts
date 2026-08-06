@@ -17,9 +17,9 @@ HuaYan 是 Piper 現有的普通話單人女聲，包含 `x_low` 與 `medium` �
 ## 建議的產品分層
 
 1. iOS／iPadOS 首選系統 `speechSynthesis`，依裝置選擇適合文字語言的聲音。
-2. 需要固定聲線與一致品質時，使用伺服器產生 AAC／MP3，再交由 `<audio>` 播放。
-3. 需要研究完全離線的自有模型時，提供 Piper 作為可選下載引擎：低記憶體裝置使用 HuaYan `x_low`，能通過實機壓力測試的裝置才開放 `medium`。
-4. 若必須同時滿足固定聲線、完全離線、背景播放與長篇朗讀，應改用原生 iOS layer（AVSpeechSynthesizer、ONNX Runtime Mobile 或 Core ML），而不是在 WKWebView 中繼續執行 WASM。
+1. 需要固定聲線與一致品質時，使用伺服器產生 AAC／MP3，再交由 `<audio>` 播放。
+1. 需要研究完全離線的自有模型時，提供 Piper 作為可選下載引擎：低記憶體裝置使用 HuaYan `x_low`，能通過實機壓力測試的裝置才開放 `medium`。
+1. 若必須同時滿足固定聲線、完全離線、背景播放與長篇朗讀，應改用原生 iOS layer（AVSpeechSynthesizer、ONNX Runtime Mobile 或 Core ML），而不是在 WKWebView 中繼續執行 WASM。
 
 ## iOS 上的 Piper 實作原則
 
@@ -63,14 +63,16 @@ HuaYan 是 Piper 現有的普通話單人女聲，包含 `x_low` 與 `medium` �
 
 | 模型 | 10 秒音訊 CPU 時間 | 相對 HuaYan | 結果 |
 |---|---:|---:|---|
-| VITS AISHELL3（sid 66） | 0.708 秒 | **0.45x** | CPU 最低，但輸出僅 8 kHz |
+| VITS AISHELL3（sid 66） | 0.708 秒 | **0.45x** | CPU 最低，但輸出僅 8 kHz；主觀實聽 3/10 且有外國腔 |
 | Piper HuaYan medium | 1.576 秒 | **1.00x** | 約 6.35 倍即時 |
 | MeloTTS zh/en | 14.427 秒 | **9.16x** | 慢於即時，不適合作為行動端即時主引擎 |
 | Kokoro v1.1 zh int8 | 無有效數字 | — | ORT Web 輸出非有限值，WAV 為靜音；舊數字作廢 |
 | Kokoro v1.1 zh q8 | 無有效數字 | — | ORT Web 的 315,000 個 sample 全部非有限 |
 | Kokoro v1.1 zh fp32 | 14.225 秒 | **9.03x** | 有效音訊；單線程約 0.70 倍即時 |
 
-CPU footprint 結論是 AISHELL3 最小、HuaYan 居中，MeloTTS 與 Kokoro fp32 明顯過重。四款均使用 Chromium 149 + ONNX Runtime Web、單一 WASM thread 與 CDP `TaskDuration`。Kokoro fp32 三輪有效輸出的中位數為每 10 秒音訊 14.225 秒，即 HuaYan 的 `9.03x`。Kokoro int8 和 Kokoro.js sample 對應的 q8 在這套 ORT Web WASM 組合中都輸出非有限值，不能計入 CPU 排名。AISHELL3 的 `0.45x` 不代表整體品質更好：8 kHz 取樣率、音色與韻律仍需在 iPhone 上盲聽比較。
+CPU footprint 結論是 AISHELL3 最小、HuaYan 居中，MeloTTS 與 Kokoro fp32 明顯過重。四款均使用 Chromium 149 + ONNX Runtime Web、單一 WASM thread 與 CDP `TaskDuration`。Kokoro fp32 三輪有效輸出的中位數為每 10 秒音訊 14.225 秒，即 HuaYan 的 `9.03x`。Kokoro int8 和 Kokoro.js sample 對應的 q8 在這套 ORT Web WASM 組合中都輸出非有限值，不能計入 CPU 排名。AISHELL3 雖為 `0.45x`，本次主觀實聽只有 3/10 且仍有明顯外國腔，不能解決 HuaYan 的主要品質問題，因此不列入產品候選。
+
+另以 FP32 自行產生保守的 selective INT8：只動態量化 decoder 以外可安全轉換的 `MatMul/LSTM`，所有卷積、vocoder 與 STFT 保留 FP32。模型由 323.6 MiB 降至 296.7 MiB，原生 ORT 與瀏覽器 WASM 的 waveform 均為完整有限值；同一個 gstack HeadlessChrome 145 A/B 中，selective INT8 為 15.182 秒／10 秒音訊，FP32 為 15.042 秒，INT8 慢約 0.9%。因此可以從 FP32 做出正確的混合 INT8，但目前沒有單線程 WASM 加速證據，且 8.3% 的體積縮減不足以改變 iOS PWA 的記憶體判斷。
 
 Kokoro 不能使用原 sherpa-onnx 1.13.4 Node WASM binding（初始化觸發 `unreachable`），因此公平比較全部改成直接呼叫 ONNX Runtime Web。文字前處理在計時前完成：HuaYan 用 Piper 官方 eSpeak phonemizer；AISHELL3、MeloTTS、Kokoro 用模型各自的 lexicon/tokens；Kokoro 聲線為 sid 45（`zf_078`）。完整方法和原始三輪數字見 `benchmarks/RESULTS.md`。
 

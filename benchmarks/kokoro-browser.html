@@ -19,17 +19,21 @@ window.bench = {
     await session.release();
     return result;
   },
-  async init(skipWarmup = false, dtype = 'int8') {
+  async init(skipWarmup = false, dtype = 'int8', modelPath = null, assetsBase = '/benchmarks/models/kokoro-int8-multi-lang-v1_1/') {
     const start = performance.now();
-    const [ttsModel, tokenizer] = await Promise.all([
-      AutoModel.from_pretrained(model, { device: 'wasm', dtype }),
-      AutoTokenizer.from_pretrained(model),
-    ]);
-    this.tts = { model: ttsModel, tokenizer };
-    const base = '/benchmarks/models/kokoro-int8-multi-lang-v1_1/';
+    if (modelPath) {
+      ORT.env.wasm.numThreads = 1;
+      this.session = await ORT.InferenceSession.create(modelPath, { executionProviders: ['wasm'] });
+    } else {
+      const [ttsModel, tokenizer] = await Promise.all([
+        AutoModel.from_pretrained(model, { device: 'wasm', dtype }),
+        AutoTokenizer.from_pretrained(model),
+      ]);
+      this.tts = { model: ttsModel, tokenizer };
+    }
     const [tokenText, lexiconText] = await Promise.all([
-      fetch(base + 'tokens.txt').then(x => x.text()),
-      fetch(base + 'lexicon-zh.txt').then(x => x.text()),
+      fetch(assetsBase + 'tokens.txt').then(x => x.text()),
+      fetch(assetsBase + 'lexicon-zh.txt').then(x => x.text()),
     ]);
     const tokenIds = new Map(tokenText.trim().split('\n').map(line => {
       const cut = line.lastIndexOf(' ');
@@ -46,17 +50,22 @@ window.bench = {
       else if (tokenIds.has(char)) phones.push(char);
     }
     const ids = [0, ...phones.map(x => tokenIds.get(x)).filter(Number.isFinite), 0];
-    this.inputs = { input_ids: new Tensor('int64', BigInt64Array.from(ids, BigInt), [1, ids.length]) };
-    const voices = new Float32Array(await (await fetch('/benchmarks/models/kokoro-int8-multi-lang-v1_1/voices.bin')).arrayBuffer());
+    const TensorClass = this.session ? ORT.Tensor : Tensor;
+    this.inputs = { input_ids: new TensorClass('int64', BigInt64Array.from(ids, BigInt), [1, ids.length]) };
+    const voices = new Float32Array(await (await fetch(assetsBase + 'voices.bin')).arrayBuffer());
     const tokenCount = Math.min(ids.length, 509);
     const startStyle = (sid * 510 + tokenCount) * 256;
-    this.style = new Tensor('float32', voices.slice(startStyle, startStyle + 256), [1, 256]);
-    this.speed = new Tensor('float32', new Float32Array([1]), [1]);
+    this.style = new TensorClass('float32', voices.slice(startStyle, startStyle + 256), [1, 256]);
+    this.speed = new TensorClass('float32', new Float32Array([1]), [1]);
     this.initMs = performance.now() - start;
     if (!skipWarmup) await this.synthesize();
     return this.initMs;
   },
   async synthesize() {
+    if (this.session) {
+      const output = await this.session.run({ ...this.inputs, style: this.style, speed: this.speed });
+      return output.waveform;
+    }
     const output = await this.tts.model({ ...this.inputs, style: this.style, speed: this.speed });
     return output.waveform;
   },

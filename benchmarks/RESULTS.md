@@ -17,7 +17,22 @@
 
 主表已統一為 Chromium 149、ONNX Runtime Web WASM、單一 thread 與 CDP `TaskDuration`。AISHELL3 最省 CPU；HuaYan 居中；MeloTTS 與 Kokoro fp32 都慢於即時。Kokoro int8 與 Kokoro.js sample 對應的 q8 都能完成 graph execution，但輸出全部為非有限值，不能視為有效 TTS；只有 fp32 已驗證能正常發聲。
 
-但 AISHELL3 的取樣率只有 8 kHz，而且音質、韻律與聲線選擇和 CPU 是不同維度；`0.59x` 不代表整體體驗一定勝過 HuaYan。若目標是修正 HuaYan「外國人中文」的聽感，AISHELL3 值得先實機盲聽，但不能只憑 CPU 決定。
+本專案另從 FP32 產生 selective INT8，保留 decoder、vocoder、STFT 與全部卷積為 FP32。它在原生 ORT 與瀏覽器 WASM 都能輸出完整有限值，不再有 NaN；但只縮小 `8.3%`，同一瀏覽器下速度比 FP32 慢約 `0.9%`。所以這一版證明「可自行做出正確的混合 INT8」，尚未證明 INT8 對單線程 WASM 有效能優勢。
+
+AISHELL3 的取樣率只有 8 kHz，而且音質、韻律與聲線選擇和 CPU 是不同維度；本次主觀實聽只有 `3/10`，且仍有明顯外國腔。若目標是修正 HuaYan「外國人中文」的聽感，AISHELL3 不構成品質升級，因此只保留為最低 CPU 的技術參考，不列入產品候選。
+
+## Kokoro selective INT8 修正實驗
+
+這組 A/B 使用同一個 gstack HeadlessChrome 145.0.7632.6、ONNX Runtime Web WASM、單一 thread 與 `performance.now()` wall time。因瀏覽器版本與主表不同，數字只在本節內互相比較。
+
+| 模型 | ONNX 大小 | 10 秒音訊 wall time 中位數 | 相對 FP32 | waveform 驗證 |
+|---|---:|---:|---:|---:|
+| FP32 | 323.6 MiB | 15.042 秒 | 1.000x | 316,200/316,200 finite |
+| selective INT8 | 296.7 MiB | 15.182 秒 | 1.009x | 316,800/316,800 finite |
+
+Selective INT8 三輪為 `15.148`、`15.182`、`15.197` 秒／10 秒音訊；FP32 三輪為 `15.042`、`15.043`、`15.029` 秒。原生 ONNX Runtime CPU 另驗證 selective INT8 的 317,400/317,400 samples 全為有限值，peak `0.325`、RMS `0.0389`。
+
+量化範圍是 decoder 以外的 `MatMul/Gemm/LSTM` 候選；ONNX Runtime 1.28 實際轉換成 9 個 `MatMulInteger` 與 6 個 `DynamicQuantizeLSTM`。`/decoder/`、90 個 `Conv`、7 個 `ConvTranspose`、vocoder 與 STFT 均保留 FP32。這個保守範圍避免了已定位到 STFT Fourier kernel／phase 除法的 NaN 傳播，但也只減少 28.2 MB 權重，無法帶來明顯 WASM 加速。
 
 ## 舊 sherpa wrapper 測試方法（保留供對照）
 
@@ -56,16 +71,20 @@
 - 成功模型最後一輪 WAV：`benchmarks/results/*.wav`
 - Kokoro 瀏覽器頁：`benchmarks/kokoro-browser.html`
 - Kokoro Chromium/CDP runner：`benchmarks/run-kokoro-browser.mjs`
+- Kokoro selective INT8 量化器：`benchmarks/quantize-kokoro.py`
+- Kokoro 原生數值驗證器：`benchmarks/validate-kokoro-onnx.py`
+- Kokoro gstack browse 單輪 runner：`benchmarks/run-kokoro-gstack.js`
 - 其他三款 ORT Web runner：`benchmarks/run-vits-browser.mjs`
 - 統一三款原始結果：`benchmarks/results/results-vits-browser-wasm.json`
+- Selective INT8 與同瀏覽器 FP32 A/B：`benchmarks/results/results-kokoro_v1_1_zh_selective-int8-browser-wasm.json`
 
 重跑範例：
 
 ```sh
-SHERPA_WASM_INITIAL_MEMORY=805306368 node benchmarks/benchmark.js piper_huayan_medium
-SHERPA_WASM_INITIAL_MEMORY=805306368 node benchmarks/benchmark.js vits_aishell3
-SHERPA_WASM_INITIAL_MEMORY=805306368 node benchmarks/benchmark.js vits_melotts_zh_en
-# 另一個 terminal 先執行：python3 -m http.server 8765
-node benchmarks/run-kokoro-browser.mjs
-node benchmarks/run-vits-browser.mjs
+SHERPA_WASM_INITIAL_MEMORY=805306368 pnpm exec node benchmarks/benchmark.js piper_huayan_medium
+SHERPA_WASM_INITIAL_MEMORY=805306368 pnpm exec node benchmarks/benchmark.js vits_aishell3
+SHERPA_WASM_INITIAL_MEMORY=805306368 pnpm exec node benchmarks/benchmark.js vits_melotts_zh_en
+# 另一個 terminal 先執行：uv run python -m http.server 8765
+pnpm exec node benchmarks/run-kokoro-browser.mjs fp32
+pnpm exec node benchmarks/run-vits-browser.mjs
 ```
