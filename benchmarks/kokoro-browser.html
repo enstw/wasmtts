@@ -9,7 +9,7 @@ import * as ORT from 'onnxruntime-web/webgpu';
 env.backends.onnx.wasm.numThreads = 1;
 env.backends.onnx.wasm.proxy = false;
 const model = 'onnx-community/Kokoro-82M-v1.1-zh-ONNX';
-const text = '清晨的阳光穿过窗帘。轻轻落在安静的房间里。远处传来清脆的鸟鸣。微风带着花草的清香。让崭新的一天显得格外明亮。';
+const defaultText = '清晨的阳光穿过窗帘。轻轻落在安静的房间里。远处传来清脆的鸟鸣。微风带着花草的清香。让崭新的一天显得格外明亮。';
 const sid = 45;
 window.bench = {
   async inspectModel(path) {
@@ -19,10 +19,11 @@ window.bench = {
     await session.release();
     return result;
   },
-  async init(skipWarmup = false, dtype = 'int8', modelPath = null, assetsBase = '/benchmarks/models/kokoro-int8-multi-lang-v1_1/') {
+  async init(skipWarmup = false, dtype = 'int8', modelPath = null, assetsBase = '/benchmarks/models/kokoro-int8-multi-lang-v1_1/', text = defaultText, numThreads = 1) {
     const start = performance.now();
+    env.backends.onnx.wasm.numThreads = numThreads;
+    ORT.env.wasm.numThreads = numThreads;
     if (modelPath) {
-      ORT.env.wasm.numThreads = 1;
       this.session = await ORT.InferenceSession.create(modelPath, { executionProviders: ['wasm'] });
     } else {
       const [ttsModel, tokenizer] = await Promise.all([
@@ -51,7 +52,8 @@ window.bench = {
     }
     const ids = [0, ...phones.map(x => tokenIds.get(x)).filter(Number.isFinite), 0];
     const TensorClass = this.session ? ORT.Tensor : Tensor;
-    this.inputs = { input_ids: new TensorClass('int64', BigInt64Array.from(ids, BigInt), [1, ids.length]) };
+    const tokenInputName = this.session?.inputNames.includes('tokens') ? 'tokens' : 'input_ids';
+    this.inputs = { [tokenInputName]: new TensorClass('int64', BigInt64Array.from(ids, BigInt), [1, ids.length]) };
     const voices = new Float32Array(await (await fetch(assetsBase + 'voices.bin')).arrayBuffer());
     const tokenCount = Math.min(ids.length, 509);
     const startStyle = (sid * 510 + tokenCount) * 256;
@@ -61,13 +63,29 @@ window.bench = {
     if (!skipWarmup) await this.synthesize();
     return this.initMs;
   },
+  runtime() {
+    return {
+      requestedThreads: ORT.env.wasm.numThreads,
+      crossOriginIsolated,
+      sharedArrayBuffer: typeof SharedArrayBuffer !== 'undefined',
+    };
+  },
   async synthesize() {
     if (this.session) {
       const output = await this.session.run({ ...this.inputs, style: this.style, speed: this.speed });
-      return output.waveform;
+      return output.waveform ?? output.audio;
     }
     const output = await this.tts.model({ ...this.inputs, style: this.style, speed: this.speed });
     return output.waveform;
+  },
+  async probeShapes() {
+    if (!this.session) throw new Error('probeShapes requires a direct ORT session');
+    const output = await this.session.run({ ...this.inputs, style: this.style, speed: this.speed });
+    return Object.fromEntries(Object.entries(output).map(([name, tensor]) => [name, {
+      type: tensor.type,
+      dims: tensor.dims,
+      elements: tensor.data.length,
+    }]));
   },
   async run() {
     const start = performance.now();

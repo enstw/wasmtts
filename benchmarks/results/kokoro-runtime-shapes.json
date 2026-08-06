@@ -1,0 +1,128 @@
+{
+  "model": "/benchmarks/models/kokoro-fp32-shape-probe.onnx",
+  "initMs": 1882.6999999284744,
+  "outputs": {
+    "waveform": {
+      "type": "float32",
+      "dims": [
+        316200
+      ],
+      "elements": 316200
+    },
+    "duration": {
+      "type": "int64",
+      "dims": [
+        148
+      ],
+      "elements": 148
+    },
+    "/decoder/F0_conv/Conv_output_0": {
+      "type": "float32",
+      "dims": [
+        1,
+        1,
+        527
+      ],
+      "elements": 527
+    },
+    "/decoder/N_conv/Conv_output_0": {
+      "type": "float32",
+      "dims": [
+        1,
+        1,
+        527
+      ],
+      "elements": 527
+    },
+    "/decoder/asr_res/asr_res.0/Conv_output_0": {
+      "type": "float32",
+      "dims": [
+        1,
+        64,
+        527
+      ],
+      "elements": 33728
+    },
+    "/decoder/decode.0/conv1x1/Conv_output_0": {
+      "type": "float32",
+      "dims": [
+        1,
+        1024,
+        527
+      ],
+      "elements": 539648
+    },
+    "/decoder/decode.1/conv1x1/Conv_output_0": {
+      "type": "float32",
+      "dims": [
+        1,
+        1024,
+        527
+      ],
+      "elements": 539648
+    },
+    "/decoder/decode.2/conv1x1/Conv_output_0": {
+      "type": "float32",
+      "dims": [
+        1,
+        1024,
+        527
+      ],
+      "elements": 539648
+    },
+    "/decoder/decode.3/conv1x1/Conv_output_0": {
+      "type": "float32",
+      "dims": [
+        1,
+        512,
+        1054
+      ],
+      "elements": 539648
+    },
+    "/decoder/encode/conv1x1/Conv_output_0": {
+      "type": "float32",
+      "dims": [
+        1,
+        1024,
+        527
+      ],
+      "elements": 539648
+    },
+    "/decoder/generator/ups.0/ConvTranspose_output_0": {
+      "type": "float32",
+      "dims": [
+        1,
+        256,
+        10540
+      ],
+      "elements": 2698240
+    },
+    "/decoder/generator/ups.1/ConvTranspose_output_0": {
+      "type": "float32",
+      "dims": [
+        1,
+        128,
+        63240
+      ],
+      "elements": 8094720
+    },
+    "/decoder/generator/ConvTranspose_output_0": {
+      "type": "float32",
+      "dims": [
+        1,
+        1,
+        316220
+      ],
+      "elements": 316220
+    },
+    "/decoder/generator/ConvTranspose_1_output_0": {
+      "type": "float32",
+      "dims": [
+        1,
+        1,
+        316220
+      ],
+      "elements": 316220
+    }
+  }
+}

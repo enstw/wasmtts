@@ -1,0 +1,77 @@
+{
+  "name": "matmul",
+  "iterations": 50,
+  "wallMs": 46.10000002384186,
+  "functions": [
+    {
+      "function": "wasm-function[1377]",
+      "selfMs": 41.42500000000008,
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.wasm"
+    },
+    {
+      "function": "(program)",
+      "selfMs": 16.8,
+      "url": ""
+    },
+    {
+      "function": "run",
+      "selfMs": 2.359,
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort.webgpu.mjs"
+    },
+    {
+      "function": "(idle)",
+      "selfMs": 1.008,
+      "url": ""
+    },
+    {
+      "function": "prepareInputOutputTensor",
+      "selfMs": 0.771,
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort.webgpu.mjs"
+    },
+    {
+      "function": "kc",
+      "selfMs": 0.389,
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.mjs"
+    },
+    {
+      "function": "wasm-function[2663]",
+      "selfMs": 0.258,
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.wasm"
+    },
+    {
+      "function": "js-to-wasm::",
+      "selfMs": 0.256,
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.wasm"
+    },
+    {
+      "function": "(anonymous)",
+      "selfMs": 0.142,
+      "url": ""
+    },
+    {
+      "function": "wasm-function[5078]",
+      "selfMs": 0.133,
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.wasm"
+    },
+    {
+      "function": "wasm-function[315]",
+      "selfMs": 0.13,
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.wasm"
+    },
+    {
+      "function": "wasm-function[3215]",
+      "selfMs": 0.13,
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.wasm"
+    },
+    {
+      "function": "serializeAsCallArgument",
+      "selfMs": 0.129,
+      "url": ""
+    },
+    {
+      "function": "innerSerialize",
+      "selfMs": 0.126,
+      "url": ""
+    }
+  ]
+}

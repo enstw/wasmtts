@@ -1,0 +1,77 @@
+{
+  "name": "layernorm",
+  "iterations": 50,
+  "wallMs": 28,
+  "functions": [
+    {
+      "function": "(program)",
+      "selfMs": 17.11,
+      "url": ""
+    },
+    {
+      "function": "wasm-function[2311]",
+      "selfMs": 16.363000000000007,
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.wasm"
+    },
+    {
+      "function": "run",
+      "selfMs": 7.6450000000000005,
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort.webgpu.mjs"
+    },
+    {
+      "function": "prepareInputOutputTensor",
+      "selfMs": 2.734,
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort.webgpu.mjs"
+    },
+    {
+      "function": "(idle)",
+      "selfMs": 1.1510000000000002,
+      "url": ""
+    },
+    {
+      "function": "js-to-wasm::",
+      "selfMs": 0.388,
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.wasm"
+    },
+    {
+      "function": "(anonymous)",
+      "selfMs": 0.136,
+      "url": ""
+    },
+    {
+      "function": "decodeTensorMetadata",
+      "selfMs": 0.131,
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort.webgpu.mjs"
+    },
+    {
+      "function": "serialize",
+      "selfMs": 0.13,
+      "url": ""
+    },
+    {
+      "function": "wasm-to-js",
+      "selfMs": 0.129,
+      "url": ""
+    },
+    {
+      "function": "serializeAsCallArgument",
+      "selfMs": 0.129,
+      "url": ""
+    },
+    {
+      "function": "wasm-function[4214]",
+      "selfMs": 0.128,
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.wasm"
+    },
+    {
+      "function": "Wc",
+      "selfMs": 0.128,
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.mjs"
+    },
+    {
+      "function": "_promiseAwareJsonValueNoThrow",
+      "selfMs": 0.125,
+      "url": ""
+    }
+  ]
+}

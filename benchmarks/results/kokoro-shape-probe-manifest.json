@@ -1,0 +1,406 @@
+{
+  "source": "benchmarks/models/kokoro-fp32-download/onnx/model.onnx",
+  "model": "benchmarks/models/kokoro-fp32-shape-probe.onnx",
+  "strategy": "last matrix-backed node output in each decoder subgroup",
+  "probes": [
+    {
+      "group": "decoder/F0_conv",
+      "ordinal": 0,
+      "node_index": 2720,
+      "node": "/decoder/F0_conv/Conv",
+      "op": "Conv",
+      "output": "/decoder/F0_conv/Conv_output_0",
+      "matrix_backed_nodes": 1,
+      "initializer_dims": {
+        "onnx::Conv_7739": [
+          1,
+          1,
+          3
+        ],
+        "kmodel.decoder.F0_conv.bias": [
+          1
+        ]
+      },
+      "attributes": {
+        "dilations": [
+          1
+        ],
+        "group": 1,
+        "kernel_shape": [
+          3
+        ],
+        "pads": [
+          1,
+          1
+        ],
+        "strides": [
+          2
+        ]
+      }
+    },
+    {
+      "group": "decoder/N_conv",
+      "ordinal": 0,
+      "node_index": 2723,
+      "node": "/decoder/N_conv/Conv",
+      "op": "Conv",
+      "output": "/decoder/N_conv/Conv_output_0",
+      "matrix_backed_nodes": 1,
+      "initializer_dims": {
+        "onnx::Conv_7742": [
+          1,
+          1,
+          3
+        ],
+        "kmodel.decoder.N_conv.bias": [
+          1
+        ]
+      },
+      "attributes": {
+        "dilations": [
+          1
+        ],
+        "group": 1,
+        "kernel_shape": [
+          3
+        ],
+        "pads": [
+          1,
+          1
+        ],
+        "strides": [
+          2
+        ]
+      }
+    },
+    {
+      "group": "decoder/asr_res",
+      "ordinal": 0,
+      "node_index": 2777,
+      "node": "/decoder/asr_res/asr_res.0/Conv",
+      "op": "Conv",
+      "output": "/decoder/asr_res/asr_res.0/Conv_output_0",
+      "matrix_backed_nodes": 1,
+      "initializer_dims": {
+        "onnx::Conv_7762": [
+          64,
+          512,
+          1
+        ],
+        "kmodel.decoder.asr_res.0.bias": [
+          64
+        ]
+      },
+      "attributes": {
+        "dilations": [
+          1
+        ],
+        "group": 1,
+        "kernel_shape": [
+          1
+        ],
+        "pads": [
+          0,
+          0
+        ],
+        "strides": [
+          1
+        ]
+      }
+    },
+    {
+      "group": "decoder/decode.0",
+      "ordinal": 0,
+      "node_index": 2827,
+      "node": "/decoder/decode.0/conv1x1/Conv",
+      "op": "Conv",
+      "output": "/decoder/decode.0/conv1x1/Conv_output_0",
+      "matrix_backed_nodes": 5,
+      "initializer_dims": {
+        "onnx::Conv_7779": [
+          1024,
+          1090,
+          1
+        ]
+      },
+      "attributes": {
+        "dilations": [
+          1
+        ],
+        "group": 1,
+        "kernel_shape": [
+          1
+        ],
+        "pads": [
+          0,
+          0
+        ],
+        "strides": [
+          1
+        ]
+      }
+    },
+    {
+      "group": "decoder/decode.1",
+      "ordinal": 0,
+      "node_index": 2880,
+      "node": "/decoder/decode.1/conv1x1/Conv",
+      "op": "Conv",
+      "output": "/decoder/decode.1/conv1x1/Conv_output_0",
+      "matrix_backed_nodes": 5,
+      "initializer_dims": {
+        "onnx::Conv_7796": [
+          1024,
+          1090,
+          1
+        ]
+      },
+      "attributes": {
+        "dilations": [
+          1
+        ],
+        "group": 1,
+        "kernel_shape": [
+          1
+        ],
+        "pads": [
+          0,
+          0
+        ],
+        "strides": [
+          1
+        ]
+      }
+    },
+    {
+      "group": "decoder/decode.2",
+      "ordinal": 0,
+      "node_index": 2933,
+      "node": "/decoder/decode.2/conv1x1/Conv",
+      "op": "Conv",
+      "output": "/decoder/decode.2/conv1x1/Conv_output_0",
+      "matrix_backed_nodes": 5,
+      "initializer_dims": {
+        "onnx::Conv_7813": [
+          1024,
+          1090,
+          1
+        ]
+      },
+      "attributes": {
+        "dilations": [
+          1
+        ],
+        "group": 1,
+        "kernel_shape": [
+          1
+        ],
+        "pads": [
+          0,
+          0
+        ],
+        "strides": [
+          1
+        ]
+      }
+    },
+    {
+      "group": "decoder/decode.3",
+      "ordinal": 0,
+      "node_index": 2989,
+      "node": "/decoder/decode.3/conv1x1/Conv",
+      "op": "Conv",
+      "output": "/decoder/decode.3/conv1x1/Conv_output_0",
+      "matrix_backed_nodes": 6,
+      "initializer_dims": {
+        "onnx::Conv_7834": [
+          512,
+          1090,
+          1
+        ]
+      },
+      "attributes": {
+        "dilations": [
+          1
+        ],
+        "group": 1,
+        "kernel_shape": [
+          1
+        ],
+        "pads": [
+          0,
+          0
+        ],
+        "strides": [
+          1
+        ]
+      }
+    },
+    {
+      "group": "decoder/encode",
+      "ordinal": 0,
+      "node_index": 2773,
+      "node": "/decoder/encode/conv1x1/Conv",
+      "op": "Conv",
+      "output": "/decoder/encode/conv1x1/Conv_output_0",
+      "matrix_backed_nodes": 5,
+      "initializer_dims": {
+        "onnx::Conv_7759": [
+          1024,
+          514,
+          1
+        ]
+      },
+      "attributes": {
+        "dilations": [
+          1
+        ],
+        "group": 1,
+        "kernel_shape": [
+          1
+        ],
+        "pads": [
+          0,
+          0
+        ],
+        "strides": [
+          1
+        ]
+      }
+    },
+    {
+      "group": "decoder/generator",
+      "ordinal": 0,
+      "node_index": 3403,
+      "node": "/decoder/generator/ups.0/ConvTranspose",
+      "op": "ConvTranspose",
+      "output": "/decoder/generator/ups.0/ConvTranspose_output_0",
+      "matrix_backed_nodes": 106,
+      "initializer_dims": {
+        "onnx::ConvTranspose_7888": [
+          512,
+          256,
+          20
+        ],
+        "kmodel.decoder.generator.ups.0.bias": [
+          256
+        ]
+      },
+      "attributes": {
+        "dilations": [
+          1
+        ],
+        "group": 1,
+        "kernel_shape": [
+          20
+        ],
+        "pads": [
+          5,
+          5
+        ],
+        "strides": [
+          10
+        ]
+      }
+    },
+    {
+      "group": "decoder/generator",
+      "ordinal": 1,
+      "node_index": 4143,
+      "node": "/decoder/generator/ups.1/ConvTranspose",
+      "op": "ConvTranspose",
+      "output": "/decoder/generator/ups.1/ConvTranspose_output_0",
+      "matrix_backed_nodes": 106,
+      "initializer_dims": {
+        "onnx::ConvTranspose_8059": [
+          256,
+          128,
+          12
+        ],
+        "kmodel.decoder.generator.ups.1.bias": [
+          128
+        ]
+      },
+      "attributes": {
+        "dilations": [
+          1
+        ],
+        "group": 1,
+        "kernel_shape": [
+          12
+        ],
+        "pads": [
+          3,
+          3
+        ],
+        "strides": [
+          6
+        ]
+      }
+    },
+    {
+      "group": "decoder/generator",
+      "ordinal": 2,
+      "node_index": 4732,
+      "node": "/decoder/generator/ConvTranspose",
+      "op": "ConvTranspose",
+      "output": "/decoder/generator/ConvTranspose_output_0",
+      "matrix_backed_nodes": 106,
+      "initializer_dims": {
+        "kmodel.decoder.generator.stft.weight_backward_real": [
+          11,
+          1,
+          20
+        ]
+      },
+      "attributes": {
+        "dilations": [
+          1
+        ],
+        "group": 1,
+        "kernel_shape": [
+          20
+        ],
+        "pads": [
+          0,
+          0
+        ],
+        "strides": [
+          5
+        ]
+      }
+    },
+    {
+      "group": "decoder/generator",
+      "ordinal": 3,
+      "node_index": 4733,
+      "node": "/decoder/generator/ConvTranspose_1",
+      "op": "ConvTranspose",
+      "output": "/decoder/generator/ConvTranspose_1_output_0",
+      "matrix_backed_nodes": 106,
+      "initializer_dims": {
+        "kmodel.decoder.generator.stft.weight_backward_imag": [
+          11,
+          1,
+          20
+        ]
+      },
+      "attributes": {
+        "dilations": [
+          1
+        ],
+        "group": 1,
+        "kernel_shape": [
+          20
+        ],
+        "pads": [
+          0,
+          0
+        ],
+        "strides": [
+          5
+        ]
+      }
+    }
+  ]
+}

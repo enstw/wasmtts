@@ -1,0 +1,1170 @@
+{
+  "model": "benchmarks/models/kokoro-fp32-download/onnx/model.onnx",
+  "note": "Weight elements indicate parameter volume, not runtime MACs; dynamic sequence shapes prevent static runtime attribution.",
+  "overall_nodes": {
+    "MatMul": 102,
+    "LSTM": 6,
+    "Gemm": 73,
+    "Conv": 90,
+    "ConvTranspose": 7
+  },
+  "overall_weight_elements": {
+    "MatMul": 6022153,
+    "LSTM": 10772480,
+    "Gemm": 6409236,
+    "Conv": 54711192,
+    "ConvTranspose": 3023936
+  },
+  "architecture_buckets": [
+    {
+      "bucket": "decoder",
+      "nodes": {
+        "Conv": 71,
+        "Gemm": 58,
+        "ConvTranspose": 5,
+        "MatMul": 1
+      },
+      "weight_elements": {
+        "Conv": 45398934,
+        "Gemm": 4824084,
+        "ConvTranspose": 3019840,
+        "MatMul": 9
+      },
+      "total_weight_elements": 53242867
+    },
+    {
+      "bucket": "text_encoder",
+      "nodes": {
+        "LSTM": 4,
+        "Gemm": 3,
+        "Conv": 3
+      },
+      "weight_elements": {
+        "LSTM": 7094272,
+        "Gemm": 396288,
+        "Conv": 3933696
+      },
+      "total_weight_elements": 11424256
+    },
+    {
+      "bucket": "bert",
+      "nodes": {
+        "MatMul": 98
+      },
+      "weight_elements": {
+        "MatMul": 5996544
+      },
+      "total_weight_elements": 5996544
+    },
+    {
+      "bucket": "duration_lstm",
+      "nodes": {
+        "LSTM": 2
+      },
+      "weight_elements": {
+        "LSTM": 3678208
+      },
+      "total_weight_elements": 3678208
+    },
+    {
+      "bucket": "prosody_f0",
+      "nodes": {
+        "Gemm": 6,
+        "Conv": 8,
+        "ConvTranspose": 1
+      },
+      "weight_elements": {
+        "Gemm": 594432,
+        "Conv": 2689281,
+        "ConvTranspose": 2048
+      },
+      "total_weight_elements": 3285761
+    },
+    {
+      "bucket": "prosody_noise",
+      "nodes": {
+        "Gemm": 6,
+        "Conv": 8,
+        "ConvTranspose": 1
+      },
+      "weight_elements": {
+        "Gemm": 594432,
+        "Conv": 2689281,
+        "ConvTranspose": 2048
+      },
+      "total_weight_elements": 3285761
+    },
+    {
+      "bucket": "duration_projection",
+      "nodes": {
+        "MatMul": 1
+      },
+      "weight_elements": {
+        "MatMul": 25600
+      },
+      "total_weight_elements": 25600
+    },
+    {
+      "bucket": "MatMul",
+      "nodes": {
+        "MatMul": 1
+      },
+      "weight_elements": {
+        "MatMul": 0
+      },
+      "total_weight_elements": 0
+    },
+    {
+      "bucket": "MatMul_1",
+      "nodes": {
+        "MatMul": 1
+      },
+      "weight_elements": {
+        "MatMul": 0
+      },
+      "total_weight_elements": 0
+    }
+  ],
+  "stages": [
+    {
+      "stage": "decoder/generator",
+      "nodes": {
+        "MatMul": 1,
+        "Conv": 53,
+        "Gemm": 48,
+        "ConvTranspose": 4
+      },
+      "weight_elements": {
+        "MatMul": 9,
+        "Conv": 14255950,
+        "Gemm": 2377728,
+        "ConvTranspose": 3015480
+      },
+      "total_weight_elements": 19649167,
+      "examples": [
+        {
+          "name": "/decoder/generator/m_source/l_linear/MatMul",
+          "op": "MatMul",
+          "weight_elements": 9
+        },
+        {
+          "name": "/decoder/generator/Conv",
+          "op": "Conv",
+          "weight_elements": 220
+        },
+        {
+          "name": "/decoder/generator/Conv_1",
+          "op": "Conv",
+          "weight_elements": 220
+        }
+      ]
+    },
+    {
+      "stage": "decoder/decode.0",
+      "nodes": {
+        "Gemm": 2,
+        "Conv": 3
+      },
+      "weight_elements": {
+        "Gemm": 545412,
+        "Conv": 7612416
+      },
+      "total_weight_elements": 8157828,
+      "examples": [
+        {
+          "name": "/decoder/decode.0/norm1/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 281220
+        },
+        {
+          "name": "/decoder/decode.0/conv1/Conv",
+          "op": "Conv",
+          "weight_elements": 3349504
+        },
+        {
+          "name": "/decoder/decode.0/norm2/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 264192
+        }
+      ]
+    },
+    {
+      "stage": "decoder/decode.1",
+      "nodes": {
+        "Gemm": 2,
+        "Conv": 3
+      },
+      "weight_elements": {
+        "Gemm": 545412,
+        "Conv": 7612416
+      },
+      "total_weight_elements": 8157828,
+      "examples": [
+        {
+          "name": "/decoder/decode.1/norm1/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 281220
+        },
+        {
+          "name": "/decoder/decode.1/conv1/Conv",
+          "op": "Conv",
+          "weight_elements": 3349504
+        },
+        {
+          "name": "/decoder/decode.1/norm2/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 264192
+        }
+      ]
+    },
+    {
+      "stage": "decoder/decode.2",
+      "nodes": {
+        "Gemm": 2,
+        "Conv": 3
+      },
+      "weight_elements": {
+        "Gemm": 545412,
+        "Conv": 7612416
+      },
+      "total_weight_elements": 8157828,
+      "examples": [
+        {
+          "name": "/decoder/decode.2/norm1/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 281220
+        },
+        {
+          "name": "/decoder/decode.2/conv1/Conv",
+          "op": "Conv",
+          "weight_elements": 3349504
+        },
+        {
+          "name": "/decoder/decode.2/norm2/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 264192
+        }
+      ]
+    },
+    {
+      "stage": "decoder/encode",
+      "nodes": {
+        "Gemm": 2,
+        "Conv": 3
+      },
+      "weight_elements": {
+        "Gemm": 396804,
+        "Conv": 5253120
+      },
+      "total_weight_elements": 5649924,
+      "examples": [
+        {
+          "name": "/decoder/encode/norm1/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 132612
+        },
+        {
+          "name": "/decoder/encode/conv1/Conv",
+          "op": "Conv",
+          "weight_elements": 1580032
+        },
+        {
+          "name": "/decoder/encode/norm2/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 264192
+        }
+      ]
+    },
+    {
+      "stage": "bert/encoder",
+      "nodes": {
+        "MatMul": 97
+      },
+      "weight_elements": {
+        "MatMul": 5603328
+      },
+      "total_weight_elements": 5603328,
+      "examples": [
+        {
+          "name": "/bert/encoder/embedding_hidden_mapping_in/MatMul",
+          "op": "MatMul",
+          "weight_elements": 98304
+        },
+        {
+          "name": "/bert/encoder/albert_layer_groups.0/albert_layers.0/attention/query/MatMul",
+          "op": "MatMul",
+          "weight_elements": 589824
+        },
+        {
+          "name": "/bert/encoder/albert_layer_groups.0/albert_layers.0/attention/key/MatMul",
+          "op": "MatMul",
+          "weight_elements": 589824
+        }
+      ]
+    },
+    {
+      "stage": "decoder/decode.3",
+      "nodes": {
+        "Gemm": 2,
+        "ConvTranspose": 1,
+        "Conv": 3
+      },
+      "weight_elements": {
+        "Gemm": 413316,
+        "ConvTranspose": 4360,
+        "Conv": 3019776
+      },
+      "total_weight_elements": 3437452,
+      "examples": [
+        {
+          "name": "/decoder/decode.3/norm1/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 281220
+        },
+        {
+          "name": "/decoder/decode.3/pool/ConvTranspose",
+          "op": "ConvTranspose",
+          "weight_elements": 4360
+        },
+        {
+          "name": "/decoder/decode.3/conv1/Conv",
+          "op": "Conv",
+          "weight_elements": 1674752
+        }
+      ]
+    },
+    {
+      "stage": "text_encoder/lstms.0",
+      "nodes": {
+        "LSTM": 1
+      },
+      "weight_elements": {
+        "LSTM": 1839104
+      },
+      "total_weight_elements": 1839104,
+      "examples": [
+        {
+          "name": "/text_encoder/lstms.0/LSTM",
+          "op": "LSTM",
+          "weight_elements": 1839104
+        }
+      ]
+    },
+    {
+      "stage": "text_encoder/lstms.2",
+      "nodes": {
+        "LSTM": 1
+      },
+      "weight_elements": {
+        "LSTM": 1839104
+      },
+      "total_weight_elements": 1839104,
+      "examples": [
+        {
+          "name": "/text_encoder/lstms.2/LSTM",
+          "op": "LSTM",
+          "weight_elements": 1839104
+        }
+      ]
+    },
+    {
+      "stage": "text_encoder/lstms.4",
+      "nodes": {
+        "LSTM": 1
+      },
+      "weight_elements": {
+        "LSTM": 1839104
+      },
+      "total_weight_elements": 1839104,
+      "examples": [
+        {
+          "name": "/text_encoder/lstms.4/LSTM",
+          "op": "LSTM",
+          "weight_elements": 1839104
+        }
+      ]
+    },
+    {
+      "stage": "lstm/LSTM",
+      "nodes": {
+        "LSTM": 1
+      },
+      "weight_elements": {
+        "LSTM": 1839104
+      },
+      "total_weight_elements": 1839104,
+      "examples": [
+        {
+          "name": "/lstm/LSTM",
+          "op": "LSTM",
+          "weight_elements": 1839104
+        }
+      ]
+    },
+    {
+      "stage": "shared/LSTM",
+      "nodes": {
+        "LSTM": 1
+      },
+      "weight_elements": {
+        "LSTM": 1839104
+      },
+      "total_weight_elements": 1839104,
+      "examples": [
+        {
+          "name": "/shared/LSTM",
+          "op": "LSTM",
+          "weight_elements": 1839104
+        }
+      ]
+    },
+    {
+      "stage": "text_encoder/lstm",
+      "nodes": {
+        "LSTM": 1
+      },
+      "weight_elements": {
+        "LSTM": 1576960
+      },
+      "total_weight_elements": 1576960,
+      "examples": [
+        {
+          "name": "/text_encoder/lstm/LSTM",
+          "op": "LSTM",
+          "weight_elements": 1576960
+        }
+      ]
+    },
+    {
+      "stage": "text_encoder/cnn.0",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 1311232
+      },
+      "total_weight_elements": 1311232,
+      "examples": [
+        {
+          "name": "/text_encoder/cnn.0/cnn.0.0/Conv",
+          "op": "Conv",
+          "weight_elements": 1311232
+        }
+      ]
+    },
+    {
+      "stage": "text_encoder/cnn.1",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 1311232
+      },
+      "total_weight_elements": 1311232,
+      "examples": [
+        {
+          "name": "/text_encoder/cnn.1/cnn.1.0/Conv",
+          "op": "Conv",
+          "weight_elements": 1311232
+        }
+      ]
+    },
+    {
+      "stage": "text_encoder/cnn.2",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 1311232
+      },
+      "total_weight_elements": 1311232,
+      "examples": [
+        {
+          "name": "/text_encoder/cnn.2/cnn.2.0/Conv",
+          "op": "Conv",
+          "weight_elements": 1311232
+        }
+      ]
+    },
+    {
+      "stage": "F0.0/conv1",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 786944
+      },
+      "total_weight_elements": 786944,
+      "examples": [
+        {
+          "name": "/F0.0/conv1/Conv",
+          "op": "Conv",
+          "weight_elements": 786944
+        }
+      ]
+    },
+    {
+      "stage": "F0.0/conv2",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 786944
+      },
+      "total_weight_elements": 786944,
+      "examples": [
+        {
+          "name": "/F0.0/conv2/Conv",
+          "op": "Conv",
+          "weight_elements": 786944
+        }
+      ]
+    },
+    {
+      "stage": "N.0/conv1",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 786944
+      },
+      "total_weight_elements": 786944,
+      "examples": [
+        {
+          "name": "/N.0/conv1/Conv",
+          "op": "Conv",
+          "weight_elements": 786944
+        }
+      ]
+    },
+    {
+      "stage": "N.0/conv2",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 786944
+      },
+      "total_weight_elements": 786944,
+      "examples": [
+        {
+          "name": "/N.0/conv2/Conv",
+          "op": "Conv",
+          "weight_elements": 786944
+        }
+      ]
+    },
+    {
+      "stage": "F0.1/conv1",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 393472
+      },
+      "total_weight_elements": 393472,
+      "examples": [
+        {
+          "name": "/F0.1/conv1/Conv",
+          "op": "Conv",
+          "weight_elements": 393472
+        }
+      ]
+    },
+    {
+      "stage": "N.1/conv1",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 393472
+      },
+      "total_weight_elements": 393472,
+      "examples": [
+        {
+          "name": "/N.1/conv1/Conv",
+          "op": "Conv",
+          "weight_elements": 393472
+        }
+      ]
+    },
+    {
+      "stage": "bert_encoder/MatMul",
+      "nodes": {
+        "MatMul": 1
+      },
+      "weight_elements": {
+        "MatMul": 393216
+      },
+      "total_weight_elements": 393216,
+      "examples": [
+        {
+          "name": "/bert_encoder/MatMul",
+          "op": "MatMul",
+          "weight_elements": 393216
+        }
+      ]
+    },
+    {
+      "stage": "F0.1/conv2",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 196864
+      },
+      "total_weight_elements": 196864,
+      "examples": [
+        {
+          "name": "/F0.1/conv2/Conv",
+          "op": "Conv",
+          "weight_elements": 196864
+        }
+      ]
+    },
+    {
+      "stage": "F0.2/conv1",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 196864
+      },
+      "total_weight_elements": 196864,
+      "examples": [
+        {
+          "name": "/F0.2/conv1/Conv",
+          "op": "Conv",
+          "weight_elements": 196864
+        }
+      ]
+    },
+    {
+      "stage": "F0.2/conv2",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 196864
+      },
+      "total_weight_elements": 196864,
+      "examples": [
+        {
+          "name": "/F0.2/conv2/Conv",
+          "op": "Conv",
+          "weight_elements": 196864
+        }
+      ]
+    },
+    {
+      "stage": "N.1/conv2",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 196864
+      },
+      "total_weight_elements": 196864,
+      "examples": [
+        {
+          "name": "/N.1/conv2/Conv",
+          "op": "Conv",
+          "weight_elements": 196864
+        }
+      ]
+    },
+    {
+      "stage": "N.2/conv1",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 196864
+      },
+      "total_weight_elements": 196864,
+      "examples": [
+        {
+          "name": "/N.2/conv1/Conv",
+          "op": "Conv",
+          "weight_elements": 196864
+        }
+      ]
+    },
+    {
+      "stage": "N.2/conv2",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 196864
+      },
+      "total_weight_elements": 196864,
+      "examples": [
+        {
+          "name": "/N.2/conv2/Conv",
+          "op": "Conv",
+          "weight_elements": 196864
+        }
+      ]
+    },
+    {
+      "stage": "text_encoder/lstms.1",
+      "nodes": {
+        "Gemm": 1
+      },
+      "weight_elements": {
+        "Gemm": 132096
+      },
+      "total_weight_elements": 132096,
+      "examples": [
+        {
+          "name": "/text_encoder/lstms.1/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 132096
+        }
+      ]
+    },
+    {
+      "stage": "text_encoder/lstms.3",
+      "nodes": {
+        "Gemm": 1
+      },
+      "weight_elements": {
+        "Gemm": 132096
+      },
+      "total_weight_elements": 132096,
+      "examples": [
+        {
+          "name": "/text_encoder/lstms.3/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 132096
+        }
+      ]
+    },
+    {
+      "stage": "text_encoder/lstms.5",
+      "nodes": {
+        "Gemm": 1
+      },
+      "weight_elements": {
+        "Gemm": 132096
+      },
+      "total_weight_elements": 132096,
+      "examples": [
+        {
+          "name": "/text_encoder/lstms.5/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 132096
+        }
+      ]
+    },
+    {
+      "stage": "F0.0/norm1",
+      "nodes": {
+        "Gemm": 1
+      },
+      "weight_elements": {
+        "Gemm": 132096
+      },
+      "total_weight_elements": 132096,
+      "examples": [
+        {
+          "name": "/F0.0/norm1/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 132096
+        }
+      ]
+    },
+    {
+      "stage": "F0.0/norm2",
+      "nodes": {
+        "Gemm": 1
+      },
+      "weight_elements": {
+        "Gemm": 132096
+      },
+      "total_weight_elements": 132096,
+      "examples": [
+        {
+          "name": "/F0.0/norm2/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 132096
+        }
+      ]
+    },
+    {
+      "stage": "F0.1/norm1",
+      "nodes": {
+        "Gemm": 1
+      },
+      "weight_elements": {
+        "Gemm": 132096
+      },
+      "total_weight_elements": 132096,
+      "examples": [
+        {
+          "name": "/F0.1/norm1/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 132096
+        }
+      ]
+    },
+    {
+      "stage": "N.0/norm1",
+      "nodes": {
+        "Gemm": 1
+      },
+      "weight_elements": {
+        "Gemm": 132096
+      },
+      "total_weight_elements": 132096,
+      "examples": [
+        {
+          "name": "/N.0/norm1/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 132096
+        }
+      ]
+    },
+    {
+      "stage": "N.0/norm2",
+      "nodes": {
+        "Gemm": 1
+      },
+      "weight_elements": {
+        "Gemm": 132096
+      },
+      "total_weight_elements": 132096,
+      "examples": [
+        {
+          "name": "/N.0/norm2/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 132096
+        }
+      ]
+    },
+    {
+      "stage": "N.1/norm1",
+      "nodes": {
+        "Gemm": 1
+      },
+      "weight_elements": {
+        "Gemm": 132096
+      },
+      "total_weight_elements": 132096,
+      "examples": [
+        {
+          "name": "/N.1/norm1/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 132096
+        }
+      ]
+    },
+    {
+      "stage": "F0.1/conv1x1",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 131072
+      },
+      "total_weight_elements": 131072,
+      "examples": [
+        {
+          "name": "/F0.1/conv1x1/Conv",
+          "op": "Conv",
+          "weight_elements": 131072
+        }
+      ]
+    },
+    {
+      "stage": "N.1/conv1x1",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 131072
+      },
+      "total_weight_elements": 131072,
+      "examples": [
+        {
+          "name": "/N.1/conv1x1/Conv",
+          "op": "Conv",
+          "weight_elements": 131072
+        }
+      ]
+    },
+    {
+      "stage": "F0.1/norm2",
+      "nodes": {
+        "Gemm": 1
+      },
+      "weight_elements": {
+        "Gemm": 66048
+      },
+      "total_weight_elements": 66048,
+      "examples": [
+        {
+          "name": "/F0.1/norm2/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 66048
+        }
+      ]
+    },
+    {
+      "stage": "F0.2/norm1",
+      "nodes": {
+        "Gemm": 1
+      },
+      "weight_elements": {
+        "Gemm": 66048
+      },
+      "total_weight_elements": 66048,
+      "examples": [
+        {
+          "name": "/F0.2/norm1/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 66048
+        }
+      ]
+    },
+    {
+      "stage": "F0.2/norm2",
+      "nodes": {
+        "Gemm": 1
+      },
+      "weight_elements": {
+        "Gemm": 66048
+      },
+      "total_weight_elements": 66048,
+      "examples": [
+        {
+          "name": "/F0.2/norm2/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 66048
+        }
+      ]
+    },
+    {
+      "stage": "N.1/norm2",
+      "nodes": {
+        "Gemm": 1
+      },
+      "weight_elements": {
+        "Gemm": 66048
+      },
+      "total_weight_elements": 66048,
+      "examples": [
+        {
+          "name": "/N.1/norm2/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 66048
+        }
+      ]
+    },
+    {
+      "stage": "N.2/norm1",
+      "nodes": {
+        "Gemm": 1
+      },
+      "weight_elements": {
+        "Gemm": 66048
+      },
+      "total_weight_elements": 66048,
+      "examples": [
+        {
+          "name": "/N.2/norm1/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 66048
+        }
+      ]
+    },
+    {
+      "stage": "N.2/norm2",
+      "nodes": {
+        "Gemm": 1
+      },
+      "weight_elements": {
+        "Gemm": 66048
+      },
+      "total_weight_elements": 66048,
+      "examples": [
+        {
+          "name": "/N.2/norm2/fc/Gemm",
+          "op": "Gemm",
+          "weight_elements": 66048
+        }
+      ]
+    },
+    {
+      "stage": "decoder/asr_res",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 32832
+      },
+      "total_weight_elements": 32832,
+      "examples": [
+        {
+          "name": "/decoder/asr_res/asr_res.0/Conv",
+          "op": "Conv",
+          "weight_elements": 32832
+        }
+      ]
+    },
+    {
+      "stage": "duration_proj/linear_layer",
+      "nodes": {
+        "MatMul": 1
+      },
+      "weight_elements": {
+        "MatMul": 25600
+      },
+      "total_weight_elements": 25600,
+      "examples": [
+        {
+          "name": "/duration_proj/linear_layer/MatMul",
+          "op": "MatMul",
+          "weight_elements": 25600
+        }
+      ]
+    },
+    {
+      "stage": "F0.1/pool",
+      "nodes": {
+        "ConvTranspose": 1
+      },
+      "weight_elements": {
+        "ConvTranspose": 2048
+      },
+      "total_weight_elements": 2048,
+      "examples": [
+        {
+          "name": "/F0.1/pool/ConvTranspose",
+          "op": "ConvTranspose",
+          "weight_elements": 2048
+        }
+      ]
+    },
+    {
+      "stage": "N.1/pool",
+      "nodes": {
+        "ConvTranspose": 1
+      },
+      "weight_elements": {
+        "ConvTranspose": 2048
+      },
+      "total_weight_elements": 2048,
+      "examples": [
+        {
+          "name": "/N.1/pool/ConvTranspose",
+          "op": "ConvTranspose",
+          "weight_elements": 2048
+        }
+      ]
+    },
+    {
+      "stage": "F0_proj/Conv",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 257
+      },
+      "total_weight_elements": 257,
+      "examples": [
+        {
+          "name": "/F0_proj/Conv",
+          "op": "Conv",
+          "weight_elements": 257
+        }
+      ]
+    },
+    {
+      "stage": "N_proj/Conv",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 257
+      },
+      "total_weight_elements": 257,
+      "examples": [
+        {
+          "name": "/N_proj/Conv",
+          "op": "Conv",
+          "weight_elements": 257
+        }
+      ]
+    },
+    {
+      "stage": "decoder/F0_conv",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 4
+      },
+      "total_weight_elements": 4,
+      "examples": [
+        {
+          "name": "/decoder/F0_conv/Conv",
+          "op": "Conv",
+          "weight_elements": 4
+        }
+      ]
+    },
+    {
+      "stage": "decoder/N_conv",
+      "nodes": {
+        "Conv": 1
+      },
+      "weight_elements": {
+        "Conv": 4
+      },
+      "total_weight_elements": 4,
+      "examples": [
+        {
+          "name": "/decoder/N_conv/Conv",
+          "op": "Conv",
+          "weight_elements": 4
+        }
+      ]
+    },
+    {
+      "stage": "MatMul",
+      "nodes": {
+        "MatMul": 1
+      },
+      "weight_elements": {
+        "MatMul": 0
+      },
+      "total_weight_elements": 0,
+      "examples": [
+        {
+          "name": "/MatMul",
+          "op": "MatMul",
+          "weight_elements": 0
+        }
+      ]
+    },
+    {
+      "stage": "MatMul_1",
+      "nodes": {
+        "MatMul": 1
+      },
+      "weight_elements": {
+        "MatMul": 0
+      },
+      "total_weight_elements": 0,
+      "examples": [
+        {
+          "name": "/MatMul_1",
+          "op": "MatMul",
+          "weight_elements": 0
+        }
+      ]
+    }
+  ]
+}

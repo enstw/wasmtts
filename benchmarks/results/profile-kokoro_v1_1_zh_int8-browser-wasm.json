@@ -1,0 +1,1427 @@
+{
+  "samplingIntervalUs": 100,
+  "functions": [
+    {
+      "function": "wasm-function[5542]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 16658.902
+    },
+    {
+      "function": "wasm-function[14288]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 6424.812
+    },
+    {
+      "function": "wasm-function[6505]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 515.484
+    },
+    {
+      "function": "wasm-function[671]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 482.686
+    },
+    {
+      "function": "wasm-function[1896]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 315.346
+    },
+    {
+      "function": "wasm-function[1896]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 201.858
+    },
+    {
+      "function": "wasm-function[7317]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 139.362
+    },
+    {
+      "function": "wasm-function[1377]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 132.791
+    },
+    {
+      "function": "wasm-function[3435]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 125.021
+    },
+    {
+      "function": "wasm-function[1377]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 120.13
+    },
+    {
+      "function": "wasm-function[5542]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 108.891
+    },
+    {
+      "function": "wasm-function[2445]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 96.071
+    },
+    {
+      "function": "wasm-function[1591]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 81.941
+    },
+    {
+      "function": "wasm-function[1590]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 80.699
+    },
+    {
+      "function": "wasm-function[5542]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 79.375
+    },
+    {
+      "function": "wasm-function[671]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 78.832
+    },
+    {
+      "function": "wasm-function[5582]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 77.069
+    },
+    {
+      "function": "wasm-function[6824]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 74.569
+    },
+    {
+      "function": "wasm-function[5514]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 49.806
+    },
+    {
+      "function": "wasm-function[3434]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 42.195
+    },
+    {
+      "function": "wasm-function[671]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 39.251
+    },
+    {
+      "function": "wasm-function[5542]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 34.726
+    },
+    {
+      "function": "(program)",
+      "url": "",
+      "line": 0,
+      "selfMs": 34.38
+    },
+    {
+      "function": "wasm-function[1377]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 24.57
+    },
+    {
+      "function": "wasm-function[3311]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 23.79
+    },
+    {
+      "function": "wasm-function[2521]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 21.394
+    },
+    {
+      "function": "wasm-function[5376]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 15.539
+    },
+    {
+      "function": "wasm-function[5542]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 14.352
+    },
+    {
+      "function": "wasm-function[3458]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 8.4
+    },
+    {
+      "function": "wasm-function[11072]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 8.024
+    },
+    {
+      "function": "wasm-function[2866]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 7.494
+    },
+    {
+      "function": "wasm-function[1084]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 7.332
+    },
+    {
+      "function": "wasm-function[1078]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 5.26
+    },
+    {
+      "function": "wasm-function[384]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 4.784
+    },
+    {
+      "function": "wasm-function[1257]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 3.87
+    },
+    {
+      "function": "wasm-function[698]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 3.48
+    },
+    {
+      "function": "run",
+      "url": "http://127.0.0.1:8765/benchmarks/kokoro-browser.html",
+      "line": 73,
+      "selfMs": 3.229
+    },
+    {
+      "function": "wasm-function[2520]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 3.208
+    },
+    {
+      "function": "wasm-function[7683]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 3.093
+    },
+    {
+      "function": "wasm-function[1084]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 3.081
+    },
+    {
+      "function": "wasm-function[3458]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 2.715
+    },
+    {
+      "function": "wasm-function[3458]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 2.704
+    },
+    {
+      "function": "wasm-function[2377]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 2.589
+    },
+    {
+      "function": "wasm-function[3458]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 2.569
+    },
+    {
+      "function": "wasm-function[3264]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 2.327
+    },
+    {
+      "function": "wasm-function[7511]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 2.32
+    },
+    {
+      "function": "wasm-function[3613]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 2.116
+    },
+    {
+      "function": "wasm-function[3458]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 2.072
+    },
+    {
+      "function": "wasm-function[989]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 2.062
+    },
+    {
+      "function": "wasm-function[3458]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 2.059
+    },
+    {
+      "function": "wasm-function[13304]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 1.944
+    },
+    {
+      "function": "wasm-function[14171]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 1.936
+    },
+    {
+      "function": "wasm-function[1836]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 1.926
+    },
+    {
+      "function": "wasm-function[3434]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 1.808
+    },
+    {
+      "function": "wasm-function[2376]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 1.802
+    },
+    {
+      "function": "wasm-function[878]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 1.799
+    },
+    {
+      "function": "wasm-function[1093]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 1.79
+    },
+    {
+      "function": "wasm-function[14198]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 1.67
+    },
+    {
+      "function": "wasm-function[2311]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 1.546
+    },
+    {
+      "function": "wasm-function[1084]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 1.543
+    },
+    {
+      "function": "wasm-function[670]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 1.421
+    },
+    {
+      "function": "wasm-function[5988]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 1.419
+    },
+    {
+      "function": "wasm-function[1084]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 1.29
+    },
+    {
+      "function": "(idle)",
+      "url": "",
+      "line": 0,
+      "selfMs": 1.289
+    },
+    {
+      "function": "wasm-function[1590]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 1.288
+    },
+    {
+      "function": "wasm-function[989]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 1.163
+    },
+    {
+      "function": "wasm-function[1084]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 1.043
+    },
+    {
+      "function": "wasm-function[1378]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 1.028
+    },
+    {
+      "function": "wasm-function[7273]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.909
+    },
+    {
+      "function": "wasm-function[7512]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.908
+    },
+    {
+      "function": "wasm-function[7133]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.901
+    },
+    {
+      "function": "wasm-function[1068]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.899
+    },
+    {
+      "function": "(garbage collector)",
+      "url": "",
+      "line": 0,
+      "selfMs": 0.793
+    },
+    {
+      "function": "wasm-function[384]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.777
+    },
+    {
+      "function": "wasm-function[990]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.776
+    },
+    {
+      "function": "wasm-function[5582]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.774
+    },
+    {
+      "function": "wasm-function[8075]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.773
+    },
+    {
+      "function": "wasm-function[2866]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.77
+    },
+    {
+      "function": "wasm-function[14571]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.763
+    },
+    {
+      "function": "wasm-function[5541]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.644
+    },
+    {
+      "function": "wasm-function[1257]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.639
+    },
+    {
+      "function": "wasm-function[3435]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.638
+    },
+    {
+      "function": "wasm-function[1257]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.631
+    },
+    {
+      "function": "wasm-function[159]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.524
+    },
+    {
+      "function": "wasm-function[990]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.523
+    },
+    {
+      "function": "wasm-function[1161]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.521
+    },
+    {
+      "function": "wasm-function[4225]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.52
+    },
+    {
+      "function": "wasm-function[7567]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.517
+    },
+    {
+      "function": "wasm-function[1006]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.513
+    },
+    {
+      "function": "wasm-function[698]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.512
+    },
+    {
+      "function": "wasm-function[2866]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.512
+    },
+    {
+      "function": "wasm-function[1257]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.512
+    },
+    {
+      "function": "wasm-function[1078]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.512
+    },
+    {
+      "function": "wasm-function[159]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.51
+    },
+    {
+      "function": "wasm-function[9313]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.427
+    },
+    {
+      "function": "wasm-function[14696]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.402
+    },
+    {
+      "function": "wasm-function[7569]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.394
+    },
+    {
+      "function": "wasm-function[311]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.392
+    },
+    {
+      "function": "wasm-function[3458]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.392
+    },
+    {
+      "function": "wasm-function[3192]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.39
+    },
+    {
+      "function": "wasm-function[8072]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.389
+    },
+    {
+      "function": "wasm-function[8081]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.388
+    },
+    {
+      "function": "wasm-function[1896]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.388
+    },
+    {
+      "function": "wasm-function[7364]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.387
+    },
+    {
+      "function": "wasm-function[2521]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.386
+    },
+    {
+      "function": "wasm-function[2357]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.386
+    },
+    {
+      "function": "wasm-function[4216]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.386
+    },
+    {
+      "function": "wasm-function[5582]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.386
+    },
+    {
+      "function": "wasm-function[1378]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.385
+    },
+    {
+      "function": "wasm-function[1257]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.385
+    },
+    {
+      "function": "wasm-function[1592]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.384
+    },
+    {
+      "function": "wasm-function[5541]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.382
+    },
+    {
+      "function": "wasm-function[206]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.262
+    },
+    {
+      "function": "wasm-function[13657]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.261
+    },
+    {
+      "function": "wasm-function[3174]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.259
+    },
+    {
+      "function": "wasm-function[11072]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.259
+    },
+    {
+      "function": "wasm-function[1257]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.259
+    },
+    {
+      "function": "wasm-function[7539]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.259
+    },
+    {
+      "function": "wasm-function[160]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.258
+    },
+    {
+      "function": "wasm-function[698]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.258
+    },
+    {
+      "function": "wasm-function[698]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.258
+    },
+    {
+      "function": "wasm-function[14568]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.258
+    },
+    {
+      "function": "wasm-function[2058]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.257
+    },
+    {
+      "function": "wasm-function[1003]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.257
+    },
+    {
+      "function": "wasm-function[921]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.257
+    },
+    {
+      "function": "wasm-function[1279]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.257
+    },
+    {
+      "function": "wasm-function[2110]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.257
+    },
+    {
+      "function": "wasm-function[3205]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.256
+    },
+    {
+      "function": "wasm-function[311]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.256
+    },
+    {
+      "function": "wasm-function[1591]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.255
+    },
+    {
+      "function": "wasm-function[2795]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.204
+    },
+    {
+      "function": "wasm-function[201]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.168
+    },
+    {
+      "function": "wasm-function[2357]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.164
+    },
+    {
+      "function": "wasm-function[5225]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.159
+    },
+    {
+      "function": "wasm-function[14212]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.15
+    },
+    {
+      "function": "wasm-function[14569]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.137
+    },
+    {
+      "function": "wasm-function[6685]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.136
+    },
+    {
+      "function": "wasm-function[13238]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.135
+    },
+    {
+      "function": "wasm-function[5506]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.134
+    },
+    {
+      "function": "wasm-function[1363]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.134
+    },
+    {
+      "function": "wasm-function[9313]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.134
+    },
+    {
+      "function": "wasm-function[3204]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.133
+    },
+    {
+      "function": "wasm-function[315]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.133
+    },
+    {
+      "function": "wasm-function[713]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.133
+    },
+    {
+      "function": "wasm-function[575]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.132
+    },
+    {
+      "function": "wasm-function[5502]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.132
+    },
+    {
+      "function": "wasm-function[7335]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.132
+    },
+    {
+      "function": "wasm-function[3519]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.132
+    },
+    {
+      "function": "wasm-function[657]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.132
+    },
+    {
+      "function": "wasm-function[4224]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.132
+    },
+    {
+      "function": "wasm-function[2795]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.132
+    },
+    {
+      "function": "wasm-function[325]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.132
+    },
+    {
+      "function": "wasm-function[14534]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.131
+    },
+    {
+      "function": "wasm-function[3184]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.131
+    },
+    {
+      "function": "wasm-function[9313]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.131
+    },
+    {
+      "function": "wasm-function[5619]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.131
+    },
+    {
+      "function": "wasm-function[9420]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.131
+    },
+    {
+      "function": "wasm-function[572]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.131
+    },
+    {
+      "function": "wasm-function[4996]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.131
+    },
+    {
+      "function": "wasm-function[1157]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.131
+    },
+    {
+      "function": "wasm-function[4224]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.131
+    },
+    {
+      "function": "wasm-function[161]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[1613]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[311]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[7683]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[3161]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[970]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[14227]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[159]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[4220]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[315]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[14288]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[921]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[572]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[657]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[161]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[315]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[670]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[1350]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.13
+    },
+    {
+      "function": "wasm-function[2718]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.129
+    },
+    {
+      "function": "wasm-function[2357]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.129
+    },
+    {
+      "function": "wasm-function[2521]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.129
+    },
+    {
+      "function": "wasm-function[989]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.129
+    },
+    {
+      "function": "wasm-function[7076]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.129
+    },
+    {
+      "function": "wasm-function[1030]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.129
+    },
+    {
+      "function": "wasm-function[389]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.129
+    },
+    {
+      "function": "wasm-function[370]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.129
+    },
+    {
+      "function": "wasm-function[7609]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.129
+    },
+    {
+      "function": "wasm-function[2101]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.129
+    },
+    {
+      "function": "wasm-function[3459]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.129
+    },
+    {
+      "function": "wasm-function[201]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.129
+    },
+    {
+      "function": "wasm-function[657]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.129
+    },
+    {
+      "function": "wasm-function[3458]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.129
+    },
+    {
+      "function": "wasm-function[2101]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.129
+    },
+    {
+      "function": "wasm-function[509]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.129
+    },
+    {
+      "function": "wasm-function[970]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.129
+    },
+    {
+      "function": "wasm-function[6692]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[2395]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[2056]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[5578]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[2391]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[662]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[3434]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[7510]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[14570]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[201]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[160]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[1383]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[598]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[682]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[1377]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[1257]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[1298]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[2056]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[1084]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[1257]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[2795]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[6821]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[3433]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.128
+    },
+    {
+      "function": "wasm-function[4214]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.127
+    },
+    {
+      "function": "wasm-function[8104]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.127
+    },
+    {
+      "function": "wasm-function[315]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.127
+    },
+    {
+      "function": "wasm-function[2521]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.127
+    },
+    {
+      "function": "wasm-function[7512]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.127
+    },
+    {
+      "function": "wasm-function[7132]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.127
+    },
+    {
+      "function": "wasm-function[6840]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.127
+    },
+    {
+      "function": "wasm-function[315]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.127
+    },
+    {
+      "function": "wasm-function[2609]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.127
+    },
+    {
+      "function": "wasm-function[5582]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.127
+    },
+    {
+      "function": "wasm-function[1709]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.127
+    },
+    {
+      "function": "run",
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort.webgpu.mjs",
+      "line": 3662,
+      "selfMs": 0.127
+    },
+    {
+      "function": "prepareInputOutputTensor",
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort.webgpu.mjs",
+      "line": 3554,
+      "selfMs": 0.126
+    },
+    {
+      "function": "wasm-function[370]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.126
+    },
+    {
+      "function": "run",
+      "url": "http://127.0.0.1:8765/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort.webgpu.mjs",
+      "line": 1048,
+      "selfMs": 0.124
+    },
+    {
+      "function": "wasm-function[7180]",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/dist/ort-wasm-simd-threaded.asyncify.wasm",
+      "line": 1,
+      "selfMs": 0.123
+    },
+    {
+      "function": "innerSerialize",
+      "url": "",
+      "line": 186,
+      "selfMs": 0.114
+    },
+    {
+      "function": "(anonymous)",
+      "url": "",
+      "line": 1,
+      "selfMs": 0.107
+    }
+  ]
+}

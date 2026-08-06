@@ -1,0 +1,51 @@
+{
+  "environment": {
+    "browser": "149.0.7827.55",
+    "runtime": "Transformers.js 4.2.0 / ONNX Runtime Web 1.26.0-dev.20260416-b7804b056c",
+    "executionProvider": "wasm",
+    "numThreads": 1,
+    "measurement": "Chromium CDP Performance.TaskDuration"
+  },
+  "model": "/benchmarks/models/kokoro-fp32-download/onnx/model.onnx",
+  "speaker": "sid 45 (zf_078)",
+  "text": "清晨的阳光穿过窗帘。",
+  "initMs": 2068.5999999046326,
+  "runs": [
+    {
+      "wallMs": 5695.600000023842,
+      "audioSeconds": 4.15,
+      "sampleRate": 24000,
+      "samples": 99600,
+      "finite": 99600,
+      "peak": 0.40255168080329895,
+      "rms": 0.039916268055597226,
+      "taskMs": 5696.726,
+      "taskMsPer10s": 13727.050602409636
+    },
+    {
+      "wallMs": 5697.300000071526,
+      "audioSeconds": 4.15,
+      "sampleRate": 24000,
+      "samples": 99600,
+      "finite": 99600,
+      "peak": 0.39780372381210327,
+      "rms": 0.039872922754106775,
+      "taskMs": 5697.673000000001,
+      "taskMsPer10s": 13729.332530120484
+    },
+    {
+      "wallMs": 5695.800000071526,
+      "audioSeconds": 4.15,
+      "sampleRate": 24000,
+      "samples": 99600,
+      "finite": 99600,
+      "peak": 0.3898880183696747,
+      "rms": 0.039896849133597236,
+      "taskMs": 5696.0289999999995,
+      "taskMsPer10s": 13725.371084337346
+    }
+  ],
+  "medianTaskMsPer10s": 13727.050602409636,
+  "piperHuaYanBaselineCpuMsPer10s": 1575.7706292656726,
+  "relativeToPiperHuaYan": 8.711325333438028
+}

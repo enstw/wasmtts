@@ -1,0 +1,32 @@
+<!doctype html><meta charset="utf-8"><title>ORT WASM operator probe</title>
+<script type="importmap">{"imports":{
+  "onnxruntime-web/webgpu":"/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort.webgpu.mjs"
+}}</script>
+<script type="module">
+import * as ORT from 'onnxruntime-web/webgpu';
+ORT.env.wasm.numThreads = 1;
+ORT.env.wasm.proxy = false;
+window.probe = {
+  async init(name) {
+    this.session = await ORT.InferenceSession.create(`/benchmarks/models/ort-operator-probes/${name}.onnx`, {
+      executionProviders: ['wasm'], graphOptimizationLevel: 'all',
+    });
+    this.feeds = {};
+    for (const input of this.session.inputNames) {
+      const metadata = this.session.inputMetadata.find?.(x => x.name === input) ?? this.session.inputMetadata[input];
+      const dimensions = metadata.shape ?? metadata.dimensions;
+      const size = dimensions.reduce((a, b) => a * b, 1);
+      const data = new Float32Array(size);
+      for (let i = 0; i < size; ++i) data[i] = ((i % 29) - 14) / 29;
+      this.feeds[input] = new ORT.Tensor('float32', data, dimensions);
+    }
+    await this.session.run(this.feeds);
+  },
+  async run(iterations) {
+    const start = performance.now();
+    for (let i = 0; i < iterations; ++i) await this.session.run(this.feeds);
+    return performance.now() - start;
+  },
+};
+window.ready = true;
+</script>

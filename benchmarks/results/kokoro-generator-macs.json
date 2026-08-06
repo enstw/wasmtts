@@ -1,0 +1,700 @@
+{
+  "model": "benchmarks/models/kokoro-fp32-download/onnx/model.onnx",
+  "baseline_output_samples": 316200,
+  "baseline_output_seconds": 13.175,
+  "method": "MACs = output length * output channels * input channels/group * kernel; ConvTranspose uses input length and its ONNX weight ordering.",
+  "region_macs": {
+    "stft_istft": 55649880,
+    "stage.0": 116758241280,
+    "ups.0": 2762997760,
+    "stage.1": 200360509440,
+    "ups.1": 4144496640
+  },
+  "total_generator_macs": 324081895000,
+  "nodes": [
+    {
+      "name": "/decoder/generator/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        11,
+        1,
+        20
+      ],
+      "group": 1,
+      "runtime_length": 63237,
+      "macs": 13912140
+    },
+    {
+      "name": "/decoder/generator/Conv_1",
+      "op": "Conv",
+      "weight_shape": [
+        11,
+        1,
+        20
+      ],
+      "group": 1,
+      "runtime_length": 63237,
+      "macs": 13912140
+    },
+    {
+      "name": "/decoder/generator/noise_convs.0/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        22,
+        12
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 712335360
+    },
+    {
+      "name": "/decoder/generator/noise_res.0/convs1.0/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 4835246080
+    },
+    {
+      "name": "/decoder/generator/noise_res.0/convs2.0/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 4835246080
+    },
+    {
+      "name": "/decoder/generator/noise_res.0/convs1.1/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 4835246080
+    },
+    {
+      "name": "/decoder/generator/noise_res.0/convs2.1/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 4835246080
+    },
+    {
+      "name": "/decoder/generator/noise_res.0/convs1.2/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 4835246080
+    },
+    {
+      "name": "/decoder/generator/noise_res.0/convs2.2/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 4835246080
+    },
+    {
+      "name": "/decoder/generator/ups.0/ConvTranspose",
+      "op": "ConvTranspose",
+      "weight_shape": [
+        512,
+        256,
+        20
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 2762997760
+    },
+    {
+      "name": "/decoder/generator/resblocks.0/convs1.0/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        3
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 2072248320
+    },
+    {
+      "name": "/decoder/generator/resblocks.0/convs2.0/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        3
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 2072248320
+    },
+    {
+      "name": "/decoder/generator/resblocks.0/convs1.1/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        3
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 2072248320
+    },
+    {
+      "name": "/decoder/generator/resblocks.0/convs2.1/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        3
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 2072248320
+    },
+    {
+      "name": "/decoder/generator/resblocks.0/convs1.2/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        3
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 2072248320
+    },
+    {
+      "name": "/decoder/generator/resblocks.0/convs2.2/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        3
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 2072248320
+    },
+    {
+      "name": "/decoder/generator/resblocks.1/convs1.0/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 4835246080
+    },
+    {
+      "name": "/decoder/generator/resblocks.1/convs2.0/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 4835246080
+    },
+    {
+      "name": "/decoder/generator/resblocks.1/convs1.1/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 4835246080
+    },
+    {
+      "name": "/decoder/generator/resblocks.1/convs2.1/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 4835246080
+    },
+    {
+      "name": "/decoder/generator/resblocks.1/convs1.2/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 4835246080
+    },
+    {
+      "name": "/decoder/generator/resblocks.1/convs2.2/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 4835246080
+    },
+    {
+      "name": "/decoder/generator/resblocks.2/convs1.0/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 7598243840
+    },
+    {
+      "name": "/decoder/generator/resblocks.2/convs2.0/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 7598243840
+    },
+    {
+      "name": "/decoder/generator/resblocks.2/convs1.1/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 7598243840
+    },
+    {
+      "name": "/decoder/generator/resblocks.2/convs2.1/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 7598243840
+    },
+    {
+      "name": "/decoder/generator/resblocks.2/convs1.2/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 7598243840
+    },
+    {
+      "name": "/decoder/generator/resblocks.2/convs2.2/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        256,
+        256,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 10540,
+      "macs": 7598243840
+    },
+    {
+      "name": "/decoder/generator/noise_convs.1/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        22,
+        1
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 178083840
+    },
+    {
+      "name": "/decoder/generator/noise_res.1/convs1.0/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 11397365760
+    },
+    {
+      "name": "/decoder/generator/noise_res.1/convs2.0/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 11397365760
+    },
+    {
+      "name": "/decoder/generator/noise_res.1/convs1.1/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 11397365760
+    },
+    {
+      "name": "/decoder/generator/noise_res.1/convs2.1/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 11397365760
+    },
+    {
+      "name": "/decoder/generator/noise_res.1/convs1.2/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 11397365760
+    },
+    {
+      "name": "/decoder/generator/noise_res.1/convs2.2/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 11397365760
+    },
+    {
+      "name": "/decoder/generator/ups.1/ConvTranspose",
+      "op": "ConvTranspose",
+      "weight_shape": [
+        256,
+        128,
+        12
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 4144496640
+    },
+    {
+      "name": "/decoder/generator/resblocks.3/convs1.0/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        3
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 3108372480
+    },
+    {
+      "name": "/decoder/generator/resblocks.3/convs2.0/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        3
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 3108372480
+    },
+    {
+      "name": "/decoder/generator/resblocks.3/convs1.1/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        3
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 3108372480
+    },
+    {
+      "name": "/decoder/generator/resblocks.3/convs2.1/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        3
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 3108372480
+    },
+    {
+      "name": "/decoder/generator/resblocks.3/convs1.2/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        3
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 3108372480
+    },
+    {
+      "name": "/decoder/generator/resblocks.3/convs2.2/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        3
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 3108372480
+    },
+    {
+      "name": "/decoder/generator/resblocks.4/convs1.0/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 7252869120
+    },
+    {
+      "name": "/decoder/generator/resblocks.4/convs2.0/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 7252869120
+    },
+    {
+      "name": "/decoder/generator/resblocks.4/convs1.1/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 7252869120
+    },
+    {
+      "name": "/decoder/generator/resblocks.4/convs2.1/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 7252869120
+    },
+    {
+      "name": "/decoder/generator/resblocks.4/convs1.2/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 7252869120
+    },
+    {
+      "name": "/decoder/generator/resblocks.4/convs2.2/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 7252869120
+    },
+    {
+      "name": "/decoder/generator/resblocks.5/convs1.0/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 11397365760
+    },
+    {
+      "name": "/decoder/generator/resblocks.5/convs2.0/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 11397365760
+    },
+    {
+      "name": "/decoder/generator/resblocks.5/convs1.1/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 11397365760
+    },
+    {
+      "name": "/decoder/generator/resblocks.5/convs2.1/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 11397365760
+    },
+    {
+      "name": "/decoder/generator/resblocks.5/convs1.2/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 11397365760
+    },
+    {
+      "name": "/decoder/generator/resblocks.5/convs2.2/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        128,
+        128,
+        11
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 11397365760
+    },
+    {
+      "name": "/decoder/generator/conv_post/Conv",
+      "op": "Conv",
+      "weight_shape": [
+        22,
+        128,
+        7
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 1246586880
+    },
+    {
+      "name": "/decoder/generator/ConvTranspose",
+      "op": "ConvTranspose",
+      "weight_shape": [
+        11,
+        1,
+        20
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 13912800
+    },
+    {
+      "name": "/decoder/generator/ConvTranspose_1",
+      "op": "ConvTranspose",
+      "weight_shape": [
+        11,
+        1,
+        20
+      ],
+      "group": 1,
+      "runtime_length": 63240,
+      "macs": 13912800
+    }
+  ]
+}

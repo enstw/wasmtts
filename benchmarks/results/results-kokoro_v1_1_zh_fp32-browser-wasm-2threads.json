@@ -1,0 +1,54 @@
+{
+  "environment": {
+    "browser": "149.0.7827.55",
+    "runtime": "Transformers.js 4.2.0 / ONNX Runtime Web 1.26.0-dev.20260416-b7804b056c",
+    "executionProvider": "wasm",
+    "numThreads": 2,
+    "requestedThreads": 2,
+    "crossOriginIsolated": true,
+    "sharedArrayBuffer": true,
+    "measurement": "Chromium CDP Performance.TaskDuration"
+  },
+  "model": "/benchmarks/models/kokoro-fp32-download/onnx/model.onnx",
+  "speaker": "sid 45 (zf_078)",
+  "text": "default five-sentence benchmark text",
+  "initMs": 2064.7599999904633,
+  "runs": [
+    {
+      "wallMs": 10424.539999961853,
+      "audioSeconds": 13.175,
+      "sampleRate": 24000,
+      "samples": 316200,
+      "finite": 316200,
+      "peak": 0.3184612989425659,
+      "rms": 0.03894513225963355,
+      "taskMs": 10426.192000000001,
+      "taskMsPer10s": 7913.618216318786
+    },
+    {
+      "wallMs": 10414.985000014305,
+      "audioSeconds": 13.175,
+      "sampleRate": 24000,
+      "samples": 316200,
+      "finite": 316200,
+      "peak": 0.32525625824928284,
+      "rms": 0.0389525716526204,
+      "taskMs": 10415.251999999999,
+      "taskMsPer10s": 7905.314611005691
+    },
+    {
+      "wallMs": 10403.69000005722,
+      "audioSeconds": 13.175,
+      "sampleRate": 24000,
+      "samples": 316200,
+      "finite": 316200,
+      "peak": 0.3241671323776245,
+      "rms": 0.03896849930146889,
+      "taskMs": 10403.929000000002,
+      "taskMsPer10s": 7896.720303605314
+    }
+  ],
+  "medianTaskMsPer10s": 7905.314611005691,
+  "piperHuaYanBaselineCpuMsPer10s": 1575.7706292656726,
+  "relativeToPiperHuaYan": 5.0167927134735715
+}

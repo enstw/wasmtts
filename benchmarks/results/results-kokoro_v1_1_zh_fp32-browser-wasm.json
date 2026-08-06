@@ -6,45 +6,45 @@
     "numThreads": 1,
     "measurement": "Chromium CDP Performance.TaskDuration"
   },
-  "model": "onnx-community/Kokoro-82M-v1.1-zh-ONNX (fp32)",
+  "model": "/benchmarks/models/kokoro-fp32-download/onnx/model.onnx",
   "speaker": "sid 45 (zf_078)",
-  "initMs": 15463.200000047684,
+  "initMs": 2173.4000000953674,
   "runs": [
     {
-      "wallMs": 18741.200000047684,
+      "wallMs": 20310.100000023842,
       "audioSeconds": 13.175,
       "sampleRate": 24000,
       "samples": 316200,
       "finite": 316200,
-      "peak": 0.3256680965423584,
-      "rms": 0.03896162976231883,
-      "taskMs": 18741.987999999998,
-      "taskMsPer10s": 14225.417836812141
+      "peak": 0.3241506516933441,
+      "rms": 0.03900238157489834,
+      "taskMs": 20322.07,
+      "taskMsPer10s": 15424.721062618595
     },
     {
-      "wallMs": 18713.5,
+      "wallMs": 18270.699999928474,
       "audioSeconds": 13.175,
       "sampleRate": 24000,
       "samples": 316200,
       "finite": 316200,
-      "peak": 0.3326094448566437,
-      "rms": 0.038970081596357516,
-      "taskMs": 18715.777,
-      "taskMsPer10s": 14205.523339658443
+      "peak": 0.3445722758769989,
+      "rms": 0.03895700966029234,
+      "taskMs": 18271.81,
+      "taskMsPer10s": 13868.546489563567
     },
     {
-      "wallMs": 18782.899999976158,
+      "wallMs": 18274.799999952316,
       "audioSeconds": 13.175,
       "sampleRate": 24000,
       "samples": 316200,
       "finite": 316200,
-      "peak": 0.32826727628707886,
-      "rms": 0.03895165223367359,
-      "taskMs": 18783.378,
-      "taskMsPer10s": 14256.83339658444
+      "peak": 0.3347409665584564,
+      "rms": 0.0389352032590457,
+      "taskMs": 18275.228000000006,
+      "taskMsPer10s": 13871.140796963951
     }
   ],
-  "medianTaskMsPer10s": 14225.417836812141,
+  "medianTaskMsPer10s": 13871.140796963951,
   "piperHuaYanBaselineCpuMsPer10s": 1575.7706292656726,
-  "relativeToPiperHuaYan": 9.02759422762014
+  "relativeToPiperHuaYan": 8.8027664301803
 }
