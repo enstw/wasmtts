@@ -65,7 +65,7 @@ Adapter 使用 sherpa-onnx 前端預先產生的固定 token；文字前處理�
 
 第一次播放停在 `ManagedMediaSource` 的 `opening`，`sourceopen` 未發生，producer 也未被呼叫。依 WebKit 要求在單一長駐 `HTMLAudioElement` 明確設定 `disableRemotePlayback=true` 後，使用者確認前景播放與鎖屏播放皆正常，繁體原文直輸及「垃圾 → `le4 se4`」讀音覆寫亦正常。測試未達 2 小時／3 章門檻，不能寫成鎖屏驗收完成。
 
-本輪另確認兩個前端缺口：`「」` 等引號目前映射為 acoustic tokens `“”`，實聽會發音；小說路徑後續應移除引號 token。所謂「臺灣覆寫」目前只有手工加入且與教育部辭典一致的「垃圾 → `le4 se4`」，尚非完整、有來源欄位的臺灣讀音詞典。繁體「關卡」目前逐字得到 `guan1 ka3`，符合臺灣讀音；「堤壩」得到 `di1 ba4`，但臺灣教育部讀音為 `ti2 ba4`，需加入可審核覆寫及迴歸測試。
+本輪另確認 `「」` 等引號映射為 acoustic tokens `“”` 後會發音；2026-08-08 已改為在 tokenization 前移除 `「」『』《》“”‘’"`，保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。所謂「臺灣覆寫」目前只有手工加入且與教育部辭典一致的「垃圾 → `le4 se4`」，尚非完整、有來源欄位的臺灣讀音詞典。繁體「關卡」目前逐字得到 `guan1 ka3`，符合臺灣讀音；「堤壩」得到 `di1 ba4`，但臺灣教育部讀音為 `ti2 ba4`。臺灣讀音詞典留待獨立開發，不納入本次引號修正。
 
 上游 lexicon 將「垃圾」讀成 `la1 ji1`；臺灣 `le4 se4` 只作明示的可選覆寫。正式效能結果使用上游原詞典。原始結果為 [results-matcha_icefall_zh_en-stream-browser-wasm.json](results/results-matcha_icefall_zh_en-stream-browser-wasm.json)。
 

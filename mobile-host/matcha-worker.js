@@ -3,7 +3,7 @@
 importScripts(
   '/mobile-host/vendor/ort/ort.min.js',
   '/mobile-host/vendor/lame.min.js',
-  '/platform/matcha-frontend.js',
+  '/platform/matcha-frontend.js?v=20260808-022258',
   '/platform/matcha-synthesis.js',
 );
 

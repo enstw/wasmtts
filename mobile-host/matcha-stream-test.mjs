@@ -4,7 +4,7 @@ import {
 } from './continuous-stream-player.mjs';
 
 const LOG_KEY = 'wasmtts-matcha-stream-flight-recorder-v1';
-const BUILD_VERSION = '2026-08-08 01:48:01 +0800';
+const BUILD_VERSION = '2026-08-08 02:22:58 +0800';
 const $ = (selector) => document.querySelector(selector);
 const startedAt = performance.now();
 const telemetrySession = Math.random().toString(36).slice(2, 8);
@@ -92,7 +92,7 @@ function restoreLogs() {
 
 class MatchaWorkerProducer {
   constructor() {
-    this.worker = new Worker('/mobile-host/matcha-worker.js?v=4');
+    this.worker = new Worker('/mobile-host/matcha-worker.js?v=5');
     this.pending = new Map();
     this.nextRequestId = 1;
     this.segments = [];

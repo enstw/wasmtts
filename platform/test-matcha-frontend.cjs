@@ -48,6 +48,12 @@ assert.deepEqual(taiwanOverride.tokensFor('垃圾。').phones, ['le4', 'se4', '.
 const english = frontend.tokensFor('AI 小说。', {allowUnknown: true});
 assert.deepEqual(english.unknown.map((entry) => entry.character), ['A', 'I']);
 
+const traditionalDirect = createFrontend({lexiconText, tokensText});
+const quoted = traditionalDirect.tokensFor('「清晨」，她說：“你好。” ‘再見。’');
+assert.equal(quoted.normalizedText, '清晨,她說:你好. 再見.');
+assert.equal(quoted.unknown.length, 0);
+assert.equal(quoted.phones.some((phone) => ['“', '”', '‘', '’', '"'].includes(phone)), false);
+
 console.log(JSON.stringify({
   lexiconSize: frontend.lexiconSize,
   tokenCount: frontend.tokenCount,

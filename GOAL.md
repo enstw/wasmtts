@@ -42,7 +42,7 @@ Kokoro fp32 已通過目標產品的主觀品質門檻，但單執行緒只有�
 
 Matcha `matcha-icefall-zh-en` 使用相同五句中文做三方盲測後得到 `90/100`，高於 Kokoro 的 `80/100` 與 Piper 的 `60/100`；Piper 另被標記有外國腔。Matcha 因此已通過品質 gate，成為目前優先候選。上游 `sherpa-onnx 1.12.20` 官方 browser SIMD bundle 以建議的 `phone-zh.fst,date-zh.fst,number-zh.fst`、`noise_scale=0.667`、單一 thread 測得小說 task `RTF 0.1411`，約 `7.09x realtime`；含日期、時間、電話及百分比的原始數字語料同為 `RTF 0.1411`。同 runtime 的 FST on/off 純小說差異只有 `-0.086%`，heap 都是 512 MiB，因此移除 FST 沒有實質成本優勢，且會改變數字讀法。繁體小說原文不經 OpenCC 亦成功產生 26.73 秒有效音訊，使用者已確認品質沒有問題；正式候選路徑因此定為「繁體直輸 → 官方中文 FST → Matcha」，不再把繁簡轉換列為必要前處理。官方 bundle 的瀏覽器記憶體快照約為初始化後 656.8 MiB、benchmark 後 666.6 MiB，下一個優化焦點是固定 512 MiB WASM heap 與預載資產，而不是 FST。
 
-2026-08-08 的 iPhone Safari LAN HTTP 初測確認低記憶體 JavaScript lexicon adapter 可完成模型下載、初始化、繁體直輸、前景播放與鎖屏播放；`ManagedMediaSource` 必須依 WebKit 要求在長駐 media element 設定 `disableRemotePlayback=true`。本輪不是 secure context 或 standalone PWA，且未達 2 小時／3 章、熱與耗電門檻，只能視為初步相容性證據。實聽另發現引號 acoustic tokens 會發音；臺灣讀音覆寫目前只有「垃圾」，仍須建立有來源的完整詞典並修正「堤壩」等區域讀音。
+2026-08-08 的 iPhone Safari LAN HTTP 初測確認低記憶體 JavaScript lexicon adapter 可完成模型下載、初始化、繁體直輸、前景播放與鎖屏播放；`ManagedMediaSource` 必須依 WebKit 要求在長駐 media element 設定 `disableRemotePlayback=true`。本輪不是 secure context 或 standalone PWA，且未達 2 小時／3 章、熱與耗電門檻，只能視為初步相容性證據。實聽發現引號 acoustic tokens 會發音後，已改為在 tokenization 前移除中英文開閉引號並加入迴歸測試。臺灣讀音覆寫目前只有「垃圾」；完整、有來源的詞典與「堤壩」等區域讀音留待另案開發。
 
 目前目錄只包含神經網路方案，這是測試覆蓋缺口，不是研究範圍限制。下一批候選應刻意涵蓋至少一個可在瀏覽器離線執行的非神經方案，量化它在體積、速度、記憶體與中文自然度之間的取捨。
 
@@ -75,5 +75,5 @@ Matcha `matcha-icefall-zh-en` 使用相同五句中文做三方盲測後得到 `
 - 新候選先用目標小說語料做 Piper 盲聽 A/B；只有通過品質門檻者，才投入端到端 RTF、資產體積、峰值記憶體與 [mobile-host](mobile-host/) 鎖屏相容性驗證。
 - Piper 的模型、Worker、MP3 encoder 與播放 transport 維持 frozen baseline；除非發現可重現性錯誤，否則不再投入整合或最佳化工作。
 - Kokoro 保留為品質通過的次要候選；下一個必要證據是真實 iPhone／iPad 的雙執行緒 RTF、長時間溫度、耗電與降頻行為，不再繼續無效的 selective INT8 擴大量化。
-- Matcha zh-en 已通過品質 gate、上游建議 FST browser 效能 gate、繁體直輸試聽及 iPhone Safari 初步鎖屏相容性；正式文字路徑不使用 OpenCC。下一步移除會發音的引號 tokens、建立有來源的臺灣讀音詞典，再降低官方 bundle 的 512 MiB heap／預載資產並接入正式 FST producer，在真實 iPhone 測量峰值記憶體、RTF、鎖屏熱穩態與 2 小時跨章播放，並補齊英文 eSpeak、貨幣／範圍／序號等文字正規化。
+- Matcha zh-en 已通過品質 gate、上游建議 FST browser 效能 gate、繁體直輸試聽及 iPhone Safari 初步鎖屏相容性；正式文字路徑不使用 OpenCC，會發音的引號 tokens 已移除。下一步降低官方 bundle 的 512 MiB heap／預載資產並接入正式 FST producer，在真實 iPhone 測量峰值記憶體、RTF、鎖屏熱穩態與 2 小時跨章播放，並補齊英文 eSpeak、貨幣／範圍／序號等文字正規化；臺灣讀音詞典另案開發。
 - 將新方案透過符合共同量測契約的 adapter 接入 [統一測試平台](platform/README.md)；不要求使用 ONNX，並避免另建不可比較的 ad-hoc harness。
