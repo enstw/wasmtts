@@ -14,7 +14,6 @@ const SHELL = [
   '/mobile-host/vendor/ort/ort.min.js',
   '/mobile-host/vendor/ort/ort-wasm-simd-threaded.mjs',
   '/mobile-host/vendor/ort/ort-wasm-simd-threaded.wasm',
-  '/mobile-host/vendor/opencc-t2cn.js',
   '/mobile-host/vendor/lame.min.js',
   '/platform/matcha-frontend.js',
   '/platform/matcha-synthesis.js',

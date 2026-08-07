@@ -57,6 +57,9 @@ try {
   const {send, evalJs, sessionId} = browser;
   await send('Page.navigate', {url}, sessionId);
   await waitFor(evalJs, 'Boolean(globalThis.matchaStreamTest)', 30000, '測試頁載入');
+  await evalJs('globalThis.matchaStreamTest.producer.download()');
+  await waitFor(evalJs, 'globalThis.matchaStreamTest.producer.downloaded', 180000, '模型下載');
+  await evalJs('globalThis.matchaStreamTest.producer.initialize()');
   await waitFor(
     evalJs,
     'Boolean(globalThis.matchaStreamTest?.producer?.initialization)',

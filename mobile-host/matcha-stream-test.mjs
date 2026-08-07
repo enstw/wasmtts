@@ -4,8 +4,10 @@ import {
 } from './continuous-stream-player.mjs';
 
 const LOG_KEY = 'wasmtts-matcha-stream-flight-recorder-v1';
+const BUILD_VERSION = '2026-08-08 01:48:01 +0800';
 const $ = (selector) => document.querySelector(selector);
 const startedAt = performance.now();
+const telemetrySession = Math.random().toString(36).slice(2, 8);
 const events = [];
 let logLines = [];
 let latest = null;
@@ -51,6 +53,19 @@ function addLog(entry) {
   $('#flightLog').textContent = logLines.join('\n');
   $('#flightLog').scrollTop = $('#flightLog').scrollHeight;
   persistLogs();
+  fetch('/mobile-host/telemetry', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      session: telemetrySession,
+      elapsedSeconds: Number(seconds.toFixed(3)),
+      visibility: enriched.visibility,
+      message: entry.message,
+      detail: entry.detail ?? {},
+      snapshot: entry.snapshot ?? null,
+    }),
+    keepalive: true,
+  }).catch(() => {});
 
   if (entry.message === 'append 完成' && entry.detail?.meta?.phases) {
     latestMeta = entry.detail.meta;
@@ -77,15 +92,16 @@ function restoreLogs() {
 
 class MatchaWorkerProducer {
   constructor() {
-    this.worker = new Worker('/mobile-host/matcha-worker.js');
+    this.worker = new Worker('/mobile-host/matcha-worker.js?v=4');
     this.pending = new Map();
     this.nextRequestId = 1;
     this.segments = [];
     this.pronunciationProfile = 'official';
-    this.inputNormalization = 'opencc-tw2s';
+    this.inputNormalization = 'traditional-direct';
     this.noiseScale = 1;
     this.results = [];
     this.initialization = null;
+    this.downloaded = false;
     this.ready = new Promise((resolve, reject) => {
       this.resolveReady = resolve;
       this.rejectReady = reject;
@@ -96,7 +112,6 @@ class MatchaWorkerProducer {
       this.rejectReady(error);
       addLog({message: 'Worker error', detail: {error: error.message}});
     });
-    this.worker.postMessage({type: 'init'});
   }
 
   onMessage(message) {
@@ -105,11 +120,30 @@ class MatchaWorkerProducer {
       addLog({message: `Worker：${message.stage}`, detail: message.detail ?? {}});
       return;
     }
+    if (message.type === 'download-progress') {
+      const total = message.total || 129599930;
+      const fraction = Math.min(1, message.loaded / total);
+      $('#downloadStage').textContent = `下載：${message.asset}`;
+      $('#downloadAmount').textContent = `${fmt(message.loaded / 1048576)} / ${fmt(total / 1048576)} MiB（${fmt(fraction * 100, 0)}%）`;
+      $('#downloadProgress').value = fraction;
+      $('#workerState').textContent = `下載 ${fmt(fraction * 100, 0)}%`;
+      return;
+    }
+    if (message.type === 'download-complete') {
+      this.downloaded = true;
+      $('#downloadStage').textContent = '模型下載完成';
+      $('#downloadProgress').value = 1;
+      $('#downloadModelsBtn').disabled = true;
+      $('#initializeBtn').disabled = false;
+      $('#workerState').textContent = '等待初始化';
+      addLog({message: '模型下載完成', detail: message.sources});
+      return;
+    }
     if (message.type === 'ready') {
       this.initialization = message.initialization;
       $('#workerState').textContent = 'ready';
-      $('#startBtn').textContent = '開始 Matcha 串流';
       $('#startBtn').disabled = !mediaSourceSupport().supported;
+      $('#initializeBtn').disabled = true;
       addLog({message: 'Matcha Worker ready', detail: message.initialization});
       this.resolveReady(message.initialization);
       return;
@@ -117,6 +151,13 @@ class MatchaWorkerProducer {
 
     if (message.type === 'error' && message.requestId === undefined) {
       const error = new Error(message.message);
+      if (message.action === 'download-assets') {
+        $('#downloadStage').textContent = `下載失敗：${error.message}`;
+        $('#downloadModelsBtn').disabled = false;
+        $('#workerState').textContent = '下載失敗';
+        addLog({message: '模型下載失敗', detail: {error: error.message}});
+        return;
+      }
       $('#workerState').textContent = 'error';
       $('#state').textContent = 'error';
       addLog({message: 'Matcha Worker 初始化失敗', detail: {error: error.message}});
@@ -136,17 +177,23 @@ class MatchaWorkerProducer {
     pending.resolve({buffer: message.buffer, meta: message.meta});
   }
 
+  download() {
+    this.worker.postMessage({type: 'download-assets'});
+  }
+
+  initialize() {
+    this.worker.postMessage({type: 'init'});
+  }
+
   reset({
     text = $('#novelText').value,
     pronunciationProfile = $('#pronunciationProfile').value,
-    inputNormalization = 'opencc-tw2s',
+    inputNormalization = 'traditional-direct',
     noiseScale = 1,
   } = {}) {
     this.segments = splitNovelText(text);
     this.pronunciationProfile = pronunciationProfile === 'taiwan' ? 'taiwan' : 'official';
-    this.inputNormalization = inputNormalization === 'traditional-direct'
-      ? 'traditional-direct'
-      : 'opencc-tw2s';
+    this.inputNormalization = 'traditional-direct';
     this.noiseScale = Number.isFinite(noiseScale) ? noiseScale : 1;
     this.results = [];
     addLog({
@@ -197,6 +244,7 @@ class MatchaWorkerProducer {
 
 restoreLogs();
 const audio = $('#streamAudio');
+audio.disableRemotePlayback = true;
 const support = mediaSourceSupport();
 const producer = new MatchaWorkerProducer();
 const player = createContinuousStreamPlayer({
@@ -230,6 +278,18 @@ const player = createContinuousStreamPlayer({
     document.body.dataset.underflows = String(snapshot.underflows);
     document.body.dataset.rtf = String(snapshot.rtf ?? '');
   },
+});
+
+$('#downloadModelsBtn').addEventListener('click', () => {
+  $('#downloadModelsBtn').disabled = true;
+  $('#downloadStage').textContent = '準備下載…';
+  producer.download();
+});
+
+$('#initializeBtn').addEventListener('click', () => {
+  $('#initializeBtn').disabled = true;
+  $('#workerState').textContent = '初始化中';
+  producer.initialize();
 });
 
 function start({
@@ -280,11 +340,24 @@ if ('mediaSession' in navigator) {
 }
 
 const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+$('#buildVersion').textContent = BUILD_VERSION;
 $('#secure').textContent = String(window.isSecureContext);
 $('#isolated').textContent = String(window.crossOriginIsolated);
 $('#standalone').textContent = String(standalone);
 $('#sourceSupport').textContent = support.supported ? `${support.kind} / audio/mpeg` : '不支援 audio/mpeg MediaSource';
 if (!support.supported) $('#unsupported').hidden = false;
+addLog({
+  message: '頁面 telemetry ready',
+  detail: {
+    session: telemetrySession,
+    buildVersion: BUILD_VERSION,
+    userAgent: navigator.userAgent,
+    secureContext: window.isSecureContext,
+    standalone,
+    sourceKind: support.kind,
+    sourceSupported: support.supported,
+  },
+});
 
 setInterval(() => {
   if (!latest?.active) return;

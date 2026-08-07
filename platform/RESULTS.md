@@ -57,6 +57,16 @@ Adapter 使用 sherpa-onnx 前端預先產生的固定 token；文字前處理�
 
 `performance.measureUserAgentSpecificMemory()` 在初始化後為 274,785,972 bytes（262.1 MiB），串流中為 275,460,978 bytes（262.7 MiB）；這只是兩個時間點的記憶體快照，不是 peak。另以真實關閉 host 驗證 PWA cache：頁面、Worker、ORT WASM、字典與兩個模型均能離線命中，Worker 約 1.56 秒 ready，離線文字前端、推論與 MP3 encode 成功。這仍不等於 iPhone 的 CacheStorage 配額、鎖屏與熱穩態通過。
 
+### iPhone Safari 初步功能測試
+
+2026-08-08 使用 iPhone、iOS `18.7`、Safari user agent `Version/26.5.2`，經區域網路 HTTP 開啟 Matcha 串流頁。環境為 `secureContext=false`、`standalone=false`，因此本輪只屬 Safari tab 功能測試，不是 Home Screen PWA、Service Worker 離線、雙執行緒或正式鎖屏耐久驗收；裝置型號、鎖屏時長、溫度、耗電與熱降頻未記錄。
+
+頁面將約 123.6 MiB ONNX 模型下載拆成獨立步驟並顯示進度；本輪四項資產由 LAN 下載約 4.24 秒，Worker session 初始化約 1.06 秒，連同文字前端與完整暖機共 1.32 秒。暖機產生 10,793 個有效 samples、0.6746 秒音訊，peak `0.7874`、RMS `0.1638`，MP3 為 9,072 bytes。這些時間受 LAN 與特定裝置影響，只保存為功能紀錄，不納入跨方案效能排名。
+
+第一次播放停在 `ManagedMediaSource` 的 `opening`，`sourceopen` 未發生，producer 也未被呼叫。依 WebKit 要求在單一長駐 `HTMLAudioElement` 明確設定 `disableRemotePlayback=true` 後，使用者確認前景播放與鎖屏播放皆正常，繁體原文直輸及「垃圾 → `le4 se4`」讀音覆寫亦正常。測試未達 2 小時／3 章門檻，不能寫成鎖屏驗收完成。
+
+本輪另確認兩個前端缺口：`「」` 等引號目前映射為 acoustic tokens `“”`，實聽會發音；小說路徑後續應移除引號 token。所謂「臺灣覆寫」目前只有手工加入且與教育部辭典一致的「垃圾 → `le4 se4`」，尚非完整、有來源欄位的臺灣讀音詞典。繁體「關卡」目前逐字得到 `guan1 ka3`，符合臺灣讀音；「堤壩」得到 `di1 ba4`，但臺灣教育部讀音為 `ti2 ba4`，需加入可審核覆寫及迴歸測試。
+
 上游 lexicon 將「垃圾」讀成 `la1 ji1`；臺灣 `le4 se4` 只作明示的可選覆寫。正式效能結果使用上游原詞典。原始結果為 [results-matcha_icefall_zh_en-stream-browser-wasm.json](results/results-matcha_icefall_zh_en-stream-browser-wasm.json)。
 
 ## Kokoro selective INT8 修正實驗

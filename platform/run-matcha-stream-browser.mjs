@@ -9,7 +9,9 @@ const cdpPort = Number(process.env.WASM_TTS_CDP_PORT ?? 9390);
 const targetAppendCount = Number(process.env.WASM_TTS_STREAM_APPENDS ?? 10);
 const url = `http://${host}:${serverPort}/mobile-host/matcha-stream-test.html`;
 const profile = path.join(os.tmpdir(), `wasmtts-matcha-stream-cdp-${process.pid}`);
-const resultPath = new URL('./results/results-matcha_icefall_zh_en-stream-browser-wasm.json', import.meta.url);
+const resultPath = process.env.WASM_TTS_STREAM_RESULT
+  ? new URL(`file://${path.resolve(process.env.WASM_TTS_STREAM_RESULT)}`)
+  : new URL('./results/results-matcha_icefall_zh_en-stream-browser-wasm.json', import.meta.url);
 
 function metric(metrics, name) {
   return metrics.metrics.find((entry) => entry.name === name)?.value ?? 0;
@@ -59,6 +61,9 @@ try {
   const {send, evalJs, sessionId} = browser;
   await send('Page.navigate', {url}, sessionId);
   await waitFor(evalJs, 'Boolean(globalThis.matchaStreamTest)', 30000, '測試頁載入');
+  await evalJs('globalThis.matchaStreamTest.producer.download()');
+  await waitFor(evalJs, 'globalThis.matchaStreamTest.producer.downloaded', 180000, '模型下載');
+  await evalJs('globalThis.matchaStreamTest.producer.initialize()');
   await waitFor(evalJs, 'Boolean(globalThis.matchaStreamTest?.producer?.initialization)', 180000, '模型初始化與暖機');
 
   const version = await send('Browser.getVersion');
@@ -166,7 +171,7 @@ try {
       workerWarmups: 1,
       pronunciationProfile: 'official',
       targetAppendCount,
-      measurementBoundary: 'OpenCC + JavaScript normalization + lexicon/token mapping + Matcha + Vocos + ISTFT + silence scaling + MP3 encode',
+      measurementBoundary: 'Traditional-direct + JavaScript normalization + lexicon/token mapping + Matcha + Vocos + ISTFT + silence scaling + MP3 encode',
       transport: 'single HTMLAudioElement + single MediaSource + sequence SourceBuffer',
       waveformValidation: 'all samples finite, peak > 0, RMS > 0, MP3 bytes > 0',
       note: 'CDP TaskDuration is the main page target only and does not represent dedicated Worker CPU time',

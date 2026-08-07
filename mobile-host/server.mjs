@@ -13,6 +13,24 @@ const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript
 
 http.createServer((request, response) => {
   const pathname = decodeURIComponent(new URL(request.url, 'http://127.0.0.1').pathname);
+  if (request.method === 'POST' && pathname === '/mobile-host/telemetry') {
+    const chunks = [];
+    let length = 0;
+    request.on('data', (chunk) => {
+      length += chunk.length;
+      if (length <= 64 * 1024) chunks.push(chunk);
+    });
+    request.on('end', () => {
+      try {
+        const event = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+        console.log(`[iPhone ${event.session ?? '?'}] ${JSON.stringify(event)}`);
+        response.writeHead(204).end();
+      } catch (error) {
+        response.writeHead(400, {'Content-Type': 'text/plain'}).end(error.message);
+      }
+    });
+    return;
+  }
   const file = path.resolve(root, `.${pathname}`);
   if (file !== root && !file.startsWith(`${root}${path.sep}`)) {
     response.writeHead(403).end();

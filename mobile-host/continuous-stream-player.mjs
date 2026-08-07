@@ -237,6 +237,10 @@ export function createContinuousStreamPlayer({
     state.hasPlayed = false;
     state.status = 'opening';
 
+    // WebKit 在 iPhone 上只有提供 AirPlay 替代來源或明確停用 remote
+    // playback 時才會開啟 ManagedMediaSource。
+    audio.disableRemotePlayback = true;
+
     const source = new capability.Source();
     state.source = source;
     const objectUrl = URL.createObjectURL(source);
@@ -274,7 +278,7 @@ export function createContinuousStreamPlayer({
 
     audio.src = objectUrl;
     const playPromise = audio.play();
-    log('唯一一次初始 play() 已呼叫');
+    log('唯一一次初始 play() 已呼叫', {disableRemotePlayback: audio.disableRemotePlayback});
     update();
     return playPromise;
   }

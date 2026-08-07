@@ -97,6 +97,12 @@ PWA runtime、Worker、兩個模型與字典均進入 CacheStorage 後，實際�
 
 機器可讀結果位於 [results-matcha_icefall_zh_en-stream-browser-wasm.json](../../platform/results/results-matcha_icefall_zh_en-stream-browser-wasm.json)；頁面與 runner 分別是 [matcha-stream-test.html](../../mobile-host/matcha-stream-test.html) 與 [run-matcha-stream-browser.mjs](../../platform/run-matcha-stream-browser.mjs)。
 
+### iPhone Safari 初步相容性
+
+2026-08-08 在 iOS `18.7` Safari 以 LAN HTTP 測試低記憶體 JavaScript lexicon adapter。模型下載、Worker 初始化與有效 waveform 暖機皆通過；設定 WebKit 要求的 `HTMLAudioElement.disableRemotePlayback=true` 後，使用者確認繁體原文直輸、前景播放、鎖屏播放及「垃圾 → `le4 se4`」讀音覆寫正常。因本輪 `secureContext=false`、`standalone=false`，且未記錄裝置型號、鎖屏時長、溫度、耗電、降頻或 2 小時跨章結果，只能判定 transport 初步相容，不是 PWA 或熱穩態完成。
+
+實聽發現 `「」` 被映射為 `“”` acoustic tokens 後會發音，小說前端需移除引號 token。「臺灣覆寫」目前只有「垃圾」一詞，尚未形成有來源欄位的正式詞典；「關卡」逐字讀音符合臺灣 `guan1 ka3`，「堤壩」則需由上游 `di1 ba4` 覆寫為教育部辭典的 `ti2 ba4`。完整事件與數值保存在 [共同結果](../../platform/RESULTS.md)。
+
 ## 一次性效能初測
 
 使用 `sherpa-onnx 1.13.4` Node WASM、單一推論 thread、語速 1.0，在沒有暖機與重複取中位數的情況下得到：
@@ -133,6 +139,7 @@ PWA runtime、Worker、兩個模型與字典均進入 CacheStorage 後，實際�
 - 在目標 iPhone／iPad 量測真正峰值記憶體、單一 thread RTF、溫度、耗電與熱降頻。
 - 分別從 Safari tab 與 Home Screen PWA 完成 2 小時鎖屏、3 章、Media Session 與中斷恢復驗收。
 - 接入英文 eSpeak，擴充電話、貨幣、範圍、序號與其他完整文字正規化；建立可審核的臺灣區域讀音覆寫詞典。
+- 移除小說輸入中的 `“”` acoustic tokens，加入引號不發音的實聽與 token 迴歸測試。
 - 在產品採用前釐清 acoustic model、Vocos、lexicon、FST 與聲音資料的授權。
 
 ## 上游資料
