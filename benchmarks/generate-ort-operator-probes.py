@@ -77,6 +77,34 @@ def main():
         audio_output,
         [numpy_helper.from_array(dequant_weight, "W")],
     )
+
+    # Matched structural probes for a mobile-vocoder residual block. The
+    # separable variant preserves input/output shape and receptive field while
+    # replacing a dense k=11 convolution with depthwise k=11 + pointwise k=1.
+    # This measures the actual ORT Web WASM kernel tradeoff, including the
+    # additional node dispatch and intermediate activation.
+    residual_input = [helper.make_tensor_value_info("X", f, [1, 128, 4096])]
+    residual_output = [helper.make_tensor_value_info("Y", f, [1, 128, 4096])]
+    save(
+        "conv_residual_dense_k11",
+        [helper.make_node("Conv", ["X", "W"], ["Y"], pads=[5, 5], strides=[1])],
+        residual_input,
+        residual_output,
+        [tensor("W", (128, 128, 11))],
+    )
+    save(
+        "conv_residual_depthwise_separable_k11",
+        [
+            helper.make_node(
+                "Conv", ["X", "W_depthwise"], ["D"],
+                group=128, pads=[5, 5], strides=[1],
+            ),
+            helper.make_node("Conv", ["D", "W_pointwise"], ["Y"], strides=[1]),
+        ],
+        residual_input,
+        residual_output,
+        [tensor("W_depthwise", (128, 1, 11)), tensor("W_pointwise", (128, 128, 1))],
+    )
     save(
         "qlinearconv_audio_int8",
         [
