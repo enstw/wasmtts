@@ -7,6 +7,8 @@
 - `benchmark.js`：保留的 sherpa-onnx Node WASM 對照 harness。
 - `vits-browser.html`、`run-vits-browser.mjs`：Piper、AISHELL3 與 MeloTTS 的統一 ORT Web 路徑。
 - `kokoro-browser.html`、`run-kokoro-browser.mjs`：Kokoro ORT Web、profiling、shape probe 與 thread 測試。
+- `matcha-browser.html`、`run-matcha-browser.mjs`：Matcha acoustic model、Vocos 與 JavaScript ISTFT 的單執行緒 ORT Web 路徑。
+- `cdp/`：browser-cdp 共用的 Chromium 探測與零相依 CDP client。
 - `ort-operator-probe.html`、`run-ort-operator-probe.mjs`：獨立 operator microbenchmark。
 - `*.py`：Kokoro 量化、驗證、graph／shape／MAC 分析與 probe 產生器。
 - `models/`：本機第三方模型掛載點；已由 Git 忽略。
@@ -23,6 +25,8 @@ platform/models/
 ├── kokoro-fp32/
 ├── kokoro-selective-int8/
 ├── kokoro-int8-multi-lang-v1_1/
+├── matcha-icefall-zh-en/
+├── vocos-16khz-univ.onnx
 ├── vits-icefall-zh-aishell3/
 ├── vits-melo-tts-zh_en/
 └── vits-piper-zh_CN-huayan-medium/
@@ -62,6 +66,7 @@ pnpm host:mobile
 ```sh
 pnpm benchmark:vits
 pnpm benchmark:kokoro -- fp32
+pnpm benchmark:matcha
 ```
 
 Kokoro runner 支援 `--profile`、`--model-path`、`--shape-probe`、`--text`、`--output-suffix` 與 `--threads`。雙執行緒測試前必須確認頁面同時具備 `crossOriginIsolated === true` 與 `SharedArrayBuffer`。

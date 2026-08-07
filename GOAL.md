@@ -31,13 +31,26 @@ Piper `zh_CN-huayan-medium` 是效能基準 `1.00x`。速度較快不代表品�
 | Piper HuaYan medium | 神經網路（VITS） | 是 | 1.576 秒 | 1.00x | 資源受限環境的基準與候選 | [Piper](frameworks/piper/README.md) |
 | VITS AISHELL3（sid 66） | 神經網路（VITS） | 是 | 0.708 秒 | 0.45x | 最快，但 8 kHz 與音質不足，只保留為技術參考 | [VITS](frameworks/vits/README.md) |
 | VITS MeloTTS zh/en | 神經網路（VITS） | 是 | 14.427 秒 | 9.16x | 單線程慢於即時，不作為行動端主引擎 | [VITS](frameworks/vits/README.md) |
-| Kokoro v1.1 zh fp32 | 神經網路（Kokoro） | 是 | 14.225 秒 | 9.03x | 音訊有效，但單線程成本與模型大小過高 | [Kokoro](frameworks/kokoro/README.md) |
+| Kokoro v1.1 zh fp32 | 神經網路（Kokoro） | 是 | 14.225 秒 | 9.03x | 品質 gate 通過；效能與熱成本較高，列為次要候選 | [Kokoro](frameworks/kokoro/README.md) |
+| Matcha icefall zh-en | 神經網路（Matcha + Vocos） | 是 | 1.467 秒 | 約 0.93x* | 盲測 90 分；單執行緒 RTF 0.147，列為優先候選 | [Matcha](frameworks/matcha/README.md) |
 | Kokoro 上游 int8／q8 | 神經網路（Kokoro） | 否 | — | — | waveform 含非有限值，不得作為 benchmark | [Kokoro](frameworks/kokoro/README.md) |
 | Kokoro selective INT8 | 神經網路（Kokoro） | 是 | 15.182 秒 wall time | 1.009x 相對同輪 fp32 | 正確性基線；縮小 8.3%，但未加速 | [Kokoro](frameworks/kokoro/README.md) |
 
-主比較採 Chromium 149、ONNX Runtime Web WASM、單一 thread 與 CDP `TaskDuration`。Selective INT8 A/B 使用不同瀏覽器版本，因此只可在該組內互相比較。
+Piper、VITS 與 Kokoro 主比較採 Chromium 149；Matcha 採 Chromium 151。兩組都使用 ONNX Runtime Web WASM、單一 thread 與 CDP `TaskDuration`，但 Matcha 的 `約 0.93x*` 只可作跨版本方向性參考，不能解讀為嚴格的相對加速。Selective INT8 A/B 另使用不同瀏覽器版本，因此只可在該組內互相比較。
+
+Kokoro fp32 已通過目標產品的主觀品質門檻，但單執行緒只有約 `0.70x realtime`，不具持續背景合成餘裕。桌面雙執行緒測得 `RTF ≈ 0.79`，代表它在可使用兩個 WASM worker 時有機會維持串流，因此保留為次要候選；相對 Piper 約 `5.02x` 的運算成本、約 323.6 MiB 模型及可能較高的手機溫度與耗電，是必須接受並在實機量測的產品代價。桌面結果不得當成 iPhone 熱穩態結論。
+
+Matcha `matcha-icefall-zh-en` 使用相同五句中文做三方盲測後得到 `90/100`，高於 Kokoro 的 `80/100` 與 Piper 的 `60/100`；Piper 另被標記有外國腔。Matcha 因此已通過品質 gate，成為目前優先候選。正式 Chromium 151 單執行緒三輪中位數為 `1.467` task 秒／10 秒音訊，task `RTF 0.1467`、wall `RTF 0.1467`，約 `6.82x realtime`；acoustic model 與 Vocos 合計 123.6 MiB。固定 token adapter 的 waveform 全部有效，但尚未包含完整文字前端、FST、MP3 編碼與 append transport。中文 FST 在 `sherpa-onnx 1.13.4` Node WASM 即使配置 768 MiB／1 GiB 仍會越界，必須繼續定位。
 
 目前目錄只包含神經網路方案，這是測試覆蓋缺口，不是研究範圍限制。下一批候選應刻意涵蓋至少一個可在瀏覽器離線執行的非神經方案，量化它在體積、速度、記憶體與中文自然度之間的取捨。
+
+## 待驗證候選
+
+| 優先序 | 方案 | 為何值得先看 | 第一個 gate |
+|---:|---|---|---|
+| 1 | ZipVoice-Distill INT8 zh-en | 123M 級中英 zero-shot flow-matching，官方提供 ONNX CPU deployment；品質潛力高，但參考音訊、資產與推論成本使瀏覽器部署風險較高 | 只先做現成樣本盲聽；品質明顯勝出後才下載模型並做最小 WASM feasibility probe |
+| 2 | 其他中文 VITS 聲線 | sherpa-onnx 有多組 16／22.05 kHz 中文聲線，可低成本先聽；但官方 Raspberry Pi 單執行緒 `RTF` 多在 `4.28–6.03`，效能風險已知 | 只篩選聲線品質，不先建 adapter |
+| 3 | 非神經與系統語音 | 用來補齊架構覆蓋並確認純 JS／規則式與 iOS 系統聲音的品質上限 | 先判斷品質是否明顯高於 Piper；無法輸出 waveform 或無法保證離線者只列基線 |
 
 ## 完成條件
 
@@ -59,5 +72,6 @@ Piper `zh_CN-huayan-medium` 是效能基準 `1.00x`。速度較快不代表品�
 - 優先搜尋並接入語音品質可能高於 Piper HuaYan medium 的中文 TTS；神經與非神經方案一視同仁，不因 runtime 類型預先排除。
 - 新候選先用目標小說語料做 Piper 盲聽 A/B；只有通過品質門檻者，才投入端到端 RTF、資產體積、峰值記憶體與 [mobile-host](mobile-host/) 鎖屏相容性驗證。
 - Piper 的模型、Worker、MP3 encoder 與播放 transport 維持 frozen baseline；除非發現可重現性錯誤，否則不再投入整合或最佳化工作。
-- 將 Kokoro 的下一階段集中在需重新訓練／蒸餾的輕量 vocoder，而不是繼續擴大量化範圍。
+- Kokoro 保留為品質通過的次要候選；下一個必要證據是真實 iPhone／iPad 的雙執行緒 RTF、長時間溫度、耗電與降頻行為，不再繼續無效的 selective INT8 擴大量化。
+- Matcha zh-en 已通過品質 gate 與桌面單執行緒效能 gate；下一步優先補齊完整前端、FST、峰值記憶體、MP3／append 端到端 RTF，以及真實 iPhone 的鎖屏熱穩態測試。
 - 將新方案透過符合共同量測契約的 adapter 接入 [統一測試平台](platform/README.md)；不要求使用 ONNX，並避免另建不可比較的 ad-hoc harness。

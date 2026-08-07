@@ -27,6 +27,10 @@ iOS 產品路徑採用「背景逐句合成、單一媒體 timeline」：使用�
 
 Piper Worker、MP3 encoder 與上述播放 transport 已由 `bookworm` 驗證；不要在本 repository 重做 Piper 整合或把 fixture transport 數字當成研究結果。新候選先通過相對 Piper 的盲聽品質門檻，再使用 `mobile-host` 的既有 producer 契約做必要的整合相容性測試。
 
+Kokoro fp32 已通過品質門檻，但單執行緒效能不足；桌面雙執行緒只證明它可能以約 `5.02x` Piper 運算成本換取 realtime。將它視為溫度與耗電較高的次要候選，不可寫成已淘汰，也不可把尚未量測的 iPhone 熱穩態寫成既定事實。除實機雙執行緒 RTF、溫度、耗電與降頻驗證外，不再優先擴大 selective INT8 工作。
+
+Matcha `matcha-icefall-zh-en` 已通過第一輪品質 gate：相同文本盲測為 Matcha `90`、Kokoro `80`、Piper `60`，Piper 被標記有外國腔。Matcha 是目前優先候選；Chromium 151 單執行緒正式結果為 task `RTF 0.1467`、wall `RTF 0.1467`，約 `6.82x realtime`，Acoustic + Vocos ONNX 合計 123.6 MiB。這個 adapter 使用無 FST 的固定 token，未包含完整文字前端、MP3 編碼或 append transport，不可寫成 iPhone 端到端結果。`sherpa-onnx 1.13.4` 載入這組中文 FST 時即使明確配置 768 MiB／1 GiB 仍越界，應視為待定位的 runtime／FST 相容性問題，不可只靠放大 heap。
+
 ## Conventions
 
 - 文件與新註解使用繁體中文；模型、operator、API 名稱保留原文。
@@ -45,6 +49,7 @@ pnpm install
 pnpm host:mobile
 pnpm benchmark:vits
 pnpm benchmark:kokoro -- fp32
+pnpm benchmark:matcha
 ```
 
 Kokoro selective INT8：

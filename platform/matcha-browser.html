@@ -1,0 +1,286 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Matcha + Vocos WASM benchmark</title>
+<script type="importmap">{"imports":{
+  "onnxruntime-web/webgpu":"/node_modules/.pnpm/onnxruntime-web@1.26.0-dev.20260416-b7804b056c/node_modules/onnxruntime-web/dist/ort.webgpu.mjs"
+}}</script>
+<script type="module">
+import * as ORT from 'onnxruntime-web/webgpu';
+
+ORT.env.wasm.numThreads = 1;
+ORT.env.wasm.proxy = false;
+
+const TEXT = '清晨的阳光穿过窗帘。轻轻落在安静的房间里。远处传来清脆的鸟鸣。微风带着花草的清香。让崭新的一天显得格外明亮。';
+const SENTENCE_IDS = [
+  [1431, 292, 420, 1932, 661, 331, 679, 336, 992, 5],
+  [1431, 1431, 1059, 2004, 126, 819, 420, 547, 791, 983, 5],
+  [1983, 319, 332, 947, 1431, 384, 420, 1238, 1147, 5],
+  [1826, 561, 404, 2065, 746, 243, 420, 1431, 1866, 5],
+  [1474, 2053, 1881, 420, 1946, 1751, 1863, 420, 612, 1814, 1147, 999, 5],
+];
+const SAMPLE_RATE = 16000;
+const N_FFT = 1024;
+const HOP_LENGTH = 256;
+const NUM_BINS = N_FFT / 2 + 1;
+const SILENCE_SCALE = 0.2;
+const WINDOW = Float64Array.from(
+  {length: N_FFT},
+  (_, i) => 0.5 - 0.5 * Math.cos(2 * Math.PI * i / N_FFT),
+);
+
+const i64 = (values, dims) =>
+  new ORT.Tensor('int64', BigInt64Array.from(values, BigInt), dims);
+const f32 = (value) =>
+  new ORT.Tensor('float32', new Float32Array([value]), [1]);
+
+function inverseFft(real, imag) {
+  const n = real.length;
+  for (let i = 1, j = 0; i < n; i += 1) {
+    let bit = n >> 1;
+    for (; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if (i < j) {
+      [real[i], real[j]] = [real[j], real[i]];
+      [imag[i], imag[j]] = [imag[j], imag[i]];
+    }
+  }
+
+  for (let length = 2; length <= n; length <<= 1) {
+    const angle = 2 * Math.PI / length;
+    const stepReal = Math.cos(angle);
+    const stepImag = Math.sin(angle);
+    const half = length >> 1;
+    for (let offset = 0; offset < n; offset += length) {
+      let weightReal = 1;
+      let weightImag = 0;
+      for (let j = 0; j < half; j += 1) {
+        const even = offset + j;
+        const odd = even + half;
+        const oddReal = real[odd] * weightReal - imag[odd] * weightImag;
+        const oddImag = real[odd] * weightImag + imag[odd] * weightReal;
+        const evenReal = real[even];
+        const evenImag = imag[even];
+        real[even] = evenReal + oddReal;
+        imag[even] = evenImag + oddImag;
+        real[odd] = evenReal - oddReal;
+        imag[odd] = evenImag - oddImag;
+        const nextWeightReal = weightReal * stepReal - weightImag * stepImag;
+        weightImag = weightReal * stepImag + weightImag * stepReal;
+        weightReal = nextWeightReal;
+      }
+    }
+  }
+
+  for (let i = 0; i < n; i += 1) {
+    real[i] /= n;
+    imag[i] /= n;
+  }
+}
+
+function istft(mag, x, y) {
+  const [, bins, frames] = mag.dims;
+  if (bins !== NUM_BINS || x.dims[2] !== frames || y.dims[2] !== frames) {
+    throw new Error(`Unexpected Vocos output: mag=${mag.dims}, x=${x.dims}, y=${y.dims}`);
+  }
+
+  const outputLength = N_FFT + (frames - 1) * HOP_LENGTH;
+  const output = new Float64Array(outputLength);
+  const denominator = new Float64Array(outputLength);
+  const real = new Float64Array(N_FFT);
+  const imag = new Float64Array(N_FFT);
+
+  for (let frame = 0; frame < frames; frame += 1) {
+    for (let bin = 0; bin < NUM_BINS; bin += 1) {
+      const index = bin * frames + frame;
+      real[bin] = mag.data[index] * x.data[index];
+      imag[bin] = mag.data[index] * y.data[index];
+    }
+    imag[0] = 0;
+    imag[N_FFT / 2] = 0;
+    for (let bin = 1; bin < N_FFT / 2; bin += 1) {
+      real[N_FFT - bin] = real[bin];
+      imag[N_FFT - bin] = -imag[bin];
+    }
+
+    inverseFft(real, imag);
+    const start = frame * HOP_LENGTH;
+    for (let i = 0; i < N_FFT; i += 1) {
+      const sampleIndex = start + i;
+      const window = WINDOW[i];
+      output[sampleIndex] += real[i] * window;
+      denominator[sampleIndex] += window * window;
+    }
+  }
+
+  const centeredLength = outputLength - N_FFT;
+  const centered = new Float32Array(centeredLength);
+  const crop = N_FFT / 2;
+  for (let i = 0; i < centeredLength; i += 1) {
+    const index = i + crop;
+    centered[i] = denominator[index] ? output[index] / denominator[index] : output[index];
+  }
+  return centered;
+}
+
+// 對齊 sherpa-onnx 的 GeneratedAudio::ScaleSilence()。
+function scaleSilence(samples, scale = SILENCE_SCALE) {
+  if (scale === 1) return samples;
+  const threshold = Math.trunc(SAMPLE_RATE * 0.2);
+  const intervals = [];
+  let last = -1;
+
+  for (let i = 0; i < samples.length; i += 1) {
+    if (Math.abs(samples[i]) <= 0.01) {
+      if (last === -1) last = i;
+      continue;
+    }
+    if (last !== -1 && i - last < threshold) {
+      last = -1;
+      continue;
+    }
+    if (last !== -1) {
+      intervals.push([last, i]);
+      last = -1;
+    }
+  }
+  if (last !== -1 && samples.length - last > threshold) {
+    intervals.push([last, samples.length]);
+  }
+  if (!intervals.length) return samples;
+
+  let outputLength = samples.length;
+  for (const [start, end] of intervals) {
+    outputLength += Math.trunc((end - start) * scale) - (end - start);
+  }
+  const output = new Float32Array(outputLength);
+  let sourceOffset = 0;
+  let targetOffset = 0;
+  for (const [start, end] of intervals) {
+    output.set(samples.subarray(sourceOffset, start), targetOffset);
+    targetOffset += start - sourceOffset;
+    const scaledLength = Math.trunc((end - start) * scale);
+    output.set(samples.subarray(start, start + scaledLength), targetOffset);
+    targetOffset += scaledLength;
+    sourceOffset = end;
+  }
+  output.set(samples.subarray(sourceOffset), targetOffset);
+  return output;
+}
+
+function concatenate(chunks) {
+  const length = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+  const output = new Float32Array(length);
+  let offset = 0;
+  for (const chunk of chunks) {
+    output.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return output;
+}
+
+function waveformStats(samples) {
+  let peak = 0;
+  let squares = 0;
+  let finiteSamples = 0;
+  for (const sample of samples) {
+    if (Number.isFinite(sample)) finiteSamples += 1;
+    peak = Math.max(peak, Math.abs(sample));
+    squares += sample * sample;
+  }
+  return {
+    samples: samples.length,
+    finiteSamples,
+    peak,
+    rms: Math.sqrt(squares / samples.length),
+  };
+}
+
+window.bench = {
+  async init() {
+    const initStarted = performance.now();
+    [this.acoustic, this.vocoder] = await Promise.all([
+      ORT.InferenceSession.create(
+        '/platform/models/matcha-icefall-zh-en/model-steps-3.onnx',
+        {executionProviders: ['wasm']},
+      ),
+      ORT.InferenceSession.create(
+        '/platform/models/vocos-16khz-univ.onnx',
+        {executionProviders: ['wasm']},
+      ),
+    ]);
+    const initMs = performance.now() - initStarted;
+    const warmup = await this.run(false);
+    return {
+      initMs,
+      warmup,
+      acousticInputs: this.acoustic.inputNames,
+      acousticOutputs: this.acoustic.outputNames,
+      vocoderInputs: this.vocoder.inputNames,
+      vocoderOutputs: this.vocoder.outputNames,
+    };
+  },
+
+  async run(capture = false) {
+    const started = performance.now();
+    let acousticMs = 0;
+    let vocoderMs = 0;
+    let istftMs = 0;
+    let silenceMs = 0;
+    const chunks = [];
+
+    for (const ids of SENTENCE_IDS) {
+      let phaseStarted = performance.now();
+      const acousticOutput = await this.acoustic.run({
+        x: i64(ids, [1, ids.length]),
+        x_length: i64([ids.length], [1]),
+        noise_scale: f32(1),
+        length_scale: f32(1),
+      });
+      acousticMs += performance.now() - phaseStarted;
+
+      const mel = acousticOutput[this.acoustic.outputNames[0]];
+      phaseStarted = performance.now();
+      const vocoderOutput = await this.vocoder.run({mels: mel});
+      vocoderMs += performance.now() - phaseStarted;
+
+      const [magName, xName, yName] = this.vocoder.outputNames;
+      phaseStarted = performance.now();
+      const raw = istft(
+        vocoderOutput[magName],
+        vocoderOutput[xName],
+        vocoderOutput[yName],
+      );
+      istftMs += performance.now() - phaseStarted;
+
+      phaseStarted = performance.now();
+      chunks.push(scaleSilence(raw));
+      silenceMs += performance.now() - phaseStarted;
+    }
+
+    const samples = concatenate(chunks);
+    const stats = waveformStats(samples);
+    const result = {
+      sampleRate: SAMPLE_RATE,
+      audioSeconds: samples.length / SAMPLE_RATE,
+      wallMs: performance.now() - started,
+      phases: {acousticMs, vocoderMs, istftMs, silenceMs},
+      waveform: stats,
+    };
+    if (capture) result.samples = Array.from(samples);
+    return result;
+  },
+};
+
+window.benchmarkMetadata = {
+  text: TEXT,
+  sentenceIds: SENTENCE_IDS,
+  sampleRate: SAMPLE_RATE,
+  numThreads: 1,
+  noiseScale: 1,
+  lengthScale: 1,
+  silenceScale: SILENCE_SCALE,
+  frontend: 'Fixed token IDs from sherpa-onnx 1.13.4 without rule FSTs; outside timed boundary',
+  runtime: 'ONNX Runtime Web 1.26.0-dev.20260416-b7804b056c',
+};
+window.ready = true;
+</script>

@@ -67,7 +67,7 @@ CPU footprint 結論是 AISHELL3 最小、HuaYan 居中，MeloTTS 與 Kokoro fp3
 
 Kokoro 不能使用原 sherpa-onnx 1.13.4 Node WASM binding（初始化觸發 `unreachable`），因此公平比較全部改成直接呼叫 ONNX Runtime Web。文字前處理在計時前完成：HuaYan 用 Piper 官方 eSpeak phonemizer；AISHELL3、MeloTTS、Kokoro 用模型各自的 lexicon/tokens；Kokoro 聲線為 sid 45（`zf_078`）。完整方法和原始三輪數字見 [platform/RESULTS.md](../../platform/RESULTS.md)。
 
-WASM 初始 heap 統一設為 768 MiB；套件預設的 512 MiB 在載入部分中文正規化 FST 時會越界。這項記憶體需求本身就是 iOS Safari／PWA 的部署風險。此外，所用 npm binary 是 pthread build，但推論固定單線程；runtime 仍會建立閒置 worker，因此這是「單一活躍推論執行緒」測試，不是完全移除 pthread 的特製 binary。
+`sherpa-onnx 1.13.4` Node WASM 使用上游預設 512 MiB initial memory，現有 `benchmark.js` 沒有覆寫它；先前文件使用的 `SHERPA_WASM_INITIAL_MEMORY` 環境變數不會被 wrapper 讀取，因此不得寫成已統一配置 768 MiB。本 benchmark 文本不含數字或電話，計時時不載入正規化 FST。另有 Matcha 中文 FST 在明確注入 768 MiB 與 1 GiB 後仍越界的結果，應視為待定位的 runtime／FST 相容性問題，而不是單憑 heap 大小推論。此外，所用 npm binary 是 pthread build，但推論固定單線程；runtime 仍會建立閒置 worker，因此這是「單一活躍推論執行緒」測試，不是完全移除 pthread 的特製 binary。
 
 完整方法、三輪原始值、重跑命令與 WAV 樣本見 [platform/RESULTS.md](../../platform/RESULTS.md)；機器可讀結果位於 repository 根目錄的 `platform/results/results-*.json`。
 

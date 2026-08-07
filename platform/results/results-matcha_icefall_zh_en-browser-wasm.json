@@ -1,0 +1,239 @@
+{
+  "generatedAt": "2026-08-07T09:40:24.053Z",
+  "environment": {
+    "browser": "Chrome/151.0.7922.71",
+    "browserBinary": "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+    "hostPlatform": "darwin",
+    "hostArchitecture": "arm64",
+    "osRelease": "25.5.0",
+    "node": "v24.19.0",
+    "runtime": "ONNX Runtime Web 1.26.0-dev.20260416-b7804b056c",
+    "executionProvider": "wasm",
+    "requestedThreads": 1,
+    "crossOriginIsolated": true,
+    "sharedArrayBuffer": true,
+    "measurement": "Chromium CDP Performance.TaskDuration"
+  },
+  "model": {
+    "name": "matcha-icefall-zh-en",
+    "acousticModel": "model-steps-3.onnx",
+    "vocoder": "vocos-16khz-univ.onnx",
+    "acousticModelBytes": 75717082,
+    "vocoderBytes": 53882848,
+    "totalModelBytes": 129599930,
+    "noiseScale": 1,
+    "lengthScale": 1,
+    "silenceScale": 0.2
+  },
+  "text": "清晨的阳光穿过窗帘。轻轻落在安静的房间里。远处传来清脆的鸟鸣。微风带着花草的清香。让崭新的一天显得格外明亮。",
+  "sentenceIds": [
+    [
+      1431,
+      292,
+      420,
+      1932,
+      661,
+      331,
+      679,
+      336,
+      992,
+      5
+    ],
+    [
+      1431,
+      1431,
+      1059,
+      2004,
+      126,
+      819,
+      420,
+      547,
+      791,
+      983,
+      5
+    ],
+    [
+      1983,
+      319,
+      332,
+      947,
+      1431,
+      384,
+      420,
+      1238,
+      1147,
+      5
+    ],
+    [
+      1826,
+      561,
+      404,
+      2065,
+      746,
+      243,
+      420,
+      1431,
+      1866,
+      5
+    ],
+    [
+      1474,
+      2053,
+      1881,
+      420,
+      1946,
+      1751,
+      1863,
+      420,
+      612,
+      1814,
+      1147,
+      999,
+      5
+    ]
+  ],
+  "frontend": "Fixed token IDs from sherpa-onnx 1.13.4 without rule FSTs; outside timed boundary",
+  "protocol": {
+    "warmups": 1,
+    "measuredRuns": 3,
+    "sentenceBatchSize": 1,
+    "waveformValidation": "all samples finite, peak > 0, RMS recorded"
+  },
+  "initialization": {
+    "initMs": 2208.0900000035763,
+    "warmup": {
+      "sampleRate": 16000,
+      "audioSeconds": 10.93225,
+      "wallMs": 1676.8299999982119,
+      "phases": {
+        "acousticMs": 1041.6499999910593,
+        "vocoderMs": 603.5,
+        "istftMs": 27.46000000834465,
+        "silenceMs": 1.1099999994039536
+      },
+      "waveform": {
+        "samples": 174916,
+        "finiteSamples": 174916,
+        "peak": 0.8084573149681091,
+        "rms": 0.13418675576946246
+      }
+    },
+    "acousticInputs": [
+      "x",
+      "x_length",
+      "noise_scale",
+      "length_scale"
+    ],
+    "acousticOutputs": [
+      "mel"
+    ],
+    "vocoderInputs": [
+      "mels"
+    ],
+    "vocoderOutputs": [
+      "mag",
+      "x",
+      "y"
+    ]
+  },
+  "runs": [
+    {
+      "index": 1,
+      "sampleRate": 16000,
+      "audioSeconds": 10.92275,
+      "wallMs": 1602.6599999964237,
+      "phases": {
+        "acousticMs": 983.1600000113249,
+        "vocoderMs": 592.5949999988079,
+        "istftMs": 24.395000010728836,
+        "silenceMs": 0.5299999862909317
+      },
+      "waveform": {
+        "samples": 174764,
+        "finiteSamples": 174764,
+        "peak": 0.7749683856964111,
+        "rms": 0.13397912157310743
+      },
+      "taskMs": 1602.889,
+      "taskMsPer10s": 1467.4775125311849,
+      "taskRtf": 0.14674775125311845,
+      "wallRtf": 0.14672678583657262
+    },
+    {
+      "index": 2,
+      "sampleRate": 16000,
+      "audioSeconds": 10.916,
+      "wallMs": 1602.9399999976158,
+      "phases": {
+        "acousticMs": 982.6850000172853,
+        "vocoderMs": 596.1299999952316,
+        "istftMs": 21.639999970793724,
+        "silenceMs": 0.5850000083446503
+      },
+      "waveform": {
+        "samples": 174656,
+        "finiteSamples": 174656,
+        "peak": 0.7800449132919312,
+        "rms": 0.1327306789021585
+      },
+      "taskMs": 1603.0999999999997,
+      "taskMsPer10s": 1468.578233785269,
+      "taskRtf": 0.1468578233785269,
+      "wallRtf": 0.1468431659946515
+    },
+    {
+      "index": 3,
+      "sampleRate": 16000,
+      "audioSeconds": 10.928375,
+      "wallMs": 1596.4899999946356,
+      "phases": {
+        "acousticMs": 976.6299999952316,
+        "vocoderMs": 593.0050000399351,
+        "istftMs": 22.28499999642372,
+        "silenceMs": 1.6449999809265137
+      },
+      "waveform": {
+        "samples": 174854,
+        "finiteSamples": 174854,
+        "peak": 0.8169777989387512,
+        "rms": 0.132761623913047
+      },
+      "taskMs": 1598.1020000000003,
+      "taskMsPer10s": 1462.3418394775072,
+      "taskRtf": 0.14623418394775073,
+      "wallRtf": 0.14608667802803577
+    }
+  ],
+  "summary": {
+    "medianTaskMsPer10s": 1467.4775125311849,
+    "medianTaskRtf": 0.14674775125311845,
+    "medianWallRtf": 0.14672678583657262,
+    "medianTaskRealtimeMultiplier": 6.814414472867431,
+    "medianWallRealtimeMultiplier": 6.815388167187286,
+    "medianAudioSeconds": 10.92275,
+    "medianPhasesMs": {
+      "acoustic": 982.6850000172853,
+      "vocoder": 593.0050000399351,
+      "istft": 22.28499999642372,
+      "silence": 0.5850000083446503
+    },
+    "capture": {
+      "sampleRate": 16000,
+      "audioSeconds": 10.9235,
+      "wallMs": 1594.9300000071526,
+      "phases": {
+        "acousticMs": 977.8449999839067,
+        "vocoderMs": 593.109999999404,
+        "istftMs": 21.484999984502792,
+        "silenceMs": 0.5900000184774399
+      },
+      "waveform": {
+        "samples": 174776,
+        "finiteSamples": 174776,
+        "peak": 0.8184795379638672,
+        "rms": 0.13529274849034992
+      }
+    }
+  }
+}

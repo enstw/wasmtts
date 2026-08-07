@@ -5,7 +5,8 @@
   "scripts": {
     "host:mobile": "node mobile-host/server.mjs",
     "benchmark:vits": "node platform/run-vits-browser.mjs",
-    "benchmark:kokoro": "node platform/run-kokoro-browser.mjs"
+    "benchmark:kokoro": "node platform/run-kokoro-browser.mjs",
+    "benchmark:matcha": "node platform/run-matcha-browser.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",
