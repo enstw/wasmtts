@@ -6,7 +6,7 @@
 
 HuaYan 是 Piper 現有的普通話單人女聲，包含 `x_low` 與 `medium` 兩個版本。若目標是呈現 HuaYan 能達到的最佳音質，應採用 `zh_CN-huayan-medium`：模型約 63 MB、約 1,500 萬參數，輸出為 22,050 Hz 單聲道音訊。`medium` 是目前公開 HuaYan 模型中最適合製作音質樣本的版本。
 
-若產品以 iOS Safari 或安裝到主畫面的 Mobile PWA 為主要平台，HuaYan medium 已是正式候選，不再只限於前景短句展示。`bookworm` 已在 iOS Home Screen PWA 實證：ONNX Runtime Web WASM 單一 thread 在 Worker 中持續合成，句子單元經 MP3 編碼後 append 到同一條 `ManagedMediaSource` timeline，鎖屏期間能跨句、跨章繼續產生與播放。主要風險仍包括：
+在本專案中，HuaYan medium 是 frozen 品質／效能基準，不是待開發或最佳化的候選。`bookworm` 已在 iOS Home Screen PWA 實證其單 thread Worker、MP3 encoder 與跨章鎖屏播放 transport；這項結果只用來封閉播放架構問題，不列為本專案的新 benchmark。Piper 本身仍有以下限制：
 
 - ONNX 模型、ONNX Runtime WASM、phonemizer 及 JavaScript heap 疊加後的記憶體壓力。
 - iOS 可能在沒有可捕捉錯誤的情況下終止或重新載入頁面。
@@ -14,28 +14,12 @@ HuaYan 是 Piper 現有的普通話單人女聲，包含 `x_low` 與 `medium` �
 - 此背景執行能力是實機驗證結果，不是所有 iOS／WebKit 版本的保證；仍須保存版本矩陣與長時間 flight recorder。
 - 音訊播放必須由使用者點擊等手勢啟動。
 
-## 已驗證的 iOS PWA 串流架構
+## 本專案的研究邊界
 
-1. 使用者點擊時建立並啟動一個長駐 `HTMLAudioElement`；整本書只使用這一次 `play()` 啟動鏈。
-1. 使用 `ManagedMediaSource`、`audio/mpeg` `SourceBuffer` 與 `mode = "sequence"`，讓所有句子及章節共用同一條 timeline。
-1. Piper phonemizer 處理繁體中文，ONNX Runtime Web Worker 以 `numThreads = 1` 推論；每個句子單元最長約 12 秒。
-1. Worker 將 PCM 以 LAME 編為 MP3，再由主執行緒 `appendBuffer()`；不得在句子或章節邊界建立新 audio element。
-1. 合成約維持 90 秒 ahead buffer，以 append／media 事件驅動 refill；保留約 30 秒已播放音訊後裁切，讓長時間記憶體保持有界。
-1. Chain-swap WAV 方案曾在鎖屏約 5 分鐘後遇到下一次 `play()` 永遠 pending，當時 JavaScript 與合成仍在運作；這項失敗證據支持「單一 timeline」是產品必要條件。
-
-參考實作固定於 [`bookworm` commit `c826781`](https://github.com/enstw/bookworm/blob/c826781a1cb03416a6d69de7af05aadd6ab687f4/public/player.mjs#L580-L806)。目前 `wasmtts` 尚須補錄該次實機的裝置、iOS 版本、連續鎖屏時長及 buffer 最低水位，並在本 repository 的 mobile host 重現。
-
-## 最佳化與 iOS 實作原則
-
-- 將阻塞性的 ONNX 推論放入專用 Web Worker；phonemizer 是否同置 Worker 另作 A/B，不能阻塞媒體事件。
-- iOS 預設 `ort.env.wasm.numThreads = 1`，避免依賴 shared WASM memory。
-- 逐句合成，每段約 30–80 個中文字；不要一次送入整篇文章。
-- 將句子 PCM 編碼成 MP3 frame stream，append 到單一 `ManagedMediaSource` timeline；不要先產生完整章節，也不要以 AudioWorklet 作鎖屏 transport。
-- 第一次點擊時解鎖並啟動長駐媒體 element；模型需預先下載到離線 cache，播放鍵不得暗中下載約 60 MB 的 voice pack。
-- 以有界 ahead buffer 和事件驅動 backpressure 持續補產，避免依賴鎖屏後可能節流的 timer。
-- 監聽 `pagehide`、`visibilitychange` 和 Worker error；回到前景時允許重建 session。
-- Piper 失敗時自動降級至系統語音或伺服器 TTS。
-- 在 iPhone SE、較舊 iPhone、當代標準機與 iPad 上分別測試首次載入、連續合成、切換背景、鎖屏及低記憶體情境。
+1. 保留 HuaYan medium 的可實聽樣本、既有單 thread benchmark 與授權風險，供所有新候選比較。
+1. 不在此重做 Piper Worker、MP3 encoder、鎖屏長跑、x_low／medium 產品分層或播放器最佳化。
+1. 新候選的第一個 gate 是相對 HuaYan medium 的盲聽品質提升；通過後才比較 RTF、資產體積、記憶體與整合相容性。
+1. 播放 transport 的參考實作位於 [`mobile-host`](../../mobile-host/)，上游實證固定於 [`bookworm` commit `c826781`](https://github.com/enstw/bookworm/blob/c826781a1cb03416a6d69de7af05aadd6ab687f4/public/player.mjs#L580-L806)。
 
 ## HuaYan 音質與授權
 

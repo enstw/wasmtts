@@ -100,10 +100,6 @@ const player = createContinuousStreamPlayer({
     $('#audioSeconds').textContent = `${fmt(snapshot.appendedAudioSeconds)} 秒`;
     $('#underflows').textContent = String(snapshot.underflows);
     $('#bytes').textContent = `${fmt(snapshot.bytes / 1024)} KiB`;
-    $('#fixtureRtf').textContent = snapshot.rtf === null ? '—' : fmt(snapshot.rtf, 3);
-    $('#fixtureMultiplier').textContent = snapshot.realtimeMultiplier === null
-      ? '—'
-      : `${fmt(snapshot.realtimeMultiplier)}×`;
     $('#startBtn').disabled = snapshot.active || !snapshot.supported;
     $('#stopBtn').disabled = !snapshot.active;
     $('#pauseBtn').disabled = !snapshot.active;

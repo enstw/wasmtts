@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-本 repository 研究中文 TTS 在瀏覽器 WebAssembly，尤其是 iOS Safari 與行動 PWA 上的可行性。研究範圍不限神經網路或 ONNX，也包含統計參數式、拼接式、diphone、共振峰、規則式及混合式合成。Piper HuaYan medium 是目前的 `1.00x` 基準；所有效能結論必須同時保留合成架構、runtime 環境、音訊有效性與品質限制。
+本 repository 的主要目標是尋找語音品質明顯高於 Piper HuaYan medium、且可在 iOS Safari／PWA 離線執行的中文 TTS 替代方案。研究範圍不限神經網路或 ONNX，也包含統計參數式、拼接式、diphone、共振峰、規則式及混合式合成。Piper HuaYan medium 是 frozen 品質／效能基準 `1.00x`，不是待最佳化的產品工作；所有效能結論必須同時保留合成架構、runtime 環境、音訊有效性與品質限制。
 
 先閱讀 [GOAL.md](GOAL.md) 了解已測框架、目前結論與候選判定標準。不要把含 NaN、Infinity、peak 為零或 RMS 為零的 waveform 當成有效 benchmark。
 
@@ -24,6 +24,8 @@
 新增方案時，先建立 `frameworks/<name>/README.md`，記錄合成架構、引擎與聲音資料，再以適合該 runtime 的 adapter 接入 `platform/`；不得要求候選轉成 ONNX。跨方案比較必須共用相同文字、計時邊界、量測單位與 waveform 驗證；需要暖機的 runtime 使用相同暖機次數，不需暖機者必須明確記錄。若環境不同，必須標為只可組內比較。
 
 iOS 產品路徑採用「背景逐句合成、單一媒體 timeline」：使用者手勢只啟動一次長駐 `HTMLAudioElement`，Worker 產生的音訊單元經編碼後 append 到同一個 `ManagedMediaSource`／`SourceBuffer` sequence。不得預產整章、在句子或章節邊界建立新 element 或再次呼叫 `play()`。buffer 必須有界並以 media／append 事件驅動 refill，不可只依賴背景 timer；`bookworm` 的 Piper HuaYan medium 單 thread 實作是目前的產品參考。
+
+Piper Worker、MP3 encoder 與上述播放 transport 已由 `bookworm` 驗證；不要在本 repository 重做 Piper 整合或把 fixture transport 數字當成研究結果。新候選先通過相對 Piper 的盲聽品質門檻，再使用 `mobile-host` 的既有 producer 契約做必要的整合相容性測試。
 
 ## Conventions
 

@@ -2,7 +2,7 @@
 
 本專案比較可在 iOS Safari 與行動 PWA 離線執行、並能在鎖屏期間持續朗讀長篇小說的中文 TTS，並以技術中立的瀏覽器量測契約保存效能、正確性與音質證據。候選可以採純 JavaScript、Web Audio、WebAssembly 或系統語音，不限神經網路或 ONNX；目前的 ONNX Runtime Web harness 是第一個已實作的 adapter。鎖屏產品路徑不是預產章節，而是讓 RTF 小於 `1` 的引擎在背景逐句合成，再把編碼片段 append 到單一長駐 `ManagedMediaSource` timeline。
 
-目前的核心結論是：Piper HuaYan medium 不只是資源受限環境的實用基準，也已由 `bookworm` 在 iOS Home Screen PWA 實證單 thread 背景合成、MP3 sequence append、跨章鎖屏續播；Kokoro fp32 可正常發聲但單線程成本過高；自行產生的 Kokoro selective INT8 修正了 NaN，卻沒有帶來速度優勢；AISHELL3 雖然最快，但音質不足以成為產品候選。
+目前的核心結論是：Piper HuaYan medium 是 frozen 品質／效能基準，其 Worker、MP3 encoder 與鎖屏 transport 已由 `bookworm` 驗證，不是本專案要重做的研究。現有已測方案尚未找到明確的品質升級：Kokoro fp32 可正常發聲但單線程成本過高；Kokoro selective INT8 修正了 NaN，卻沒有速度優勢；AISHELL3 雖然最快，但音質不足以成為產品候選。
 
 ## 專案入口
 

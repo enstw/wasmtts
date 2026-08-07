@@ -2,7 +2,7 @@
 
 此目錄提供一個從 repository 根目錄發布靜態檔案的 host，並加入 COOP、COEP 與 CORP headers。桌面 benchmark runner 也使用同一個 port。
 
-`stream-test.html` 與 `continuous-stream-player.mjs` 抽出 `bookworm` 已在 iOS PWA 驗證的播放框架：單一 `HTMLAudioElement`、單一 `ManagedMediaSource`／`MediaSource` sequence timeline、事件驅動 refill、有界 ahead buffer、舊 buffer 裁切與鎖屏 flight recorder。測試頁以重複的 HuaYan MP3 fixture 驗證 transport；正式 TTS adapter 只需實作逐段回傳 `{ buffer: ArrayBuffer, meta }` 的 producer。
+`stream-test.html` 與 `continuous-stream-player.mjs` 抽出 `bookworm` 已在 iOS PWA 驗證的播放框架：單一 `HTMLAudioElement`、單一 `ManagedMediaSource`／`MediaSource` sequence timeline、事件驅動 refill、有界 ahead buffer、舊 buffer 裁切與鎖屏 flight recorder。測試頁以重複的 HuaYan MP3 fixture 驗證 transport；候選 TTS adapter 只需實作逐段回傳 `{ buffer: ArrayBuffer, meta }` 的 producer。Fixture 與 Piper 不產生本專案的 TTS benchmark，也不需要重做 Piper Worker 或 encoder 實驗。
 
 ## 啟動
 
@@ -36,5 +36,3 @@ WASM_TTS_HOST=0.0.0.0 WASM_TTS_PORT=9000 pnpm host:mobile
 - 驗證鎖屏的播放／暫停控制、耳機控制、其他 app 音訊中斷，以及解鎖回到前景後的狀態。
 - 記錄實際是否可聽，不只記錄 `play()` Promise、media events 或 `AudioContext.state`。
 - 若使用 `navigator.audioSession`，可在支援時設為 `playback`，但仍必須保留實機版本矩陣。
-
-頁面中的 Fixture RTF 只包含讀取／複製既有 MP3 的 wall time，用於觀察 transport，不代表 Piper 合成效能。接上真實 TTS producer 後，必須改以 phonemizer、推論及 MP3 編碼的總 wall time 計算端到端 RTF。

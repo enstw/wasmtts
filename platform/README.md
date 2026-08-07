@@ -47,6 +47,8 @@ platform/models/
 
 播放 transport 的參考實作位於 [`mobile-host/continuous-stream-player.mjs`](../mobile-host/continuous-stream-player.mjs)，立即可用的 fixture 頁面為 [`mobile-host/stream-test.html`](../mobile-host/stream-test.html)。新的 TTS adapter 應實作相同 producer 契約，不要各自複製 MediaSource 狀態機。
 
+Fixture 與 Piper transport 只驗證共同播放基礎設施，不產生可排名的 TTS 結果。新候選先通過相對 Piper 的語音品質 gate；只有通過者才需要量端到端 RTF 並接入鎖屏 transport。
+
 ## 執行
 
 先從 repository 根目錄啟動 host：
