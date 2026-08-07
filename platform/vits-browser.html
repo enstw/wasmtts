@@ -20,14 +20,14 @@ window.bench = {
     this.name=name;
     if (name==='piper_huayan_medium') {
       this.sampleRate=22050; this.sequences=piperSentences;
-      this.session=await ORT.InferenceSession.create('/benchmarks/models/vits-piper-zh_CN-huayan-medium/zh_CN-huayan-medium.onnx',{executionProviders:['wasm']});
+      this.session=await ORT.InferenceSession.create('/platform/models/vits-piper-zh_CN-huayan-medium/zh_CN-huayan-medium.onnx',{executionProviders:['wasm']});
     } else if (name==='vits_aishell3') {
-      this.sampleRate=8000; const base='/benchmarks/models/vits-icefall-zh-aishell3/'; const {tokens,lexicon}=await maps(base);
+      this.sampleRate=8000; const base='/platform/models/vits-icefall-zh-aishell3/'; const {tokens,lexicon}=await maps(base);
       const phones=['sil']; for(const c of text){if(c==='。')phones.push('sp');else if(lexicon.has(c))phones.push(...lexicon.get(c));} phones.push('eos');
       this.ids=phones.map(x=>tokens.get(x)).filter(Number.isFinite);
       this.session=await ORT.InferenceSession.create(base+'model.onnx',{executionProviders:['wasm']});
     } else {
-      this.sampleRate=44100; const base='/benchmarks/models/vits-melo-tts-zh_en/'; const {tokens,lexicon}=await maps(base);
+      this.sampleRate=44100; const base='/platform/models/vits-melo-tts-zh_en/'; const {tokens,lexicon}=await maps(base);
       const phones=[],tones=[]; for(const c of text){if(c==='。'){phones.push('.');tones.push(0);}else if(lexicon.has(c)){const row=lexicon.get(c), n=row.length/2; phones.push(...row.slice(0,n)); tones.push(...row.slice(n).map(Number));}}
       const p=[],t=[]; for(let i=0;i<phones.length;i++){p.push('_',phones[i]);t.push(0,tones[i]);} p.push('_');t.push(0);
       this.ids=p.map(x=>tokens.get(x)??tokens.get('UNK')); this.tones=t;

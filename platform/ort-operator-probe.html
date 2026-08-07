@@ -8,7 +8,7 @@ ORT.env.wasm.numThreads = 1;
 ORT.env.wasm.proxy = false;
 window.probe = {
   async init(name) {
-    this.session = await ORT.InferenceSession.create(`/benchmarks/models/ort-operator-probes/${name}.onnx`, {
+    this.session = await ORT.InferenceSession.create(`/platform/models/ort-operator-probes/${name}.onnx`, {
       executionProviders: ['wasm'], graphOptimizationLevel: 'all',
     });
     this.feeds = {};

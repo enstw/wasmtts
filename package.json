@@ -2,6 +2,11 @@
   "name": "wasmtts-benchmark",
   "private": true,
   "type": "commonjs",
+  "scripts": {
+    "host:mobile": "node mobile-host/server.mjs",
+    "benchmark:vits": "node platform/run-vits-browser.mjs",
+    "benchmark:kokoro": "node platform/run-kokoro-browser.mjs"
+  },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",
     "sherpa-onnx": "1.13.4"

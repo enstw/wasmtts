@@ -1,6 +1,6 @@
 if (!window.kokoroGstackState) {
-  const modelPath = '/benchmarks/models/kokoro-selective-int8/model.onnx';
-  const assetsBase = '/benchmarks/models/kokoro-selective-int8/';
+  const modelPath = '/platform/models/kokoro-selective-int8/model.onnx';
+  const assetsBase = '/platform/models/kokoro-selective-int8/';
   const initMs = await window.bench.init(true, 'int8', modelPath, assetsBase);
   window.kokoroGstackState = { initMs, warmed: false, runs: [] };
   return { phase: 'initialized', initMs };

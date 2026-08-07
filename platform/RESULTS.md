@@ -66,25 +66,25 @@ Selective INT8 三輪為 `15.148`、`15.182`、`15.197` 秒／10 秒音訊；FP3
 
 ## 可重現檔案
 
-- 測試程式：`benchmarks/benchmark.js`
-- 每輪完整 JSON：`benchmarks/results/results-*.json`
-- 成功模型最後一輪 WAV：`benchmarks/results/*.wav`
-- Kokoro 瀏覽器頁：`benchmarks/kokoro-browser.html`
-- Kokoro Chromium/CDP runner：`benchmarks/run-kokoro-browser.mjs`
-- Kokoro selective INT8 量化器：`benchmarks/quantize-kokoro.py`
-- Kokoro 原生數值驗證器：`benchmarks/validate-kokoro-onnx.py`
-- Kokoro gstack browse 單輪 runner：`benchmarks/run-kokoro-gstack.js`
-- 其他三款 ORT Web runner：`benchmarks/run-vits-browser.mjs`
-- 統一三款原始結果：`benchmarks/results/results-vits-browser-wasm.json`
-- Selective INT8 與同瀏覽器 FP32 A/B：`benchmarks/results/results-kokoro_v1_1_zh_selective-int8-browser-wasm.json`
+- 測試程式：`platform/benchmark.js`
+- 每輪完整 JSON：`platform/results/results-*.json`
+- 成功模型最後一輪 WAV：`platform/results/*.wav`
+- Kokoro 瀏覽器頁：`platform/kokoro-browser.html`
+- Kokoro Chromium/CDP runner：`platform/run-kokoro-browser.mjs`
+- Kokoro selective INT8 量化器：`platform/quantize-kokoro.py`
+- Kokoro 原生數值驗證器：`platform/validate-kokoro-onnx.py`
+- Kokoro gstack browse 單輪 runner：`platform/run-kokoro-gstack.js`
+- 其他三款 ORT Web runner：`platform/run-vits-browser.mjs`
+- 統一三款原始結果：`platform/results/results-vits-browser-wasm.json`
+- Selective INT8 與同瀏覽器 FP32 A/B：`platform/results/results-kokoro_v1_1_zh_selective-int8-browser-wasm.json`
 
 重跑範例：
 
 ```sh
-SHERPA_WASM_INITIAL_MEMORY=805306368 pnpm exec node benchmarks/benchmark.js piper_huayan_medium
-SHERPA_WASM_INITIAL_MEMORY=805306368 pnpm exec node benchmarks/benchmark.js vits_aishell3
-SHERPA_WASM_INITIAL_MEMORY=805306368 pnpm exec node benchmarks/benchmark.js vits_melotts_zh_en
-# 另一個 terminal 先執行：uv run python -m http.server 8765
-pnpm exec node benchmarks/run-kokoro-browser.mjs fp32
-pnpm exec node benchmarks/run-vits-browser.mjs
+SHERPA_WASM_INITIAL_MEMORY=805306368 pnpm exec node platform/benchmark.js piper_huayan_medium
+SHERPA_WASM_INITIAL_MEMORY=805306368 pnpm exec node platform/benchmark.js vits_aishell3
+SHERPA_WASM_INITIAL_MEMORY=805306368 pnpm exec node platform/benchmark.js vits_melotts_zh_en
+# 另一個終端機先執行：pnpm host:mobile
+pnpm exec node platform/run-kokoro-browser.mjs fp32
+pnpm exec node platform/run-vits-browser.mjs
 ```

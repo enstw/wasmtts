@@ -5,7 +5,7 @@ const executablePath = `${process.env.HOME}/Library/Caches/ms-playwright/chromiu
 const browser = await chromium.launch({ executablePath, headless: true });
 const page = await browser.newPage();
 page.on('pageerror', error => console.error(error));
-await page.goto('http://127.0.0.1:8765/benchmarks/kokoro-browser.html');
+await page.goto('http://127.0.0.1:8765/platform/kokoro-browser.html');
 await page.waitForFunction(() => window.ready === true);
 await page.evaluate(() => window.bench.init(true, 'fp32'));
 const { samples, sampleRate, finite, peak, rms } = await page.evaluate(() => window.bench.capture());

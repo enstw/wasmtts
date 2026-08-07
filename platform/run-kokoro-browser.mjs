@@ -25,7 +25,7 @@ page.on('requestfailed', request => console.error('requestfailed:', request.url(
 page.on('response', response => {
   if (!response.ok()) console.error('response:', response.status(), response.url());
 });
-await page.goto('http://127.0.0.1:8765/benchmarks/kokoro-browser.html');
+await page.goto('http://127.0.0.1:8765/platform/kokoro-browser.html');
 await page.waitForFunction(() => window.ready === true);
 const initMs = await page.evaluate(
   ({ dtype, modelPath, shapeProbe, textOverride, numThreads }) => window.bench.init(shapeProbe, dtype, modelPath, undefined, textOverride ?? undefined, numThreads),

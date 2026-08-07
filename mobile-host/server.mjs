@@ -1,9 +1,15 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = process.cwd();
-const mime = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.wasm': 'application/wasm', '.onnx': 'application/octet-stream', '.txt': 'text/plain', '.bin': 'application/octet-stream' };
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const host = process.env.WASM_TTS_HOST ?? '0.0.0.0';
+const port = Number(process.env.WASM_TTS_PORT ?? 8765);
+if (!Number.isInteger(port) || port < 1 || port > 65535) {
+  throw new Error(`WASM_TTS_PORT 無效：${process.env.WASM_TTS_PORT}`);
+}
+const mime = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.wasm': 'application/wasm', '.onnx': 'application/octet-stream', '.txt': 'text/plain', '.bin': 'application/octet-stream', '.wav': 'audio/wav' };
 
 http.createServer((request, response) => {
   const pathname = decodeURIComponent(new URL(request.url, 'http://127.0.0.1').pathname);
@@ -26,4 +32,7 @@ http.createServer((request, response) => {
       response.writeHead(200).end(data);
     });
   });
-}).listen(8765, '127.0.0.1', () => console.log('COOP/COEP server listening on http://127.0.0.1:8765'));
+}).listen(port, host, () => {
+  console.log(`WASM TTS 測試 host 正在監聽 http://${host}:${port}`);
+  console.log(`本機入口：http://127.0.0.1:${port}/mobile-host/`);
+});

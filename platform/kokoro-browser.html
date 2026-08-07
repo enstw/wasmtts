@@ -19,7 +19,7 @@ window.bench = {
     await session.release();
     return result;
   },
-  async init(skipWarmup = false, dtype = 'int8', modelPath = null, assetsBase = '/benchmarks/models/kokoro-int8-multi-lang-v1_1/', text = defaultText, numThreads = 1) {
+  async init(skipWarmup = false, dtype = 'int8', modelPath = null, assetsBase = '/platform/models/kokoro-int8-multi-lang-v1_1/', text = defaultText, numThreads = 1) {
     const start = performance.now();
     env.backends.onnx.wasm.numThreads = numThreads;
     ORT.env.wasm.numThreads = numThreads;

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WASM TTS 行動裝置測試</title>
+</head>
+<body>
+  <main>
+    <h1>WASM TTS 行動裝置測試</h1>
+    <p>此 host 已提供跨來源隔離 headers。請選擇測試頁，並使用 Safari Web Inspector 觸發或檢查 benchmark API。</p>
+    <ul>
+      <li><a href="/platform/kokoro-browser.html">Kokoro benchmark page</a></li>
+      <li><a href="/platform/vits-browser.html">Piper／VITS benchmark page</a></li>
+      <li><a href="/platform/ort-operator-probe.html">ORT operator probe page</a></li>
+    </ul>
+    <dl>
+      <dt>Secure context</dt><dd id="secure"></dd>
+      <dt>Cross-origin isolated</dt><dd id="isolated"></dd>
+      <dt>SharedArrayBuffer</dt><dd id="sab"></dd>
+    </dl>
+  </main>
+  <script>
+    document.querySelector('#secure').textContent = String(window.isSecureContext);
+    document.querySelector('#isolated').textContent = String(window.crossOriginIsolated);
+    document.querySelector('#sab').textContent = String(typeof SharedArrayBuffer !== 'undefined');
+  </script>
+</body>
+</html>

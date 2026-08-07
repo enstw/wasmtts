@@ -3,12 +3,12 @@ import fs from 'node:fs';
 
 const name = process.argv[2];
 const iterations = Number(process.argv[3] ?? 50);
-if (!name) throw new Error('usage: node benchmarks/run-ort-operator-probe.mjs OP [ITERATIONS]');
+if (!name) throw new Error('usage: node platform/run-ort-operator-probe.mjs OP [ITERATIONS]');
 const executablePath = `${process.env.HOME}/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing`;
 const browser = await chromium.launch({ executablePath, headless: true });
 const page = await browser.newPage();
 page.on('pageerror', error => console.error('pageerror:', error));
-await page.goto('http://127.0.0.1:8765/benchmarks/ort-operator-probe.html');
+await page.goto('http://127.0.0.1:8765/platform/ort-operator-probe.html');
 await page.waitForFunction(() => window.ready === true);
 await page.evaluate(name => window.probe.init(name), name);
 const cdp = await page.context().newCDPSession(page);

@@ -4,12 +4,12 @@ const executablePath = `${process.env.HOME}/Library/Caches/ms-playwright/chromiu
 const browser = await chromium.launch({ executablePath, headless: true });
 const page = await browser.newPage();
 page.on('pageerror', error => console.error(error));
-await page.goto('http://127.0.0.1:8765/benchmarks/kokoro-browser.html');
+await page.goto('http://127.0.0.1:8765/platform/kokoro-browser.html');
 await page.waitForFunction(() => window.ready === true);
 for (const path of [
-  '/benchmarks/models/vits-piper-zh_CN-huayan-medium/zh_CN-huayan-medium.onnx',
-  '/benchmarks/models/vits-icefall-zh-aishell3/model.onnx',
-  '/benchmarks/models/vits-melo-tts-zh_en/model.onnx',
+  '/platform/models/vits-piper-zh_CN-huayan-medium/zh_CN-huayan-medium.onnx',
+  '/platform/models/vits-icefall-zh-aishell3/model.onnx',
+  '/platform/models/vits-melo-tts-zh_en/model.onnx',
 ]) {
   console.log(path, JSON.stringify(await page.evaluate(path => window.bench.inspectModel(path), path), null, 2));
 }

@@ -21,7 +21,7 @@ HuaYan 是 Piper 現有的普通話單人女聲，包含 `x_low` 與 `medium` �
 1. 需要研究完全離線的自有模型時，提供 Piper 作為可選下載引擎：低記憶體裝置使用 HuaYan `x_low`，能通過實機壓力測試的裝置才開放 `medium`。
 1. 若必須同時滿足固定聲線、完全離線、背景播放與長篇朗讀，應改用原生 iOS layer（AVSpeechSynthesizer、ONNX Runtime Mobile 或 Core ML），而不是在 WKWebView 中繼續執行 WASM。
 
-## iOS 上的 Piper 實作原則
+## 最佳化與 iOS 實作原則
 
 - 將 phonemizer 與 ONNX 推論全部放入專用 Web Worker。
 - iOS 預設 `ort.env.wasm.numThreads = 1`，避免依賴 shared WASM memory。
@@ -41,7 +41,7 @@ HuaYan 是 Piper 現有的普通話單人女聲，包含 `x_low` 與 `medium` �
 
 ## 最佳展示樣本
 
-文字存於 `samples/huayan-medium-best.txt`，成品為 `samples/huayan-medium-best.wav`。
+文字存於 [samples/huayan-medium-best.txt](samples/huayan-medium-best.txt)，成品為 [samples/huayan-medium-best.wav](samples/huayan-medium-best.wav)。
 
 本樣本明確採用簡體中文與大陸普通話表達，不以 `zh_TW` 口音為目標。
 
@@ -55,7 +55,7 @@ HuaYan 是 Piper 現有的普通話單人女聲，包含 `x_low` 與 `medium` �
 
 檔案驗證結果：時長約 20.0 秒、PCM 16-bit、22,050 Hz、單聲道、峰值 -1.0 dBFS。
 
-## 本機單線程 WASM CPU 實測
+## Benchmark：本機單線程 WASM CPU 實測
 
 測試於 2026-08-06，環境為 macOS 26.5.2 arm64、Node 24.19.0、`sherpa-onnx` 1.13.4。所有成功模型使用同一 Emscripten WASM／ONNX Runtime CPU 核心，固定 `numThreads: 1`、語速 1.0。同一段約 10 秒的簡體中文文本先暖機一次，再量測三次，以實際 WAV 長度正規化並取 CPU 時間中位數。
 
@@ -74,11 +74,11 @@ CPU footprint 結論是 AISHELL3 最小、HuaYan 居中，MeloTTS 與 Kokoro fp3
 
 另以 FP32 自行產生保守的 selective INT8：只動態量化 decoder 以外可安全轉換的 `MatMul/LSTM`，所有卷積、vocoder 與 STFT 保留 FP32。模型由 323.6 MiB 降至 296.7 MiB，原生 ORT 與瀏覽器 WASM 的 waveform 均為完整有限值；同一個 gstack HeadlessChrome 145 A/B 中，selective INT8 為 15.182 秒／10 秒音訊，FP32 為 15.042 秒，INT8 慢約 0.9%。因此可以從 FP32 做出正確的混合 INT8，但目前沒有單線程 WASM 加速證據，且 8.3% 的體積縮減不足以改變 iOS PWA 的記憶體判斷。
 
-Kokoro 不能使用原 sherpa-onnx 1.13.4 Node WASM binding（初始化觸發 `unreachable`），因此公平比較全部改成直接呼叫 ONNX Runtime Web。文字前處理在計時前完成：HuaYan 用 Piper 官方 eSpeak phonemizer；AISHELL3、MeloTTS、Kokoro 用模型各自的 lexicon/tokens；Kokoro 聲線為 sid 45（`zf_078`）。完整方法和原始三輪數字見 `benchmarks/RESULTS.md`。
+Kokoro 不能使用原 sherpa-onnx 1.13.4 Node WASM binding（初始化觸發 `unreachable`），因此公平比較全部改成直接呼叫 ONNX Runtime Web。文字前處理在計時前完成：HuaYan 用 Piper 官方 eSpeak phonemizer；AISHELL3、MeloTTS、Kokoro 用模型各自的 lexicon/tokens；Kokoro 聲線為 sid 45（`zf_078`）。完整方法和原始三輪數字見 [platform/RESULTS.md](../../platform/RESULTS.md)。
 
 WASM 初始 heap 統一設為 768 MiB；套件預設的 512 MiB 在載入部分中文正規化 FST 時會越界。這項記憶體需求本身就是 iOS Safari／PWA 的部署風險。此外，所用 npm binary 是 pthread build，但推論固定單線程；runtime 仍會建立閒置 worker，因此這是「單一活躍推論執行緒」測試，不是完全移除 pthread 的特製 binary。
 
-完整方法、三輪原始值、重跑命令與 WAV 樣本見 `benchmarks/RESULTS.md`；機器可讀結果位於 `benchmarks/results/results-*.json`。
+完整方法、三輪原始值、重跑命令與 WAV 樣本見 [platform/RESULTS.md](../../platform/RESULTS.md)；機器可讀結果位於 repository 根目錄的 `platform/results/results-*.json`。
 
 ## 主要資料來源
 

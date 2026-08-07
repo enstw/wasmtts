@@ -2,14 +2,14 @@
 .pnpm-store/
 node_modules/
 
-# Downloaded third-party model artifacts are not redistributed.
-benchmarks/models/
+# 不重新散布下載的第三方模型產物。
+platform/models/
 *.onnx
 *.tar
 *.tar.bz2
 *.zip
 
-# Local environment and agent state.
+# 本機環境與代理狀態。
 .env*
 .claude/
 .codex/
