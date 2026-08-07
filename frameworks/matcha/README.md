@@ -55,7 +55,7 @@
 | JavaScript ISTFT | 22.3 ms | 1.4% |
 | silence scaling | 0.6 ms | <0.1% |
 
-瀏覽器 adapter 直接以 ORT Web 執行 acoustic model 與 Vocos，並依 sherpa-onnx／kaldi-native-fbank 的 Vocos 頻譜排列、Hann window、overlap-add、中心裁切及 `silence_scale=0.2` 重現輸出。五句 token 由 `sherpa-onnx 1.13.4` 前端預先產生，文字前處理不納入計時，與既有 ORT Web 主表邊界一致。
+瀏覽器 adapter 直接以 ORT Web 執行 acoustic model 與 Vocos，並依 sherpa-onnx／kaldi-native-fbank 的 Vocos 頻譜排列、Hann window、overlap-add、中心裁切及 `silence_scale=0.2` 重現輸出。五句 token 由 `sherpa-onnx 1.13.4` 前端預先產生，文字前處理不納入計時，與既有 ORT Web 主表邊界一致。本輪瀏覽器 adapter 使用 `noise_scale=1.0`；sherpa-onnx Matcha 預設則是 `0.667`，兩者不可當成完全相同的生成配置。
 
 與 Chromium 149 的 Piper 舊基準相比，Matcha task time 約為 `0.93x`；由於瀏覽器版本不同，這只能支持「與 Piper 同量級、沒有明顯更慢」，不能當成嚴格的 7% 加速結論。本機目前沒有 Piper 模型資產，因此尚未在 Chromium 151 補同輪 control。
 
@@ -81,6 +81,17 @@
 每段中位數為 5.121 秒音訊、62,640 bytes MP3；前端 `0.185 ms`、acoustic `423.9 ms`、Vocos `264.0 ms`、ISTFT `9.5 ms`、silence scaling `0.2 ms`、MP3 encode `50.3 ms`、完整 producer `750.2 ms`。記憶體 API 只在初始化後與串流中取樣，不能宣稱為 peak。
 
 原模型 lexicon 沒有「垃圾」整詞條目，實際使用「垃 → `la1`、圾 → `ji1`」，即中國大陸普通話 `lā jī`。測試頁提供明示的臺灣覆寫 `垃圾 → le4 se4`；真實 Worker 已驗證可產生 12,513 個全為有限值的 samples 與 10,368-byte MP3，但正式效能結果仍使用上游原詞典，不把產品覆寫冒充模型預設。
+
+### 繁體直輸與 `noise_scale` A/B 試聽
+
+為分離 OpenCC 與模型生成參數，另以[同一份原始繁體小說文字](samples/matcha-no-fst-novel-traditional-direct.txt)直接查詢上游 lexicon；不經繁轉簡、不載入 FST，仍保留 JavaScript 常用數字規則。完整原文直接比較時，繁體與 OpenCC 版本都是 135 個 token、0 個 unknown；實際切成五個音訊單元後共 134 個 token、0 個 unknown，差一個是段落分隔標點不進入逐句音訊。直接繁體與 OpenCC 版本的內容 token 數相同，但繁體直查會把兩個「著」標為 `zhu4`，並把「顯得」的「得」標為 `de2`；OpenCC 版本則是 `zhe5`、`de5`。這證明繁轉簡不是 acoustic model 的要求，但目前對部分詞組讀音有實際影響。
+
+| 試聽檔 | 配置 | PCM 長度 | MP3 bytes | SHA-256 |
+|---|---|---:|---:|---|
+| [繁體直輸，noise 1.0](samples/matcha-no-fst-novel-traditional-direct-noise-1.mp3)／[metadata](samples/matcha-no-fst-novel-traditional-direct-noise-1.json) | 先前 Chromium 測試參數 | 25.5379 秒 | 311,904 | `5d54c4544295916af989dbae5e1cd83c15c2fa62c434737aa45cbbaff7740c14` |
+| [繁體直輸，noise 0.667](samples/matcha-no-fst-novel-traditional-direct-noise-0.667.mp3)／[metadata](samples/matcha-no-fst-novel-traditional-direct-noise-0.667.json) | sherpa-onnx Matcha 預設 | 25.5664 秒 | 312,336 | `e33601f9f0b265c420cec757abfed7dbfd85a738e5b38961720bc76a5fcf4004` |
+
+重現時先在一個終端執行 `pnpm host:mobile`，再於另一個終端執行 `WASM_TTS_BENCH_PORT=8765 pnpm sample:matcha-stream`。產生器會以隔離的 Chromium profile 跑真實 Worker、Matcha、Vocos 與 MP3 encoder，並驗證所有 waveform finite／non-zero、unknown 為空及輸出 SHA-256。
 
 PWA runtime、Worker、兩個模型與字典均進入 CacheStorage 後，實際關閉本機 host 再重新導覽；service worker 仍能回傳頁面，Worker 以 cache source 在 1.56 秒內 ready，並離線把「第12章有一袋垃圾。」產生為 31,297 個全為有限值的 samples 與 24,624-byte MP3。這證明桌面 PWA 離線重啟路徑，不代表 iOS CacheStorage 一定不會因配額或系統政策被清除。
 
@@ -111,6 +122,7 @@ PWA runtime、Worker、兩個模型與字典均進入 CacheStorage 後，實際�
 
 ## 下一步
 
+- 先盲聽繁體直輸的 `noise_scale=1.0`／`0.667` A/B，決定後續品質與效能測試的固定生成參數；再比較 OpenCC 與繁體直查，避免同時改兩個變因。
 - 在 Chromium 151 補一輪 Piper control，消除目前跨瀏覽器版本比較的誤差。
 - 在目標 iPhone／iPad 量測真正峰值記憶體、單一 thread RTF、溫度、耗電與熱降頻。
 - 分別從 Safari tab 與 Home Screen PWA 完成 2 小時鎖屏、3 章、Media Session 與中斷恢復驗收。

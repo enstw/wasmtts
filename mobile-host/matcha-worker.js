@@ -105,6 +105,10 @@ async function initialize() {
         convertTraditional,
         pronunciationOverrides: {'垃圾': 'le4 se4'},
       }),
+      traditionalDirect: MatchaFrontend.createFrontend({
+        lexiconText: lexicon.text,
+        tokensText: tokens.text,
+      }),
     };
 
     postProgress('載入 Matcha acoustic model');
@@ -162,11 +166,18 @@ async function initialize() {
 async function synthesize(message) {
   await initialize();
   const profile = message.pronunciationProfile === 'taiwan' ? 'taiwan' : 'official';
+  const inputNormalization = message.inputNormalization === 'traditional-direct'
+    ? 'traditional-direct'
+    : 'opencc-tw2s';
   const totalStarted = performance.now();
   const frontendStarted = performance.now();
-  const frontend = frontends[profile].tokensFor(message.text);
+  const selectedFrontend = inputNormalization === 'traditional-direct'
+    ? frontends.traditionalDirect
+    : frontends[profile];
+  const frontend = selectedFrontend.tokensFor(message.text);
   const frontendMs = performance.now() - frontendStarted;
-  const synthesis = await engine.synthesize(frontend.ids);
+  const noiseScale = Number.isFinite(message.noiseScale) ? message.noiseScale : 1;
+  const synthesis = await engine.synthesize(frontend.ids, {noiseScale});
   if (
     synthesis.waveform.finiteSamples !== synthesis.waveform.samples
     || synthesis.waveform.peak === 0
@@ -183,10 +194,12 @@ async function synthesize(message) {
       text: message.text,
       normalizedText: frontend.normalizedText,
       pronunciationProfile: profile,
+      inputNormalization,
       tokenCount: frontend.ids.length,
       phones: frontend.phones,
       unknown: frontend.unknown,
       sampleRate: synthesis.sampleRate,
+      noiseScale: synthesis.noiseScale,
       audioSeconds: synthesis.audioSeconds,
       waveform: synthesis.waveform,
       mp3Bytes: mp3.encoded.byteLength,

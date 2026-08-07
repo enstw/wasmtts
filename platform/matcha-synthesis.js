@@ -196,16 +196,19 @@
       };
     }
 
-    async function synthesize(ids) {
+    async function synthesize(ids, options = {}) {
       if (!acoustic || !vocoder) throw new Error('Matcha engine 尚未初始化');
       if (!Array.isArray(ids) || !ids.length) throw new TypeError('ids 必須是非空陣列');
+      const requestNoiseScale = Number.isFinite(options.noiseScale)
+        ? options.noiseScale
+        : noiseScale;
       const started = performance.now();
 
       let phaseStarted = performance.now();
       const acousticOutput = await acoustic.run({
         x: int64(ids, [1, ids.length]),
         x_length: int64([ids.length], [1]),
-        noise_scale: float32(noiseScale),
+        noise_scale: float32(requestNoiseScale),
         length_scale: float32(lengthScale),
       });
       const acousticMs = performance.now() - phaseStarted;
@@ -232,6 +235,7 @@
         sampleRate: SAMPLE_RATE,
         audioSeconds: samples.length / SAMPLE_RATE,
         wallMs: performance.now() - started,
+        noiseScale: requestNoiseScale,
         phases: {acousticMs, vocoderMs, istftMs, silenceMs},
         waveform: waveformStats(samples),
       };

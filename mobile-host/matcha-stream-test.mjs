@@ -82,6 +82,8 @@ class MatchaWorkerProducer {
     this.nextRequestId = 1;
     this.segments = [];
     this.pronunciationProfile = 'official';
+    this.inputNormalization = 'opencc-tw2s';
+    this.noiseScale = 1;
     this.results = [];
     this.initialization = null;
     this.ready = new Promise((resolve, reject) => {
@@ -134,13 +136,27 @@ class MatchaWorkerProducer {
     pending.resolve({buffer: message.buffer, meta: message.meta});
   }
 
-  reset({text = $('#novelText').value, pronunciationProfile = $('#pronunciationProfile').value} = {}) {
+  reset({
+    text = $('#novelText').value,
+    pronunciationProfile = $('#pronunciationProfile').value,
+    inputNormalization = 'opencc-tw2s',
+    noiseScale = 1,
+  } = {}) {
     this.segments = splitNovelText(text);
     this.pronunciationProfile = pronunciationProfile === 'taiwan' ? 'taiwan' : 'official';
+    this.inputNormalization = inputNormalization === 'traditional-direct'
+      ? 'traditional-direct'
+      : 'opencc-tw2s';
+    this.noiseScale = Number.isFinite(noiseScale) ? noiseScale : 1;
     this.results = [];
     addLog({
       message: 'producer reset',
-      detail: {sentences: this.segments.length, pronunciationProfile: this.pronunciationProfile},
+      detail: {
+        sentences: this.segments.length,
+        pronunciationProfile: this.pronunciationProfile,
+        inputNormalization: this.inputNormalization,
+        noiseScale: this.noiseScale,
+      },
     });
   }
 
@@ -172,6 +188,8 @@ class MatchaWorkerProducer {
         requestId,
         text,
         pronunciationProfile: this.pronunciationProfile,
+        inputNormalization: this.inputNormalization,
+        noiseScale: this.noiseScale,
       });
     });
   }

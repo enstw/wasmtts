@@ -8,7 +8,8 @@
     "benchmark:vits": "node platform/run-vits-browser.mjs",
     "benchmark:kokoro": "node platform/run-kokoro-browser.mjs",
     "benchmark:matcha": "node platform/run-matcha-browser.mjs",
-    "benchmark:matcha-stream": "pnpm vendor:mobile && node platform/run-matcha-stream-browser.mjs"
+    "benchmark:matcha-stream": "pnpm vendor:mobile && node platform/run-matcha-stream-browser.mjs",
+    "sample:matcha-stream": "pnpm vendor:mobile && node platform/generate-matcha-stream-sample.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",
