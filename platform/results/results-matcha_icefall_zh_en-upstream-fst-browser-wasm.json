@@ -1,0 +1,219 @@
+{
+  "generatedAt": "2026-08-07T12:25:01.753Z",
+  "baseline": "sherpa-onnx 官方預建 browser SIMD bundle，未修改 runtime 或模型資產",
+  "environment": {
+    "browser": "Chrome/151.0.7922.71",
+    "browserBinary": "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+    "hostPlatform": "darwin",
+    "hostArchitecture": "arm64",
+    "osRelease": "25.5.0",
+    "node": "v24.19.0",
+    "executionProvider": "sherpa-onnx browser WASM / CPU",
+    "measurement": "Chromium CDP Performance.TaskDuration + in-page wall time",
+    "crossOriginIsolated": true,
+    "sharedArrayBuffer": true,
+    "hardwareConcurrency": 3
+  },
+  "configuration": {
+    "sherpaOnnx": "1.12.20",
+    "bundle": "sherpa-onnx-wasm-simd-1.12.20-matcha-icefall-zh-en",
+    "acousticModel": "model-steps-3.onnx",
+    "vocoder": "vocos-16khz-univ.onnx",
+    "lexicon": "lexicon.txt",
+    "tokens": "tokens.txt",
+    "dataDir": "espeak-ng-data",
+    "ruleFsts": [
+      "phone-zh.fst",
+      "date-zh.fst",
+      "number-zh.fst"
+    ],
+    "noiseScale": 0.667,
+    "lengthScale": 1,
+    "silenceScale": 0.2,
+    "numThreads": 1,
+    "maxNumSentences": 1,
+    "speed": 1,
+    "sid": 0,
+    "inputScript": "上游示例使用簡體中文；不加入 OpenCC"
+  },
+  "protocol": {
+    "warmupsPerCorpus": 1,
+    "measuredRunsPerCorpus": 3,
+    "waveformValidation": "all samples finite, peak > 0, RMS > 0",
+    "capture": "正規化 corpus 的最後一輪另存 16-bit PCM WAV"
+  },
+  "initialization": {
+    "wallMs": 1877.2704170000002,
+    "memory": {
+      "wasmHeapBytes": 536870912,
+      "userAgentSpecificMemory": 688672616
+    }
+  },
+  "bundleBytes": {
+    "index.html": 3432,
+    "app-tts.js": 6773,
+    "sherpa-onnx-tts.js": 18893,
+    "sherpa-onnx-wasm-main-tts.js": 119814,
+    "sherpa-onnx-wasm-main-tts.wasm": 11779250,
+    "sherpa-onnx-wasm-main-tts.data": 149226443
+  },
+  "corpora": {
+    "novel": {
+      "text": "清晨的阳光穿过窗帘。轻轻落在安静的房间里。远处传来清脆的鸟鸣。微风带着花草的清香。让崭新的一天显得格外明亮。",
+      "warmups": 1,
+      "runs": [
+        {
+          "index": 1,
+          "wallMs": 1536.3049999922514,
+          "sampleRate": 16000,
+          "audioSeconds": 10.925375,
+          "waveform": {
+            "samples": 174806,
+            "finiteSamples": 174806,
+            "peak": 0.9341248869895935,
+            "rms": 0.15057245056430682
+          },
+          "taskMs": 1544.672,
+          "taskMsPer10s": 1413.8388842488243,
+          "taskRtf": 0.14138388842488245,
+          "wallRtf": 0.14061805658773738
+        },
+        {
+          "index": 2,
+          "wallMs": 1532.4149999916553,
+          "sampleRate": 16000,
+          "audioSeconds": 10.9185625,
+          "waveform": {
+            "samples": 174697,
+            "finiteSamples": 174697,
+            "peak": 0.8987997770309448,
+            "rms": 0.15056519854351874
+          },
+          "taskMs": 1538.948,
+          "taskMsPer10s": 1409.4785829178522,
+          "taskRtf": 0.1409478582917852,
+          "wallRtf": 0.1403495194529184
+        },
+        {
+          "index": 3,
+          "wallMs": 1536.7250000089407,
+          "sampleRate": 16000,
+          "audioSeconds": 10.9218125,
+          "waveform": {
+            "samples": 174749,
+            "finiteSamples": 174749,
+            "peak": 0.8842748403549194,
+            "rms": 0.14998888339919592
+          },
+          "taskMs": 1541.1150000000005,
+          "taskMsPer10s": 1411.0432677726344,
+          "taskRtf": 0.14110432677726342,
+          "wallRtf": 0.140702378841327
+        }
+      ],
+      "summary": {
+        "medianTaskMsPer10s": 1411.0432677726344,
+        "medianTaskRtf": 0.14110432677726342,
+        "medianWallRtf": 0.14061805658773738,
+        "medianTaskRealtimeMultiplier": 7.086954899537022,
+        "medianWallRealtimeMultiplier": 7.11146224223387,
+        "medianAudioSeconds": 10.9218125,
+        "capture": {
+          "wallMs": 1547.5499999970198,
+          "sampleRate": 16000,
+          "audioSeconds": 10.9220625,
+          "waveform": {
+            "samples": 174753,
+            "finiteSamples": 174753,
+            "peak": 0.9102305769920349,
+            "rms": 0.151704592722684
+          }
+        }
+      }
+    },
+    "normalization": {
+      "text": "第12章开始于2026年8月7日14:30。请拨打110或者18920260807。她说：“我们还有25.5%的路没走完。”巷口堆着一袋垃圾。",
+      "warmups": 1,
+      "runs": [
+        {
+          "index": 1,
+          "wallMs": 2049.9899999946356,
+          "sampleRate": 16000,
+          "audioSeconds": 14.5669375,
+          "waveform": {
+            "samples": 233071,
+            "finiteSamples": 233071,
+            "peak": 0.8417631387710571,
+            "rms": 0.15293241774103902
+          },
+          "taskMs": 2055.937999999999,
+          "taskMsPer10s": 1411.3728434682987,
+          "taskRtf": 0.1411372843468299,
+          "wallRtf": 0.14072896241880872
+        },
+        {
+          "index": 2,
+          "wallMs": 2059.405000001192,
+          "sampleRate": 16000,
+          "audioSeconds": 14.5710625,
+          "waveform": {
+            "samples": 233137,
+            "finiteSamples": 233137,
+            "peak": 0.8684078454971313,
+            "rms": 0.15037186096743016
+          },
+          "taskMs": 2065.9880000000007,
+          "taskMsPer10s": 1417.8705224824894,
+          "taskRtf": 0.14178705224824895,
+          "wallRtf": 0.14133526638851437
+        },
+        {
+          "index": 3,
+          "wallMs": 2048.2900000065565,
+          "sampleRate": 16000,
+          "audioSeconds": 14.5933125,
+          "waveform": {
+            "samples": 233493,
+            "finiteSamples": 233493,
+            "peak": 0.8593149185180664,
+            "rms": 0.15052339019813682
+          },
+          "taskMs": 2058.8880000000013,
+          "taskMsPer10s": 1410.8434942375154,
+          "taskRtf": 0.14108434942375156,
+          "wallRtf": 0.1403581263682633
+        }
+      ],
+      "summary": {
+        "medianTaskMsPer10s": 1411.3728434682987,
+        "medianTaskRtf": 0.1411372843468299,
+        "medianWallRtf": 0.14072896241880872,
+        "medianTaskRealtimeMultiplier": 7.085299994455087,
+        "medianWallRealtimeMultiplier": 7.105857833471441,
+        "medianAudioSeconds": 14.5710625,
+        "capture": {
+          "wallMs": 2047.6500000059605,
+          "sampleRate": 16000,
+          "audioSeconds": 14.565,
+          "waveform": {
+            "samples": 233040,
+            "finiteSamples": 233040,
+            "peak": 0.864506185054779,
+            "rms": 0.15107059887358756
+          }
+        }
+      }
+    }
+  },
+  "memoryAfterBenchmark": {
+    "wasmHeapBytes": 536870912,
+    "userAgentSpecificMemory": 699003344
+  },
+  "captureWaveform": {
+    "samples": 233040,
+    "finiteSamples": 233040,
+    "peak": 0.864506185054779,
+    "rms": 0.15107059887358756
+  }
+}

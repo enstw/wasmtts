@@ -1,0 +1,45 @@
+{
+  "generatedAt": "2026-08-07T13:07:11.080Z",
+  "runtime": "sherpa-onnx 1.12.20 browser SIMD official prebuilt bundle",
+  "browser": "Chrome/151.0.7922.71",
+  "model": "matcha-icefall-zh-en / model-steps-3.onnx + vocos-16khz-univ.onnx",
+  "frontend": {
+    "traditionalConversion": false,
+    "opencc": false,
+    "inputScript": "traditional-direct",
+    "lexicon": "lexicon.txt",
+    "tokens": "tokens.txt",
+    "dataDir": "espeak-ng-data",
+    "ruleFsts": [
+      "phone-zh.fst",
+      "date-zh.fst",
+      "number-zh.fst"
+    ]
+  },
+  "noiseScale": 0.667,
+  "lengthScale": 1,
+  "silenceScale": 0.2,
+  "numThreads": 1,
+  "maxNumSentences": 1,
+  "speed": 1,
+  "sid": 0,
+  "text": "清晨的陽光穿過窗簾，輕輕落在安靜的房間裡。遠處傳來清脆的鳥鳴，微風帶著花草的清香，讓嶄新的一天顯得格外明亮。\n第12章開始於2026年8月7日14:30。她低聲說：「先別急，我們還有25.5%的路沒走完。」\n巷口堆著一袋垃圾，他繞過水窪，繼續朝燈火明亮的車站走去。",
+  "generation": {
+    "inPageWallMs": 4000.4749999940395,
+    "cdpRoundTripWallMs": 4485.293541999999
+  },
+  "audio": {
+    "format": "WAV / PCM signed 16-bit little-endian / mono / 16000 Hz",
+    "sampleRate": 16000,
+    "durationSeconds": 26.72975,
+    "bytes": 855396,
+    "sha256": "0e7597b3987d29c33489695fcc5575c0771454ded99e8d66110cba1b467ba139",
+    "waveform": {
+      "samples": 427676,
+      "finiteSamples": 427676,
+      "peak": 0.9243463277816772,
+      "rms": 0.14905226556652013
+    }
+  },
+  "interpretation": "證明官方 FST browser build 可直接生成這段繁體；不代表所有繁體詞組讀音均與 OpenCC 路徑相同。"
+}

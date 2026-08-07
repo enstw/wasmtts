@@ -6,7 +6,7 @@
 
 `matcha-icefall-zh-en` 已通過第一輪中文朗讀試聽品質 gate，也完成正式桌面瀏覽器單執行緒 benchmark，目前是優先候選。它在相同五句中文文本的三方盲測中得到 `90/100`，高於 Kokoro 的 `80/100` 與 Piper HuaYan medium 的 `60/100`；Piper 另被標記有外國腔。
 
-核心結果的中位數 `RTF` 為 `0.1467` wall time／`0.1467` task time，約 `6.82x realtime`；包含中文小說常用前端、Worker、MP3 encode 與 MediaSource append 的桌面 producer `RTF` 為 `0.1456`，約 `6.87x realtime`。這表示測試用 Apple Silicon 桌機有充足即時餘裕，但不等於 iOS PWA 部署已通過；英文 eSpeak、完整 FST 等價規則、真正峰值記憶體、目標 iPhone 熱穩態與鎖屏串流仍待驗證。
+上游建議的 browser WASM＋中文 FST 配置中位 task `RTF` 為 `0.1411`，約 `7.09x realtime`；繁體小說原文不經 OpenCC 亦能生成，試聽品質已獲接受。正式候選文字路徑因此定為「繁體直輸 → `phone/date/number` FST → Matcha」，繁簡轉換不是必要前處理。測試用 Apple Silicon 桌機有充足即時餘裕，但官方 bundle 固定 512 MiB heap，初始化後瀏覽器記憶體快照約 656.8 MiB；降低記憶體後仍須驗證英文 eSpeak、真正峰值記憶體、目標 iPhone 熱穩態與鎖屏串流。
 
 ## 模型與資產
 
@@ -61,9 +61,9 @@
 
 原始結果位於 [results-matcha_icefall_zh_en-browser-wasm.json](../../platform/results/results-matcha_icefall_zh_en-browser-wasm.json)，正式輸出位於 [matcha_icefall_zh_en-browser-wasm.wav](../../platform/results/matcha_icefall_zh_en-browser-wasm.wav)。可重現頁面與 runner 分別是 [matcha-browser.html](../../platform/matcha-browser.html) 與 [run-matcha-browser.mjs](../../platform/run-matcha-browser.mjs)。
 
-## 中文小說前端與 MP3 append
+## 舊版無 FST 前端與 MP3 append 對照
 
-另建立不依賴 sherpa FST 的 JavaScript 前端，從原文即時完成 OpenCC 臺灣繁體轉簡體、常用整數／小數／日期／時間／百分比正規化、68,037 詞 lexicon 最長匹配與 2,189 個 token mapping。先前品質文本可由繁體原文重建與固定 benchmark 完全相同的 token；前端遇到未支援英文會明確報錯，不會靜默漏字。
+為先行驗證 Worker、MP3 encode 與 MediaSource append，曾建立不依賴 sherpa FST 的 JavaScript adapter，從原文即時完成 OpenCC 臺灣繁體轉簡體、常用整數／小數／日期／時間／百分比正規化、68,037 詞 lexicon 最長匹配與 2,189 個 token mapping。它保留作低記憶體與 transport 對照，不再代表正式文字前端；目前建議配置改用繁體直輸與上游三個 FST。
 
 正式端到端量測仍使用 Brave／Chromium `151.0.7922.71`、ORT Web `1.26.0-dev.20260416-b7804b056c`、WASM 單一 thread。Worker 完整暖機一次後，反覆合成 5 段繁體小說文字，內容包含對話、`2026年8月7日14:30`、`25.5%` 與「垃圾」；每句 PCM 以 lamejs `1.2.1` 編成 16 kHz mono、96 kbps MP3，再 append 到同一個 `audio/mpeg` sequence SourceBuffer。
 
@@ -112,18 +112,24 @@ PWA runtime、Worker、兩個模型與字典均進入 CacheStorage 後，實際�
 
 這個 `RTF 0.162` 是建立正式 adapter 前的 feasibility 結果；正式效能判定應使用上一節的 Chromium/CDP 三輪中位數。一次性樣本仍保留作為 sherpa-onnx wrapper 的輸出對照。兩組結果都沒有包含 MP3 編碼與 append transport。
 
+## 上游建議 FST 配置試聽
+
+[WAV 試聽檔](samples/matcha-upstream-fst-recommended-normalization.wav)／[metadata](samples/matcha-upstream-fst-recommended-normalization.json)由 sherpa-onnx `1.12.20` 官方 browser SIMD bundle 直接產生，配置包含 `phone-zh.fst`、`date-zh.fst`、`number-zh.fst`、`noise_scale=0.667`、`length_scale=1`、`silence_scale=0.2` 與單一 thread。輸入保留原始阿拉伯數字、日期、時間、百分比及電話，方便直接聽出 FST 的正規化結果；音訊為 16 kHz mono PCM WAV，長 14.565 秒。
+
+另以[完整繁體小說文字直接輸入](samples/matcha-upstream-fst-recommended-traditional-direct.wav)／[metadata](samples/matcha-upstream-fst-recommended-traditional-direct.json)，不經 OpenCC，維持相同官方 FST 與生成配置。Chromium 成功產生 26.7298 秒音訊，427,676 個 samples 全部 finite、peak `0.9243`、RMS `0.1491`。使用者已確認試聽品質沒有問題，因此本專案決定正式候選不做繁簡轉換；OpenCC 路徑僅保留作歷史對照。
+
 ## FST 與記憶體限制
 
-`sherpa-onnx 1.13.4` Node WASM wrapper 未讀取先前文件使用的 `SHERPA_WASM_INITIAL_MEMORY` 環境變數；不額外注入 `Module.INITIAL_MEMORY` 時，Emscripten binary 使用上游預設 512 MiB。
+`sherpa-onnx 1.13.4` Node WASM wrapper 未讀取先前文件使用的 `SHERPA_WASM_INITIAL_MEMORY` 環境變數；不額外注入 `Module.INITIAL_MEMORY` 時，Emscripten binary 使用上游預設 512 MiB。該 Node 路徑載入三個中文 FST 時會發生 `memory access out of bounds`，即使注入 768 MiB 與 1 GiB 仍失敗。
 
-本次載入 `phone-zh.fst,date-zh.fst,number-zh.fst` 時發生 `memory access out of bounds`。明確注入 768 MiB 與 1 GiB 後仍失敗，因此目前證據不支持把問題簡化為「512 MiB 不夠」。省略 FST 後，同一 acoustic model、Vocos、lexicon 與 tokens 可以正常產生本輪純中文無數字樣本。這足以評估該段文字的聲線與韻律，但沒有驗證數字、日期、電話及完整文字正規化。
+官方 `1.12.20` browser SIMD bundle 則能以三個 FST 正常初始化與生成，因此先前錯誤已縮小為 Node WASM 路徑／runtime 問題，不能歸因於 FST 本身或單純記憶體不足。同一 browser runtime 的 FST on/off control 中，純小說文字 task RTF 分別為 `0.13961`／`0.13973`，差異 `-0.086%`；兩者 heap 都是 512 MiB。移除 FST 沒有實質效能或 heap 優勢。
 
-核心 adapter 仍以固定 token 繞過前端；新的串流 adapter 則以 JavaScript 規則處理常見數字與日期，但沒有聲稱與上游三個 FST 完全等價。對一般已在 lexicon 內的漢字與標點，省略 FST 不改變先前盲測 token 或聲線；對電話、貨幣、範圍、序號與其他未覆蓋格式則可能讀錯或報錯。下一步仍須確認 FST 問題是 `sherpa-onnx 1.13.4` runtime、FST 格式或 WASM wrapper 路徑造成；不得以永久配置 1 GiB heap 當成解法。
+核心 ORT Web adapter 仍以固定 token 或 JavaScript 常用規則繞過 FST，沒有聲稱與上游三個 FST 完全等價。A/B 的原始數字語料在無 FST 時由約 14.57 秒變成 19.56 秒，已證明讀法不同。後續優化應保留 FST 語義，優先降低官方 bundle 的 512 MiB heap 與預載資產成本。
 
 ## 下一步
 
-- 先盲聽繁體直輸的 `noise_scale=1.0`／`0.667` A/B，決定後續品質與效能測試的固定生成參數；再比較 OpenCC 與繁體直查，避免同時改兩個變因。
-- 在 Chromium 151 補一輪 Piper control，消除目前跨瀏覽器版本比較的誤差。
+- 以「繁體直輸＋三個官方中文 FST＋`noise_scale=0.667`」作後續固定配置；不再投入 OpenCC 或繁簡轉換最佳化。
+- 降低官方 browser bundle 的固定 512 MiB heap 與不必要預載資產，再進入 iPhone 實機測試。
 - 在目標 iPhone／iPad 量測真正峰值記憶體、單一 thread RTF、溫度、耗電與熱降頻。
 - 分別從 Safari tab 與 Home Screen PWA 完成 2 小時鎖屏、3 章、Media Session 與中斷恢復驗收。
 - 接入英文 eSpeak，擴充電話、貨幣、範圍、序號與其他完整文字正規化；建立可審核的臺灣區域讀音覆寫詞典。

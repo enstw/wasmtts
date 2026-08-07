@@ -9,6 +9,9 @@
 - `kokoro-browser.html`、`run-kokoro-browser.mjs`：Kokoro ORT Web、profiling、shape probe 與 thread 測試。
 - `matcha-browser.html`、`run-matcha-browser.mjs`：Matcha acoustic model、Vocos 與 JavaScript ISTFT 的單執行緒 ORT Web 路徑。
 - `matcha-frontend.js`、`matcha-synthesis.js`：可供 Worker 與測試共用的繁簡／數字／lexicon 前端及 Matcha + Vocos 合成核心。
+- `run-matcha-upstream-fst-browser.mjs`：未修改的 sherpa-onnx 官方 browser bundle＋建議中文 FST 基線。
+- `matcha-upstream-benchmark.html`、`matcha-upstream-benchmark.js`、`run-matcha-fst-ab-browser.mjs`：同 runtime 只切換 FST 的控制實驗。
+- `generate-matcha-upstream-fst-traditional-sample.mjs`：繁體原文、不經 OpenCC 的官方 FST 試聽樣本產生器。
 - `run-matcha-stream-browser.mjs`：量測 Worker 到 MP3 producer 與單一 MediaSource timeline 的端到端路徑。
 - `cdp/`：browser-cdp 共用的 Chromium 探測與零相依 CDP client。
 - `ort-operator-probe.html`、`run-ort-operator-probe.mjs`：獨立 operator microbenchmark。
@@ -28,6 +31,7 @@ platform/models/
 ├── kokoro-selective-int8/
 ├── kokoro-int8-multi-lang-v1_1/
 ├── matcha-icefall-zh-en/
+├── sherpa-onnx-wasm-simd-1.12.20-matcha-icefall-zh-en/
 ├── vocos-16khz-univ.onnx
 ├── vits-icefall-zh-aishell3/
 ├── vits-melo-tts-zh_en/
@@ -37,6 +41,14 @@ platform/models/
 非神經方案使用 `platform/assets/<engine>/` 保存本機聲音資料、字典或規則；adapter 不應假設所有候選都具有 ONNX 模型。
 
 模型權重、聲音資料與下載產物不可提交。若使用不同路徑，請透過 runner 參數設定，或同步更新程式與方案文件。
+
+上游 FST runner 使用 sherpa-onnx `v1.12.20` 官方 release asset；壓縮檔 SHA-256 為 `a09b2b2c5d5aab156650ea3da270ea8d7f358e6f315732f481b731f87dec6d88`：
+
+```sh
+curl -L -o platform/models/sherpa-onnx-wasm-simd-1.12.20-matcha-icefall-zh-en.tar.bz2 https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.12.20/sherpa-onnx-wasm-simd-1.12.20-matcha-icefall-zh-en.tar.bz2
+shasum -a 256 platform/models/sherpa-onnx-wasm-simd-1.12.20-matcha-icefall-zh-en.tar.bz2
+tar xjf platform/models/sherpa-onnx-wasm-simd-1.12.20-matcha-icefall-zh-en.tar.bz2 -C platform/models
+```
 
 ## Adapter 契約
 
@@ -69,6 +81,9 @@ pnpm host:mobile
 pnpm benchmark:vits
 pnpm benchmark:kokoro -- fp32
 pnpm benchmark:matcha
+pnpm benchmark:matcha-upstream-fst
+pnpm benchmark:matcha-fst-ab
+pnpm sample:matcha-upstream-fst-traditional
 pnpm benchmark:matcha-stream
 ```
 

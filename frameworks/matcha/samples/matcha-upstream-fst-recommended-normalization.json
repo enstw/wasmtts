@@ -1,0 +1,37 @@
+{
+  "generatedAt": "2026-08-07T12:25:01.753Z",
+  "sourceResult": "platform/results/results-matcha_icefall_zh_en-upstream-fst-browser-wasm.json",
+  "runtime": "sherpa-onnx 1.12.20 browser SIMD official prebuilt bundle",
+  "model": "matcha-icefall-zh-en / model-steps-3.onnx + vocos-16khz-univ.onnx",
+  "frontend": {
+    "lexicon": "lexicon.txt",
+    "tokens": "tokens.txt",
+    "dataDir": "espeak-ng-data",
+    "ruleFsts": [
+      "phone-zh.fst",
+      "date-zh.fst",
+      "number-zh.fst"
+    ]
+  },
+  "noiseScale": 0.667,
+  "lengthScale": 1,
+  "silenceScale": 0.2,
+  "numThreads": 1,
+  "maxNumSentences": 1,
+  "speed": 1,
+  "sid": 0,
+  "inputScript": "simplified",
+  "text": "第12章开始于2026年8月7日14:30。请拨打110或者18920260807。她说：“我们还有25.5%的路没走完。”巷口堆着一袋垃圾。",
+  "audio": {
+    "format": "WAV / PCM signed 16-bit little-endian / mono / 16000 Hz",
+    "durationSeconds": 14.565,
+    "bytes": 466124,
+    "sha256": "e165ec9c7d8cb9ba2e5001b857e9e3b72dbf343cb0a9f3e39a14a379cc83c770",
+    "waveform": {
+      "samples": 233040,
+      "finiteSamples": 233040,
+      "peak": 0.864506185054779,
+      "rms": 0.15107059887358756
+    }
+  }
+}

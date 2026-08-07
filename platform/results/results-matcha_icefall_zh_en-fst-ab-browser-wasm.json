@@ -1,0 +1,427 @@
+{
+  "generatedAt": "2026-08-07T12:48:40.865Z",
+  "purpose": "同一 sherpa-onnx browser WASM runtime 的 FST on/off control；只改 ruleFsts",
+  "fixedConfiguration": {
+    "sherpaOnnx": "1.12.20",
+    "model": "matcha-icefall-zh-en / model-steps-3.onnx",
+    "vocoder": "vocos-16khz-univ.onnx",
+    "lexicon": "lexicon.txt",
+    "tokens": "tokens.txt",
+    "dataDir": "espeak-ng-data",
+    "noiseScale": 0.667,
+    "lengthScale": 1,
+    "silenceScale": 0.2,
+    "numThreads": 1,
+    "maxNumSentences": 1
+  },
+  "variants": {
+    "withFst": {
+      "name": "recommended-fst",
+      "configuration": {
+        "fst": true,
+        "ruleFsts": "./phone-zh.fst,./date-zh.fst,./number-zh.fst",
+        "noiseScale": 0.667,
+        "lengthScale": 1,
+        "silenceScale": 0.2,
+        "numThreads": 1,
+        "maxNumSentences": 1,
+        "sampleRate": 16000,
+        "numSpeakers": 1,
+        "initMs": 1232.344999998808,
+        "wasmHeapBytes": 536870912
+      },
+      "initializationWallMs": 1748.7655,
+      "memoryAfterInitialization": {
+        "wasmHeapBytes": 536870912,
+        "userAgentSpecificMemory": null
+      },
+      "corpora": {
+        "novel": {
+          "text": "清晨的阳光穿过窗帘。轻轻落在安静的房间里。远处传来清脆的鸟鸣。微风带着花草的清香。让崭新的一天显得格外明亮。",
+          "warmups": 1,
+          "runs": [
+            {
+              "index": 1,
+              "wallMs": 1515.469999998808,
+              "sampleRate": 16000,
+              "audioSeconds": 10.9135,
+              "waveform": {
+                "samples": 174616,
+                "finiteSamples": 174616,
+                "peak": 0.9220008850097656,
+                "rms": 0.15132599120513834
+              },
+              "taskMs": 1521.2740000000003,
+              "taskRtf": 0.13939377834791772,
+              "wallRtf": 0.13886195995774112
+            },
+            {
+              "index": 2,
+              "wallMs": 1518.7849999964237,
+              "sampleRate": 16000,
+              "audioSeconds": 10.9233125,
+              "waveform": {
+                "samples": 174773,
+                "finiteSamples": 174773,
+                "peak": 0.8688631653785706,
+                "rms": 0.1519160795441814
+              },
+              "taskMs": 1524.9849999999997,
+              "taskRtf": 0.1396082918986342,
+              "wallRtf": 0.13904069850573475
+            },
+            {
+              "index": 3,
+              "wallMs": 1523.0349999964237,
+              "sampleRate": 16000,
+              "audioSeconds": 10.9155,
+              "waveform": {
+                "samples": 174648,
+                "finiteSamples": 174648,
+                "peak": 0.8889710903167725,
+                "rms": 0.1523247289665906
+              },
+              "taskMs": 1525.7639999999997,
+              "taskRtf": 0.13977957949704545,
+              "wallRtf": 0.13952956804511232
+            }
+          ],
+          "summary": {
+            "medianTaskRtf": 0.1396082918986342,
+            "medianWallRtf": 0.13904069850573475,
+            "medianTaskRealtimeMultiplier": 7.16289832359007,
+            "medianWallRealtimeMultiplier": 7.192138782003853,
+            "medianAudioSeconds": 10.9155
+          }
+        },
+        "canonicalStructured": {
+          "text": "第十二章开始于二零二六年八月七日十四点三十分。请拨打一一零或者一八九二零二六零八零七。她说：“我们还有百分之二十五点五的路没走完。”巷口堆着一袋垃圾。",
+          "warmups": 1,
+          "runs": [
+            {
+              "index": 1,
+              "wallMs": 1944.4900000095367,
+              "sampleRate": 16000,
+              "audioSeconds": 14.564625,
+              "waveform": {
+                "samples": 233034,
+                "finiteSamples": 233034,
+                "peak": 0.8272266983985901,
+                "rms": 0.15035311545610205
+              },
+              "taskMs": 1950.6559999999986,
+              "taskRtf": 0.13393108301792864,
+              "wallRtf": 0.1335077284866268
+            },
+            {
+              "index": 2,
+              "wallMs": 1941.5499999970198,
+              "sampleRate": 16000,
+              "audioSeconds": 14.5579375,
+              "waveform": {
+                "samples": 232927,
+                "finiteSamples": 232927,
+                "peak": 0.8524450659751892,
+                "rms": 0.1487375927030955
+              },
+              "taskMs": 1945.423,
+              "taskRtf": 0.13363314686575622,
+              "wallRtf": 0.13336710643228272
+            },
+            {
+              "index": 3,
+              "wallMs": 1945.1300000101328,
+              "sampleRate": 16000,
+              "audioSeconds": 14.5675,
+              "waveform": {
+                "samples": 233080,
+                "finiteSamples": 233080,
+                "peak": 0.8794829249382019,
+                "rms": 0.14993518280811421
+              },
+              "taskMs": 1946.5509999999995,
+              "taskRtf": 0.1336228591041702,
+              "wallRtf": 0.13352531319788108
+            }
+          ],
+          "summary": {
+            "medianTaskRtf": 0.13363314686575622,
+            "medianWallRtf": 0.1335077284866268,
+            "medianTaskRealtimeMultiplier": 7.483173325287097,
+            "medianWallRealtimeMultiplier": 7.490203086633805,
+            "medianAudioSeconds": 14.564625
+          }
+        },
+        "rawStructured": {
+          "text": "第12章开始于2026年8月7日14:30。请拨打110或者18920260807。她说：“我们还有25.5%的路没走完。”巷口堆着一袋垃圾。",
+          "warmups": 1,
+          "runs": [
+            {
+              "index": 1,
+              "wallMs": 2041.4000000059605,
+              "sampleRate": 16000,
+              "audioSeconds": 14.57025,
+              "waveform": {
+                "samples": 233124,
+                "finiteSamples": 233124,
+                "peak": 0.871320903301239,
+                "rms": 0.15109480175054918
+              },
+              "taskMs": 2043.1099999999988,
+              "taskRtf": 0.14022477308213646,
+              "wallRtf": 0.14010741064881937
+            },
+            {
+              "index": 2,
+              "wallMs": 2038.6850000023842,
+              "sampleRate": 16000,
+              "audioSeconds": 14.565875,
+              "waveform": {
+                "samples": 233054,
+                "finiteSamples": 233054,
+                "peak": 0.8204361796379089,
+                "rms": 0.15103221899901603
+              },
+              "taskMs": 2040.222,
+              "taskRtf": 0.14006861928994996,
+              "wallRtf": 0.13996309868115608
+            },
+            {
+              "index": 3,
+              "wallMs": 2039.8849999904633,
+              "sampleRate": 16000,
+              "audioSeconds": 14.5803125,
+              "waveform": {
+                "samples": 233285,
+                "finiteSamples": 233285,
+                "peak": 0.8580798506736755,
+                "rms": 0.15094893264248926
+              },
+              "taskMs": 2042.3500000000026,
+              "taskRtf": 0.1400758728593782,
+              "wallRtf": 0.13990680926697993
+            }
+          ],
+          "summary": {
+            "medianTaskRtf": 0.1400758728593782,
+            "medianWallRtf": 0.13996309868115608,
+            "medianTaskRealtimeMultiplier": 7.138988175386188,
+            "medianWallRealtimeMultiplier": 7.144740359586186,
+            "medianAudioSeconds": 14.57025
+          }
+        }
+      },
+      "memoryAfterBenchmark": {
+        "wasmHeapBytes": 536870912,
+        "userAgentSpecificMemory": null
+      }
+    },
+    "withoutFst": {
+      "name": "no-fst-control",
+      "configuration": {
+        "fst": false,
+        "ruleFsts": "",
+        "noiseScale": 0.667,
+        "lengthScale": 1,
+        "silenceScale": 0.2,
+        "numThreads": 1,
+        "maxNumSentences": 1,
+        "sampleRate": 16000,
+        "numSpeakers": 1,
+        "initMs": 1234.655000001192,
+        "wasmHeapBytes": 536870912
+      },
+      "initializationWallMs": 1696.2309169999971,
+      "memoryAfterInitialization": {
+        "wasmHeapBytes": 536870912,
+        "userAgentSpecificMemory": null
+      },
+      "corpora": {
+        "novel": {
+          "text": "清晨的阳光穿过窗帘。轻轻落在安静的房间里。远处传来清脆的鸟鸣。微风带着花草的清香。让崭新的一天显得格外明亮。",
+          "warmups": 1,
+          "runs": [
+            {
+              "index": 1,
+              "wallMs": 1524.3350000083447,
+              "sampleRate": 16000,
+              "audioSeconds": 10.9245,
+              "waveform": {
+                "samples": 174792,
+                "finiteSamples": 174792,
+                "peak": 0.921451985836029,
+                "rms": 0.151711388275046
+              },
+              "taskMs": 1526.47,
+              "taskRtf": 0.1397290493844112,
+              "wallRtf": 0.13953361709994458
+            },
+            {
+              "index": 2,
+              "wallMs": 1524.3699999898672,
+              "sampleRate": 16000,
+              "audioSeconds": 10.91875,
+              "waveform": {
+                "samples": 174700,
+                "finiteSamples": 174700,
+                "peak": 0.9241154789924622,
+                "rms": 0.1511039841681012
+              },
+              "taskMs": 1526.4180000000001,
+              "taskRtf": 0.13979787063537494,
+              "wallRtf": 0.13961030337629007
+            },
+            {
+              "index": 3,
+              "wallMs": 1521.8250000029802,
+              "sampleRate": 16000,
+              "audioSeconds": 10.912875,
+              "waveform": {
+                "samples": 174606,
+                "finiteSamples": 174606,
+                "peak": 0.9051311612129211,
+                "rms": 0.1510751654266541
+              },
+              "taskMs": 1523.8449999999996,
+              "taskRtf": 0.13963735495916518,
+              "wallRtf": 0.1394522525001872
+            }
+          ],
+          "summary": {
+            "medianTaskRtf": 0.1397290493844112,
+            "medianWallRtf": 0.13953361709994458,
+            "medianTaskRealtimeMultiplier": 7.156707960195745,
+            "medianWallRealtimeMultiplier": 7.166731722318386,
+            "medianAudioSeconds": 10.91875
+          }
+        },
+        "canonicalStructured": {
+          "text": "第十二章开始于二零二六年八月七日十四点三十分。请拨打一一零或者一八九二零二六零八零七。她说：“我们还有百分之二十五点五的路没走完。”巷口堆着一袋垃圾。",
+          "warmups": 1,
+          "runs": [
+            {
+              "index": 1,
+              "wallMs": 1934.0349999964237,
+              "sampleRate": 16000,
+              "audioSeconds": 14.5541875,
+              "waveform": {
+                "samples": 232867,
+                "finiteSamples": 232867,
+                "peak": 0.9419443011283875,
+                "rms": 0.14923730044982805
+              },
+              "taskMs": 1937.4829999999986,
+              "taskRtf": 0.13312203103058817,
+              "wallRtf": 0.13288512326754234
+            },
+            {
+              "index": 2,
+              "wallMs": 1950.934999987483,
+              "sampleRate": 16000,
+              "audioSeconds": 14.56475,
+              "waveform": {
+                "samples": 233036,
+                "finiteSamples": 233036,
+                "peak": 0.9746266007423401,
+                "rms": 0.1488973350450635
+              },
+              "taskMs": 1959.2489999999998,
+              "taskRtf": 0.134519919669064,
+              "wallRtf": 0.1339490894102187
+            },
+            {
+              "index": 3,
+              "wallMs": 1951.199999988079,
+              "sampleRate": 16000,
+              "audioSeconds": 14.563875,
+              "waveform": {
+                "samples": 233022,
+                "finiteSamples": 233022,
+                "peak": 0.853553831577301,
+                "rms": 0.15138927709334107
+              },
+              "taskMs": 1954.9649999999997,
+              "taskRtf": 0.13423384916445655,
+              "wallRtf": 0.1339753328003762
+            }
+          ],
+          "summary": {
+            "medianTaskRtf": 0.13423384916445655,
+            "medianWallRtf": 0.1339490894102187,
+            "medianTaskRealtimeMultiplier": 7.449685800001536,
+            "medianWallRealtimeMultiplier": 7.465522941611815,
+            "medianAudioSeconds": 14.563875
+          }
+        },
+        "rawStructured": {
+          "text": "第12章开始于2026年8月7日14:30。请拨打110或者18920260807。她说：“我们还有25.5%的路没走完。”巷口堆着一袋垃圾。",
+          "warmups": 1,
+          "runs": [
+            {
+              "index": 1,
+              "wallMs": 2735.1449999958277,
+              "sampleRate": 16000,
+              "audioSeconds": 19.5691875,
+              "waveform": {
+                "samples": 313107,
+                "finiteSamples": 313107,
+                "peak": 0.8358604311943054,
+                "rms": 0.15090875469125173
+              },
+              "taskMs": 2740.6870000000013,
+              "taskRtf": 0.14005113906747538,
+              "wallRtf": 0.13976793875554758
+            },
+            {
+              "index": 2,
+              "wallMs": 2732.234999999404,
+              "sampleRate": 16000,
+              "audioSeconds": 19.5499375,
+              "waveform": {
+                "samples": 312799,
+                "finiteSamples": 312799,
+                "peak": 0.8290925025939941,
+                "rms": 0.15138053399684065
+              },
+              "taskMs": 2737.8029999999994,
+              "taskRtf": 0.14004152187187296,
+              "wallRtf": 0.13975671277718427
+            },
+            {
+              "index": 3,
+              "wallMs": 2730.7750000059605,
+              "sampleRate": 16000,
+              "audioSeconds": 19.5559375,
+              "waveform": {
+                "samples": 312895,
+                "finiteSamples": 312895,
+                "peak": 0.8153276443481445,
+                "rms": 0.15093923299292825
+              },
+              "taskMs": 2732.7319999999986,
+              "taskRtf": 0.13973924799053988,
+              "wallRtf": 0.13963917608173787
+            }
+          ],
+          "summary": {
+            "medianTaskRtf": 0.14004152187187296,
+            "medianWallRtf": 0.13975671277718427,
+            "medianTaskRealtimeMultiplier": 7.14073930812407,
+            "medianWallRealtimeMultiplier": 7.155291364031376,
+            "medianAudioSeconds": 19.5559375
+          }
+        }
+      },
+      "memoryAfterBenchmark": {
+        "wasmHeapBytes": 536870912,
+        "userAgentSpecificMemory": null
+      }
+    }
+  },
+  "comparison": {
+    "novelMedianTaskRtfDeltaPercent": -0.08642260597134799,
+    "novelMedianWallRtfDeltaPercent": -0.3532615325644195,
+    "initializationMemoryDeltaBytes": null,
+    "wasmHeapDeltaBytes": 0
+  }
+}

@@ -36,6 +36,19 @@ AISHELL3 的取樣率只有 8 kHz，而且音質、韻律與聲線選擇和 CPU 
 
 Adapter 使用 sherpa-onnx 前端預先產生的固定 token；文字前處理排除於計時外，與既有 ORT Web 主表一致。中文 FST 在目前 Node WASM wrapper 仍會越界，正式瀏覽器結果也沒有包含 FST、MP3 編碼或 MediaSource append，因此這是核心合成 benchmark，不是 iPhone 端到端串流結果。完整紀錄與樣本位於 [Matcha 文件](../frameworks/matcha/README.md)，機器可讀結果是 [results-matcha_icefall_zh_en-browser-wasm.json](results/results-matcha_icefall_zh_en-browser-wasm.json)。
 
+### Matcha 上游建議 FST browser 基線
+
+另以 sherpa-onnx `1.12.20` 官方預建 browser SIMD bundle 重測完整上游配置：`model-steps-3.onnx`、16 kHz Vocos、lexicon、tokens、`espeak-ng-data`、`phone-zh.fst,date-zh.fst,number-zh.fst`、`noise_scale=0.667`、`length_scale=1`、`silence_scale=0.2`、單一 thread。這條路徑不經 ORT Web 自製 adapter，也不加入 OpenCC。
+
+| 語料 | Task RTF 中位數 | Wall RTF 中位數 | Realtime multiplier |
+|---|---:|---:|---:|
+| 純小說簡體 | 0.14110 | 0.14062 | 7.09x |
+| 原始日期／時間／電話／百分比 | 0.14114 | 0.14073 | 7.09x |
+
+初始化 wall time 為 1.877 秒；WASM heap 固定 536,870,912 bytes（512 MiB），`measureUserAgentSpecificMemory()` 快照為初始化後 688,672,616 bytes（656.8 MiB）、benchmark 後 699,003,344 bytes（666.6 MiB）。三個 FST 合計只有約 208 KiB；同 runtime 的 FST on/off control 中，純小說 task RTF 為 `0.13961`／`0.13973`，差異 `-0.086%`，heap 差異為 0。因此主要成本是官方 heap 與整體預載資產，不是 FST。
+
+不經 OpenCC 的完整繁體小說文字亦成功產生 26.7298 秒、427,676 個全為有限值的 samples，使用者已確認品質沒有問題。正式候選的文字路徑因此定為「繁體直輸 → 官方三個中文 FST → Matcha」；既有 OpenCC＋JavaScript rules adapter 保留作 transport／低記憶體對照。機器可讀結果為 [上游 FST 基線](results/results-matcha_icefall_zh_en-upstream-fst-browser-wasm.json)與 [FST on/off A/B](results/results-matcha_icefall_zh_en-fst-ab-browser-wasm.json)，試聽檔與 metadata 見 [Matcha 文件](../frameworks/matcha/README.md)。
+
 ### Matcha Worker／MP3／MediaSource 端到端結果
 
 同一 Chromium 151 與 ORT Web 版本另測完整 desktop producer。計時邊界包含 OpenCC 臺灣繁體轉簡體、JavaScript 常用整數／小數／日期／時間／百分比規則、lexicon/token mapping、Matcha acoustic、Vocos、JavaScript ISTFT、silence scaling 與 lamejs 96 kbps MP3 encode；輸出逐句 append 到單一 `audio/mpeg` sequence SourceBuffer。前端不載入 FST，也尚未支援英文 eSpeak。
@@ -103,6 +116,8 @@ Selective INT8 三輪為 `15.148`、`15.182`、`15.197` 秒／10 秒音訊；FP3
 - 其他三款 ORT Web runner：`platform/run-vits-browser.mjs`
 - Matcha ORT Web 頁面／runner：`platform/matcha-browser.html`、`platform/run-matcha-browser.mjs`
 - Matcha 正式 JSON／WAV：`platform/results/results-matcha_icefall_zh_en-browser-wasm.json`、`platform/results/matcha_icefall_zh_en-browser-wasm.wav`
+- Matcha 上游 FST runner／A/B：`platform/run-matcha-upstream-fst-browser.mjs`、`platform/run-matcha-fst-ab-browser.mjs`
+- Matcha 上游 FST JSON／WAV：`platform/results/results-matcha_icefall_zh_en-upstream-fst-browser-wasm.json`、`platform/results/matcha_icefall_zh_en-upstream-fst-browser-wasm.wav`
 - Matcha 端到端頁面／runner：`mobile-host/matcha-stream-test.html`、`platform/run-matcha-stream-browser.mjs`
 - Matcha 端到端 JSON：`platform/results/results-matcha_icefall_zh_en-stream-browser-wasm.json`
 - 統一三款原始結果：`platform/results/results-vits-browser-wasm.json`
@@ -118,5 +133,8 @@ pnpm exec node platform/benchmark.js vits_melotts_zh_en
 pnpm exec node platform/run-kokoro-browser.mjs fp32
 pnpm exec node platform/run-vits-browser.mjs
 pnpm benchmark:matcha
+pnpm benchmark:matcha-upstream-fst
+pnpm benchmark:matcha-fst-ab
+pnpm sample:matcha-upstream-fst-traditional
 pnpm benchmark:matcha-stream
 ```
