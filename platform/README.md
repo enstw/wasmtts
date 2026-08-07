@@ -8,6 +8,8 @@
 - `vits-browser.html`、`run-vits-browser.mjs`：Piper、AISHELL3 與 MeloTTS 的統一 ORT Web 路徑。
 - `kokoro-browser.html`、`run-kokoro-browser.mjs`：Kokoro ORT Web、profiling、shape probe 與 thread 測試。
 - `matcha-browser.html`、`run-matcha-browser.mjs`：Matcha acoustic model、Vocos 與 JavaScript ISTFT 的單執行緒 ORT Web 路徑。
+- `matcha-frontend.js`、`matcha-synthesis.js`：可供 Worker 與測試共用的繁簡／數字／lexicon 前端及 Matcha + Vocos 合成核心。
+- `run-matcha-stream-browser.mjs`：量測 Worker 到 MP3 producer 與單一 MediaSource timeline 的端到端路徑。
 - `cdp/`：browser-cdp 共用的 Chromium 探測與零相依 CDP client。
 - `ort-operator-probe.html`、`run-ort-operator-probe.mjs`：獨立 operator microbenchmark。
 - `*.py`：Kokoro 量化、驗證、graph／shape／MAC 分析與 probe 產生器。
@@ -67,7 +69,10 @@ pnpm host:mobile
 pnpm benchmark:vits
 pnpm benchmark:kokoro -- fp32
 pnpm benchmark:matcha
+pnpm benchmark:matcha-stream
 ```
+
+`benchmark:matcha-stream` 使用另一個終端機已啟動的 `pnpm host:mobile`。它採單一 thread，量測 OpenCC、JavaScript 常用數字規則、lexicon、推論、ISTFT、silence scaling 與 MP3 encode；英文 eSpeak 與 sherpa FST 仍不在此 adapter 內。
 
 Kokoro runner 支援 `--profile`、`--model-path`、`--shape-probe`、`--text`、`--output-suffix` 與 `--threads`。雙執行緒測試前必須確認頁面同時具備 `crossOriginIsolated === true` 與 `SharedArrayBuffer`。
 

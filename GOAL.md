@@ -40,7 +40,7 @@ Piper、VITS 與 Kokoro 主比較採 Chromium 149；Matcha 採 Chromium 151。�
 
 Kokoro fp32 已通過目標產品的主觀品質門檻，但單執行緒只有約 `0.70x realtime`，不具持續背景合成餘裕。桌面雙執行緒測得 `RTF ≈ 0.79`，代表它在可使用兩個 WASM worker 時有機會維持串流，因此保留為次要候選；相對 Piper 約 `5.02x` 的運算成本、約 323.6 MiB 模型及可能較高的手機溫度與耗電，是必須接受並在實機量測的產品代價。桌面結果不得當成 iPhone 熱穩態結論。
 
-Matcha `matcha-icefall-zh-en` 使用相同五句中文做三方盲測後得到 `90/100`，高於 Kokoro 的 `80/100` 與 Piper 的 `60/100`；Piper 另被標記有外國腔。Matcha 因此已通過品質 gate，成為目前優先候選。正式 Chromium 151 單執行緒三輪中位數為 `1.467` task 秒／10 秒音訊，task `RTF 0.1467`、wall `RTF 0.1467`，約 `6.82x realtime`；acoustic model 與 Vocos 合計 123.6 MiB。固定 token adapter 的 waveform 全部有效，但尚未包含完整文字前端、FST、MP3 編碼與 append transport。中文 FST 在 `sherpa-onnx 1.13.4` Node WASM 即使配置 768 MiB／1 GiB 仍會越界，必須繼續定位。
+Matcha `matcha-icefall-zh-en` 使用相同五句中文做三方盲測後得到 `90/100`，高於 Kokoro 的 `80/100` 與 Piper 的 `60/100`；Piper 另被標記有外國腔。Matcha 因此已通過品質 gate，成為目前優先候選。正式 Chromium 151 單執行緒核心三輪中位數為 `1.467` task 秒／10 秒音訊，task／wall `RTF 0.1467`，約 `6.82x realtime`；acoustic model 與 Vocos 合計 123.6 MiB。另以 Worker 跑完 OpenCC、JavaScript 常用數字正規化、lexicon、Matcha、Vocos、ISTFT、silence scaling 與 96 kbps MP3 encode，再 append 到單一 MediaSource timeline；20 段共 103.32 秒音訊的 producer `RTF 0.1456`、`6.87x realtime`，underflow 與錯誤皆為 0。瀏覽器記憶體快照為初始化後 262.1 MiB、串流中 262.7 MiB，但這不是實際 peak。前端沒有載入 FST，也尚未接英文 eSpeak；中文 FST 在 `sherpa-onnx 1.13.4` Node WASM 即使配置 768 MiB／1 GiB 仍會越界。
 
 目前目錄只包含神經網路方案，這是測試覆蓋缺口，不是研究範圍限制。下一批候選應刻意涵蓋至少一個可在瀏覽器離線執行的非神經方案，量化它在體積、速度、記憶體與中文自然度之間的取捨。
 
@@ -73,5 +73,5 @@ Matcha `matcha-icefall-zh-en` 使用相同五句中文做三方盲測後得到 `
 - 新候選先用目標小說語料做 Piper 盲聽 A/B；只有通過品質門檻者，才投入端到端 RTF、資產體積、峰值記憶體與 [mobile-host](mobile-host/) 鎖屏相容性驗證。
 - Piper 的模型、Worker、MP3 encoder 與播放 transport 維持 frozen baseline；除非發現可重現性錯誤，否則不再投入整合或最佳化工作。
 - Kokoro 保留為品質通過的次要候選；下一個必要證據是真實 iPhone／iPad 的雙執行緒 RTF、長時間溫度、耗電與降頻行為，不再繼續無效的 selective INT8 擴大量化。
-- Matcha zh-en 已通過品質 gate 與桌面單執行緒效能 gate；下一步優先補齊完整前端、FST、峰值記憶體、MP3／append 端到端 RTF，以及真實 iPhone 的鎖屏熱穩態測試。
+- Matcha zh-en 已通過品質 gate、桌面單執行緒核心效能 gate、中文小說常用前端／MP3／append 桌面 gate 與真實斷線後的 PWA cache 重啟；下一步優先在真實 iPhone 測量峰值記憶體、RTF、鎖屏熱穩態與 2 小時跨章播放，並補齊英文 eSpeak、電話／貨幣等完整文字正規化與臺灣區域讀音詞典。
 - 將新方案透過符合共同量測契約的 adapter 接入 [統一測試平台](platform/README.md)；不要求使用 ONNX，並避免另建不可比較的 ad-hoc harness。

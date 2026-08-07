@@ -1,0 +1,1591 @@
+{
+  "generatedAt": "2026-08-07T10:09:30.017Z",
+  "environment": {
+    "browser": "Chrome/151.0.7922.71",
+    "browserBinary": "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+    "hostPlatform": "darwin",
+    "hostArchitecture": "arm64",
+    "osRelease": "25.5.0",
+    "node": "v24.19.0",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+    "crossOriginIsolated": true,
+    "sharedArrayBuffer": true,
+    "mediaSource": "MediaSource",
+    "mediaSourceSupported": true
+  },
+  "model": {
+    "name": "matcha-icefall-zh-en",
+    "acousticModel": "model-steps-3.onnx",
+    "vocoder": "vocos-16khz-univ.onnx",
+    "sampleRate": 16000,
+    "threads": 1,
+    "mp3": "lamejs 1.2.1 / mono / 96 kbps"
+  },
+  "frontend": {
+    "lexiconSize": 68037,
+    "tokenCount": 2189,
+    "traditionalConversion": "OpenCC tw2s",
+    "fst": false,
+    "numericNormalization": "JavaScript common date/time/percentage/decimal/integer rules",
+    "englishFrontend": false
+  },
+  "initialization": {
+    "wallMs": 2069.4599999934435,
+    "session": {
+      "wallMs": 1246.1899999976158,
+      "acousticInitMs": 1182.1299999952316,
+      "vocoderInitMs": 64.06499999761581,
+      "acousticInputs": [
+        "x",
+        "x_length",
+        "noise_scale",
+        "length_scale"
+      ],
+      "acousticOutputs": [
+        "mel"
+      ],
+      "vocoderInputs": [
+        "mels"
+      ],
+      "vocoderOutputs": [
+        "mag",
+        "x",
+        "y"
+      ]
+    },
+    "sources": {
+      "lexicon": "network",
+      "tokens": "network",
+      "acousticModel": "network",
+      "vocoder": "network"
+    },
+    "frontend": {
+      "lexiconSize": 68037,
+      "tokenCount": 2189,
+      "traditionalConversion": "OpenCC tw2s",
+      "fst": false,
+      "numericNormalization": "JavaScript common date/time/percentage/decimal/integer rules",
+      "englishFrontend": false
+    },
+    "warmup": {
+      "frontendMs": 0.75,
+      "synthesisMs": 187.58000001311302,
+      "mp3Ms": 33.349999994039536,
+      "audioSeconds": 0.677125,
+      "mp3Bytes": 9072,
+      "waveform": {
+        "samples": 10834,
+        "finiteSamples": 10834,
+        "peak": 0.7299625277519226,
+        "rms": 0.15737741566320157
+      }
+    },
+    "runtime": {
+      "ort": "1.26.0-dev.20260416-b7804b056c",
+      "threads": 1,
+      "mp3": "lamejs 1.2.1 / 96 kbps"
+    }
+  },
+  "protocol": {
+    "workerWarmups": 1,
+    "pronunciationProfile": "official",
+    "targetAppendCount": 20,
+    "measurementBoundary": "OpenCC + JavaScript normalization + lexicon/token mapping + Matcha + Vocos + ISTFT + silence scaling + MP3 encode",
+    "transport": "single HTMLAudioElement + single MediaSource + sequence SourceBuffer",
+    "waveformValidation": "all samples finite, peak > 0, RMS > 0, MP3 bytes > 0",
+    "note": "CDP TaskDuration is the main page target only and does not represent dedicated Worker CPU time"
+  },
+  "memory": {
+    "afterInitialization": {
+      "supported": true,
+      "bytes": 274785972,
+      "breakdown": [
+        {
+          "attribution": [],
+          "bytes": 119936,
+          "types": [
+            "DOM"
+          ]
+        },
+        {
+          "attribution": [],
+          "bytes": 0,
+          "types": []
+        },
+        {
+          "attribution": [],
+          "bytes": 370448,
+          "types": [
+            "Shared"
+          ]
+        },
+        {
+          "attribution": [
+            {
+              "scope": "Window",
+              "url": "http://127.0.0.1:8877/mobile-host/matcha-stream-test.html"
+            }
+          ],
+          "bytes": 353043,
+          "types": [
+            "JavaScript"
+          ]
+        },
+        {
+          "attribution": [
+            {
+              "scope": "DedicatedWorkerGlobalScope",
+              "url": "http://127.0.0.1:8877/mobile-host/matcha-worker.js"
+            }
+          ],
+          "bytes": 273942545,
+          "types": [
+            "JavaScript"
+          ]
+        }
+      ]
+    },
+    "afterStream": {
+      "supported": true,
+      "bytes": 275460978,
+      "breakdown": [
+        {
+          "attribution": [],
+          "bytes": 128112,
+          "types": [
+            "DOM"
+          ]
+        },
+        {
+          "attribution": [
+            {
+              "scope": "DedicatedWorkerGlobalScope",
+              "url": "http://127.0.0.1:8877/mobile-host/matcha-worker.js"
+            }
+          ],
+          "bytes": 274334620,
+          "types": [
+            "JavaScript"
+          ]
+        },
+        {
+          "attribution": [],
+          "bytes": 467405,
+          "types": [
+            "Shared"
+          ]
+        },
+        {
+          "attribution": [
+            {
+              "scope": "Window",
+              "url": "http://127.0.0.1:8877/mobile-host/matcha-stream-test.html"
+            }
+          ],
+          "bytes": 530841,
+          "types": [
+            "JavaScript"
+          ]
+        },
+        {
+          "attribution": [],
+          "bytes": 0,
+          "types": []
+        }
+      ]
+    }
+  },
+  "stream": {
+    "active": true,
+    "status": "playing",
+    "sourceKind": "MediaSource",
+    "mimeType": "audio/mpeg",
+    "supported": true,
+    "visibility": "visible",
+    "currentTime": 14.354533,
+    "bufferAheadSeconds": 88.96546699999999,
+    "bufferStart": 0,
+    "bufferEnd": 103.32,
+    "queuedSegments": 20,
+    "producing": true,
+    "lastTrigger": "updateend",
+    "elapsedSeconds": 15.244679999992252,
+    "rtf": 0.14560917537735846,
+    "realtimeMultiplier": 6.867699081520211,
+    "startedAt": 19349.165000006557,
+    "appendCount": 20,
+    "appendedAudioSeconds": 103.32,
+    "producerWallMs": 15044.339999988675,
+    "bytes": 1239840,
+    "underflows": 0,
+    "appendErrors": 0,
+    "producerErrors": 0,
+    "trims": 0,
+    "trimmedSeconds": 0,
+    "wallMsToTarget": 15245.60525,
+    "wallRtfToTarget": 0.14755715495547814,
+    "mainTargetTaskMs": 219.67000000000002,
+    "mainTargetTaskRtf": 0.0021261130468447544
+  },
+  "summary": {
+    "appendCount": 20,
+    "appendedAudioSeconds": 103.32,
+    "producerRtf": 0.14560917537735846,
+    "producerRealtimeMultiplier": 6.867699081520211,
+    "underflows": 0,
+    "appendErrors": 0,
+    "producerErrors": 0,
+    "medianSegmentAudioSeconds": 5.12125,
+    "medianSegmentMp3Bytes": 62640,
+    "medianPhasesMs": {
+      "frontendMs": 0.1850000023841858,
+      "acousticMs": 423.8550000041723,
+      "vocoderMs": 263.9599999934435,
+      "istftMs": 9.45499999821186,
+      "silenceMs": 0.20999999344348907,
+      "synthesisMs": 697.8500000089407,
+      "mp3Ms": 50.30500000715256,
+      "totalMs": 750.1649999916553
+    }
+  },
+  "segments": [
+    {
+      "text": "清晨的陽光穿過窗簾，輕輕落在安靜的房間裡。",
+      "normalizedText": "清晨的阳光穿过窗帘,轻轻落在安静的房间里.",
+      "pronunciationProfile": "official",
+      "tokenCount": 21,
+      "phones": [
+        "qing1",
+        "chen2",
+        "de5",
+        "yang2",
+        "guang1",
+        "chuan1",
+        "guo4",
+        "chuang1",
+        "lian2",
+        ",",
+        "qing1",
+        "qing1",
+        "luo4",
+        "zai4",
+        "an1",
+        "jing4",
+        "de5",
+        "fang2",
+        "jian1",
+        "li3",
+        "."
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 3.9694375,
+      "waveform": {
+        "samples": 63511,
+        "finiteSamples": 63511,
+        "peak": 0.6689544916152954,
+        "rms": 0.13915722377014972
+      },
+      "mp3Bytes": 48816,
+      "phases": {
+        "frontendMs": 0.26000000536441803,
+        "acousticMs": 359.93000000715256,
+        "vocoderMs": 207.51000000536442,
+        "istftMs": 9.370000004768372,
+        "silenceMs": 1.2999999970197678,
+        "synthesisMs": 578.1300000101328,
+        "mp3Ms": 135.67500001192093,
+        "totalMs": 715.5550000071526
+      }
+    },
+    {
+      "text": "遠處傳來清脆的鳥鳴，微風帶著花草的清香，讓嶄新的一天顯得格外明亮。",
+      "normalizedText": "远处传来清脆的鸟鸣,微风带着花草的清香,让崭新的一天显得格外明亮.",
+      "pronunciationProfile": "official",
+      "tokenCount": 33,
+      "phones": [
+        "yuan3",
+        "chu4",
+        "chuan2",
+        "lai2",
+        "qing1",
+        "cui4",
+        "de5",
+        "niao3",
+        "ming2",
+        ",",
+        "wei1",
+        "feng1",
+        "dai4",
+        "zhe5",
+        "hua1",
+        "cao3",
+        "de5",
+        "qing1",
+        "xiang1",
+        ",",
+        "rang4",
+        "zhan3",
+        "xin1",
+        "de5",
+        "yi1",
+        "tian1",
+        "xian3",
+        "de5",
+        "ge2",
+        "wai4",
+        "ming2",
+        "liang4",
+        "."
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 6.4649375,
+      "waveform": {
+        "samples": 103439,
+        "finiteSamples": 103439,
+        "peak": 0.7647532224655151,
+        "rms": 0.12542257198703172
+      },
+      "mp3Bytes": 78624,
+      "phases": {
+        "frontendMs": 0.19499999284744263,
+        "acousticMs": 545.5300000011921,
+        "vocoderMs": 325.92000000178814,
+        "istftMs": 22.780000001192093,
+        "silenceMs": 3.344999998807907,
+        "synthesisMs": 897.5949999988079,
+        "mp3Ms": 148.0549999922514,
+        "totalMs": 1048.9649999886751
+      }
+    },
+    {
+      "text": "第12章開始於2026年8月7日14:30。",
+      "normalizedText": "第十二章开始于二零二六年八月七日十四点三十分.",
+      "pronunciationProfile": "official",
+      "tokenCount": 23,
+      "phones": [
+        "di4",
+        "shi2",
+        "er4",
+        "zhang1",
+        "kai1",
+        "shi3",
+        "yu2",
+        "er4",
+        "ling2",
+        "er4",
+        "liu4",
+        "nian2",
+        "ba1",
+        "yue4",
+        "qi1",
+        "ri4",
+        "shi2",
+        "si4",
+        "dian3",
+        "san1",
+        "shi2",
+        "fen1",
+        "."
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 4.6435,
+      "waveform": {
+        "samples": 74296,
+        "finiteSamples": 74296,
+        "peak": 0.6582186818122864,
+        "rms": 0.12621588466028197
+      },
+      "mp3Bytes": 56592,
+      "phases": {
+        "frontendMs": 0.39499999582767487,
+        "acousticMs": 361.00999999046326,
+        "vocoderMs": 226.8699999898672,
+        "istftMs": 11.299999997019768,
+        "silenceMs": 0.23499999940395355,
+        "synthesisMs": 599.4449999928474,
+        "mp3Ms": 67.37000000476837,
+        "totalMs": 668.5750000029802
+      }
+    },
+    {
+      "text": "她低聲說：「先別急，我們還有25.5%的路沒走完。」",
+      "normalizedText": "她低声说:“先别急,我们还有百分之二十五点五的路没走完.”",
+      "pronunciationProfile": "official",
+      "tokenCount": 29,
+      "phones": [
+        "ta1",
+        "di1",
+        "sheng1",
+        "shuo1",
+        ":",
+        "“",
+        "xian1",
+        "bie2",
+        "ji2",
+        ",",
+        "wo3",
+        "men5",
+        "hai2",
+        "you3",
+        "bai3",
+        "fen1",
+        "zhi1",
+        "er4",
+        "shi2",
+        "wu3",
+        "dian3",
+        "wu3",
+        "de5",
+        "lu4",
+        "mei2",
+        "zou3",
+        "wan2",
+        ".",
+        "”"
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 5.12125,
+      "waveform": {
+        "samples": 81940,
+        "finiteSamples": 81940,
+        "peak": 0.7125539779663086,
+        "rms": 0.12242905879468483
+      },
+      "mp3Bytes": 62640,
+      "phases": {
+        "frontendMs": 0.23999999463558197,
+        "acousticMs": 423.0600000023842,
+        "vocoderMs": 262.14500001072884,
+        "istftMs": 9.234999999403954,
+        "silenceMs": 0.2800000011920929,
+        "synthesisMs": 694.734999999404,
+        "mp3Ms": 54.70499999821186,
+        "totalMs": 750.1649999916553
+      }
+    },
+    {
+      "text": "巷口堆著一袋垃圾，他繞過水窪，繼續朝燈火明亮的車站走去。",
+      "normalizedText": "巷口堆着一袋垃圾,他绕过水洼,继续朝灯火明亮的车站走去.",
+      "pronunciationProfile": "official",
+      "tokenCount": 28,
+      "phones": [
+        "xiang4",
+        "kou3",
+        "dui1",
+        "zhe5",
+        "yi1",
+        "dai4",
+        "la1",
+        "ji1",
+        ",",
+        "ta1",
+        "rao4",
+        "guo4",
+        "shui3",
+        "wa1",
+        ",",
+        "ji4",
+        "xu4",
+        "chao2",
+        "deng1",
+        "huo3",
+        "ming2",
+        "liang4",
+        "de5",
+        "che1",
+        "zhan4",
+        "zou3",
+        "qu4",
+        "."
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 5.20675,
+      "waveform": {
+        "samples": 83308,
+        "finiteSamples": 83308,
+        "peak": 0.7357696890830994,
+        "rms": 0.12420419162994087
+      },
+      "mp3Bytes": 63504,
+      "phases": {
+        "frontendMs": 0.3049999922513962,
+        "acousticMs": 429.1200000047684,
+        "vocoderMs": 268.39000000059605,
+        "istftMs": 10.379999995231628,
+        "silenceMs": 0.2150000035762787,
+        "synthesisMs": 708.1100000143051,
+        "mp3Ms": 56.875,
+        "totalMs": 765.75
+      }
+    },
+    {
+      "text": "清晨的陽光穿過窗簾，輕輕落在安靜的房間裡。",
+      "normalizedText": "清晨的阳光穿过窗帘,轻轻落在安静的房间里.",
+      "pronunciationProfile": "official",
+      "tokenCount": 21,
+      "phones": [
+        "qing1",
+        "chen2",
+        "de5",
+        "yang2",
+        "guang1",
+        "chuan1",
+        "guo4",
+        "chuang1",
+        "lian2",
+        ",",
+        "qing1",
+        "qing1",
+        "luo4",
+        "zai4",
+        "an1",
+        "jing4",
+        "de5",
+        "fang2",
+        "jian1",
+        "li3",
+        "."
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 3.968875,
+      "waveform": {
+        "samples": 63502,
+        "finiteSamples": 63502,
+        "peak": 0.6595949530601501,
+        "rms": 0.14354192609643565
+      },
+      "mp3Bytes": 48816,
+      "phases": {
+        "frontendMs": 0.14000000059604645,
+        "acousticMs": 339.9699999988079,
+        "vocoderMs": 208.0300000011921,
+        "istftMs": 7.445000007748604,
+        "silenceMs": 0.15000000596046448,
+        "synthesisMs": 555.6050000041723,
+        "mp3Ms": 37.320000007748604,
+        "totalMs": 593.4650000035763
+      }
+    },
+    {
+      "text": "遠處傳來清脆的鳥鳴，微風帶著花草的清香，讓嶄新的一天顯得格外明亮。",
+      "normalizedText": "远处传来清脆的鸟鸣,微风带着花草的清香,让崭新的一天显得格外明亮.",
+      "pronunciationProfile": "official",
+      "tokenCount": 33,
+      "phones": [
+        "yuan3",
+        "chu4",
+        "chuan2",
+        "lai2",
+        "qing1",
+        "cui4",
+        "de5",
+        "niao3",
+        "ming2",
+        ",",
+        "wei1",
+        "feng1",
+        "dai4",
+        "zhe5",
+        "hua1",
+        "cao3",
+        "de5",
+        "qing1",
+        "xiang1",
+        ",",
+        "rang4",
+        "zhan3",
+        "xin1",
+        "de5",
+        "yi1",
+        "tian1",
+        "xian3",
+        "de5",
+        "ge2",
+        "wai4",
+        "ming2",
+        "liang4",
+        "."
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 6.458625,
+      "waveform": {
+        "samples": 103338,
+        "finiteSamples": 103338,
+        "peak": 0.7901118397712708,
+        "rms": 0.1276508042655144
+      },
+      "mp3Bytes": 78624,
+      "phases": {
+        "frontendMs": 0.21000000834465027,
+        "acousticMs": 535.8199999928474,
+        "vocoderMs": 325.92499999701977,
+        "istftMs": 11.229999989271164,
+        "silenceMs": 0.24000000953674316,
+        "synthesisMs": 873.2199999988079,
+        "mp3Ms": 50.54999999701977,
+        "totalMs": 924.5349999964237
+      }
+    },
+    {
+      "text": "第12章開始於2026年8月7日14:30。",
+      "normalizedText": "第十二章开始于二零二六年八月七日十四点三十分.",
+      "pronunciationProfile": "official",
+      "tokenCount": 23,
+      "phones": [
+        "di4",
+        "shi2",
+        "er4",
+        "zhang1",
+        "kai1",
+        "shi3",
+        "yu2",
+        "er4",
+        "ling2",
+        "er4",
+        "liu4",
+        "nian2",
+        "ba1",
+        "yue4",
+        "qi1",
+        "ri4",
+        "shi2",
+        "si4",
+        "dian3",
+        "san1",
+        "shi2",
+        "fen1",
+        "."
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 4.64325,
+      "waveform": {
+        "samples": 74292,
+        "finiteSamples": 74292,
+        "peak": 0.6949508786201477,
+        "rms": 0.12617979826472275
+      },
+      "mp3Bytes": 56592,
+      "phases": {
+        "frontendMs": 0.2550000101327896,
+        "acousticMs": 359.78999999165535,
+        "vocoderMs": 225.71000000834465,
+        "istftMs": 7.99499998986721,
+        "silenceMs": 0.17000000178813934,
+        "synthesisMs": 593.6649999916553,
+        "mp3Ms": 35.36500000953674,
+        "totalMs": 629.7000000029802
+      }
+    },
+    {
+      "text": "她低聲說：「先別急，我們還有25.5%的路沒走完。」",
+      "normalizedText": "她低声说:“先别急,我们还有百分之二十五点五的路没走完.”",
+      "pronunciationProfile": "official",
+      "tokenCount": 29,
+      "phones": [
+        "ta1",
+        "di1",
+        "sheng1",
+        "shuo1",
+        ":",
+        "“",
+        "xian1",
+        "bie2",
+        "ji2",
+        ",",
+        "wo3",
+        "men5",
+        "hai2",
+        "you3",
+        "bai3",
+        "fen1",
+        "zhi1",
+        "er4",
+        "shi2",
+        "wu3",
+        "dian3",
+        "wu3",
+        "de5",
+        "lu4",
+        "mei2",
+        "zou3",
+        "wan2",
+        ".",
+        "”"
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 5.1170625,
+      "waveform": {
+        "samples": 81873,
+        "finiteSamples": 81873,
+        "peak": 0.7835759520530701,
+        "rms": 0.12663084799438626
+      },
+      "mp3Bytes": 62640,
+      "phases": {
+        "frontendMs": 0.18000000715255737,
+        "acousticMs": 423.1050000041723,
+        "vocoderMs": 262.89500001072884,
+        "istftMs": 11.640000000596046,
+        "silenceMs": 0.19500000774860382,
+        "synthesisMs": 697.8500000089407,
+        "mp3Ms": 35.17499999701977,
+        "totalMs": 733.6600000113249
+      }
+    },
+    {
+      "text": "巷口堆著一袋垃圾，他繞過水窪，繼續朝燈火明亮的車站走去。",
+      "normalizedText": "巷口堆着一袋垃圾,他绕过水洼,继续朝灯火明亮的车站走去.",
+      "pronunciationProfile": "official",
+      "tokenCount": 28,
+      "phones": [
+        "xiang4",
+        "kou3",
+        "dui1",
+        "zhe5",
+        "yi1",
+        "dai4",
+        "la1",
+        "ji1",
+        ",",
+        "ta1",
+        "rao4",
+        "guo4",
+        "shui3",
+        "wa1",
+        ",",
+        "ji4",
+        "xu4",
+        "chao2",
+        "deng1",
+        "huo3",
+        "ming2",
+        "liang4",
+        "de5",
+        "che1",
+        "zhan4",
+        "zou3",
+        "qu4",
+        "."
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 5.1745625,
+      "waveform": {
+        "samples": 82793,
+        "finiteSamples": 82793,
+        "peak": 0.9001967310905457,
+        "rms": 0.12346122928514834
+      },
+      "mp3Bytes": 63072,
+      "phases": {
+        "frontendMs": 0.29999999701976776,
+        "acousticMs": 430.2800000011921,
+        "vocoderMs": 268.3699999898672,
+        "istftMs": 9.515000000596046,
+        "silenceMs": 0.21000000834465027,
+        "synthesisMs": 708.3800000101328,
+        "mp3Ms": 43.41999998688698,
+        "totalMs": 752.5400000065565
+      }
+    },
+    {
+      "text": "清晨的陽光穿過窗簾，輕輕落在安靜的房間裡。",
+      "normalizedText": "清晨的阳光穿过窗帘,轻轻落在安静的房间里.",
+      "pronunciationProfile": "official",
+      "tokenCount": 21,
+      "phones": [
+        "qing1",
+        "chen2",
+        "de5",
+        "yang2",
+        "guang1",
+        "chuan1",
+        "guo4",
+        "chuang1",
+        "lian2",
+        ",",
+        "qing1",
+        "qing1",
+        "luo4",
+        "zai4",
+        "an1",
+        "jing4",
+        "de5",
+        "fang2",
+        "jian1",
+        "li3",
+        "."
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 3.969,
+      "waveform": {
+        "samples": 63504,
+        "finiteSamples": 63504,
+        "peak": 0.67771315574646,
+        "rms": 0.14419323965334277
+      },
+      "mp3Bytes": 48816,
+      "phases": {
+        "frontendMs": 0.1899999976158142,
+        "acousticMs": 340.0349999964237,
+        "vocoderMs": 207.49500000476837,
+        "istftMs": 7.174999997019768,
+        "silenceMs": 0.15000000596046448,
+        "synthesisMs": 554.859999999404,
+        "mp3Ms": 31.445000007748604,
+        "totalMs": 586.8400000035763
+      }
+    },
+    {
+      "text": "遠處傳來清脆的鳥鳴，微風帶著花草的清香，讓嶄新的一天顯得格外明亮。",
+      "normalizedText": "远处传来清脆的鸟鸣,微风带着花草的清香,让崭新的一天显得格外明亮.",
+      "pronunciationProfile": "official",
+      "tokenCount": 33,
+      "phones": [
+        "yuan3",
+        "chu4",
+        "chuan2",
+        "lai2",
+        "qing1",
+        "cui4",
+        "de5",
+        "niao3",
+        "ming2",
+        ",",
+        "wei1",
+        "feng1",
+        "dai4",
+        "zhe5",
+        "hua1",
+        "cao3",
+        "de5",
+        "qing1",
+        "xiang1",
+        ",",
+        "rang4",
+        "zhan3",
+        "xin1",
+        "de5",
+        "yi1",
+        "tian1",
+        "xian3",
+        "de5",
+        "ge2",
+        "wai4",
+        "ming2",
+        "liang4",
+        "."
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 6.6181875,
+      "waveform": {
+        "samples": 105891,
+        "finiteSamples": 105891,
+        "peak": 0.7666119337081909,
+        "rms": 0.12466392599269756
+      },
+      "mp3Bytes": 80352,
+      "phases": {
+        "frontendMs": 0.16499999165534973,
+        "acousticMs": 533.8800000101328,
+        "vocoderMs": 325.9899999946356,
+        "istftMs": 11.600000008940697,
+        "silenceMs": 0.26000000536441803,
+        "synthesisMs": 871.7400000095367,
+        "mp3Ms": 47.23999999463558,
+        "totalMs": 919.7300000041723
+      }
+    },
+    {
+      "text": "第12章開始於2026年8月7日14:30。",
+      "normalizedText": "第十二章开始于二零二六年八月七日十四点三十分.",
+      "pronunciationProfile": "official",
+      "tokenCount": 23,
+      "phones": [
+        "di4",
+        "shi2",
+        "er4",
+        "zhang1",
+        "kai1",
+        "shi3",
+        "yu2",
+        "er4",
+        "ling2",
+        "er4",
+        "liu4",
+        "nian2",
+        "ba1",
+        "yue4",
+        "qi1",
+        "ri4",
+        "shi2",
+        "si4",
+        "dian3",
+        "san1",
+        "shi2",
+        "fen1",
+        "."
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 4.6359375,
+      "waveform": {
+        "samples": 74175,
+        "finiteSamples": 74175,
+        "peak": 0.6810291409492493,
+        "rms": 0.12634707580884452
+      },
+      "mp3Bytes": 56592,
+      "phases": {
+        "frontendMs": 0.1550000011920929,
+        "acousticMs": 362.1449999958277,
+        "vocoderMs": 226.4599999934435,
+        "istftMs": 9.45499999821186,
+        "silenceMs": 0.15000000596046448,
+        "synthesisMs": 598.2199999988079,
+        "mp3Ms": 158.3349999934435,
+        "totalMs": 757.109999999404
+      }
+    },
+    {
+      "text": "她低聲說：「先別急，我們還有25.5%的路沒走完。」",
+      "normalizedText": "她低声说:“先别急,我们还有百分之二十五点五的路没走完.”",
+      "pronunciationProfile": "official",
+      "tokenCount": 29,
+      "phones": [
+        "ta1",
+        "di1",
+        "sheng1",
+        "shuo1",
+        ":",
+        "“",
+        "xian1",
+        "bie2",
+        "ji2",
+        ",",
+        "wo3",
+        "men5",
+        "hai2",
+        "you3",
+        "bai3",
+        "fen1",
+        "zhi1",
+        "er4",
+        "shi2",
+        "wu3",
+        "dian3",
+        "wu3",
+        "de5",
+        "lu4",
+        "mei2",
+        "zou3",
+        "wan2",
+        ".",
+        "”"
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 5.123125,
+      "waveform": {
+        "samples": 81970,
+        "finiteSamples": 81970,
+        "peak": 0.6594911813735962,
+        "rms": 0.12560458129068203
+      },
+      "mp3Bytes": 62640,
+      "phases": {
+        "frontendMs": 0.1550000011920929,
+        "acousticMs": 424.0600000023842,
+        "vocoderMs": 266.0600000023842,
+        "istftMs": 9.36999998986721,
+        "silenceMs": 0.20999999344348907,
+        "synthesisMs": 699.7099999934435,
+        "mp3Ms": 94.98499999940395,
+        "totalMs": 795.2999999970198
+      }
+    },
+    {
+      "text": "巷口堆著一袋垃圾，他繞過水窪，繼續朝燈火明亮的車站走去。",
+      "normalizedText": "巷口堆着一袋垃圾,他绕过水洼,继续朝灯火明亮的车站走去.",
+      "pronunciationProfile": "official",
+      "tokenCount": 28,
+      "phones": [
+        "xiang4",
+        "kou3",
+        "dui1",
+        "zhe5",
+        "yi1",
+        "dai4",
+        "la1",
+        "ji1",
+        ",",
+        "ta1",
+        "rao4",
+        "guo4",
+        "shui3",
+        "wa1",
+        ",",
+        "ji4",
+        "xu4",
+        "chao2",
+        "deng1",
+        "huo3",
+        "ming2",
+        "liang4",
+        "de5",
+        "che1",
+        "zhan4",
+        "zou3",
+        "qu4",
+        "."
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 5.046375,
+      "waveform": {
+        "samples": 80742,
+        "finiteSamples": 80742,
+        "peak": 0.6748110055923462,
+        "rms": 0.1212980082811487
+      },
+      "mp3Bytes": 61776,
+      "phases": {
+        "frontendMs": 0.1599999964237213,
+        "acousticMs": 430.57500000298023,
+        "vocoderMs": 268.73499999940395,
+        "istftMs": 9.459999993443489,
+        "silenceMs": 0.20500001311302185,
+        "synthesisMs": 708.9800000041723,
+        "mp3Ms": 54.07500000298023,
+        "totalMs": 763.6449999958277
+      }
+    },
+    {
+      "text": "清晨的陽光穿過窗簾，輕輕落在安靜的房間裡。",
+      "normalizedText": "清晨的阳光穿过窗帘,轻轻落在安静的房间里.",
+      "pronunciationProfile": "official",
+      "tokenCount": 21,
+      "phones": [
+        "qing1",
+        "chen2",
+        "de5",
+        "yang2",
+        "guang1",
+        "chuan1",
+        "guo4",
+        "chuang1",
+        "lian2",
+        ",",
+        "qing1",
+        "qing1",
+        "luo4",
+        "zai4",
+        "an1",
+        "jing4",
+        "de5",
+        "fang2",
+        "jian1",
+        "li3",
+        "."
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 3.9673125,
+      "waveform": {
+        "samples": 63477,
+        "finiteSamples": 63477,
+        "peak": 0.6894668340682983,
+        "rms": 0.1420455548030394
+      },
+      "mp3Bytes": 48816,
+      "phases": {
+        "frontendMs": 0.14000000059604645,
+        "acousticMs": 339.9599999934435,
+        "vocoderMs": 207.5,
+        "istftMs": 7.1400000005960464,
+        "silenceMs": 0.15000000596046448,
+        "synthesisMs": 554.7599999904633,
+        "mp3Ms": 35.19499999284744,
+        "totalMs": 590.4399999976158
+      }
+    },
+    {
+      "text": "遠處傳來清脆的鳥鳴，微風帶著花草的清香，讓嶄新的一天顯得格外明亮。",
+      "normalizedText": "远处传来清脆的鸟鸣,微风带着花草的清香,让崭新的一天显得格外明亮.",
+      "pronunciationProfile": "official",
+      "tokenCount": 33,
+      "phones": [
+        "yuan3",
+        "chu4",
+        "chuan2",
+        "lai2",
+        "qing1",
+        "cui4",
+        "de5",
+        "niao3",
+        "ming2",
+        ",",
+        "wei1",
+        "feng1",
+        "dai4",
+        "zhe5",
+        "hua1",
+        "cao3",
+        "de5",
+        "qing1",
+        "xiang1",
+        ",",
+        "rang4",
+        "zhan3",
+        "xin1",
+        "de5",
+        "yi1",
+        "tian1",
+        "xian3",
+        "de5",
+        "ge2",
+        "wai4",
+        "ming2",
+        "liang4",
+        "."
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 6.457,
+      "waveform": {
+        "samples": 103312,
+        "finiteSamples": 103312,
+        "peak": 0.777829110622406,
+        "rms": 0.12532250567430034
+      },
+      "mp3Bytes": 78624,
+      "phases": {
+        "frontendMs": 0.1850000023841858,
+        "acousticMs": 532.9250000119209,
+        "vocoderMs": 327.34999999403954,
+        "istftMs": 11.930000007152557,
+        "silenceMs": 0.25,
+        "synthesisMs": 872.4650000035763,
+        "mp3Ms": 50.30500000715256,
+        "totalMs": 923.5200000107288
+      }
+    },
+    {
+      "text": "第12章開始於2026年8月7日14:30。",
+      "normalizedText": "第十二章开始于二零二六年八月七日十四点三十分.",
+      "pronunciationProfile": "official",
+      "tokenCount": 23,
+      "phones": [
+        "di4",
+        "shi2",
+        "er4",
+        "zhang1",
+        "kai1",
+        "shi3",
+        "yu2",
+        "er4",
+        "ling2",
+        "er4",
+        "liu4",
+        "nian2",
+        "ba1",
+        "yue4",
+        "qi1",
+        "ri4",
+        "shi2",
+        "si4",
+        "dian3",
+        "san1",
+        "shi2",
+        "fen1",
+        "."
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 4.6430625,
+      "waveform": {
+        "samples": 74289,
+        "finiteSamples": 74289,
+        "peak": 0.6903563141822815,
+        "rms": 0.12457536190232812
+      },
+      "mp3Bytes": 56592,
+      "phases": {
+        "frontendMs": 0.14000000059604645,
+        "acousticMs": 360.85999999940395,
+        "vocoderMs": 226.70000000298023,
+        "istftMs": 7.9749999940395355,
+        "silenceMs": 0.16500000655651093,
+        "synthesisMs": 595.7049999982119,
+        "mp3Ms": 36.51000000536442,
+        "totalMs": 632.765000000596
+      }
+    },
+    {
+      "text": "她低聲說：「先別急，我們還有25.5%的路沒走完。」",
+      "normalizedText": "她低声说:“先别急,我们还有百分之二十五点五的路没走完.”",
+      "pronunciationProfile": "official",
+      "tokenCount": 29,
+      "phones": [
+        "ta1",
+        "di1",
+        "sheng1",
+        "shuo1",
+        ":",
+        "“",
+        "xian1",
+        "bie2",
+        "ji2",
+        ",",
+        "wo3",
+        "men5",
+        "hai2",
+        "you3",
+        "bai3",
+        "fen1",
+        "zhi1",
+        "er4",
+        "shi2",
+        "wu3",
+        "dian3",
+        "wu3",
+        "de5",
+        "lu4",
+        "mei2",
+        "zou3",
+        "wan2",
+        ".",
+        "”"
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 5.121625,
+      "waveform": {
+        "samples": 81946,
+        "finiteSamples": 81946,
+        "peak": 0.7090377807617188,
+        "rms": 0.12312485730937839
+      },
+      "mp3Bytes": 62640,
+      "phases": {
+        "frontendMs": 0.1599999964237213,
+        "acousticMs": 423.8550000041723,
+        "vocoderMs": 263.9599999934435,
+        "istftMs": 9.260000005364418,
+        "silenceMs": 0.1899999976158142,
+        "synthesisMs": 697.2699999958277,
+        "mp3Ms": 38.88500000536442,
+        "totalMs": 736.7599999904633
+      }
+    },
+    {
+      "text": "巷口堆著一袋垃圾，他繞過水窪，繼續朝燈火明亮的車站走去。",
+      "normalizedText": "巷口堆着一袋垃圾,他绕过水洼,继续朝灯火明亮的车站走去.",
+      "pronunciationProfile": "official",
+      "tokenCount": 28,
+      "phones": [
+        "xiang4",
+        "kou3",
+        "dui1",
+        "zhe5",
+        "yi1",
+        "dai4",
+        "la1",
+        "ji1",
+        ",",
+        "ta1",
+        "rao4",
+        "guo4",
+        "shui3",
+        "wa1",
+        ",",
+        "ji4",
+        "xu4",
+        "chao2",
+        "deng1",
+        "huo3",
+        "ming2",
+        "liang4",
+        "de5",
+        "che1",
+        "zhan4",
+        "zou3",
+        "qu4",
+        "."
+      ],
+      "unknown": [],
+      "sampleRate": 16000,
+      "audioSeconds": 5.1725,
+      "waveform": {
+        "samples": 82760,
+        "finiteSamples": 82760,
+        "peak": 0.852782130241394,
+        "rms": 0.12079406153608366
+      },
+      "mp3Bytes": 63072,
+      "phases": {
+        "frontendMs": 0.14999999105930328,
+        "acousticMs": 429.9399999976158,
+        "vocoderMs": 269.4350000023842,
+        "istftMs": 9.435000002384186,
+        "silenceMs": 0.20999999344348907,
+        "synthesisMs": 709.0199999958277,
+        "mp3Ms": 38.07999999821186,
+        "totalMs": 747.6899999976158
+      }
+    }
+  ],
+  "relevantEvents": [
+    {
+      "at": 20071.44500000775,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 0,
+        "audioSeconds": 4.068,
+        "start": 0,
+        "end": 4.068,
+        "text": "清晨的陽光穿過窗簾，輕輕落在安靜的房間裡。"
+      }
+    },
+    {
+      "at": 21122.670000001788,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 1,
+        "audioSeconds": 6.552,
+        "start": 4.068,
+        "end": 10.62,
+        "text": "遠處傳來清脆的鳥鳴，微風帶著花草的清香，讓嶄新的一天顯得格外明亮。"
+      }
+    },
+    {
+      "at": 21805.92499999702,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 2,
+        "audioSeconds": 4.716000000000001,
+        "start": 10.62,
+        "end": 15.336,
+        "text": "第12章開始於2026年8月7日14:30。"
+      }
+    },
+    {
+      "at": 22557.715000003576,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 3,
+        "audioSeconds": 5.220000000000001,
+        "start": 15.336,
+        "end": 20.556,
+        "text": "她低聲說：「先別急，我們還有25.5%的路沒走完。」"
+      }
+    },
+    {
+      "at": 23325.490000009537,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 4,
+        "audioSeconds": 5.291999999999998,
+        "start": 20.556,
+        "end": 25.848,
+        "text": "巷口堆著一袋垃圾，他繞過水窪，繼續朝燈火明亮的車站走去。"
+      }
+    },
+    {
+      "at": 23922.144999995828,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 5,
+        "audioSeconds": 4.068000000000001,
+        "start": 25.848,
+        "end": 29.916,
+        "text": "清晨的陽光穿過窗簾，輕輕落在安靜的房間裡。"
+      }
+    },
+    {
+      "at": 24849.215000003576,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 6,
+        "audioSeconds": 6.552000000000003,
+        "start": 29.916,
+        "end": 36.468,
+        "text": "遠處傳來清脆的鳥鳴，微風帶著花草的清香，讓嶄新的一天顯得格外明亮。"
+      }
+    },
+    {
+      "at": 25482.460000008345,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 7,
+        "audioSeconds": 4.715999999999994,
+        "start": 36.468,
+        "end": 41.184,
+        "text": "第12章開始於2026年8月7日14:30。"
+      }
+    },
+    {
+      "at": 26218.670000001788,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 8,
+        "audioSeconds": 5.220000000000006,
+        "start": 41.184,
+        "end": 46.404,
+        "text": "她低聲說：「先別急，我們還有25.5%的路沒走完。」"
+      }
+    },
+    {
+      "at": 26974.17499999702,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 9,
+        "audioSeconds": 5.255999999999993,
+        "start": 46.404,
+        "end": 51.66,
+        "text": "巷口堆著一袋垃圾，他繞過水窪，繼續朝燈火明亮的車站走去。"
+      }
+    },
+    {
+      "at": 27564.07000000775,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 10,
+        "audioSeconds": 4.068000000000005,
+        "start": 51.66,
+        "end": 55.728,
+        "text": "清晨的陽光穿過窗簾，輕輕落在安靜的房間裡。"
+      }
+    },
+    {
+      "at": 28488.090000003576,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 11,
+        "audioSeconds": 6.695999999999998,
+        "start": 55.728,
+        "end": 62.424,
+        "text": "遠處傳來清脆的鳥鳴，微風帶著花草的清香，讓嶄新的一天顯得格外明亮。"
+      }
+    },
+    {
+      "at": 29249.85000000894,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 12,
+        "audioSeconds": 4.716000000000001,
+        "start": 62.424,
+        "end": 67.14,
+        "text": "第12章開始於2026年8月7日14:30。"
+      }
+    },
+    {
+      "at": 30048.79999999702,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 13,
+        "audioSeconds": 5.219999999999999,
+        "start": 67.14,
+        "end": 72.36,
+        "text": "她低聲說：「先別急，我們還有25.5%的路沒走完。」"
+      }
+    },
+    {
+      "at": 30817.230000004172,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 14,
+        "audioSeconds": 5.147999999999996,
+        "start": 72.36,
+        "end": 77.508,
+        "text": "巷口堆著一袋垃圾，他繞過水窪，繼續朝燈火明亮的車站走去。"
+      }
+    },
+    {
+      "at": 31412.79999999702,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 15,
+        "audioSeconds": 4.067999999999998,
+        "start": 77.508,
+        "end": 81.576,
+        "text": "清晨的陽光穿過窗簾，輕輕落在安靜的房間裡。"
+      }
+    },
+    {
+      "at": 32341.680000007153,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 16,
+        "audioSeconds": 6.552000000000007,
+        "start": 81.576,
+        "end": 88.128,
+        "text": "遠處傳來清脆的鳥鳴，微風帶著花草的清香，讓嶄新的一天顯得格外明亮。"
+      }
+    },
+    {
+      "at": 32981.590000003576,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 17,
+        "audioSeconds": 4.715999999999994,
+        "start": 88.128,
+        "end": 92.844,
+        "text": "第12章開始於2026年8月7日14:30。"
+      }
+    },
+    {
+      "at": 33722.90000000596,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 18,
+        "audioSeconds": 5.219999999999999,
+        "start": 92.844,
+        "end": 98.064,
+        "text": "她低聲說：「先別急，我們還有25.5%的路沒走完。」"
+      }
+    },
+    {
+      "at": 34475.57000000775,
+      "visibility": "visible",
+      "message": "append 完成",
+      "detail": {
+        "index": 19,
+        "audioSeconds": 5.256,
+        "start": 98.064,
+        "end": 103.32,
+        "text": "巷口堆著一袋垃圾，他繞過水窪，繼續朝燈火明亮的車站走去。"
+      }
+    }
+  ]
+}

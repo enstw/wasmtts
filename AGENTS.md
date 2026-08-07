@@ -29,7 +29,7 @@ Piper Worker、MP3 encoder 與上述播放 transport 已由 `bookworm` 驗證；
 
 Kokoro fp32 已通過品質門檻，但單執行緒效能不足；桌面雙執行緒只證明它可能以約 `5.02x` Piper 運算成本換取 realtime。將它視為溫度與耗電較高的次要候選，不可寫成已淘汰，也不可把尚未量測的 iPhone 熱穩態寫成既定事實。除實機雙執行緒 RTF、溫度、耗電與降頻驗證外，不再優先擴大 selective INT8 工作。
 
-Matcha `matcha-icefall-zh-en` 已通過第一輪品質 gate：相同文本盲測為 Matcha `90`、Kokoro `80`、Piper `60`，Piper 被標記有外國腔。Matcha 是目前優先候選；Chromium 151 單執行緒正式結果為 task `RTF 0.1467`、wall `RTF 0.1467`，約 `6.82x realtime`，Acoustic + Vocos ONNX 合計 123.6 MiB。這個 adapter 使用無 FST 的固定 token，未包含完整文字前端、MP3 編碼或 append transport，不可寫成 iPhone 端到端結果。`sherpa-onnx 1.13.4` 載入這組中文 FST 時即使明確配置 768 MiB／1 GiB 仍越界，應視為待定位的 runtime／FST 相容性問題，不可只靠放大 heap。
+Matcha `matcha-icefall-zh-en` 已通過第一輪品質 gate：相同文本盲測為 Matcha `90`、Kokoro `80`、Piper `60`，Piper 被標記有外國腔。Matcha 是目前優先候選；Chromium 151 單執行緒核心結果為 task／wall `RTF 0.1467`，完整 Worker producer 的 20 段桌面結果為 `RTF 0.1456`、`6.87x realtime`，包含 OpenCC、JavaScript 常用數字正規化、lexicon、Matcha、Vocos、ISTFT、silence scaling 與 96 kbps MP3 encode。103.32 秒音訊 append 到單一 MediaSource timeline 時沒有 underflow 或錯誤；記憶體只量到初始化後 262.1 MiB 與串流中 262.7 MiB 快照，不得寫成真正 peak 或 iPhone 結果。前端仍未涵蓋英文 eSpeak 與完整 FST 規則；`sherpa-onnx 1.13.4` 載入中文 FST 即使明確配置 768 MiB／1 GiB 仍越界，不可只靠放大 heap。
 
 ## Conventions
 
@@ -50,6 +50,7 @@ pnpm host:mobile
 pnpm benchmark:vits
 pnpm benchmark:kokoro -- fp32
 pnpm benchmark:matcha
+pnpm benchmark:matcha-stream
 ```
 
 Kokoro selective INT8：

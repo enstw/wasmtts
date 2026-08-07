@@ -24,7 +24,7 @@ body {
   color: var(--ink);
 }
 
-button, audio { font: inherit; }
+button, audio, textarea, select { font: inherit; }
 
 a { color: var(--green); }
 
@@ -96,6 +96,27 @@ button.danger { color: var(--red); }
 button:disabled { opacity: .38; cursor: default; }
 
 audio { width: 100%; grid-column: 1 / -1; }
+
+.field {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: .86rem;
+}
+
+.full-width { grid-column: 1 / -1; }
+
+textarea, select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  color: var(--ink);
+  background: #0b1710;
+  line-height: 1.6;
+}
+
+textarea:disabled, select:disabled { opacity: .6; }
 
 .metrics {
   display: grid;

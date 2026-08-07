@@ -2,7 +2,7 @@
 
 本專案比較可在 iOS Safari 與行動 PWA 離線執行、並能在鎖屏期間持續朗讀長篇小說的中文 TTS，並以技術中立的瀏覽器量測契約保存效能、正確性與音質證據。候選可以採純 JavaScript、Web Audio、WebAssembly 或系統語音，不限神經網路或 ONNX；目前的 ONNX Runtime Web harness 是第一個已實作的 adapter。鎖屏產品路徑不是預產章節，而是讓 RTF 小於 `1` 的引擎在背景逐句合成，再把編碼片段 append 到單一長駐 `ManagedMediaSource` timeline。
 
-目前的核心結論是：Piper HuaYan medium 是 frozen 品質／效能基準，其 Worker、MP3 encoder 與鎖屏 transport 已由 `bookworm` 驗證，不是本專案要重做的研究。Matcha zh-en 在相同文本盲測得到 90 分，高於 Kokoro 的 80 分與 Piper 的 60 分；正式桌面瀏覽器單執行緒 `RTF` 約 `0.146`，已成為優先候選。下一步是完整前端／FST、峰值記憶體、MP3 append 與 iPhone 鎖屏熱穩態驗證。Kokoro fp32 品質通過但運算成本仍約為 Piper 的 `5.02x`，因此列為手機溫度與耗電較高的次要候選。AISHELL3 雖然最快，但音質不足。
+目前的核心結論是：Piper HuaYan medium 是 frozen 品質／效能基準，其 Worker、MP3 encoder 與鎖屏 transport 已由 `bookworm` 驗證，不是本專案要重做的研究。Matcha zh-en 在相同文本盲測得到 90 分，高於 Kokoro 的 80 分與 Piper 的 60 分；桌面單執行緒核心 `RTF` 為 `0.1467`，包含繁體轉換、常用數字前端、Worker 推論、MP3 encode 與 MediaSource append 的 103.32 秒測試為 `RTF 0.1456`，已成為優先候選。下一步是真實 iPhone 的峰值記憶體、鎖屏、溫度與長時間穩態驗證，以及補齊英文／完整文字正規化。Kokoro fp32 品質通過但運算成本仍約為 Piper 的 `5.02x`，因此列為手機溫度與耗電較高的次要候選。AISHELL3 雖然最快，但音質不足。
 
 ## 專案入口
 
@@ -34,6 +34,7 @@ pnpm host:mobile
 pnpm benchmark:vits
 pnpm benchmark:kokoro -- fp32
 pnpm benchmark:matcha
+pnpm benchmark:matcha-stream
 ```
 
 完整測試條件、原始數值與限制請見 [platform/RESULTS.md](platform/RESULTS.md)。

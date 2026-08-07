@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#17231d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Matcha 長篇串流候選測試</title>
+  <link rel="manifest" href="/mobile-host/manifest.webmanifest">
+  <link rel="stylesheet" href="/mobile-host/stream-test.css">
+</head>
+<body>
+  <main class="shell">
+    <nav><a href="/mobile-host/">← 返回測試入口</a></nav>
+    <header class="hero">
+      <p class="eyebrow">MATCHA END-TO-END CANDIDATE</p>
+      <h1>Matcha 長篇<br>串流測試</h1>
+      <p class="lede">逐句在 Worker 執行繁簡轉換、lexicon 前端、Matcha、Vocos、ISTFT 與 MP3 encode，再 append 到單一長駐媒體 timeline。這一頁量的是候選端到端路徑，不是 Piper fixture。</p>
+    </header>
+
+    <section id="unsupported" class="notice error" hidden>
+      此瀏覽器不支援 <code>audio/mpeg</code> MediaSource，無法執行這項測試。
+    </section>
+
+    <section class="panel controls" aria-labelledby="control-title">
+      <div>
+        <p class="section-label">NOVEL INPUT</p>
+        <h2 id="control-title">初始化完成後，以一次手勢開始</h2>
+        <p>首次載入需下載並快取約 123.6 MiB ONNX 模型；後續逐句背景產生，不會預產整章。</p>
+      </div>
+      <div class="button-row">
+        <button id="startBtn" class="primary" disabled>等待 Matcha 初始化</button>
+        <button id="pauseBtn" disabled>暫停</button>
+        <button id="stopBtn" class="danger" disabled>停止並清空</button>
+      </div>
+      <label class="field full-width">
+        <span>測試小說文字</span>
+        <textarea id="novelText" rows="7">清晨的陽光穿過窗簾，輕輕落在安靜的房間裡。遠處傳來清脆的鳥鳴，微風帶著花草的清香，讓嶄新的一天顯得格外明亮。
+第12章開始於2026年8月7日14:30。她低聲說：「先別急，我們還有25.5%的路沒走完。」
+巷口堆著一袋垃圾，他繞過水窪，繼續朝燈火明亮的車站走去。</textarea>
+      </label>
+      <label class="field">
+        <span>區域讀音</span>
+        <select id="pronunciationProfile">
+          <option value="official">原模型詞典：垃圾＝lā jī</option>
+          <option value="taiwan">臺灣覆寫：垃圾＝lè sè</option>
+        </select>
+      </label>
+      <audio id="streamAudio" controls preload="none"></audio>
+    </section>
+
+    <section class="metrics" aria-label="即時指標">
+      <article><span>狀態</span><strong id="state">initializing</strong></article>
+      <article><span>Worker</span><strong id="workerState">啟動中</strong></article>
+      <article><span>頁面狀態</span><strong id="visibility">visible</strong></article>
+      <article><span>已 append</span><strong id="appends">0</strong></article>
+      <article class="accent"><span>端到端 RTF</span><strong id="rtf">—</strong></article>
+      <article class="accent"><span>Realtime</span><strong id="multiplier">—</strong></article>
+      <article><span>Buffer ahead</span><strong id="ahead">0 秒</strong></article>
+      <article class="warn"><span>Underflow</span><strong id="underflows">0</strong></article>
+      <article><span>前端</span><strong id="frontendMs">—</strong></article>
+      <article><span>Acoustic</span><strong id="acousticMs">—</strong></article>
+      <article><span>Vocos</span><strong id="vocoderMs">—</strong></article>
+      <article><span>MP3 encode</span><strong id="mp3Ms">—</strong></article>
+    </section>
+
+    <section class="two-column">
+      <article class="panel">
+        <p class="section-label">MEASUREMENT BOUNDARY</p>
+        <h2>每句 producer wall time</h2>
+        <ol class="pipeline">
+          <li><span>1</span><div><strong>文字前端</strong><p>OpenCC 臺灣繁體轉簡體、常用數字／日期規則、最長詞組 lexicon 與 token mapping。</p></div></li>
+          <li><span>2</span><div><strong>Matcha + Vocos</strong><p>ONNX Runtime Web WASM 單執行緒，加上 JavaScript ISTFT 與 silence scaling。</p></div></li>
+          <li><span>3</span><div><strong>MP3</strong><p>lamejs 96 kbps、16 kHz mono；每句是可獨立 append 的 MP3 unit。</p></div></li>
+          <li><span>4</span><div><strong>Continuous timeline</strong><p>共同 player 負責 sequence append、有界 buffer、refill、裁切與鎖屏事件紀錄。</p></div></li>
+        </ol>
+      </article>
+
+      <article class="panel checklist">
+        <p class="section-label">KNOWN LIMITS</p>
+        <h2>本輪仍需實機確認</h2>
+        <ol>
+          <li>本頁不載入 sherpa 的 phone/date/number FST；常用數字規則由 JavaScript 取代。</li>
+          <li>英文 eSpeak 前端尚未接入；遇到未收錄拉丁字母會明確報錯，不會靜默漏字。</li>
+          <li>「垃圾」原詞典念 lā jī；臺灣 lè sè 是可選的產品覆寫，不冒充上游預設。</li>
+          <li>桌面通過後，仍須在目標 iPhone 分別測 Safari 與 Home Screen PWA 鎖屏熱穩態。</li>
+        </ol>
+        <dl class="environment">
+          <div><dt>Secure context</dt><dd id="secure"></dd></div>
+          <div><dt>Cross-origin isolated</dt><dd id="isolated"></dd></div>
+          <div><dt>Standalone PWA</dt><dd id="standalone"></dd></div>
+          <div><dt>Media capability</dt><dd id="sourceSupport"></dd></div>
+        </dl>
+      </article>
+    </section>
+
+    <section class="panel recorder">
+      <div class="recorder-head">
+        <div>
+          <p class="section-label">FLIGHT RECORDER</p>
+          <h2>合成與鎖屏事件</h2>
+        </div>
+        <div class="button-row compact">
+          <button id="downloadLogBtn">下載紀錄</button>
+          <button id="clearLogBtn">清除</button>
+        </div>
+      </div>
+      <pre id="flightLog" aria-live="polite"></pre>
+    </section>
+
+    <p class="footnote">RTF 使用「產生可 append MP3 的 producer wall time ÷ SourceBuffer 實際新增音訊秒數」；初始化與暖機另行記錄。</p>
+  </main>
+  <script type="module" src="/mobile-host/matcha-stream-test.mjs"></script>
+</body>
+</html>

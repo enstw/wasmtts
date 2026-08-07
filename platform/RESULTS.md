@@ -36,6 +36,16 @@ AISHELL3 的取樣率只有 8 kHz，而且音質、韻律與聲線選擇和 CPU 
 
 Adapter 使用 sherpa-onnx 前端預先產生的固定 token；文字前處理排除於計時外，與既有 ORT Web 主表一致。中文 FST 在目前 Node WASM wrapper 仍會越界，正式瀏覽器結果也沒有包含 FST、MP3 編碼或 MediaSource append，因此這是核心合成 benchmark，不是 iPhone 端到端串流結果。完整紀錄與樣本位於 [Matcha 文件](../frameworks/matcha/README.md)，機器可讀結果是 [results-matcha_icefall_zh_en-browser-wasm.json](results/results-matcha_icefall_zh_en-browser-wasm.json)。
 
+### Matcha Worker／MP3／MediaSource 端到端結果
+
+同一 Chromium 151 與 ORT Web 版本另測完整 desktop producer。計時邊界包含 OpenCC 臺灣繁體轉簡體、JavaScript 常用整數／小數／日期／時間／百分比規則、lexicon/token mapping、Matcha acoustic、Vocos、JavaScript ISTFT、silence scaling 與 lamejs 96 kbps MP3 encode；輸出逐句 append 到單一 `audio/mpeg` sequence SourceBuffer。前端不載入 FST，也尚未支援英文 eSpeak。
+
+20 段共 append 103.32 秒音訊，producer wall time 15.044 秒，`RTF 0.1456`、`6.87 倍即時`；到達目標的整體 wall `RTF 0.1476`。結束時 buffer ahead 88.97 秒，underflow、append error、producer error 全為 0。每段中位數前端 `0.185 ms`、核心合成 `697.9 ms`、MP3 `50.3 ms`、完整 producer `750.2 ms`。所有 segment waveform 均為有限非靜音，MP3 bytes 皆大於零。
+
+`performance.measureUserAgentSpecificMemory()` 在初始化後為 274,785,972 bytes（262.1 MiB），串流中為 275,460,978 bytes（262.7 MiB）；這只是兩個時間點的記憶體快照，不是 peak。另以真實關閉 host 驗證 PWA cache：頁面、Worker、ORT WASM、字典與兩個模型均能離線命中，Worker 約 1.56 秒 ready，離線文字前端、推論與 MP3 encode 成功。這仍不等於 iPhone 的 CacheStorage 配額、鎖屏與熱穩態通過。
+
+上游 lexicon 將「垃圾」讀成 `la1 ji1`；臺灣 `le4 se4` 只作明示的可選覆寫。正式效能結果使用上游原詞典。原始結果為 [results-matcha_icefall_zh_en-stream-browser-wasm.json](results/results-matcha_icefall_zh_en-stream-browser-wasm.json)。
+
 ## Kokoro selective INT8 修正實驗
 
 這組 A/B 使用同一個 gstack HeadlessChrome 145.0.7632.6、ONNX Runtime Web WASM、單一 thread 與 `performance.now()` wall time。因瀏覽器版本與主表不同，數字只在本節內互相比較。
@@ -93,6 +103,8 @@ Selective INT8 三輪為 `15.148`、`15.182`、`15.197` 秒／10 秒音訊；FP3
 - 其他三款 ORT Web runner：`platform/run-vits-browser.mjs`
 - Matcha ORT Web 頁面／runner：`platform/matcha-browser.html`、`platform/run-matcha-browser.mjs`
 - Matcha 正式 JSON／WAV：`platform/results/results-matcha_icefall_zh_en-browser-wasm.json`、`platform/results/matcha_icefall_zh_en-browser-wasm.wav`
+- Matcha 端到端頁面／runner：`mobile-host/matcha-stream-test.html`、`platform/run-matcha-stream-browser.mjs`
+- Matcha 端到端 JSON：`platform/results/results-matcha_icefall_zh_en-stream-browser-wasm.json`
 - 統一三款原始結果：`platform/results/results-vits-browser-wasm.json`
 - Selective INT8 與同瀏覽器 FP32 A/B：`platform/results/results-kokoro_v1_1_zh_selective-int8-browser-wasm.json`
 
@@ -106,4 +118,5 @@ pnpm exec node platform/benchmark.js vits_melotts_zh_en
 pnpm exec node platform/run-kokoro-browser.mjs fp32
 pnpm exec node platform/run-vits-browser.mjs
 pnpm benchmark:matcha
+pnpm benchmark:matcha-stream
 ```

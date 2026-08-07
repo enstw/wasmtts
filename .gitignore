@@ -1,6 +1,7 @@
 .DS_Store
 .pnpm-store/
 node_modules/
+mobile-host/vendor/
 
 # 不重新散布下載的第三方模型與語音資產。
 platform/models/

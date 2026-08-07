@@ -6,7 +6,7 @@
 
 `matcha-icefall-zh-en` 已通過第一輪中文朗讀試聽品質 gate，也完成正式桌面瀏覽器單執行緒 benchmark，目前是優先候選。它在相同五句中文文本的三方盲測中得到 `90/100`，高於 Kokoro 的 `80/100` 與 Piper HuaYan medium 的 `60/100`；Piper 另被標記有外國腔。
 
-正式結果的中位數 `RTF` 為 `0.1467` wall time／`0.1467` task time，約 `6.82x realtime`，輸出 waveform 有效。這表示核心合成在測試用 Apple Silicon 桌機上有充足即時餘裕，但不等於 iOS PWA 部署已通過；完整文字正規化、FST 相容性、峰值記憶體、MP3 編碼、目標 iPhone 熱穩態與鎖屏串流仍待驗證。
+核心結果的中位數 `RTF` 為 `0.1467` wall time／`0.1467` task time，約 `6.82x realtime`；包含中文小說常用前端、Worker、MP3 encode 與 MediaSource append 的桌面 producer `RTF` 為 `0.1456`，約 `6.87x realtime`。這表示測試用 Apple Silicon 桌機有充足即時餘裕，但不等於 iOS PWA 部署已通過；英文 eSpeak、完整 FST 等價規則、真正峰值記憶體、目標 iPhone 熱穩態與鎖屏串流仍待驗證。
 
 ## 模型與資產
 
@@ -61,6 +61,31 @@
 
 原始結果位於 [results-matcha_icefall_zh_en-browser-wasm.json](../../platform/results/results-matcha_icefall_zh_en-browser-wasm.json)，正式輸出位於 [matcha_icefall_zh_en-browser-wasm.wav](../../platform/results/matcha_icefall_zh_en-browser-wasm.wav)。可重現頁面與 runner 分別是 [matcha-browser.html](../../platform/matcha-browser.html) 與 [run-matcha-browser.mjs](../../platform/run-matcha-browser.mjs)。
 
+## 中文小說前端與 MP3 append
+
+另建立不依賴 sherpa FST 的 JavaScript 前端，從原文即時完成 OpenCC 臺灣繁體轉簡體、常用整數／小數／日期／時間／百分比正規化、68,037 詞 lexicon 最長匹配與 2,189 個 token mapping。先前品質文本可由繁體原文重建與固定 benchmark 完全相同的 token；前端遇到未支援英文會明確報錯，不會靜默漏字。
+
+正式端到端量測仍使用 Brave／Chromium `151.0.7922.71`、ORT Web `1.26.0-dev.20260416-b7804b056c`、WASM 單一 thread。Worker 完整暖機一次後，反覆合成 5 段繁體小說文字，內容包含對話、`2026年8月7日14:30`、`25.5%` 與「垃圾」；每句 PCM 以 lamejs `1.2.1` 編成 16 kHz mono、96 kbps MP3，再 append 到同一個 `audio/mpeg` sequence SourceBuffer。
+
+| 指標 | 結果 |
+|---|---:|
+| 段數／SourceBuffer 音訊 | 20 段／103.32 秒 |
+| Producer wall time | 15.044 秒 |
+| Producer RTF／realtime | 0.1456／6.87x |
+| 達到目標的整體 wall RTF | 0.1476 |
+| 結束時 buffer ahead | 88.97 秒 |
+| Underflow／append error／producer error | 0／0／0 |
+| 初始化後記憶體快照 | 274,785,972 bytes（262.1 MiB） |
+| 串流中記憶體快照 | 275,460,978 bytes（262.7 MiB） |
+
+每段中位數為 5.121 秒音訊、62,640 bytes MP3；前端 `0.185 ms`、acoustic `423.9 ms`、Vocos `264.0 ms`、ISTFT `9.5 ms`、silence scaling `0.2 ms`、MP3 encode `50.3 ms`、完整 producer `750.2 ms`。記憶體 API 只在初始化後與串流中取樣，不能宣稱為 peak。
+
+原模型 lexicon 沒有「垃圾」整詞條目，實際使用「垃 → `la1`、圾 → `ji1`」，即中國大陸普通話 `lā jī`。測試頁提供明示的臺灣覆寫 `垃圾 → le4 se4`；真實 Worker 已驗證可產生 12,513 個全為有限值的 samples 與 10,368-byte MP3，但正式效能結果仍使用上游原詞典，不把產品覆寫冒充模型預設。
+
+PWA runtime、Worker、兩個模型與字典均進入 CacheStorage 後，實際關閉本機 host 再重新導覽；service worker 仍能回傳頁面，Worker 以 cache source 在 1.56 秒內 ready，並離線把「第12章有一袋垃圾。」產生為 31,297 個全為有限值的 samples 與 24,624-byte MP3。這證明桌面 PWA 離線重啟路徑，不代表 iOS CacheStorage 一定不會因配額或系統政策被清除。
+
+機器可讀結果位於 [results-matcha_icefall_zh_en-stream-browser-wasm.json](../../platform/results/results-matcha_icefall_zh_en-stream-browser-wasm.json)；頁面與 runner 分別是 [matcha-stream-test.html](../../mobile-host/matcha-stream-test.html) 與 [run-matcha-stream-browser.mjs](../../platform/run-matcha-stream-browser.mjs)。
+
 ## 一次性效能初測
 
 使用 `sherpa-onnx 1.13.4` Node WASM、單一推論 thread、語速 1.0，在沒有暖機與重複取中位數的情況下得到：
@@ -82,14 +107,14 @@
 
 本次載入 `phone-zh.fst,date-zh.fst,number-zh.fst` 時發生 `memory access out of bounds`。明確注入 768 MiB 與 1 GiB 後仍失敗，因此目前證據不支持把問題簡化為「512 MiB 不夠」。省略 FST 後，同一 acoustic model、Vocos、lexicon 與 tokens 可以正常產生本輪純中文無數字樣本。這足以評估該段文字的聲線與韻律，但沒有驗證數字、日期、電話及完整文字正規化。
 
-目前正式 adapter 以固定 token 繞過前端，因此沒有解決 FST 問題。下一步仍須確認問題是 `sherpa-onnx 1.13.4` runtime、FST 格式或 WASM wrapper 路徑造成；不得以永久配置 1 GiB heap 當成解法。
+核心 adapter 仍以固定 token 繞過前端；新的串流 adapter 則以 JavaScript 規則處理常見數字與日期，但沒有聲稱與上游三個 FST 完全等價。對一般已在 lexicon 內的漢字與標點，省略 FST 不改變先前盲測 token 或聲線；對電話、貨幣、範圍、序號與其他未覆蓋格式則可能讀錯或報錯。下一步仍須確認 FST 問題是 `sherpa-onnx 1.13.4` runtime、FST 格式或 WASM wrapper 路徑造成；不得以永久配置 1 GiB heap 當成解法。
 
 ## 下一步
 
 - 在 Chromium 151 補一輪 Piper control，消除目前跨瀏覽器版本比較的誤差。
-- 量測完整前端與峰值記憶體，並把文字正規化、MP3 編碼及 append 納入產品端到端 RTF。
-- 更新或替換 runtime 路徑以恢復 FST，加入數字、日期、中英混讀及長篇小說文本。
-- 接到 `mobile-host` producer 契約，測試 iPhone Safari／Home Screen PWA 的背景合成、溫度、記憶體與鎖屏串流。
+- 在目標 iPhone／iPad 量測真正峰值記憶體、單一 thread RTF、溫度、耗電與熱降頻。
+- 分別從 Safari tab 與 Home Screen PWA 完成 2 小時鎖屏、3 章、Media Session 與中斷恢復驗收。
+- 接入英文 eSpeak，擴充電話、貨幣、範圍、序號與其他完整文字正規化；建立可審核的臺灣區域讀音覆寫詞典。
 - 在產品採用前釐清 acoustic model、Vocos、lexicon、FST 與聲音資料的授權。
 
 ## 上游資料

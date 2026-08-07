@@ -3,13 +3,18 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
-    "host:mobile": "node mobile-host/server.mjs",
+    "vendor:mobile": "node scripts/vendor-mobile.mjs",
+    "host:mobile": "pnpm vendor:mobile && node mobile-host/server.mjs",
     "benchmark:vits": "node platform/run-vits-browser.mjs",
     "benchmark:kokoro": "node platform/run-kokoro-browser.mjs",
-    "benchmark:matcha": "node platform/run-matcha-browser.mjs"
+    "benchmark:matcha": "node platform/run-matcha-browser.mjs",
+    "benchmark:matcha-stream": "pnpm vendor:mobile && node platform/run-matcha-stream-browser.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",
+    "lamejs": "1.2.1",
+    "onnxruntime-web": "1.26.0-dev.20260416-b7804b056c",
+    "opencc-js": "1.4.1",
     "sherpa-onnx": "1.13.4"
   },
   "devDependencies": {

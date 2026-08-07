@@ -4,6 +4,8 @@
 
 `stream-test.html` 與 `continuous-stream-player.mjs` 抽出 `bookworm` 已在 iOS PWA 驗證的播放框架：單一 `HTMLAudioElement`、單一 `ManagedMediaSource`／`MediaSource` sequence timeline、事件驅動 refill、有界 ahead buffer、舊 buffer 裁切與鎖屏 flight recorder。測試頁以重複的 HuaYan MP3 fixture 驗證 transport；候選 TTS adapter 只需實作逐段回傳 `{ buffer: ArrayBuffer, meta }` 的 producer。Fixture 與 Piper 不產生本專案的 TTS benchmark，也不需要重做 Piper Worker 或 encoder 實驗。
 
+`matcha-stream-test.html` 是目前優先候選的實際 producer：Worker 逐句執行 OpenCC 臺灣繁體轉簡體、常用數字／日期正規化、lexicon/token mapping、Matcha、Vocos、ISTFT、silence scaling 與 96 kbps MP3 encode，再交給同一個 continuous player。首次初始化會把 acoustic、Vocos、字典與瀏覽器 runtime 寫入 CacheStorage；模型約 123.6 MiB，因此實機仍須確認儲存配額與 eviction 行為。
+
 ## 啟動
 
 ```sh
@@ -12,7 +14,15 @@ pnpm host:mobile
 
 預設監聽所有網路介面的 `8765` port。桌面可開啟 `http://127.0.0.1:8765/mobile-host/`；手機則使用電腦的區域網路 IP，例如 `http://192.168.1.20:8765/mobile-host/`。
 
-長篇串流測試頁：`http://127.0.0.1:8765/mobile-host/stream-test.html`。以受裝置信任的 HTTPS 開啟後，可加入 iOS 主畫面並離線重開測試頁。
+Fixture transport 頁：`http://127.0.0.1:8765/mobile-host/stream-test.html`。
+
+Matcha 端到端頁：`http://127.0.0.1:8765/mobile-host/matcha-stream-test.html`。以受裝置信任的 HTTPS 開啟、等待 Worker ready 後，可加入 iOS 主畫面並離線重開測試頁。
+
+桌面自動量測在另一個終端機執行：
+
+```sh
+pnpm benchmark:matcha-stream
+```
 
 可用環境變數調整監聽位址與 port：
 
