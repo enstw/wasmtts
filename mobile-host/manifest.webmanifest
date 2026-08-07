@@ -1,0 +1,11 @@
+{
+  "name": "WASM TTS 長篇串流測試",
+  "short_name": "TTS 串流測試",
+  "lang": "zh-Hant",
+  "start_url": "/mobile-host/stream-test.html",
+  "scope": "/mobile-host/",
+  "display": "standalone",
+  "background_color": "#0c1410",
+  "theme_color": "#17231d",
+  "description": "iOS PWA 單一 MediaSource timeline 與背景 append 測試"
+}

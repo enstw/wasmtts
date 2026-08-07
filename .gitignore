@@ -2,8 +2,9 @@
 .pnpm-store/
 node_modules/
 
-# 不重新散布下載的第三方模型產物。
+# 不重新散布下載的第三方模型與語音資產。
 platform/models/
+platform/assets/
 *.onnx
 *.tar
 *.tar.bz2

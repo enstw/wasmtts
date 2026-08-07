@@ -4,21 +4,39 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>WASM TTS 行動裝置測試</title>
+  <link rel="stylesheet" href="/mobile-host/stream-test.css">
 </head>
 <body>
-  <main>
-    <h1>WASM TTS 行動裝置測試</h1>
-    <p>此 host 已提供跨來源隔離 headers。請選擇測試頁，並使用 Safari Web Inspector 觸發或檢查 benchmark API。</p>
-    <ul>
-      <li><a href="/platform/kokoro-browser.html">Kokoro benchmark page</a></li>
-      <li><a href="/platform/vits-browser.html">Piper／VITS benchmark page</a></li>
-      <li><a href="/platform/ort-operator-probe.html">ORT operator probe page</a></li>
-    </ul>
-    <dl>
-      <dt>Secure context</dt><dd id="secure"></dd>
-      <dt>Cross-origin isolated</dt><dd id="isolated"></dd>
-      <dt>SharedArrayBuffer</dt><dd id="sab"></dd>
-    </dl>
+  <main class="shell">
+    <header class="hero">
+      <p class="eyebrow">MOBILE LAB</p>
+      <h1>WASM TTS<br>行動裝置測試</h1>
+      <p class="lede">此 host 提供跨來源隔離 headers、瀏覽器 benchmark，以及可加入 iOS 主畫面的長篇鎖屏播放框架。</p>
+    </header>
+    <section class="two-column">
+      <article class="panel">
+        <p class="section-label">LOCK SCREEN</p>
+        <h2><a href="/mobile-host/stream-test.html">長篇連續串流測試 →</a></h2>
+        <p>重現 bookworm 已驗證的單一 MediaSource timeline、sequence append、有界 buffer 與 flight recorder。</p>
+      </article>
+      <article class="panel">
+        <p class="section-label">BENCHMARKS</p>
+        <h2>模型與 operator</h2>
+        <ul>
+          <li><a href="/platform/kokoro-browser.html">Kokoro benchmark page</a></li>
+          <li><a href="/platform/vits-browser.html">Piper／VITS benchmark page</a></li>
+          <li><a href="/platform/ort-operator-probe.html">ORT operator probe page</a></li>
+        </ul>
+      </article>
+    </section>
+    <section class="panel recorder">
+      <p class="section-label">ENVIRONMENT</p>
+      <dl class="environment">
+        <div><dt>Secure context</dt><dd id="secure"></dd></div>
+        <div><dt>Cross-origin isolated</dt><dd id="isolated"></dd></div>
+        <div><dt>SharedArrayBuffer</dt><dd id="sab"></dd></div>
+      </dl>
+    </section>
   </main>
   <script>
     document.querySelector('#secure').textContent = String(window.isSecureContext);

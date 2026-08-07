@@ -6,28 +6,33 @@
 
 HuaYan 是 Piper 現有的普通話單人女聲，包含 `x_low` 與 `medium` 兩個版本。若目標是呈現 HuaYan 能達到的最佳音質，應採用 `zh_CN-huayan-medium`：模型約 63 MB、約 1,500 萬參數，輸出為 22,050 Hz 單聲道音訊。`medium` 是目前公開 HuaYan 模型中最適合製作音質樣本的版本。
 
-若產品以 iOS Safari 或安裝到主畫面的 Mobile PWA 為主要平台，HuaYan medium 可用於技術展示和較新裝置的前景短句合成，但不宜成為唯一的正式語音引擎。主要風險包括：
+若產品以 iOS Safari 或安裝到主畫面的 Mobile PWA 為主要平台，HuaYan medium 已是正式候選，不再只限於前景短句展示。`bookworm` 已在 iOS Home Screen PWA 實證：ONNX Runtime Web WASM 單一 thread 在 Worker 中持續合成，句子單元經 MP3 編碼後 append 到同一條 `ManagedMediaSource` timeline，鎖屏期間能跨句、跨章繼續產生與播放。主要風險仍包括：
 
 - ONNX 模型、ONNX Runtime WASM、phonemizer 及 JavaScript heap 疊加後的記憶體壓力。
 - iOS 可能在沒有可捕捉錯誤的情況下終止或重新載入頁面。
 - WASM 多執行緒依賴 SharedArrayBuffer 與 cross-origin isolation；WebKit 曾有 shared WASM memory 的釋放問題。
-- 切換到背景、鎖定螢幕或 PWA 被系統回收後，Worker、AudioContext 與推論 session 均不能假定仍然有效。
+- 此背景執行能力是實機驗證結果，不是所有 iOS／WebKit 版本的保證；仍須保存版本矩陣與長時間 flight recorder。
 - 音訊播放必須由使用者點擊等手勢啟動。
 
-## 建議的產品分層
+## 已驗證的 iOS PWA 串流架構
 
-1. iOS／iPadOS 首選系統 `speechSynthesis`，依裝置選擇適合文字語言的聲音。
-1. 需要固定聲線與一致品質時，使用伺服器產生 AAC／MP3，再交由 `<audio>` 播放。
-1. 需要研究完全離線的自有模型時，提供 Piper 作為可選下載引擎：低記憶體裝置使用 HuaYan `x_low`，能通過實機壓力測試的裝置才開放 `medium`。
-1. 若必須同時滿足固定聲線、完全離線、背景播放與長篇朗讀，應改用原生 iOS layer（AVSpeechSynthesizer、ONNX Runtime Mobile 或 Core ML），而不是在 WKWebView 中繼續執行 WASM。
+1. 使用者點擊時建立並啟動一個長駐 `HTMLAudioElement`；整本書只使用這一次 `play()` 啟動鏈。
+1. 使用 `ManagedMediaSource`、`audio/mpeg` `SourceBuffer` 與 `mode = "sequence"`，讓所有句子及章節共用同一條 timeline。
+1. Piper phonemizer 處理繁體中文，ONNX Runtime Web Worker 以 `numThreads = 1` 推論；每個句子單元最長約 12 秒。
+1. Worker 將 PCM 以 LAME 編為 MP3，再由主執行緒 `appendBuffer()`；不得在句子或章節邊界建立新 audio element。
+1. 合成約維持 90 秒 ahead buffer，以 append／media 事件驅動 refill；保留約 30 秒已播放音訊後裁切，讓長時間記憶體保持有界。
+1. Chain-swap WAV 方案曾在鎖屏約 5 分鐘後遇到下一次 `play()` 永遠 pending，當時 JavaScript 與合成仍在運作；這項失敗證據支持「單一 timeline」是產品必要條件。
+
+參考實作固定於 [`bookworm` commit `c826781`](https://github.com/enstw/bookworm/blob/c826781a1cb03416a6d69de7af05aadd6ab687f4/public/player.mjs#L580-L806)。目前 `wasmtts` 尚須補錄該次實機的裝置、iOS 版本、連續鎖屏時長及 buffer 最低水位，並在本 repository 的 mobile host 重現。
 
 ## 最佳化與 iOS 實作原則
 
-- 將 phonemizer 與 ONNX 推論全部放入專用 Web Worker。
+- 將阻塞性的 ONNX 推論放入專用 Web Worker；phonemizer 是否同置 Worker 另作 A/B，不能阻塞媒體事件。
 - iOS 預設 `ort.env.wasm.numThreads = 1`，避免依賴 shared WASM memory。
 - 逐句合成，每段約 30–80 個中文字；不要一次送入整篇文章。
-- 先產生完整 WAV Blob，再由 `<audio>` 播放；避免複雜的即時 AudioWorklet 串流。
-- 第一次點擊時解鎖音訊播放，之後才下載模型或開始推論。
+- 將句子 PCM 編碼成 MP3 frame stream，append 到單一 `ManagedMediaSource` timeline；不要先產生完整章節，也不要以 AudioWorklet 作鎖屏 transport。
+- 第一次點擊時解鎖並啟動長駐媒體 element；模型需預先下載到離線 cache，播放鍵不得暗中下載約 60 MB 的 voice pack。
+- 以有界 ahead buffer 和事件驅動 backpressure 持續補產，避免依賴鎖屏後可能節流的 timer。
 - 監聽 `pagehide`、`visibilitychange` 和 Worker error；回到前景時允許重建 session。
 - Piper 失敗時自動降級至系統語音或伺服器 TTS。
 - 在 iPhone SE、較舊 iPhone、當代標準機與 iPad 上分別測試首次載入、連續合成、切換背景、鎖屏及低記憶體情境。
@@ -72,6 +77,8 @@ HuaYan 是 Piper 現有的普通話單人女聲，包含 `x_low` 與 `medium` �
 
 CPU footprint 結論是 AISHELL3 最小、HuaYan 居中，MeloTTS 與 Kokoro fp32 明顯過重。四款均使用 Chromium 149 + ONNX Runtime Web、單一 WASM thread 與 CDP `TaskDuration`。Kokoro fp32 三輪有效輸出的中位數為每 10 秒音訊 14.225 秒，即 HuaYan 的 `9.03x`。Kokoro int8 和 Kokoro.js sample 對應的 q8 在這套 ORT Web WASM 組合中都輸出非有限值，不能計入 CPU 排名。AISHELL3 雖為 `0.45x`，本次主觀實聽只有 3/10 且仍有明顯外國腔，不能解決 HuaYan 的主要品質問題，因此不列入產品候選。
 
+本文件的「倍即時」是 `realtime multiplier = 音訊長度 ÷ 合成時間`；標準 `RTF = 合成時間 ÷ 音訊長度`。因此 HuaYan 的 `6.35 倍即時` 對應名目 `RTF ≈ 0.158`。產品串流驗收必須在目標 iPhone 上另量包含 phonemizer、推論與 MP3 編碼的端到端 wall-time RTF，不能直接以桌面 CPU 指標代替。
+
 另以 FP32 自行產生保守的 selective INT8：只動態量化 decoder 以外可安全轉換的 `MatMul/LSTM`，所有卷積、vocoder 與 STFT 保留 FP32。模型由 323.6 MiB 降至 296.7 MiB，原生 ORT 與瀏覽器 WASM 的 waveform 均為完整有限值；同一個 gstack HeadlessChrome 145 A/B 中，selective INT8 為 15.182 秒／10 秒音訊，FP32 為 15.042 秒，INT8 慢約 0.9%。因此可以從 FP32 做出正確的混合 INT8，但目前沒有單線程 WASM 加速證據，且 8.3% 的體積縮減不足以改變 iOS PWA 的記憶體判斷。
 
 Kokoro 不能使用原 sherpa-onnx 1.13.4 Node WASM binding（初始化觸發 `unreachable`），因此公平比較全部改成直接呼叫 ONNX Runtime Web。文字前處理在計時前完成：HuaYan 用 Piper 官方 eSpeak phonemizer；AISHELL3、MeloTTS、Kokoro 用模型各自的 lexicon/tokens；Kokoro 聲線為 sid 45（`zf_078`）。完整方法和原始三輪數字見 [platform/RESULTS.md](../../platform/RESULTS.md)。
@@ -91,3 +98,4 @@ WASM 初始 heap 統一設為 768 MiB；套件預設的 512 MiB 在載入部分�
 - WebKit shared WASM memory issue: https://bugs.webkit.org/show_bug.cgi?id=281657
 - WebKit WASM memory issue: https://bugs.webkit.org/show_bug.cgi?id=222097
 - WebKit background AudioContext issue: https://bugs.webkit.org/show_bug.cgi?id=261554
+- Bookworm offline Piper stream implementation: https://github.com/enstw/bookworm/blob/c826781a1cb03416a6d69de7af05aadd6ab687f4/public/player.mjs#L580-L806

@@ -17,6 +17,8 @@
 
 主表已統一為 Chromium 149、ONNX Runtime Web WASM、單一 thread 與 CDP `TaskDuration`。AISHELL3 最省 CPU；HuaYan 居中；MeloTTS 與 Kokoro fp32 都慢於即時。Kokoro int8 與 Kokoro.js sample 對應的 q8 都能完成 graph execution，但輸出全部為非有限值，不能視為有效 TTS；只有 fp32 已驗證能正常發聲。
 
+本文件的「倍即時」是 `realtime multiplier = 音訊長度 ÷ 合成時間`，標準 `RTF = 合成時間 ÷ 音訊長度`，兩者互為倒數。Piper HuaYan medium 的 `6.35 倍即時` 對應名目 `RTF ≈ 0.158`；這裡是桌面單 thread CPU benchmark，不能取代 iPhone 上包含文字前處理與 MP3 編碼的端到端串流 RTF。
+
 本專案另從 FP32 產生 selective INT8，保留 decoder、vocoder、STFT 與全部卷積為 FP32。它在原生 ORT 與瀏覽器 WASM 都能輸出完整有限值，不再有 NaN；但只縮小 `8.3%`，同一瀏覽器下速度比 FP32 慢約 `0.9%`。所以這一版證明「可自行做出正確的混合 INT8」，尚未證明 INT8 對單線程 WASM 有效能優勢。
 
 AISHELL3 的取樣率只有 8 kHz，而且音質、韻律與聲線選擇和 CPU 是不同維度；本次主觀實聽只有 `3/10`，且仍有明顯外國腔。若目標是修正 HuaYan「外國人中文」的聽感，AISHELL3 不構成品質升級，因此只保留為最低 CPU 的技術參考，不列入產品候選。

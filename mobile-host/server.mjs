@@ -9,7 +9,7 @@ const port = Number(process.env.WASM_TTS_PORT ?? 8765);
 if (!Number.isInteger(port) || port < 1 || port > 65535) {
   throw new Error(`WASM_TTS_PORT 無效：${process.env.WASM_TTS_PORT}`);
 }
-const mime = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.wasm': 'application/wasm', '.onnx': 'application/octet-stream', '.txt': 'text/plain', '.bin': 'application/octet-stream', '.wav': 'audio/wav' };
+const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.wasm': 'application/wasm', '.onnx': 'application/octet-stream', '.txt': 'text/plain', '.bin': 'application/octet-stream', '.wav': 'audio/wav', '.mp3': 'audio/mpeg' };
 
 http.createServer((request, response) => {
   const pathname = decodeURIComponent(new URL(request.url, 'http://127.0.0.1').pathname);

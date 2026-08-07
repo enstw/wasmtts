@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#17231d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>長篇鎖屏串流測試</title>
+  <link rel="manifest" href="/mobile-host/manifest.webmanifest">
+  <link rel="stylesheet" href="/mobile-host/stream-test.css">
+</head>
+<body>
+  <main class="shell">
+    <nav><a href="/mobile-host/">← 返回測試入口</a></nav>
+    <header class="hero">
+      <p class="eyebrow">BOOKWORM-PROVEN TRANSPORT</p>
+      <h1>長篇鎖屏串流測試</h1>
+      <p class="lede">一次啟動、一個媒體 element、一條持續 append 的 MP3 timeline。這個頁面只驗證播放框架；Piper 或其他 TTS 只需替換 segment producer。</p>
+    </header>
+
+    <section id="unsupported" class="notice error" hidden>
+      此瀏覽器不支援 <code>audio/mpeg</code> MediaSource，無法執行這項測試。
+    </section>
+
+    <section class="panel controls" aria-labelledby="control-title">
+      <div>
+        <p class="section-label">CONTROL</p>
+        <h2 id="control-title">開始後即可鎖屏</h2>
+        <p>測試 producer 會反覆供應 8 秒 HuaYan MP3 樣本，模擬背景 TTS 逐句完成。音訊不會因片段或章節邊界更換 element。</p>
+      </div>
+      <div class="button-row">
+        <button id="startBtn" class="primary">開始連續串流</button>
+        <button id="pauseBtn" disabled>暫停</button>
+        <button id="stopBtn" class="danger" disabled>停止並清空</button>
+      </div>
+      <audio id="streamAudio" controls preload="none"></audio>
+    </section>
+
+    <section class="metrics" aria-label="即時指標">
+      <article><span>狀態</span><strong id="state">idle</strong></article>
+      <article><span>Media source</span><strong id="sourceKind">—</strong></article>
+      <article><span>頁面狀態</span><strong id="visibility">visible</strong></article>
+      <article><span>測試經過</span><strong id="elapsed">0 秒</strong></article>
+      <article><span>播放位置</span><strong id="playhead">0 秒</strong></article>
+      <article class="accent"><span>Buffer ahead</span><strong id="ahead">0 秒</strong></article>
+      <article><span>已 append</span><strong id="appends">0</strong></article>
+      <article><span>音訊總長</span><strong id="audioSeconds">0 秒</strong></article>
+      <article class="warn"><span>Underflow</span><strong id="underflows">0</strong></article>
+      <article><span>資料量</span><strong id="bytes">0 KiB</strong></article>
+      <article><span>Fixture RTF</span><strong id="fixtureRtf">—</strong></article>
+      <article><span>Fixture 倍率</span><strong id="fixtureMultiplier">—</strong></article>
+    </section>
+
+    <section class="two-column">
+      <article class="panel">
+        <p class="section-label">ARCHITECTURE</p>
+        <h2>與產品 TTS 的接點</h2>
+        <ol class="pipeline">
+          <li><span>1</span><div><strong>Producer</strong><p>逐句回傳 <code>{ buffer: ArrayBuffer, meta }</code>；實機版本在這裡接 Piper Worker 與 MP3 encoder。</p></div></li>
+          <li><span>2</span><div><strong>Sequence append</strong><p><code>SourceBuffer.mode = "sequence"</code>，所有片段合併為同一條時間軸。</p></div></li>
+          <li><span>3</span><div><strong>Event-driven refill</strong><p><code>sourceopen</code>、<code>startstreaming</code>、<code>updateend</code>、<code>timeupdate</code> 與 <code>waiting</code> 都能補產。</p></div></li>
+          <li><span>4</span><div><strong>Bounded memory</strong><p>ahead 目標 90 秒，保留約 30 秒已播放音訊，再分批裁切舊 buffer。</p></div></li>
+        </ol>
+      </article>
+
+      <article class="panel checklist">
+        <p class="section-label">IOS CHECK</p>
+        <h2>實機驗收步驟</h2>
+        <ol>
+          <li>以 HTTPS 開啟並加入主畫面。</li>
+          <li>按「開始連續串流」，等 buffer 超過 30 秒。</li>
+          <li>鎖屏並確認系統播放／暫停控制可用。</li>
+          <li>至少播放 2 小時，跨越多個模擬章節。</li>
+          <li>解鎖後確認 Underflow 仍為 0，flight recorder 在 hidden 期間持續 append。</li>
+        </ol>
+        <dl class="environment">
+          <div><dt>Secure context</dt><dd id="secure"></dd></div>
+          <div><dt>Cross-origin isolated</dt><dd id="isolated"></dd></div>
+          <div><dt>Standalone PWA</dt><dd id="standalone"></dd></div>
+          <div><dt>Media capability</dt><dd id="sourceSupport"></dd></div>
+        </dl>
+      </article>
+    </section>
+
+    <section class="panel recorder">
+      <div class="recorder-head">
+        <div>
+          <p class="section-label">FLIGHT RECORDER</p>
+          <h2>鎖屏事件紀錄</h2>
+        </div>
+        <div class="button-row compact">
+          <button id="downloadLogBtn">下載紀錄</button>
+          <button id="clearLogBtn">清除</button>
+        </div>
+      </div>
+      <pre id="flightLog" aria-live="polite"></pre>
+    </section>
+
+    <p class="footnote">Fixture RTF 只量讀取／複製測試 MP3 的時間，不代表 Piper 推論效能。正式 adapter 必須量 phonemizer、推論與 MP3 編碼的端到端 RTF。</p>
+  </main>
+  <script type="module" src="/mobile-host/stream-test.mjs"></script>
+</body>
+</html>
