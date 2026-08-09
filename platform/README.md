@@ -1,21 +1,23 @@
 # 統一 WASM 測試平台
 
-本目錄集中所有跨方案共用的 browser pages、runner、分析工具、資產掛載點與測試結果。平台的共同量測契約不限定神經網路、ONNX 或 ONNX Runtime；現有檔案是已測神經模型的 ORT Web adapter，後續非神經方案可用自己的 JavaScript／WASM adapter 回傳同一組結果欄位。方案結論應寫在 `frameworks/<name>/`，跨方案原始數值則保留在此處。
+本目錄集中 Matcha 的 browser pages、runner、分析工具、資產掛載點與測試結果。Piper、VITS、Kokoro 與 operator probe 檔案只保留為選型與效能調查的歷史重現工具；目前產品開發、benchmark 與實機驗收均以 Matcha 為主。Matcha 結論寫在 `frameworks/matcha/`，機器可讀結果與跨方案歷史數值保留在此處。
 
 ## 目錄內容
 
 - `benchmark.js`：保留的 sherpa-onnx Node WASM 對照 harness。
-- `vits-browser.html`、`run-vits-browser.mjs`：Piper、AISHELL3 與 MeloTTS 的統一 ORT Web 路徑。
-- `kokoro-browser.html`、`run-kokoro-browser.mjs`：Kokoro ORT Web、profiling、shape probe 與 thread 測試。
+- `vits-browser.html`、`run-vits-browser.mjs`：歷史 Piper、AISHELL3 與 MeloTTS ORT Web 路徑。
+- `kokoro-browser.html`、`run-kokoro-browser.mjs`：歷史 Kokoro ORT Web、profiling、shape probe 與 thread 測試。
 - `matcha-browser.html`、`run-matcha-browser.mjs`：Matcha acoustic model、Vocos 與 JavaScript ISTFT 的單執行緒 ORT Web 路徑。
-- `matcha-frontend.js`、`matcha-synthesis.js`：可供 Worker 與測試共用的繁簡／數字／lexicon 前端及 Matcha + Vocos 合成核心。
+- `kaldifst-wasm/`、`kaldifst-normalizer.js`：獨立 kaldifst + OpenFST text-normalizer WASM、最小 C ABI 與 UTF-8 bridge；Matcha/Vocos 的 ORT Web memory 與此 module 的 memory 相互獨立。
+- `matcha-fst.js`：從 Bookworm 移植的純 JavaScript OpenFST reader，保留作 golden A/B 與診斷基線。
+- `matcha-frontend.js`、`matcha-synthesis.js`：可供 Worker 與測試共用的繁體直輸／FST／lexicon 前端及 Matcha + Vocos 合成核心。
 - `run-matcha-upstream-fst-browser.mjs`：未修改的 sherpa-onnx 官方 browser bundle＋建議中文 FST 基線。
 - `matcha-upstream-benchmark.html`、`matcha-upstream-benchmark.js`、`run-matcha-fst-ab-browser.mjs`：同 runtime 只切換 FST 的控制實驗。
 - `generate-matcha-upstream-fst-traditional-sample.mjs`：繁體原文、不經 OpenCC 的官方 FST 試聽樣本產生器。
 - `run-matcha-stream-browser.mjs`：量測 Worker 到 MP3 producer 與單一 MediaSource timeline 的端到端路徑。
 - `cdp/`：browser-cdp 共用的 Chromium 探測與零相依 CDP client。
-- `ort-operator-probe.html`、`run-ort-operator-probe.mjs`：獨立 operator microbenchmark。
-- `*.py`：Kokoro 量化、驗證、graph／shape／MAC 分析與 probe 產生器。
+- `ort-operator-probe.html`、`run-ort-operator-probe.mjs`：歷史獨立 operator microbenchmark。
+- `*.py`：歷史 Kokoro 量化、驗證、graph／shape／MAC 分析與 probe 產生器。
 - `models/`：本機第三方模型掛載點；已由 Git 忽略。
 - `assets/`：非神經引擎的聲音資料、字典、規則與其他大型本機資產掛載點。
 - `results/`：機器可讀 JSON、profile 與可實聽 WAV。
@@ -23,22 +25,14 @@
 
 ## 本機資產路徑
 
-目前 runner 預期以下目錄名稱：
+目前 Matcha runner 使用以下資產：
 
 ```text
 platform/models/
-├── kokoro-fp32/
-├── kokoro-selective-int8/
-├── kokoro-int8-multi-lang-v1_1/
 ├── matcha-icefall-zh-en/
 ├── sherpa-onnx-wasm-simd-1.12.20-matcha-icefall-zh-en/
-├── vocos-16khz-univ.onnx
-├── vits-icefall-zh-aishell3/
-├── vits-melo-tts-zh_en/
-└── vits-piper-zh_CN-huayan-medium/
+└── vocos-16khz-univ.onnx
 ```
-
-非神經方案使用 `platform/assets/<engine>/` 保存本機聲音資料、字典或規則；adapter 不應假設所有候選都具有 ONNX 模型。
 
 模型權重、聲音資料與下載產物不可提交。若使用不同路徑，請透過 runner 參數設定，或同步更新程式與方案文件。
 
@@ -65,21 +59,20 @@ tar xjf platform/models/sherpa-onnx-wasm-simd-1.12.20-matcha-icefall-zh-en.tar.b
 
 播放 transport 的參考實作位於 [`mobile-host/continuous-stream-player.mjs`](../mobile-host/continuous-stream-player.mjs)，立即可用的 fixture 頁面為 [`mobile-host/stream-test.html`](../mobile-host/stream-test.html)。新的 TTS adapter 應實作相同 producer 契約，不要各自複製 MediaSource 狀態機。
 
-Fixture 與 Piper transport 只驗證共同播放基礎設施，不產生可排名的 TTS 結果。新候選先通過相對 Piper 的語音品質 gate；只有通過者才需要量端到端 RTF 並接入鎖屏 transport。
+Fixture 與 Piper transport 只驗證共同播放基礎設施，不產生可排名的 TTS 結果。Matcha producer 使用相同 transport 契約完成端到端 RTF 與鎖屏驗收。
 
 ## 執行
 
 先從 repository 根目錄啟動 host：
 
 ```sh
+pnpm build:matcha-kaldifst
 pnpm host:mobile
 ```
 
-再執行 benchmark：
+再執行 Matcha benchmark：
 
 ```sh
-pnpm benchmark:vits
-pnpm benchmark:kokoro -- fp32
 pnpm benchmark:matcha
 pnpm benchmark:matcha-upstream-fst
 pnpm benchmark:matcha-fst-ab
@@ -87,9 +80,17 @@ pnpm sample:matcha-upstream-fst-traditional
 pnpm benchmark:matcha-stream
 ```
 
-`benchmark:matcha-stream` 使用另一個終端機已啟動的 `pnpm host:mobile`。它採單一 thread，量測 OpenCC、JavaScript 常用數字規則、lexicon、推論、ISTFT、silence scaling 與 MP3 encode；英文 eSpeak 與 sherpa FST 仍不在此 adapter 內。
+首次使用先執行 `pnpm build:matcha-kaldifst` 產生小型 normalizer dist；`pnpm host:mobile` 會將它與 ORT Web 一起複製到本機 vendor 目錄。`benchmark:matcha-stream` 使用另一個終端機已啟動的 host，採單一 thread，量測 kaldifst WASM FST、lexicon、推論、ISTFT、silence scaling 與 MP3 encode；英文 eSpeak 尚未接入。
 
-Kokoro runner 支援 `--profile`、`--model-path`、`--shape-probe`、`--text`、`--output-suffix` 與 `--threads`。雙執行緒測試前必須確認頁面同時具備 `crossOriginIsolated === true` 與 `SharedArrayBuffer`。
+FST applier 的無資產 fixture 與真實 tables golden 測試：
+
+```sh
+pnpm test:matcha-fst
+pnpm test:matcha-fst:tables
+pnpm test:matcha-kaldifst-wasm
+```
+
+歷史 Piper、VITS、Kokoro runner 不屬於日常流程；若要重現舊結果，需另行取得已移除的模型資產，且不得把跨瀏覽器版本數字當成嚴格 A/B。
 
 ## 結果規則
 
@@ -98,6 +99,6 @@ Kokoro runner 支援 `--profile`、`--model-path`、`--shape-probe`、`--text`�
 - 現有 ORT 主表不含文字前處理；新的跨 runtime 比較至少保存端到端時間，可拆分時再提供核心合成時間。
 - waveform 必須全為有限值，且 peak、RMS 皆不可為零。
 - 不同瀏覽器或 runtime 版本的結果只能在明確標示的 A/B 組內比較。
-- 核心合成 benchmark 與鎖屏 transport 可分開診斷，但候選資格必須另通過整合測試：鎖屏期間持續合成並 append，跨章播放不中斷且端到端 RTF 持續小於 `1`。
+- 核心合成 benchmark 與鎖屏 transport 可分開診斷，但 Matcha 的產品完成資格必須另通過整合測試：鎖屏期間持續合成並 append，跨章播放不中斷且端到端 RTF 持續小於 `1`。
 
 詳細數值請見 [RESULTS.md](RESULTS.md)。

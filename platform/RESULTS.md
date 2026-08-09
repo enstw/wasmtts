@@ -47,15 +47,15 @@ Adapter 使用 sherpa-onnx 前端預先產生的固定 token；文字前處理�
 
 初始化 wall time 為 1.877 秒；WASM heap 固定 536,870,912 bytes（512 MiB），`measureUserAgentSpecificMemory()` 快照為初始化後 688,672,616 bytes（656.8 MiB）、benchmark 後 699,003,344 bytes（666.6 MiB）。三個 FST 合計只有約 208 KiB；同 runtime 的 FST on/off control 中，純小說 task RTF 為 `0.13961`／`0.13973`，差異 `-0.086%`，heap 差異為 0。因此主要成本是官方 heap 與整體預載資產，不是 FST。
 
-不經 OpenCC 的完整繁體小說文字亦成功產生 26.7298 秒、427,676 個全為有限值的 samples，使用者已確認品質沒有問題。正式候選的文字路徑因此定為「繁體直輸 → 官方三個中文 FST → Matcha」；既有 OpenCC＋JavaScript rules adapter 保留作 transport／低記憶體對照。機器可讀結果為 [上游 FST 基線](results/results-matcha_icefall_zh_en-upstream-fst-browser-wasm.json)與 [FST on/off A/B](results/results-matcha_icefall_zh_en-fst-ab-browser-wasm.json)，試聽檔與 metadata 見 [Matcha 文件](../frameworks/matcha/README.md)。
+不經 OpenCC 的完整繁體小說文字亦成功產生 26.7298 秒、427,676 個全為有限值的 samples，使用者已確認品質沒有問題。正式文字路徑因此定為「繁體直輸 → 官方三個中文 FST → Matcha」。官方 bundle 結果保留為上游基線；產品 producer pilot 現以獨立 kaldifst + OpenFST WASM 執行相同 tables，純 JavaScript applier 保留為診斷基線。機器可讀基線為 [上游 FST 結果](results/results-matcha_icefall_zh_en-upstream-fst-browser-wasm.json)與 [FST on/off A/B](results/results-matcha_icefall_zh_en-fst-ab-browser-wasm.json)，試聽檔與 metadata 見 [Matcha 文件](../frameworks/matcha/README.md)。
 
 ### Matcha Worker／MP3／MediaSource 端到端結果
 
-同一 Chromium 151 與 ORT Web 版本另測完整 desktop producer。計時邊界包含 OpenCC 臺灣繁體轉簡體、JavaScript 常用整數／小數／日期／時間／百分比規則、lexicon/token mapping、Matcha acoustic、Vocos、JavaScript ISTFT、silence scaling 與 lamejs 96 kbps MP3 encode；輸出逐句 append 到單一 `audio/mpeg` sequence SourceBuffer。前端不載入 FST，也尚未支援英文 eSpeak。
+2026-08-09 將 Bookworm 的 `matcha-fst.js` 移入統一平台。此實作以純 JavaScript 讀取 OpenFST vector archives，依 kaldifst `TextNormalizer::Normalize` 的拓撲 shortest-path 與 strict-improvement tie-break 套用 `phone-zh.fst,date-zh.fst,number-zh.fst`，不載入 sherpa-onnx 512 MiB frontend bundle。無資產 fixtures 全部通過，三個真實 tables 的 32 個 kaldifst golden cases 亦全部一致。產品前端另保留 Bookworm 已驗證的臺灣格式修正，避免 `%`、冒號、日期分隔符與 10 碼手機落入上游已知誤讀。
 
-20 段共 append 103.32 秒音訊，producer wall time 15.044 秒，`RTF 0.1456`、`6.87 倍即時`；到達目標的整體 wall `RTF 0.1476`。結束時 buffer ahead 88.97 秒，underflow、append error、producer error 全為 0。每段中位數前端 `0.185 ms`、核心合成 `697.9 ms`、MP3 `50.3 ms`、完整 producer `750.2 ms`。所有 segment waveform 均為有限非靜音，MP3 bytes 皆大於零。
+同日以 Chromium 151、ORT Web WASM 單一 thread 與 `noise_scale=0.667` 重測完整 desktop producer。計時邊界包含繁體直輸、獨立 kaldifst WASM FST、lexicon/token mapping、Matcha acoustic、Vocos、JavaScript ISTFT、silence scaling 與 lamejs 96 kbps MP3 encode；輸出逐句 append 到單一 `audio/mpeg` sequence SourceBuffer。10 段共 append 51.336 秒音訊，producer `RTF 0.1387`、`7.21 倍即時`，到達目標的整體 wall `RTF 0.1426`。underflow、append error、producer error 全為 0；所有 segment waveform 均為有限非靜音，MP3 bytes 皆大於零。`25.5%` 正規化為「百分之二十五点五」，沒有 unknown。
 
-`performance.measureUserAgentSpecificMemory()` 在初始化後為 274,785,972 bytes（262.1 MiB），串流中為 275,460,978 bytes（262.7 MiB）；這只是兩個時間點的記憶體快照，不是 peak。另以真實關閉 host 驗證 PWA cache：頁面、Worker、ORT WASM、字典與兩個模型均能離線命中，Worker 約 1.56 秒 ready，離線文字前端、推論與 MP3 encode 成功。這仍不等於 iPhone 的 CacheStorage 配額、鎖屏與熱穩態通過。
+本輪每段中位數前端 `0.585 ms`、核心合成 `608.5 ms`、MP3 `51.4 ms`、完整 producer `687.1 ms`。`performance.measureUserAgentSpecificMemory()` 快照為初始化後 290,520,650 bytes（277.1 MiB）、串流中 296,074,939 bytes（282.4 MiB）；這只是兩個時間點，不是 peak 或 iPhone 結果。normalizer 的獨立 linear memory 初始化及測後均為 16 MiB，允許成長但不預留 512 MiB。英文 eSpeak、iPhone CacheStorage 配額、鎖屏與熱穩態仍未完成。
 
 ### iPhone Safari 初步功能測試
 

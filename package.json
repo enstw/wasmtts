@@ -3,6 +3,7 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
+    "build:matcha-kaldifst": "platform/kaldifst-wasm/build.sh",
     "vendor:mobile": "node scripts/vendor-mobile.mjs",
     "host:mobile": "pnpm vendor:mobile && node mobile-host/server.mjs",
     "benchmark:vits": "node platform/run-vits-browser.mjs",
@@ -11,6 +12,9 @@
     "benchmark:matcha-upstream-fst": "node platform/run-matcha-upstream-fst-browser.mjs",
     "benchmark:matcha-fst-ab": "node platform/run-matcha-fst-ab-browser.mjs",
     "benchmark:matcha-stream": "pnpm vendor:mobile && node platform/run-matcha-stream-browser.mjs",
+    "test:matcha-fst": "node platform/test-matcha-fst.mjs",
+    "test:matcha-fst:tables": "MATCHA_FST_DIR=platform/models/matcha-icefall-zh-en node platform/test-matcha-fst.mjs",
+    "test:matcha-kaldifst-wasm": "node platform/test-kaldifst-wasm-browser.mjs",
     "sample:matcha-upstream-fst-traditional": "node platform/generate-matcha-upstream-fst-traditional-sample.mjs",
     "sample:matcha-stream": "pnpm vendor:mobile && node platform/generate-matcha-stream-sample.mjs"
   },

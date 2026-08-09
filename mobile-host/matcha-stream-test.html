@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#17231d">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Matcha 長篇串流候選測試</title>
+  <title>Matcha 長篇串流測試</title>
   <link rel="manifest" href="/mobile-host/manifest.webmanifest">
   <link rel="stylesheet" href="/mobile-host/stream-test.css">
 </head>
@@ -14,10 +14,10 @@
   <main class="shell">
     <nav><a href="/mobile-host/">← 返回測試入口</a></nav>
     <header class="hero">
-      <p class="eyebrow">MATCHA END-TO-END CANDIDATE</p>
+      <p class="eyebrow">MATCHA END-TO-END</p>
       <h1>Matcha 長篇<br>串流測試</h1>
       <p class="build-version">版本：<time id="buildVersion">載入中</time></p>
-      <p class="lede">逐句在 Worker 執行繁體直輸 lexicon 前端、Matcha、Vocos、ISTFT 與 MP3 encode，再 append 到單一長駐媒體 timeline。這一頁量的是候選端到端路徑，不是 Piper fixture。</p>
+      <p class="lede">逐句在 Worker 以獨立 kaldifst WASM 套用 sherpa 中文 FST，再執行 lexicon 前端、Matcha、Vocos、ISTFT 與 MP3 encode，最後 append 到單一長駐媒體 timeline。</p>
     </header>
 
     <section id="unsupported" class="notice error" hidden>
@@ -38,7 +38,7 @@
         <button id="stopBtn" class="danger" disabled>停止並清空</button>
       </div>
       <div id="downloadPanel" class="download-progress full-width">
-        <div><strong id="downloadStage">尚未下載</strong><span id="downloadAmount">0 / 125.1 MiB（含詞典）</span></div>
+        <div><strong id="downloadStage">尚未下載</strong><span id="downloadAmount">0 / 125.3 MiB（含詞典與 FST）</span></div>
         <progress id="downloadProgress" value="0" max="1"></progress>
       </div>
       <label class="field full-width">
@@ -77,7 +77,7 @@
         <p class="section-label">MEASUREMENT BOUNDARY</p>
         <h2>每句 producer wall time</h2>
         <ol class="pipeline">
-          <li><span>1</span><div><strong>文字前端</strong><p>繁體原文直輸、常用數字／日期規則、最長詞組 lexicon、臺灣讀音覆寫與 token mapping。</p></div></li>
+          <li><span>1</span><div><strong>文字前端</strong><p>繁體原文直輸、獨立 kaldifst WASM phone/date/number FST、最長詞組 lexicon、臺灣讀音覆寫與 token mapping。</p></div></li>
           <li><span>2</span><div><strong>Matcha + Vocos</strong><p>ONNX Runtime Web WASM 單執行緒，加上 JavaScript ISTFT 與 silence scaling。</p></div></li>
           <li><span>3</span><div><strong>MP3</strong><p>lamejs 96 kbps、16 kHz mono；每句是可獨立 append 的 MP3 unit。</p></div></li>
           <li><span>4</span><div><strong>Continuous timeline</strong><p>共同 player 負責 sequence append、有界 buffer、refill、裁切與鎖屏事件紀錄。</p></div></li>
@@ -88,7 +88,7 @@
         <p class="section-label">KNOWN LIMITS</p>
         <h2>本輪仍需實機確認</h2>
         <ol>
-          <li>本頁不載入 sherpa 的 phone/date/number FST；常用數字規則由 JavaScript 取代。</li>
+          <li>phone/date/number 規則使用原始 sherpa FST tables，由獨立的 kaldifst + OpenFST WASM 套用；其初始 linear memory 為 16 MiB，不載入 512 MiB sherpa-onnx frontend bundle。</li>
           <li>英文 eSpeak 前端尚未接入；遇到未收錄拉丁字母會明確報錯，不會靜默漏字。</li>
           <li>「垃圾」原詞典念 lā jī；臺灣 lè sè 是可選的產品覆寫，不冒充上游預設。</li>
           <li>桌面通過後，仍須在目標 iPhone 分別測 Safari 與 Home Screen PWA 鎖屏熱穩態。</li>

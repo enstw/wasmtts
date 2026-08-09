@@ -4,9 +4,9 @@
 
 ## 目前判定
 
-`matcha-icefall-zh-en` 已通過第一輪中文朗讀試聽品質 gate，也完成正式桌面瀏覽器單執行緒 benchmark，目前是優先候選。它在相同五句中文文本的三方盲測中得到 `90/100`，高於 Kokoro 的 `80/100` 與 Piper HuaYan medium 的 `60/100`；Piper 另被標記有外國腔。
+`matcha-icefall-zh-en` 是本專案目前選定的 TTS 模型。它已通過中文朗讀試聽品質 gate，也完成正式桌面瀏覽器單執行緒 benchmark；在相同五句中文文本的三方盲測中得到 `90/100`，高於 Kokoro 的 `80/100` 與 Piper HuaYan medium 的 `60/100`，Piper 另被標記有外國腔。
 
-上游建議的 browser WASM＋中文 FST 配置中位 task `RTF` 為 `0.1411`，約 `7.09x realtime`；繁體小說原文不經 OpenCC 亦能生成，試聽品質已獲接受。正式候選文字路徑因此定為「繁體直輸 → `phone/date/number` FST → Matcha」，繁簡轉換不是必要前處理。測試用 Apple Silicon 桌機有充足即時餘裕，但官方 bundle 固定 512 MiB heap，初始化後瀏覽器記憶體快照約 656.8 MiB；降低記憶體後仍須驗證英文 eSpeak、真正峰值記憶體、目標 iPhone 熱穩態與鎖屏串流。
+上游建議的 browser WASM＋中文 FST 配置中位 task `RTF` 為 `0.1411`，約 `7.09x realtime`；繁體小說原文不經 OpenCC 亦能生成，試聽品質已獲接受。選定的文字路徑為「繁體直輸 → `phone/date/number` FST → Matcha」，生成配置採 `noise_scale=0.667`，繁簡轉換不是必要前處理。目前 pilot 由獨立 kaldifst + OpenFST WASM 執行三個 FST，Matcha/Vocos 則共用 ORT Web WASM；兩者各自使用 linear memory，不再載入固定 512 MiB heap 的官方 frontend bundle。仍須驗證英文 eSpeak、真正 peak memory、目標 iPhone 熱穩態與鎖屏串流。
 
 ## 模型與資產
 
@@ -61,24 +61,25 @@
 
 原始結果位於 [results-matcha_icefall_zh_en-browser-wasm.json](../../platform/results/results-matcha_icefall_zh_en-browser-wasm.json)，正式輸出位於 [matcha_icefall_zh_en-browser-wasm.wav](../../platform/results/matcha_icefall_zh_en-browser-wasm.wav)。可重現頁面與 runner 分別是 [matcha-browser.html](../../platform/matcha-browser.html) 與 [run-matcha-browser.mjs](../../platform/run-matcha-browser.mjs)。
 
-## 舊版無 FST 前端與 MP3 append 對照
+## kaldifst WASM 前端與 MP3 append
 
-為先行驗證 Worker、MP3 encode 與 MediaSource append，曾建立不依賴 sherpa FST 的 JavaScript adapter，從原文即時完成 OpenCC 臺灣繁體轉簡體、常用整數／小數／日期／時間／百分比正規化、68,037 詞 lexicon 最長匹配與 2,189 個 token mapping。它保留作低記憶體與 transport 對照，不再代表正式文字前端；目前建議配置改用繁體直輸與上游三個 FST。
+2026-08-09 從 Bookworm 複製 `matcha-fst.js`：它以純 JavaScript 讀取原始 OpenFST vector archives，重現 kaldifst 的拓撲 shortest-path 與 equal-cost tie-break。三個 tables 依官方固定順序 `phone → date → number` 執行，合計 212,266 bytes，不需載入 sherpa-onnx frontend bundle。無資產 fixtures 與三個真實 tables 的 32 個 kaldifst golden cases 均通過。
 
-正式端到端量測仍使用 Brave／Chromium `151.0.7922.71`、ORT Web `1.26.0-dev.20260416-b7804b056c`、WASM 單一 thread。Worker 完整暖機一次後，反覆合成 5 段繁體小說文字，內容包含對話、`2026年8月7日14:30`、`25.5%` 與「垃圾」；每句 PCM 以 lamejs `1.2.1` 編成 16 kHz mono、96 kbps MP3，再 append 到同一個 `audio/mpeg` sequence SourceBuffer。
+純 JavaScript applier 保留為 32 個 golden cases 的診斷基線。產品 Worker pilot 已改接獨立的 kaldifst `1.8.0` + OpenFST WASM、繁體直輸、68,037 詞 lexicon 最長匹配與 2,189 個 token mapping。normalizer WASM 約 338 KiB，初始 linear memory 為 16 MiB、允許成長且上限 128 MiB；它與 Matcha/Vocos 共用的 ORT Web WASM memory 相互獨立。產品前端同時保留 Bookworm 的臺灣格式修正：在進 FST 前只重整百分比、時間、日期分隔符與長位數電話，避免 tables 已知的 `%` 遺留、冒號 acoustic token 與 10 碼手機整數讀法；一般數字仍由原始 FST 決定。
+
+最新端到端量測使用 Brave／Chromium `151.0.7922.108`、ORT Web `1.26.0-dev.20260416-b7804b056c`、WASM 單一 thread與 `noise_scale=0.667`。Worker 完整暖機一次後，反覆合成 5 段繁體小說文字，內容包含對話、`2026年8月7日14:30`、`25.5%` 與「垃圾」；每句 PCM 以 lamejs `1.2.1` 編成 16 kHz mono、96 kbps MP3，再 append 到同一個 `audio/mpeg` sequence SourceBuffer。
 
 | 指標 | 結果 |
 |---|---:|
-| 段數／SourceBuffer 音訊 | 20 段／103.32 秒 |
-| Producer wall time | 15.044 秒 |
-| Producer RTF／realtime | 0.1456／6.87x |
-| 達到目標的整體 wall RTF | 0.1476 |
-| 結束時 buffer ahead | 88.97 秒 |
+| 段數／SourceBuffer 音訊 | 10 段／51.336 秒 |
+| Producer RTF／realtime | 0.1387／7.21x |
+| 達到目標的整體 wall RTF | 0.1426 |
+| 結束時 buffer ahead | 44.84 秒 |
 | Underflow／append error／producer error | 0／0／0 |
-| 初始化後記憶體快照 | 274,785,972 bytes（262.1 MiB） |
-| 串流中記憶體快照 | 275,460,978 bytes（262.7 MiB） |
 
-每段中位數為 5.121 秒音訊、62,640 bytes MP3；前端 `0.185 ms`、acoustic `423.9 ms`、Vocos `264.0 ms`、ISTFT `9.5 ms`、silence scaling `0.2 ms`、MP3 encode `50.3 ms`、完整 producer `750.2 ms`。記憶體 API 只在初始化後與串流中取樣，不能宣稱為 peak。
+同輪初始化後記憶體快照為 290,520,650 bytes（277.1 MiB），串流快照為 296,074,939 bytes（282.4 MiB）；這只是時間點快照，不是 peak 或 iPhone 結果。相較先前 JavaScript FST 初始化快照約增加 15.8 MiB，與 normalizer 實測未成長的 16 MiB linear memory 一致。
+
+每段中位數為 4.750 秒音訊、57,888 bytes MP3；前端 `0.585 ms`、核心合成 `608.5 ms`、MP3 encode `51.4 ms`、完整 producer `687.1 ms`。記憶體 API 只在初始化後與串流中取樣，不能宣稱為 peak。
 
 原模型 lexicon 沒有「垃圾」整詞條目，實際使用「垃 → `la1`、圾 → `ji1`」，即中國大陸普通話 `lā jī`。測試頁提供明示的臺灣覆寫 `垃圾 → le4 se4`；真實 Worker 已驗證可產生 12,513 個全為有限值的 samples 與 10,368-byte MP3，但正式效能結果仍使用上游原詞典，不把產品覆寫冒充模型預設。
 
@@ -122,7 +123,7 @@ PWA runtime、Worker、兩個模型與字典均進入 CacheStorage 後，實際�
 
 [WAV 試聽檔](samples/matcha-upstream-fst-recommended-normalization.wav)／[metadata](samples/matcha-upstream-fst-recommended-normalization.json)由 sherpa-onnx `1.12.20` 官方 browser SIMD bundle 直接產生，配置包含 `phone-zh.fst`、`date-zh.fst`、`number-zh.fst`、`noise_scale=0.667`、`length_scale=1`、`silence_scale=0.2` 與單一 thread。輸入保留原始阿拉伯數字、日期、時間、百分比及電話，方便直接聽出 FST 的正規化結果；音訊為 16 kHz mono PCM WAV，長 14.565 秒。
 
-另以[完整繁體小說文字直接輸入](samples/matcha-upstream-fst-recommended-traditional-direct.wav)／[metadata](samples/matcha-upstream-fst-recommended-traditional-direct.json)，不經 OpenCC，維持相同官方 FST 與生成配置。Chromium 成功產生 26.7298 秒音訊，427,676 個 samples 全部 finite、peak `0.9243`、RMS `0.1491`。使用者已確認試聽品質沒有問題，因此本專案決定正式候選不做繁簡轉換；OpenCC 路徑僅保留作歷史對照。
+另以[完整繁體小說文字直接輸入](samples/matcha-upstream-fst-recommended-traditional-direct.wav)／[metadata](samples/matcha-upstream-fst-recommended-traditional-direct.json)，不經 OpenCC，維持相同官方 FST 與生成配置。Chromium 成功產生 26.7298 秒音訊，427,676 個 samples 全部 finite、peak `0.9243`、RMS `0.1491`。使用者已確認試聽品質沒有問題，因此選定配置不做繁簡轉換；OpenCC 路徑僅保留作歷史對照。
 
 ## FST 與記憶體限制
 
@@ -130,12 +131,12 @@ PWA runtime、Worker、兩個模型與字典均進入 CacheStorage 後，實際�
 
 官方 `1.12.20` browser SIMD bundle 則能以三個 FST 正常初始化與生成，因此先前錯誤已縮小為 Node WASM 路徑／runtime 問題，不能歸因於 FST 本身或單純記憶體不足。同一 browser runtime 的 FST on/off control 中，純小說文字 task RTF 分別為 `0.13961`／`0.13973`，差異 `-0.086%`；兩者 heap 都是 512 MiB。移除 FST 沒有實質效能或 heap 優勢。
 
-核心 ORT Web adapter 仍以固定 token 或 JavaScript 常用規則繞過 FST，沒有聲稱與上游三個 FST 完全等價。A/B 的原始數字語料在無 FST 時由約 14.57 秒變成 19.56 秒，已證明讀法不同。後續優化應保留 FST 語義，優先降低官方 bundle 的 512 MiB heap 與預載資產成本。
+核心定時 benchmark 仍以固定 token 排除文字前端，但產品 Worker 已改由獨立 kaldifst WASM 套用原始三個 FST。A/B 的原始數字語料在無 FST 時由約 14.57 秒變成 19.56 秒，已證明讀法不同；因此不得移除 FST 或退回一般 JavaScript 數字規則。
 
 ## 下一步
 
 - 以「繁體直輸＋三個官方中文 FST＋`noise_scale=0.667`」作後續固定配置；不再投入 OpenCC 或繁簡轉換最佳化。
-- 降低官方 browser bundle 的固定 512 MiB heap 與不必要預載資產，再進入 iPhone 實機測試。
+- 完成 kaldifst WASM 與 JavaScript 診斷 applier 的完整 golden A/B，維持 phone、date、number 固定順序。
 - 在目標 iPhone／iPad 量測真正峰值記憶體、單一 thread RTF、溫度、耗電與熱降頻。
 - 分別從 Safari tab 與 Home Screen PWA 完成 2 小時鎖屏、3 章、Media Session 與中斷恢復驗收。
 - 接入英文 eSpeak，擴充電話、貨幣、範圍、序號與其他完整文字正規化；建立可審核的臺灣區域讀音覆寫詞典。

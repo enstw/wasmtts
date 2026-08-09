@@ -1,4 +1,4 @@
-const CACHE = 'wasmtts-mobile-stream-v3';
+const CACHE = 'wasmtts-mobile-stream-v5';
 const SHELL = [
   '/mobile-host/',
   '/mobile-host/index.html',
@@ -15,12 +15,16 @@ const SHELL = [
   '/mobile-host/vendor/ort/ort-wasm-simd-threaded.mjs',
   '/mobile-host/vendor/ort/ort-wasm-simd-threaded.wasm',
   '/mobile-host/vendor/lame.min.js',
+  '/mobile-host/vendor/kaldifst/matcha-kaldifst-normalizer.js',
+  '/mobile-host/vendor/kaldifst/matcha-kaldifst-normalizer.wasm',
   '/platform/matcha-frontend.js',
+  '/platform/kaldifst-normalizer.js',
   '/platform/matcha-synthesis.js',
 ];
 
 const SHARED_PATHS = new Set([
   '/platform/matcha-frontend.js',
+  '/platform/kaldifst-normalizer.js',
   '/platform/matcha-synthesis.js',
 ]);
 

@@ -98,7 +98,7 @@ class MatchaWorkerProducer {
     this.segments = [];
     this.pronunciationProfile = 'official';
     this.inputNormalization = 'traditional-direct';
-    this.noiseScale = 1;
+    this.noiseScale = 0.667;
     this.results = [];
     this.initialization = null;
     this.downloaded = false;
@@ -189,12 +189,12 @@ class MatchaWorkerProducer {
     text = $('#novelText').value,
     pronunciationProfile = $('#pronunciationProfile').value,
     inputNormalization = 'traditional-direct',
-    noiseScale = 1,
+    noiseScale = 0.667,
   } = {}) {
     this.segments = splitNovelText(text);
     this.pronunciationProfile = pronunciationProfile === 'taiwan' ? 'taiwan' : 'official';
     this.inputNormalization = 'traditional-direct';
-    this.noiseScale = Number.isFinite(noiseScale) ? noiseScale : 1;
+    this.noiseScale = Number.isFinite(noiseScale) ? noiseScale : 0.667;
     this.results = [];
     addLog({
       message: 'producer reset',

@@ -1,8 +1,10 @@
-/* global lamejs, MatchaFrontend, MatchaSynthesis, ort */
+/* global KaldifstNormalizerModule, lamejs, MatchaFrontend, MatchaKaldifst, MatchaSynthesis, ort */
 
 importScripts(
   '/mobile-host/vendor/ort/ort.min.js',
   '/mobile-host/vendor/lame.min.js',
+  '/mobile-host/vendor/kaldifst/matcha-kaldifst-normalizer.js',
+  '/platform/kaldifst-normalizer.js',
   '/platform/matcha-frontend.js?v=20260808-022258',
   '/platform/matcha-synthesis.js',
 );
@@ -13,8 +15,13 @@ const ACOUSTIC_URL = `${MODEL_ROOT}/model-steps-3.onnx`;
 const VOCODER_URL = '/platform/models/vocos-16khz-univ.onnx';
 const LEXICON_URL = `${MODEL_ROOT}/lexicon.txt`;
 const TOKENS_URL = `${MODEL_ROOT}/tokens.txt`;
+const RULE_FSTS = [
+  {key: 'phoneFst', url: `${MODEL_ROOT}/phone-zh.fst`, label: '電話規則 FST'},
+  {key: 'dateFst', url: `${MODEL_ROOT}/date-zh.fst`, label: '日期規則 FST'},
+  {key: 'numberFst', url: `${MODEL_ROOT}/number-zh.fst`, label: '數字規則 FST'},
+];
 const BIT_RATE_KBPS = 96;
-const EXPECTED_ASSET_BYTES = 131139354;
+const EXPECTED_ASSET_BYTES = 131351620;
 
 ort.env.wasm.numThreads = 1;
 ort.env.wasm.proxy = false;
@@ -71,6 +78,7 @@ async function downloadAssets() {
   const assets = [
     {key: 'lexicon', url: LEXICON_URL, label: '前端詞典'},
     {key: 'tokens', url: TOKENS_URL, label: 'Tokens'},
+    ...RULE_FSTS,
     {key: 'acoustic', url: ACOUSTIC_URL, label: 'Matcha acoustic model'},
     {key: 'vocoder', url: VOCODER_URL, label: 'Vocos'},
   ];
@@ -138,15 +146,27 @@ async function initialize() {
     const decoder = new TextDecoder();
     const lexiconText = decoder.decode(lexicon.buffer);
     const tokensText = decoder.decode(tokens.buffer);
+    postProgress('載入 kaldifst text-normalizer WASM');
+    const ruleNormalizer = await MatchaKaldifst.createNormalizer({
+      moduleFactory: KaldifstNormalizerModule,
+      wasmUrl: '/mobile-host/vendor/kaldifst/matcha-kaldifst-normalizer.wasm',
+      fstBuffers: [
+        downloadedAssets.phoneFst.buffer,
+        downloadedAssets.dateFst.buffer,
+        downloadedAssets.numberFst.buffer,
+      ],
+    });
     postProgress('建立文字前端');
     frontends = {
       official: MatchaFrontend.createFrontend({
         lexiconText,
         tokensText,
+        ruleNormalizer,
       }),
       taiwan: MatchaFrontend.createFrontend({
         lexiconText,
         tokensText,
+        ruleNormalizer,
         pronunciationOverrides: {'垃圾': 'le4 se4'},
       }),
     };
@@ -163,6 +183,9 @@ async function initialize() {
     const assetSources = {
       lexicon: lexicon.source,
       tokens: tokens.source,
+      phoneFst: downloadedAssets.phoneFst.source,
+      dateFst: downloadedAssets.dateFst.source,
+      numberFst: downloadedAssets.numberFst.source,
       acousticModel: acoustic.source,
       vocoder: vocoder.source,
     };
@@ -185,8 +208,10 @@ async function initialize() {
         tokenCount: frontends.official.tokenCount,
         traditionalConversion: false,
         inputNormalization: 'traditional-direct',
-        fst: false,
-        numericNormalization: 'JavaScript common date/time/percentage/decimal/integer rules',
+        fst: true,
+        fstRuntime: 'standalone kaldifst 1.8.0 + OpenFST WASM',
+        ruleFsts: ['phone-zh.fst', 'date-zh.fst', 'number-zh.fst'],
+        numericNormalization: 'sherpa zh rule FSTs applied by standalone kaldifst WASM',
         englishFrontend: false,
       },
       warmup: {
@@ -200,6 +225,13 @@ async function initialize() {
       runtime: {
         ort: '1.26.0-dev.20260416-b7804b056c',
         threads: 1,
+        textNormalizer: {
+          kaldifst: '1.8.0 / ab5bdd013bdf13921e6aeee77db5722ebf9955fb',
+          initialMemoryBytes: 16777216,
+          currentMemoryBytes: ruleNormalizer.runtime.HEAPU8.buffer.byteLength,
+          maximumMemoryBytes: 134217728,
+          separateLinearMemory: true,
+        },
         mp3: `lamejs 1.2.1 / ${BIT_RATE_KBPS} kbps`,
       },
     };
@@ -218,7 +250,7 @@ async function synthesize(message) {
   const selectedFrontend = frontends[profile];
   const frontend = selectedFrontend.tokensFor(message.text);
   const frontendMs = performance.now() - frontendStarted;
-  const noiseScale = Number.isFinite(message.noiseScale) ? message.noiseScale : 1;
+  const noiseScale = Number.isFinite(message.noiseScale) ? message.noiseScale : 0.667;
   postProgress(`合成第 ${message.requestId} 段：Matcha + Vocos`);
   const synthesis = await engine.synthesize(frontend.ids, {noiseScale});
   if (

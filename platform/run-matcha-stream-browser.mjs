@@ -171,7 +171,7 @@ try {
       workerWarmups: 1,
       pronunciationProfile: 'official',
       targetAppendCount,
-      measurementBoundary: 'Traditional-direct + JavaScript normalization + lexicon/token mapping + Matcha + Vocos + ISTFT + silence scaling + MP3 encode',
+    measurementBoundary: 'Traditional-direct + standalone kaldifst WASM sherpa zh FSTs + lexicon/token mapping + Matcha + Vocos + ISTFT + silence scaling + MP3 encode',
       transport: 'single HTMLAudioElement + single MediaSource + sequence SourceBuffer',
       waveformValidation: 'all samples finite, peak > 0, RMS > 0, MP3 bytes > 0',
       note: 'CDP TaskDuration is the main page target only and does not represent dedicated Worker CPU time',

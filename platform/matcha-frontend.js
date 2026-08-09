@@ -111,7 +111,29 @@
       .replace(/[０-９]/gu, (character) => String(character.charCodeAt(0) - 0xfee0))
       .replace(/％/gu, '%')
       .replace(/＋/gu, '+')
-      .replace(/－/gu, '-');
+      .replace(/－/gu, '-')
+      .replace(/：/gu, ':');
+  }
+
+  // 保留 Bookworm 已驗證的臺灣格式修正：只重整 FST 已知會誤讀的外形，
+  // 一般數字仍由 sherpa 原始 phone/date/number tables 決定讀法。
+  function normalizeLocalForms(value) {
+    return value
+      .replace(/(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*[日号號]?/gu,
+        (_, year, month, day) => `${year}年${Number(month)}月${Number(day)}日`)
+      .replace(/(^|\D)(\d{4})([-/])(\d{1,2})\3(\d{1,2})(?!\d)/gu,
+        (_, before, year, __, month, day) => `${before}${year}年${Number(month)}月${Number(day)}日`)
+      .replace(/(^|\D)(\d{1,2}):([0-5]\d)(?!\d)/gu,
+        (_, before, hour, minute) => `${before}${hour}点${minute === '00' ? '' : `${minute}分`}`)
+      .replace(/(\d+(?:\.\d+)?)\s*%(?!\d)/gu, (_, number) => `百分之${number}`)
+      .replace(/\((0\d{1,3})\)\s*(\d[\d-]*\d)/gu, (whole, area, rest) => {
+        const digits = (area + rest).replace(/-/gu, '');
+        return digits.length >= 7 ? digitsToChinese(digits) : whole;
+      })
+      .replace(/(^|[^\d.\-])(0[\d-]*\d)/gu, (whole, before, run) => {
+        const digits = run.replace(/-/gu, '');
+        return digits.length >= 7 ? `${before}${digitsToChinese(digits)}` : whole;
+      });
   }
 
   function normalizeNumbers(value) {
@@ -144,6 +166,7 @@
     tokensText,
     convertTraditional = (text) => text,
     pronunciationOverrides = {},
+    ruleNormalizer = null,
   }) {
     const {lexicon, maxKeyLength: sourceMaxKeyLength} = parseLexicon(lexiconText);
     const tokens = parseTokens(tokensText);
@@ -156,7 +179,11 @@
     }
 
     function prepareText(text) {
-      return normalizePunctuation(normalizeNumbers(convertTraditional(String(text))));
+      const source = normalizeFullWidth(convertTraditional(String(text)));
+      const normalized = ruleNormalizer
+        ? normalizeNumbers(ruleNormalizer(normalizeLocalForms(source)))
+        : normalizeNumbers(source);
+      return normalizePunctuation(normalized);
     }
 
     function tokensFor(text, {allowUnknown = false} = {}) {
@@ -219,13 +246,20 @@
       return {text: String(text), normalizedText, ids, phones, unknown};
     }
 
-    return {prepareText, tokensFor, lexiconSize: lexicon.size, tokenCount: tokens.size};
+    return {
+      prepareText,
+      tokensFor,
+      lexiconSize: lexicon.size,
+      tokenCount: tokens.size,
+      ruleFstCount: ruleNormalizer ? 3 : 0,
+    };
   }
 
   const api = {
     createFrontend,
     integerToChinese,
     normalizeNumbers,
+    normalizeLocalForms,
     normalizePunctuation,
     numberToChinese,
     parseLexicon,

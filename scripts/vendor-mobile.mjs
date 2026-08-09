@@ -36,6 +36,7 @@ const files = [
 ];
 
 mkdirSync(path.join(output, 'ort'), {recursive: true});
+mkdirSync(path.join(output, 'kaldifst'), {recursive: true});
 
 const versions = {};
 for (const entry of files) {
@@ -43,6 +44,13 @@ for (const entry of files) {
   const manifest = JSON.parse(readFileSync(path.join(packageRoot, 'package.json'), 'utf8'));
   versions[entry.package] = manifest.version;
   copyFileSync(path.join(packageRoot, entry.source), path.join(output, entry.target));
+}
+
+for (const file of ['matcha-kaldifst-normalizer.js', 'matcha-kaldifst-normalizer.wasm']) {
+  copyFileSync(
+    path.join(root, 'platform', 'kaldifst-wasm', 'dist', file),
+    path.join(output, 'kaldifst', file),
+  );
 }
 
 writeFileSync(
