@@ -34,26 +34,26 @@
 
 ## 正式瀏覽器 benchmark
 
-2026-08-07 使用 Brave 所附 Chromium `151.0.7922.71`、ONNX Runtime Web `1.26.0-dev.20260416-b7804b056c`、WASM execution provider 與單一 thread。固定五句先完整暖機一次，再量三次；以 CDP `Performance.TaskDuration` 為 CPU／task 指標，並另外保存頁面 wall time。
+2026-08-09 升級至 stable ONNX Runtime Web `1.27.0`，使用 Brave 所附 Chromium `151.0.7922.108`、WASM execution provider 與單一 thread。固定五句先完整暖機一次，再量三次；以 CDP `Performance.TaskDuration` 為 CPU／task 指標，並另外保存頁面 wall time。先前 `1.26.0-dev.20260416-b7804b056c` 結果保留在 Git 歷史作回退基線。
 
 | 指標 | 結果 |
 |---|---:|
-| Acoustic + Vocos session 初始化 | 2.208 秒 |
-| 10 秒音訊 task time，中位數 | 1.467 秒 |
-| Task RTF，中位數 | 0.1467 |
-| Wall RTF，中位數 | 0.1467 |
-| Realtime multiplier，中位數 | 6.82x |
+| Acoustic + Vocos session 初始化 | 1.980 秒 |
+| 10 秒音訊 task time，中位數 | 1.361 秒 |
+| Task RTF，中位數 | 0.1361 |
+| Wall RTF，中位數 | 0.1360 |
+| Realtime multiplier，中位數 | 7.35x |
 | 音訊長度，中位數 | 10.923 秒 |
 | Acoustic + Vocos ONNX | 129,599,930 bytes（123.6 MiB） |
 
-三輪正規化 task time 為 `1.467`、`1.469`、`1.462` 秒／10 秒音訊。三輪 waveform 分別有 174,764、174,656、174,854 samples，全部為有限值；peak 為 `0.7750`、`0.7800`、`0.8170`，RMS 為 `0.1340`、`0.1327`、`0.1328`。最後另產生一輪可實聽的 16-bit PCM WAV，174,776/174,776 samples 全為有限值。
+三輪正規化 task time 為 `1.365`、`1.358`、`1.361` 秒／10 秒音訊。三輪 waveform 分別有 174,821、174,764、174,688 samples，全部為有限值；peak 為 `0.8093`、`0.8306`、`0.7777`，RMS 為 `0.1336`、`0.1351`、`0.1301`。最後另產生一輪可實聽的 16-bit PCM WAV，174,857/174,857 samples 全為有限值。
 
 | 階段 | 三輪 wall time 中位數 | 約占總時間 |
 |---|---:|---:|
-| Matcha acoustic model | 982.7 ms | 61.3% |
-| Vocos ONNX | 593.0 ms | 37.0% |
-| JavaScript ISTFT | 22.3 ms | 1.4% |
-| silence scaling | 0.6 ms | <0.1% |
+| Matcha acoustic model | 911.1 ms | 61.5% |
+| Vocos ONNX | 549.5 ms | 37.1% |
+| JavaScript ISTFT | 20.8 ms | 1.4% |
+| silence scaling | 0.5 ms | <0.1% |
 
 瀏覽器 adapter 直接以 ORT Web 執行 acoustic model 與 Vocos，並依 sherpa-onnx／kaldi-native-fbank 的 Vocos 頻譜排列、Hann window、overlap-add、中心裁切及 `silence_scale=0.2` 重現輸出。五句 token 由 `sherpa-onnx 1.13.4` 前端預先產生，文字前處理不納入計時，與既有 ORT Web 主表邊界一致。本輪瀏覽器 adapter 使用 `noise_scale=1.0`；sherpa-onnx Matcha 預設則是 `0.667`，兩者不可當成完全相同的生成配置。
 
@@ -67,19 +67,19 @@
 
 純 JavaScript applier 保留為 32 個 golden cases 的診斷基線。產品 Worker pilot 已改接獨立的 kaldifst `1.8.0` + OpenFST WASM、繁體直輸、68,037 詞 lexicon 最長匹配與 2,189 個 token mapping。normalizer WASM 約 338 KiB，初始 linear memory 為 16 MiB、允許成長且上限 128 MiB；它與 Matcha/Vocos 共用的 ORT Web WASM memory 相互獨立。產品前端同時保留 Bookworm 的臺灣格式修正：在進 FST 前只重整百分比、時間、日期分隔符與長位數電話，避免 tables 已知的 `%` 遺留、冒號 acoustic token 與 10 碼手機整數讀法；一般數字仍由原始 FST 決定。
 
-最新端到端量測使用 Brave／Chromium `151.0.7922.108`、ORT Web `1.26.0-dev.20260416-b7804b056c`、WASM 單一 thread與 `noise_scale=0.667`。Worker 完整暖機一次後，反覆合成 5 段繁體小說文字，內容包含對話、`2026年8月7日14:30`、`25.5%` 與「垃圾」；每句 PCM 以 lamejs `1.2.1` 編成 16 kHz mono、96 kbps MP3，再 append 到同一個 `audio/mpeg` sequence SourceBuffer。
+最新端到端量測使用 Brave／Chromium `151.0.7922.108`、stable ORT Web `1.27.0`、WASM 單一 thread 與 `noise_scale=0.667`。Worker 完整暖機一次後，反覆合成 5 段繁體小說文字，內容包含對話、`2026年8月7日14:30`、`25.5%` 與「垃圾」；每句 PCM 以 lamejs `1.2.1` 編成 16 kHz mono、96 kbps MP3，再 append 到同一個 `audio/mpeg` sequence SourceBuffer。
 
 | 指標 | 結果 |
 |---|---:|
-| 段數／SourceBuffer 音訊 | 10 段／51.336 秒 |
+| 段數／SourceBuffer 音訊 | 10 段／51.228 秒 |
 | Producer RTF／realtime | 0.1387／7.21x |
-| 達到目標的整體 wall RTF | 0.1426 |
-| 結束時 buffer ahead | 44.84 秒 |
+| 達到目標的整體 wall RTF | 0.1425 |
+| 結束時 buffer ahead | 44.73 秒 |
 | Underflow／append error／producer error | 0／0／0 |
 
-同輪初始化後記憶體快照為 290,520,650 bytes（277.1 MiB），串流快照為 296,074,939 bytes（282.4 MiB）；這只是時間點快照，不是 peak 或 iPhone 結果。相較先前 JavaScript FST 初始化快照約增加 15.8 MiB，與 normalizer 實測未成長的 16 MiB linear memory 一致。
+同輪初始化後記憶體快照為 341,536,495 bytes（325.7 MiB），串流快照為 345,817,320 bytes（329.8 MiB）；第二次獨立重跑的初始化快照為 341,535,075 bytes，確認此水位可重現。相較 `1.26.0-dev` 初始化快照增加約 48.7 MiB，normalizer 本身仍維持 16 MiB，增量來自 ORT 1.27 路徑。這只是時間點快照，不是 peak 或 iPhone 結果；stable 1.27 已通過桌面功能與速度 gate，但 iPhone 記憶體 gate 尚未驗收。
 
-每段中位數為 4.750 秒音訊、57,888 bytes MP3；前端 `0.585 ms`、核心合成 `608.5 ms`、MP3 encode `51.4 ms`、完整 producer `687.1 ms`。記憶體 API 只在初始化後與串流中取樣，不能宣稱為 peak。
+每段中位數為 4.751 秒音訊、57,888 bytes MP3；前端 `0.580 ms`、核心合成 `607.5 ms`、MP3 encode `55.0 ms`、完整 producer `694.6 ms`。記憶體 API 只在初始化後與串流中取樣，不能宣稱為 peak。
 
 原模型 lexicon 沒有「垃圾」整詞條目，實際使用「垃 → `la1`、圾 → `ji1`」，即中國大陸普通話 `lā jī`。測試頁提供明示的臺灣覆寫 `垃圾 → le4 se4`；真實 Worker 已驗證可產生 12,513 個全為有限值的 samples 與 10,368-byte MP3，但正式效能結果仍使用上游原詞典，不把產品覆寫冒充模型預設。
 

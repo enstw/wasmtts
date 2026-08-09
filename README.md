@@ -2,7 +2,7 @@
 
 本專案目前選定 Matcha `matcha-icefall-zh-en` 作為 iOS Safari／行動 PWA 離線中文朗讀的 TTS 模型。產品路徑以 Worker 在背景逐句執行 Matcha acoustic model、Vocos 與必要的音訊編碼，再把片段 append 到單一長駐 `ManagedMediaSource` timeline；不得預產整章或在句子、章節邊界重新建立播放器。
 
-Matcha 在相同文本盲測得到 90 分，高於 Kokoro 的 80 分與 Piper HuaYan medium 的 60 分；上游建議的單執行緒 browser WASM＋中文 FST 配置為 `RTF 0.1411`，繁體小說原文不經 OpenCC 也能正確生成。固定文字路徑是「繁體直輸 → phone/date/number FST → Matcha」，生成配置採 `noise_scale=0.667`。目前 pilot 使用「ORT Web WASM（Matcha + Vocos）＋獨立 kaldifst/OpenFST text-normalizer WASM」，兩者各自使用 linear memory，不再載入固定 512 MiB heap 的 sherpa-onnx frontend bundle。目前工作集中在真實 iPhone 的峰值記憶體、鎖屏、溫度與長時間穩態驗證。Piper、Kokoro 與 VITS 文件只保留為模型選擇的歷史證據，不再是現行產品候選。
+Matcha 在相同文本盲測得到 90 分，高於 Kokoro 的 80 分與 Piper HuaYan medium 的 60 分；上游建議的單執行緒 browser WASM＋中文 FST 配置為 `RTF 0.1411`，繁體小說原文不經 OpenCC 也能正確生成。固定文字路徑是「繁體直輸 → phone/date/number FST → Matcha」，生成配置採 `noise_scale=0.667`。目前 pilot 使用 stable ORT Web `1.27.0`（Matcha + Vocos）與獨立 kaldifst/OpenFST text-normalizer WASM，兩者各自使用 linear memory，不再載入固定 512 MiB heap 的 sherpa-onnx frontend bundle。1.27 已通過桌面有效 waveform 與完整串流 gate，但初始化記憶體快照比 1.26 dev 增加約 48.7 MiB，仍須在真實 iPhone 驗證 peak memory、鎖屏、溫度與長時間穩態。Piper、Kokoro 與 VITS 文件只保留為模型選擇的歷史證據，不再是現行產品候選。
 
 ## 專案入口
 

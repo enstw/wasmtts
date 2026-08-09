@@ -223,7 +223,7 @@ async function initialize() {
         waveform: warmupSynthesis.waveform,
       },
       runtime: {
-        ort: '1.26.0-dev.20260416-b7804b056c',
+        ort: '1.27.0',
         threads: 1,
         textNormalizer: {
           kaldifst: '1.8.0 / ab5bdd013bdf13921e6aeee77db5722ebf9955fb',

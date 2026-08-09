@@ -18,5 +18,5 @@ for(const name of names){
   const sorted=runs.map(x=>x.taskMsPer10s).sort((a,b)=>a-b);results.push({name,runs,medianTaskMsPer10s:sorted[1]});await page.close();
 }
 const baseline=results.find(x=>x.name==='piper_huayan_medium')?.medianTaskMsPer10s;for(const r of results)if(baseline)r.relativeToPiper=r.medianTaskMsPer10s/baseline;
-const report={environment:{browser:browser.version(),runtime:'ONNX Runtime Web 1.26.0-dev.20260416-b7804b056c',executionProvider:'wasm',numThreads:1,measurement:'Chromium CDP Performance.TaskDuration'},text,results};
+const report={environment:{browser:browser.version(),runtime:'ONNX Runtime Web 1.27.0',executionProvider:'wasm',numThreads:1,measurement:'Chromium CDP Performance.TaskDuration'},text,results};
 fs.writeFileSync(new URL('./results/results-vits-browser-wasm.json',import.meta.url),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));await browser.close();

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-09T12:52:37.852Z",
+  "generatedAt": "2026-08-09T13:35:37.587Z",
   "environment": {
     "browser": "Chrome/151.0.7922.108",
     "browserBinary": "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
@@ -37,11 +37,11 @@
     "englishFrontend": false
   },
   "initialization": {
-    "wallMs": 1423.1500000953674,
+    "wallMs": 1468.045000076294,
     "session": {
-      "wallMs": 1111.210000038147,
-      "acousticInitMs": 1064.2300000190735,
-      "vocoderInitMs": 46.985000014305115,
+      "wallMs": 1146.8650000095367,
+      "acousticInitMs": 1098.6499999761581,
+      "vocoderInitMs": 48.2150000333786,
       "acousticInputs": [
         "x",
         "x_length",
@@ -85,20 +85,20 @@
       "englishFrontend": false
     },
     "warmup": {
-      "frontendMs": 3.8899999856948853,
-      "synthesisMs": 175.4800000190735,
-      "mp3Ms": 32.080000042915344,
-      "audioSeconds": 0.6693125,
+      "frontendMs": 6.670000076293945,
+      "synthesisMs": 183.87000000476837,
+      "mp3Ms": 30.865000009536743,
+      "audioSeconds": 0.682,
       "mp3Bytes": 9072,
       "waveform": {
-        "samples": 10709,
-        "finiteSamples": 10709,
-        "peak": 0.6806815266609192,
-        "rms": 0.1470338958817741
+        "samples": 10912,
+        "finiteSamples": 10912,
+        "peak": 0.7565376162528992,
+        "rms": 0.13196954637115835
       }
     },
     "runtime": {
-      "ort": "1.26.0-dev.20260416-b7804b056c",
+      "ort": "1.27.0",
       "threads": 1,
       "textNormalizer": {
         "kaldifst": "1.8.0 / ab5bdd013bdf13921e6aeee77db5722ebf9955fb",
@@ -122,7 +122,7 @@
   "memory": {
     "afterInitialization": {
       "supported": true,
-      "bytes": 290520650,
+      "bytes": 341536495,
       "breakdown": [
         {
           "attribution": [],
@@ -132,59 +132,71 @@
           ]
         },
         {
+          "attribution": [
+            {
+              "scope": "DedicatedWorkerGlobalScope",
+              "url": "http://127.0.0.1:8765/mobile-host/matcha-worker.js?v=5"
+            }
+          ],
+          "bytes": 340642453,
+          "types": [
+            "JavaScript"
+          ]
+        },
+        {
+          "attribution": [
+            {
+              "scope": "Window",
+              "url": "http://127.0.0.1:8765/mobile-host/matcha-stream-test.html"
+            }
+          ],
+          "bytes": 389898,
+          "types": [
+            "JavaScript"
+          ]
+        },
+        {
           "attribution": [],
           "bytes": 0,
           "types": []
         },
         {
           "attribution": [],
-          "bytes": 359181,
+          "bytes": 376760,
           "types": [
             "Shared"
-          ]
-        },
-        {
-          "attribution": [
-            {
-              "scope": "Window",
-              "url": "http://127.0.0.1:8765/mobile-host/matcha-stream-test.html"
-            }
-          ],
-          "bytes": 413992,
-          "types": [
-            "JavaScript"
-          ]
-        },
-        {
-          "attribution": [
-            {
-              "scope": "DedicatedWorkerGlobalScope",
-              "url": "http://127.0.0.1:8765/mobile-host/matcha-worker.js?v=5"
-            }
-          ],
-          "bytes": 289620093,
-          "types": [
-            "JavaScript"
           ]
         }
       ]
     },
     "afterStream": {
       "supported": true,
-      "bytes": 296074939,
+      "bytes": 345817320,
       "breakdown": [
         {
-          "attribution": [],
-          "bytes": 135720,
+          "attribution": [
+            {
+              "scope": "Window",
+              "url": "http://127.0.0.1:8765/mobile-host/matcha-stream-test.html"
+            }
+          ],
+          "bytes": 521040,
           "types": [
-            "DOM"
+            "JavaScript"
           ]
         },
         {
           "attribution": [],
-          "bytes": 467404,
+          "bytes": 437001,
           "types": [
             "Shared"
+          ]
+        },
+        {
+          "attribution": [],
+          "bytes": 135560,
+          "types": [
+            "DOM"
           ]
         },
         {
@@ -194,19 +206,7 @@
               "url": "http://127.0.0.1:8765/mobile-host/matcha-worker.js?v=5"
             }
           ],
-          "bytes": 294980490,
-          "types": [
-            "JavaScript"
-          ]
-        },
-        {
-          "attribution": [
-            {
-              "scope": "Window",
-              "url": "http://127.0.0.1:8765/mobile-host/matcha-stream-test.html"
-            }
-          ],
-          "bytes": 491325,
+          "bytes": 344723719,
           "types": [
             "JavaScript"
           ]
@@ -226,50 +226,50 @@
     "mimeType": "audio/mpeg",
     "supported": true,
     "visibility": "visible",
-    "currentTime": 6.500414,
-    "bufferAheadSeconds": 44.835586,
+    "currentTime": 6.497576,
+    "bufferAheadSeconds": 44.730424,
     "bufferStart": 0,
-    "bufferEnd": 51.336,
+    "bufferEnd": 51.228,
     "queuedSegments": 10,
     "producing": true,
     "lastTrigger": "timeupdate",
-    "elapsedSeconds": 7.319044999957085,
-    "rtf": 0.13872896213341637,
-    "realtimeMultiplier": 7.208300160411311,
-    "startedAt": 21592.71500003338,
+    "elapsedSeconds": 7.297950000047684,
+    "rtf": 0.13866205981094776,
+    "realtimeMultiplier": 7.211778054958962,
+    "startedAt": 20596.729999899864,
     "appendCount": 10,
-    "appendedAudioSeconds": 51.336,
-    "producerWallMs": 7121.790000081062,
-    "bytes": 616032,
+    "appendedAudioSeconds": 51.228,
+    "producerWallMs": 7103.379999995232,
+    "bytes": 614736,
     "underflows": 0,
     "appendErrors": 0,
     "producerErrors": 0,
     "trims": 0,
     "trimmedSeconds": 0,
-    "wallMsToTarget": 7321.461458999998,
-    "wallRtfToTarget": 0.14261846382655444,
-    "mainTargetTaskMs": 140.121,
-    "mainTargetTaskRtf": 0.0027294880785413743
+    "wallMsToTarget": 7298.923666999999,
+    "wallRtfToTarget": 0.14247918456703365,
+    "mainTargetTaskMs": 133.682,
+    "mainTargetTaskRtf": 0.0026095494651362534
   },
   "summary": {
     "appendCount": 10,
-    "appendedAudioSeconds": 51.336,
-    "producerRtf": 0.13872896213341637,
-    "producerRealtimeMultiplier": 7.208300160411311,
+    "appendedAudioSeconds": 51.228,
+    "producerRtf": 0.13866205981094776,
+    "producerRealtimeMultiplier": 7.211778054958962,
     "underflows": 0,
     "appendErrors": 0,
     "producerErrors": 0,
-    "medianSegmentAudioSeconds": 4.750125,
+    "medianSegmentAudioSeconds": 4.7513125,
     "medianSegmentMp3Bytes": 57888,
     "medianPhasesMs": {
-      "frontendMs": 0.5849999189376831,
-      "acousticMs": 368.9450000524521,
-      "vocoderMs": 229.125,
-      "istftMs": 9.504999995231628,
-      "silenceMs": 0.25,
-      "synthesisMs": 608.5349999666214,
-      "mp3Ms": 51.35000002384186,
-      "totalMs": 687.125
+      "frontendMs": 0.5799999237060547,
+      "acousticMs": 370.2300000190735,
+      "vocoderMs": 228.83500003814697,
+      "istftMs": 8.830000042915344,
+      "silenceMs": 0.2250000238418579,
+      "synthesisMs": 607.539999961853,
+      "mp3Ms": 54.97000002861023,
+      "totalMs": 694.585000038147
     }
   },
   "segments": [
@@ -305,23 +305,23 @@
       "unknown": [],
       "sampleRate": 16000,
       "noiseScale": 0.667,
-      "audioSeconds": 3.971,
+      "audioSeconds": 3.9709375,
       "waveform": {
-        "samples": 63536,
-        "finiteSamples": 63536,
-        "peak": 0.8519411683082581,
-        "rms": 0.16072961056182541
+        "samples": 63535,
+        "finiteSamples": 63535,
+        "peak": 0.8782529830932617,
+        "rms": 0.1620690638984555
       },
       "mp3Bytes": 48816,
       "phases": {
-        "frontendMs": 1.3600000143051147,
-        "acousticMs": 336.0049999952316,
-        "vocoderMs": 193.86000001430511,
-        "istftMs": 8.575000047683716,
-        "silenceMs": 2.115000009536743,
-        "synthesisMs": 540.5650000572205,
-        "mp3Ms": 103.625,
-        "totalMs": 647.0099999904633
+        "frontendMs": 0.7149999141693115,
+        "acousticMs": 328.65499997138977,
+        "vocoderMs": 194.01499998569489,
+        "istftMs": 8.620000004768372,
+        "silenceMs": 2.100000023841858,
+        "synthesisMs": 533.4199999570847,
+        "mp3Ms": 101.89499998092651,
+        "totalMs": 637.2999999523163
       }
     },
     {
@@ -368,23 +368,23 @@
       "unknown": [],
       "sampleRate": 16000,
       "noiseScale": 0.667,
-      "audioSeconds": 6.731125,
+      "audioSeconds": 6.5696875,
       "waveform": {
-        "samples": 107698,
-        "finiteSamples": 107698,
-        "peak": 0.8657615184783936,
-        "rms": 0.1419607451650139
+        "samples": 105115,
+        "finiteSamples": 105115,
+        "peak": 0.834491491317749,
+        "rms": 0.1434243017540289
       },
-      "mp3Bytes": 81648,
+      "mp3Bytes": 79920,
       "phases": {
-        "frontendMs": 0.625,
-        "acousticMs": 521.5600000619888,
-        "vocoderMs": 309.914999961853,
-        "istftMs": 21.205000042915344,
-        "silenceMs": 3.184999942779541,
-        "synthesisMs": 855.875,
-        "mp3Ms": 131.625,
-        "totalMs": 991.0700000524521
+        "frontendMs": 0.5799999237060547,
+        "acousticMs": 521.0300000905991,
+        "vocoderMs": 309.68499994277954,
+        "istftMs": 21.59500002861023,
+        "silenceMs": 3.215000033378601,
+        "synthesisMs": 855.5500000715256,
+        "mp3Ms": 133.93499994277954,
+        "totalMs": 992.9899998903275
       }
     },
     {
@@ -421,23 +421,23 @@
       "unknown": [],
       "sampleRate": 16000,
       "noiseScale": 0.667,
-      "audioSeconds": 4.6434375,
+      "audioSeconds": 4.6435,
       "waveform": {
-        "samples": 74295,
-        "finiteSamples": 74295,
-        "peak": 0.8603793382644653,
-        "rms": 0.146366962585835
+        "samples": 74296,
+        "finiteSamples": 74296,
+        "peak": 0.7591441869735718,
+        "rms": 0.14778695149122964
       },
       "mp3Bytes": 56592,
       "phases": {
-        "frontendMs": 0.8399999141693115,
-        "acousticMs": 338.54500007629395,
-        "vocoderMs": 210.81499993801117,
-        "istftMs": 11.475000023841858,
-        "silenceMs": 1.2699999809265137,
-        "synthesisMs": 562.1400001049042,
-        "mp3Ms": 116.64499998092651,
-        "totalMs": 680.8099999427795
+        "frontendMs": 1.5799999237060547,
+        "acousticMs": 338.7850000858307,
+        "vocoderMs": 210.74000000953674,
+        "istftMs": 10.22000002861023,
+        "silenceMs": 0.26499998569488525,
+        "synthesisMs": 560.045000076294,
+        "mp3Ms": 106.63999998569489,
+        "totalMs": 669.4199999570847
       }
     },
     {
@@ -478,23 +478,23 @@
       "unknown": [],
       "sampleRate": 16000,
       "noiseScale": 0.667,
-      "audioSeconds": 4.75,
+      "audioSeconds": 4.7513125,
       "waveform": {
-        "samples": 76000,
-        "finiteSamples": 76000,
-        "peak": 0.7569992542266846,
-        "rms": 0.14800380879158948
+        "samples": 76021,
+        "finiteSamples": 76021,
+        "peak": 0.7041655778884888,
+        "rms": 0.1464671022037061
       },
       "mp3Bytes": 57888,
       "phases": {
-        "frontendMs": 0.8149999380111694,
-        "acousticMs": 368.84999990463257,
-        "vocoderMs": 229.04000008106232,
-        "istftMs": 7.849999904632568,
-        "silenceMs": 0.1700000762939453,
-        "synthesisMs": 605.9249999523163,
-        "mp3Ms": 79.9650000333786,
-        "totalMs": 687.125
+        "frontendMs": 0.8199999332427979,
+        "acousticMs": 370.2300000190735,
+        "vocoderMs": 228.48499989509583,
+        "istftMs": 8.585000038146973,
+        "silenceMs": 0.2250000238418579,
+        "synthesisMs": 607.539999961853,
+        "mp3Ms": 85.7849999666214,
+        "totalMs": 694.585000038147
       }
     },
     {
@@ -536,23 +536,23 @@
       "unknown": [],
       "sampleRate": 16000,
       "noiseScale": 0.667,
-      "audioSeconds": 5.2454375,
+      "audioSeconds": 5.2528125,
       "waveform": {
-        "samples": 83927,
-        "finiteSamples": 83927,
-        "peak": 1.0496845245361328,
-        "rms": 0.1413293362549102
+        "samples": 84045,
+        "finiteSamples": 84045,
+        "peak": 1.026936650276184,
+        "rms": 0.1397831702822289
       },
       "mp3Bytes": 63936,
       "phases": {
-        "frontendMs": 0.5099999904632568,
-        "acousticMs": 404.74000000953674,
-        "vocoderMs": 253.1599999666214,
-        "istftMs": 9.504999995231628,
-        "silenceMs": 0.25,
-        "synthesisMs": 667.6599999666214,
-        "mp3Ms": 50.894999980926514,
-        "totalMs": 719.5900000333786
+        "frontendMs": 0.5,
+        "acousticMs": 405.79499995708466,
+        "vocoderMs": 253.68499994277954,
+        "istftMs": 8.960000038146973,
+        "silenceMs": 0.18500006198883057,
+        "synthesisMs": 668.6299999952316,
+        "mp3Ms": 54.97000002861023,
+        "totalMs": 724.5550000667572
       }
     },
     {
@@ -587,23 +587,23 @@
       "unknown": [],
       "sampleRate": 16000,
       "noiseScale": 0.667,
-      "audioSeconds": 3.9718125,
+      "audioSeconds": 3.96725,
       "waveform": {
-        "samples": 63549,
-        "finiteSamples": 63549,
-        "peak": 0.8144780993461609,
-        "rms": 0.16107470521973902
+        "samples": 63476,
+        "finiteSamples": 63476,
+        "peak": 0.824335515499115,
+        "rms": 0.15901155821999932
       },
       "mp3Bytes": 48816,
       "phases": {
-        "frontendMs": 0.5,
-        "acousticMs": 319.38499999046326,
-        "vocoderMs": 193.5,
-        "istftMs": 7.399999976158142,
-        "silenceMs": 0.1950000524520874,
-        "synthesisMs": 520.4850000143051,
-        "mp3Ms": 35.9650000333786,
-        "totalMs": 557.335000038147
+        "frontendMs": 0.43000006675720215,
+        "acousticMs": 318.64999997615814,
+        "vocoderMs": 193.1599999666214,
+        "istftMs": 6.675000071525574,
+        "silenceMs": 0.12999999523162842,
+        "synthesisMs": 518.6200000047684,
+        "mp3Ms": 37.36500000953674,
+        "totalMs": 556.7450000047684
       }
     },
     {
@@ -650,23 +650,23 @@
       "unknown": [],
       "sampleRate": 16000,
       "noiseScale": 0.667,
-      "audioSeconds": 6.576,
+      "audioSeconds": 6.579125,
       "waveform": {
-        "samples": 105216,
-        "finiteSamples": 105216,
-        "peak": 0.8400706648826599,
-        "rms": 0.14051959644948242
+        "samples": 105266,
+        "finiteSamples": 105266,
+        "peak": 0.8564660549163818,
+        "rms": 0.14360166627016413
       },
       "mp3Bytes": 79920,
       "phases": {
-        "frontendMs": 0.5499999523162842,
-        "acousticMs": 504.085000038147,
-        "vocoderMs": 309.8600000143051,
-        "istftMs": 11.215000033378601,
-        "silenceMs": 0.3399999141693115,
-        "synthesisMs": 825.5,
-        "mp3Ms": 51.35000002384186,
-        "totalMs": 878.0049999952316
+        "frontendMs": 0.5550000667572021,
+        "acousticMs": 504.5549999475479,
+        "vocoderMs": 308.70500004291534,
+        "istftMs": 10.829999923706055,
+        "silenceMs": 0.24500000476837158,
+        "synthesisMs": 824.3399999141693,
+        "mp3Ms": 50.894999980926514,
+        "totalMs": 876.3799999952316
       }
     },
     {
@@ -703,23 +703,23 @@
       "unknown": [],
       "sampleRate": 16000,
       "noiseScale": 0.667,
-      "audioSeconds": 4.64375,
+      "audioSeconds": 4.6445625,
       "waveform": {
-        "samples": 74300,
-        "finiteSamples": 74300,
-        "peak": 0.7713983654975891,
-        "rms": 0.14366438765070064
+        "samples": 74313,
+        "finiteSamples": 74313,
+        "peak": 0.8272792100906372,
+        "rms": 0.14607046701957602
       },
-      "mp3Bytes": 56592,
+      "mp3Bytes": 57024,
       "phases": {
-        "frontendMs": 0.5849999189376831,
-        "acousticMs": 349.77500009536743,
-        "vocoderMs": 213.80999994277954,
-        "istftMs": 7.435000061988831,
+        "frontendMs": 0.5949999094009399,
+        "acousticMs": 337.97500002384186,
+        "vocoderMs": 210.74500000476837,
+        "istftMs": 7.365000009536743,
         "silenceMs": 0.15999996662139893,
-        "synthesisMs": 571.1800000667572,
-        "mp3Ms": 36.855000019073486,
-        "totalMs": 609.1100000143051
+        "synthesisMs": 556.25,
+        "mp3Ms": 42.13499999046326,
+        "totalMs": 599.3649998903275
       }
     },
     {
@@ -760,23 +760,23 @@
       "unknown": [],
       "sampleRate": 16000,
       "noiseScale": 0.667,
-      "audioSeconds": 4.750125,
+      "audioSeconds": 4.7475625,
       "waveform": {
-        "samples": 76002,
-        "finiteSamples": 76002,
-        "peak": 0.7155618071556091,
-        "rms": 0.14285649492344343
+        "samples": 75961,
+        "finiteSamples": 75961,
+        "peak": 0.7816535234451294,
+        "rms": 0.14432941902580187
       },
       "mp3Bytes": 57888,
       "phases": {
-        "frontendMs": 0.5399999618530273,
-        "acousticMs": 368.9450000524521,
-        "vocoderMs": 229.125,
-        "istftMs": 10.31499993801117,
-        "silenceMs": 0.14499998092651367,
-        "synthesisMs": 608.5349999666214,
-        "mp3Ms": 34.19500005245209,
-        "totalMs": 643.6699999570847
+        "frontendMs": 0.5549999475479126,
+        "acousticMs": 368.86500000953674,
+        "vocoderMs": 228.83500003814697,
+        "istftMs": 7.8450000286102295,
+        "silenceMs": 0.13999998569488525,
+        "synthesisMs": 605.6850000619888,
+        "mp3Ms": 36.9449999332428,
+        "totalMs": 643.5749999284744
       }
     },
     {
@@ -818,29 +818,29 @@
       "unknown": [],
       "sampleRate": 16000,
       "noiseScale": 0.667,
-      "audioSeconds": 5.2495625,
+      "audioSeconds": 5.2365625,
       "waveform": {
-        "samples": 83993,
-        "finiteSamples": 83993,
-        "peak": 0.9668375253677368,
-        "rms": 0.13674214283209576
+        "samples": 83785,
+        "finiteSamples": 83785,
+        "peak": 1.0028642416000366,
+        "rms": 0.13876211992048454
       },
       "mp3Bytes": 63936,
       "phases": {
-        "frontendMs": 0.4950000047683716,
-        "acousticMs": 404.68500006198883,
-        "vocoderMs": 253.70500004291534,
-        "istftMs": 9.120000004768372,
-        "silenceMs": 0.21999990940093994,
-        "synthesisMs": 667.7350000143051,
-        "mp3Ms": 36.50499999523163,
-        "totalMs": 705.1750000715256
+        "frontendMs": 0.5199999809265137,
+        "acousticMs": 405.2150000333786,
+        "vocoderMs": 252.1599999666214,
+        "istftMs": 8.830000042915344,
+        "silenceMs": 0.17499995231628418,
+        "synthesisMs": 666.3849999904633,
+        "mp3Ms": 36.144999980926514,
+        "totalMs": 703.4850000143051
       }
     }
   ],
   "relevantEvents": [
     {
-      "at": 22253.294999957085,
+      "at": 21242.019999980927,
       "visibility": "visible",
       "message": "append 完成",
       "detail": {
@@ -852,110 +852,110 @@
       }
     },
     {
-      "at": 23246.889999985695,
+      "at": 22237.52999997139,
       "visibility": "visible",
       "message": "append 完成",
       "detail": {
         "index": 1,
-        "audioSeconds": 6.804,
+        "audioSeconds": 6.66,
         "start": 4.068,
-        "end": 10.872,
+        "end": 10.728,
         "text": "遠處傳來清脆的鳥鳴，微風帶著花草的清香，讓嶄新的一天顯得格外明亮。"
       }
     },
     {
-      "at": 23930.355000019073,
+      "at": 22912.174999952316,
       "visibility": "visible",
       "message": "append 完成",
       "detail": {
         "index": 2,
-        "audioSeconds": 4.715999999999999,
-        "start": 10.872,
-        "end": 15.588,
+        "audioSeconds": 4.716000000000001,
+        "start": 10.728,
+        "end": 15.444,
         "text": "第12章開始於2026年8月7日14:30。"
       }
     },
     {
-      "at": 24620.34500002861,
+      "at": 23609.579999923706,
       "visibility": "visible",
       "message": "append 完成",
       "detail": {
         "index": 3,
         "audioSeconds": 4.824,
-        "start": 15.588,
-        "end": 20.412,
+        "start": 15.444,
+        "end": 20.268,
         "text": "她低聲說：「先別急，我們還有25.5%的路沒走完。」"
       }
     },
     {
-      "at": 25342.304999947548,
+      "at": 24336.519999980927,
       "visibility": "visible",
       "message": "append 完成",
       "detail": {
         "index": 4,
         "audioSeconds": 5.327999999999999,
-        "start": 20.412,
-        "end": 25.74,
+        "start": 20.268,
+        "end": 25.596,
         "text": "巷口堆著一袋垃圾，他繞過水窪，繼續朝燈火明亮的車站走去。"
       }
     },
     {
-      "at": 25902.304999947548,
+      "at": 24896.639999985695,
       "visibility": "visible",
       "message": "append 完成",
       "detail": {
         "index": 5,
         "audioSeconds": 4.068000000000001,
-        "start": 25.74,
-        "end": 29.808,
+        "start": 25.596,
+        "end": 29.664,
         "text": "清晨的陽光穿過窗簾，輕輕落在安靜的房間裡。"
       }
     },
     {
-      "at": 26783.039999961853,
+      "at": 25775.65999996662,
       "visibility": "visible",
       "message": "append 完成",
       "detail": {
         "index": 6,
-        "audioSeconds": 6.660000000000004,
-        "start": 29.808,
-        "end": 36.468,
+        "audioSeconds": 6.659999999999997,
+        "start": 29.664,
+        "end": 36.324,
         "text": "遠處傳來清脆的鳥鳴，微風帶著花草的清香，讓嶄新的一天顯得格外明亮。"
       }
     },
     {
-      "at": 27395.929999947548,
+      "at": 26377.979999899864,
       "visibility": "visible",
       "message": "append 完成",
       "detail": {
         "index": 7,
-        "audioSeconds": 4.715999999999994,
-        "start": 36.468,
-        "end": 41.184,
+        "audioSeconds": 4.7520000000000024,
+        "start": 36.324,
+        "end": 41.076,
         "text": "第12章開始於2026年8月7日14:30。"
       }
     },
     {
-      "at": 28042.705000042915,
+      "at": 27024.789999961853,
       "visibility": "visible",
       "message": "append 完成",
       "detail": {
         "index": 8,
-        "audioSeconds": 4.824000000000005,
-        "start": 41.184,
-        "end": 46.008,
+        "audioSeconds": 4.823999999999998,
+        "start": 41.076,
+        "end": 45.9,
         "text": "她低聲說：「先別急，我們還有25.5%的路沒走完。」"
       }
     },
     {
-      "at": 28751.15999996662,
+      "at": 27731.729999899864,
       "visibility": "visible",
       "message": "append 完成",
       "detail": {
         "index": 9,
-        "audioSeconds": 5.327999999999996,
-        "start": 46.008,
-        "end": 51.336,
+        "audioSeconds": 5.328000000000003,
+        "start": 45.9,
+        "end": 51.228,
         "text": "巷口堆著一袋垃圾，他繞過水窪，繼續朝燈火明亮的車站走去。"
       }
     }

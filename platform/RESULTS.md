@@ -30,9 +30,9 @@ AISHELL3 的取樣率只有 8 kHz，而且音質、韻律與聲線選擇和 CPU 
 
 2026-08-07 使用與 Piper、Kokoro 相同的五句中文做三方盲測；A 為 Piper HuaYan medium、B 為 Matcha `matcha-icefall-zh-en`、C 為 Kokoro v1.1 zh fp32 sid 45。評分為 B `90`、C `80`、A `60`，A 另被標記有外國腔。因此 Matcha 已通過品質 gate，且本輪主觀品質高於 Kokoro。
 
-正式量測使用 Brave 所附 Chromium `151.0.7922.71`、ONNX Runtime Web `1.26.0-dev.20260416-b7804b056c`、WASM execution provider 與一個 thread。固定五句先暖機一次，再量三次；三輪 task time 為 `1.467`、`1.469`、`1.462` 秒／10 秒音訊，中位數 task `RTF 0.1467`、wall `RTF 0.1467`，約 `6.82 倍即時`。Acoustic + Vocos session 初始化為 `2.208` 秒，兩個 ONNX 合計 129,599,930 bytes（123.6 MiB）。
+最新正式量測使用 Brave 所附 Chromium `151.0.7922.108`、stable ONNX Runtime Web `1.27.0`、WASM execution provider 與一個 thread。固定五句先暖機一次，再量三次；三輪 task time 為 `1.365`、`1.358`、`1.361` 秒／10 秒音訊，中位數 task `RTF 0.1361`、wall `RTF 0.1360`，約 `7.35 倍即時`。Acoustic + Vocos session 初始化為 `1.980` 秒，兩個 ONNX 合計 129,599,930 bytes（123.6 MiB）。先前 `1.26.0-dev.20260416-b7804b056c` 在 Chromium `151.0.7922.71` 的中位 task `RTF 0.1467` 保留為回退基線；因瀏覽器 patch 版本也不同，改善幅度只可作方向性參考。
 
-三輪輸出分別有 174,764、174,656、174,854 samples，全部為有限值；peak 為 `0.7750`、`0.7800`、`0.8170`，RMS 為 `0.1340`、`0.1327`、`0.1328`。Phase 中位數是 acoustic `982.7 ms`、Vocos `593.0 ms`、JavaScript ISTFT `22.3 ms`、silence scaling `0.6 ms`，因此後續核心效能最佳化應先看 acoustic 與 Vocos，不應先花時間重寫 ISTFT。
+三輪輸出分別有 174,821、174,764、174,688 samples，全部為有限值；peak 為 `0.8093`、`0.8306`、`0.7777`，RMS 為 `0.1336`、`0.1351`、`0.1301`。Phase 中位數是 acoustic `911.1 ms`、Vocos `549.5 ms`、JavaScript ISTFT `20.8 ms`、silence scaling `0.5 ms`，因此後續核心效能最佳化應先看 acoustic 與 Vocos，不應先花時間重寫 ISTFT。
 
 Adapter 使用 sherpa-onnx 前端預先產生的固定 token；文字前處理排除於計時外，與既有 ORT Web 主表一致。中文 FST 在目前 Node WASM wrapper 仍會越界，正式瀏覽器結果也沒有包含 FST、MP3 編碼或 MediaSource append，因此這是核心合成 benchmark，不是 iPhone 端到端串流結果。完整紀錄與樣本位於 [Matcha 文件](../frameworks/matcha/README.md)，機器可讀結果是 [results-matcha_icefall_zh_en-browser-wasm.json](results/results-matcha_icefall_zh_en-browser-wasm.json)。
 
@@ -53,9 +53,9 @@ Adapter 使用 sherpa-onnx 前端預先產生的固定 token；文字前處理�
 
 2026-08-09 將 Bookworm 的 `matcha-fst.js` 移入統一平台。此實作以純 JavaScript 讀取 OpenFST vector archives，依 kaldifst `TextNormalizer::Normalize` 的拓撲 shortest-path 與 strict-improvement tie-break 套用 `phone-zh.fst,date-zh.fst,number-zh.fst`，不載入 sherpa-onnx 512 MiB frontend bundle。無資產 fixtures 全部通過，三個真實 tables 的 32 個 kaldifst golden cases 亦全部一致。產品前端另保留 Bookworm 已驗證的臺灣格式修正，避免 `%`、冒號、日期分隔符與 10 碼手機落入上游已知誤讀。
 
-同日以 Chromium 151、ORT Web WASM 單一 thread 與 `noise_scale=0.667` 重測完整 desktop producer。計時邊界包含繁體直輸、獨立 kaldifst WASM FST、lexicon/token mapping、Matcha acoustic、Vocos、JavaScript ISTFT、silence scaling 與 lamejs 96 kbps MP3 encode；輸出逐句 append 到單一 `audio/mpeg` sequence SourceBuffer。10 段共 append 51.336 秒音訊，producer `RTF 0.1387`、`7.21 倍即時`，到達目標的整體 wall `RTF 0.1426`。underflow、append error、producer error 全為 0；所有 segment waveform 均為有限非靜音，MP3 bytes 皆大於零。`25.5%` 正規化為「百分之二十五点五」，沒有 unknown。
+同日以 Chromium 151、stable ORT Web `1.27.0` WASM 單一 thread 與 `noise_scale=0.667` 重測完整 desktop producer。計時邊界包含繁體直輸、獨立 kaldifst WASM FST、lexicon/token mapping、Matcha acoustic、Vocos、JavaScript ISTFT、silence scaling 與 lamejs 96 kbps MP3 encode；輸出逐句 append 到單一 `audio/mpeg` sequence SourceBuffer。10 段共 append 51.228 秒音訊，producer `RTF 0.1387`、`7.21 倍即時`，到達目標的整體 wall `RTF 0.1425`。underflow、append error、producer error 全為 0；所有 segment waveform 均為有限非靜音，MP3 bytes 皆大於零。`25.5%` 正規化為「百分之二十五点五」，沒有 unknown。
 
-本輪每段中位數前端 `0.585 ms`、核心合成 `608.5 ms`、MP3 `51.4 ms`、完整 producer `687.1 ms`。`performance.measureUserAgentSpecificMemory()` 快照為初始化後 290,520,650 bytes（277.1 MiB）、串流中 296,074,939 bytes（282.4 MiB）；這只是兩個時間點，不是 peak 或 iPhone 結果。normalizer 的獨立 linear memory 初始化及測後均為 16 MiB，允許成長但不預留 512 MiB。英文 eSpeak、iPhone CacheStorage 配額、鎖屏與熱穩態仍未完成。
+本輪每段中位數前端 `0.580 ms`、核心合成 `607.5 ms`、MP3 `55.0 ms`、完整 producer `694.6 ms`。`performance.measureUserAgentSpecificMemory()` 快照為初始化後 341,536,495 bytes（325.7 MiB）、串流中 345,817,320 bytes（329.8 MiB）；第二次重跑初始化為 341,535,075 bytes，確認相較 `1.26.0-dev` 增加約 48.7 MiB。normalizer 的獨立 linear memory 仍為 16 MiB，因此增量屬 ORT 1.27 路徑。這只是時間點快照，不是 peak 或 iPhone 結果；1.27 已通過桌面功能與速度 gate，但 iPhone 記憶體、CacheStorage、鎖屏與熱穩態仍未完成。
 
 ### iPhone Safari 初步功能測試
 
@@ -111,7 +111,7 @@ Selective INT8 三輪為 `15.148`、`15.182`、`15.197` 秒／10 秒音訊；FP3
 | AISHELL3（ORT Web；TaskDuration） | 717.67、703.04、707.96 | 707.96 |
 | MeloTTS（ORT Web；TaskDuration） | 14441.27、14427.35、14403.69 | 14427.35 |
 | Kokoro fp32（ORT Web；TaskDuration） | 14225.42、14205.52、14256.83 | 14225.42 |
-| Matcha zh-en（ORT Web；TaskDuration） | 1467.48、1468.58、1462.34 | 1467.27 |
+| Matcha zh-en（ORT Web 1.27；TaskDuration） | 1365.03、1357.54、1361.20 | 1361.20 |
 
 ## 可重現檔案
 

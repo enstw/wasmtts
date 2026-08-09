@@ -84,7 +84,7 @@ const piperHuaYanBaselineCpuMsPer10s = 1575.7706292656726;
 const result = {
   environment: {
     browser: browserVersion,
-    runtime: 'Transformers.js 4.2.0 / ONNX Runtime Web 1.26.0-dev.20260416-b7804b056c',
+    runtime: 'Transformers.js 4.2.0 / ONNX Runtime Web 1.27.0',
     executionProvider: 'wasm',
     numThreads,
     ...runtime,
