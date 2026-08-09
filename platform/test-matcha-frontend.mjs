@@ -56,6 +56,10 @@ eq('preparePercent', frontend.prepareText('２５．５％'), '百分之二十�
 // ---- 標點對映 -------------------------------------------------------------
 // 引號是剝除而不是對映：實聽確認引號 acoustic token 會被發音（05b5b35）。
 eq('punctQuoteStrip', normalizePunctuation('「清晨」'), '清晨');
+// 散文冒號讀成停頓；時間的冒號早被時間規則吃掉（見 prepareFullWidthTime），
+// 不會走到這張表。
+eq('punctProseColon', normalizePunctuation('提示:內容'), '提示,內容');
+eq('prepareProseColon', frontend.prepareText('她說:「你好」'), '她說,你好');
 
 console.log(JSON.stringify(out, null, 2));
 if (Object.values(out).some((v) => String(v).startsWith('FAIL'))) process.exit(1);
