@@ -24,14 +24,12 @@
     "sample:matcha-upstream-fst-traditional": "node platform/generate-matcha-upstream-fst-traditional-sample.mjs",
     "sample:matcha-stream": "pnpm vendor:mobile && node platform/generate-matcha-stream-sample.mjs"
   },
-  "dependencies": {
+  "devDependencies": {
     "@huggingface/transformers": "^4.2.0",
     "lamejs": "1.2.1",
     "onnxruntime-web": "1.27.0",
     "opencc-js": "1.4.1",
+    "playwright-core": "^1.62.1",
     "sherpa-onnx": "1.13.4"
-  },
-  "devDependencies": {
-    "playwright-core": "^1.62.1"
   }
 }
