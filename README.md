@@ -1,61 +1,71 @@
-# Matcha 離線中文 TTS
+![wasmtts](.github/banner.png)
 
-本專案目前選定 Matcha `matcha-icefall-zh-en` 作為 iOS Safari／行動 PWA 離線中文朗讀的 TTS 模型。產品路徑以 Worker 在背景逐句執行 Matcha acoustic model、Vocos 與必要的音訊編碼，再把片段 append 到單一長駐 `ManagedMediaSource` timeline；不得預產整章或在句子、章節邊界重新建立播放器。
+# wasmtts
 
-Matcha 在相同文本盲測得到 90 分，高於 Kokoro 的 80 分與 Piper HuaYan medium 的 60 分；上游建議的單執行緒 browser WASM＋中文 FST 配置為 `RTF 0.1411`，繁體小說原文不經 OpenCC 也能正確生成。固定文字路徑是「繁體直輸 → phone/date/number FST → Matcha」，生成配置採 `noise_scale=0.667`。目前 pilot 使用 stable ORT Web `1.27.0`（Matcha + Vocos）與獨立 kaldifst/OpenFST text-normalizer WASM，兩者各自使用 linear memory，不再載入固定 512 MiB heap 的 sherpa-onnx frontend bundle。1.27 已通過桌面有效 waveform 與完整串流 gate，但初始化記憶體快照比 1.26 dev 增加約 48.7 MiB，仍須在真實 iPhone 驗證 peak memory、鎖屏、溫度與長時間穩態。Piper、Kokoro 與 VITS 文件只保留為模型選擇的歷史證據，不再是現行產品候選。
+以 Matcha、Vocos 與獨立 FST WASM 打造可在瀏覽器離線執行的中文 TTS。
 
-## 專案入口
+`wasmtts` 研究並實作不依賴伺服器的中文語音合成路徑，目標是在 Safari／PWA 以單一 WASM thread 背景逐句產生音訊，持續 append 到同一條媒體 timeline。現行選定模型是 `matcha-icefall-zh-en`；Piper HuaYan medium 是 frozen 基準，Kokoro 與其他歷史方案只保留作選型證據。
 
-- [GOAL.md](GOAL.md)：Matcha 選型決策、產品目標、驗收條件與下一步
-- [frameworks/](frameworks/)：各框架的細節、benchmark 與最佳化紀錄
-- [platform/](platform/)：統一 WASM 測試平台、runner、模型掛載點與原始結果
-- [mobile-host/](mobile-host/)：供手機與平板實機連線的測試 host，以及 bookworm-derived 長篇鎖屏串流框架
-- [renovate.json](renovate.json)：npm 與 Matcha／FST／kaldifst 等上游更新 PR 規則；所有模型、規則與 runtime 更新都禁止自動合併
-- [AGENTS.md](AGENTS.md)：專案架構、慣例與代理操作命令
+目前的 frontend pilot 為：
+
+```text
+繁體中文
+  → kaldifst + OpenFST text-normalizer WASM
+  → phone/date/number FST
+  → lexicon/tokens
+  → Matcha acoustic model
+  → Vocos + ISTFT
+  → MP3 segments
+  → 單一 MediaSource timeline
+```
+
+Matcha 與 Vocos 共用 ONNX Runtime Web；text normalizer 使用另一個獨立 WASM linear memory，不載入 sherpa-onnx frontend bundle 的固定 512 MiB heap。
+
+## 目前結果
+
+- 相同文本盲測：Matcha `90`、Kokoro `80`、Piper `60`。
+- Chromium 單執行緒完整 producer：RTF `0.1387`，約 `7.21x realtime`。
+- 10 個 MP3 append、51.228 秒音訊，無 underflow、append error 或 producer error。
+- 固定 Whisper small 聽回 baseline：49 字錯 1 字，CER `2.04%`。
+- ORT Web `1.27.0` 初始化後記憶體為快照而非真正 peak；不可解讀為 iPhone 結果。
+
+測試硬體、瀏覽器版本、量測邊界與限制請以 [GOAL.md](GOAL.md) 和 [platform/RESULTS.md](platform/RESULTS.md) 為準。
 
 ## 快速開始
 
-安裝 JavaScript 相依套件：
+需求：Node.js、`pnpm`、Emscripten，以及執行 Python 工具時使用的 `uv`。
 
 ```sh
 pnpm install
-```
-
-Matcha 第三方模型權重不會提交至 repository。請將 acoustic model、Vocos 與所需 browser bundle 放在 `platform/models/`；實際路徑請參考 [平台說明](platform/README.md)。
-
-首次使用先建置小型 kaldifst normalizer，再啟動具備 COOP／COEP headers 的測試 host：
-
-```sh
 pnpm build:matcha-kaldifst
 pnpm host:mobile
 ```
 
-在另一個終端機執行統一瀏覽器 benchmark：
+另開終端機執行：
 
 ```sh
+pnpm test:matcha-fst
+pnpm test:matcha-fst:tables
+pnpm test:matcha-kaldifst-wasm
 pnpm benchmark:matcha
-pnpm benchmark:matcha-upstream-fst
 pnpm benchmark:matcha-stream
+pnpm test:matcha-asr
 ```
 
-完整測試條件、原始數值與限制請見 [platform/RESULTS.md](platform/RESULTS.md)。
+第三方模型不會提交至 repository。請依 [platform/README.md](platform/README.md) 將 Matcha acoustic model、Vocos、lexicon、tokens 與 FST 放入已忽略的 `platform/models/`。
 
-## 重現性
+## 自動上游追蹤
 
-CPU 比例只適合在相同硬體、瀏覽器、量測邊界與執行緒設定下橫向比較；使用相同 runtime 時還必須固定其版本。文字前處理是否納入計時必須一致；不同取樣率、聲線、合成架構與輸出長度均記錄在結果文件中。標準 `RTF` 是產生可 append 音訊的 wall time 除以音訊長度，`realtime multiplier` 則是其倒數。任何輸出若含非有限值、peak 為零或 RMS 為零，均不得列入有效效能比較。
+[Renovate](renovate.json) 追蹤 npm、ONNX Runtime Web、Matcha/Vocos 資產來源、FST、kaldifst、OpenFST、Emscripten 與固定 ASR oracle。目標流程是 candidate 必須通過 FST golden、有效 waveform、RTF、記憶體與 ASR CER gate 才能自動合併；失敗組合以 pre-release 保存原因與機器可讀報告。iPhone 不列入 required gate，除非日後出現可持續免費使用的真機自動化方案。
 
-## 上游更新
+## Repository 結構
 
-Renovate 的 npm manager 追蹤所有 pnpm dependencies；custom managers 另讀取
-[`platform/upstreams.yaml`](platform/upstreams.yaml)，追蹤 Matcha acoustic、
-Vocos、lexicon/tokens、三個中文 FST、sherpa browser control、kaldifst、
-OpenFST 與 Emscripten。必須先讓 Renovate GitHub App 存取此 repository，
-它才會建立 Dependency Dashboard 與升級 PR。
+- [`GOAL.md`](GOAL.md)：canonical 產品目標、選型結論與完成條件。
+- [`frameworks/matcha/`](frameworks/matcha/)：Matcha 架構、品質與限制。
+- [`platform/`](platform/)：WASM harness、browser runners、分析工具及結果。
+- [`mobile-host/`](mobile-host/)：COOP／COEP host 與長駐 MediaSource transport。
+- [`platform/upstreams.yaml`](platform/upstreams.yaml)：非 npm 上游版本 manifest。
 
-所有升級 PR 都禁止自動合併。模型、FST 或 native WASM 上游版本變更只
-代表「有新版」，不代表資產已可採用；PR 內列出的 SHA-256、授權、golden、
-waveform、RTF、記憶體與 iPhone/PWA gates 必須人工完成。
+## 授權與第三方資產
 
-## License
-
-目前 repository 為私人研究資料，尚未指定開源授權。模型權重各自受上游授權約束，未包含在版本庫中。
+本 repository 自有程式碼與文件採 [MIT License](LICENSE)。第三方模型、模型輸出、FST、字典、runtime、套件及下載資產不因本 LICENSE 而重新授權，仍分別受其上游條款約束；使用者必須在下載、散布或產品採用前自行確認授權。本 repository 不發布 Matcha 或 Vocos 模型權重。
