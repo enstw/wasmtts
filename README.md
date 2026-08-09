@@ -57,7 +57,7 @@ pnpm test:matcha-asr
 
 ## 自動上游追蹤
 
-[Renovate](renovate.json) 追蹤 npm、ONNX Runtime Web、Matcha/Vocos 資產來源、FST、kaldifst、OpenFST、Emscripten 與固定 ASR oracle。Candidate 必須通過 native WASM build、FST golden、有效 waveform、RTF、512 MiB 記憶體上限與 ASR CER gate 才能自動合併。`main` 會重跑相同 gates；成功時發布正式 Release，失敗時以 pre-release 保存版本組合、原因、logs 與機器可讀報告。eSpeak 與 iPhone 測試不屬於本 repository 的 release gate。
+[Renovate](renovate.json) 追蹤 npm、ONNX Runtime Web、Matcha/Vocos 資產來源、FST、kaldifst、OpenFST、Emscripten 與固定 ASR oracle。每週一早上 [renovate workflow](.github/workflows/renovate.yml) 啟動,所有更新併成單一 roll-up PR;candidate 必須通過 native WASM build、FST golden、有效 waveform、RTF、512 MiB 記憶體上限與 ASR CER gate,workflow 才合併並發版 — 一週一次。`main` 會重跑相同 gates；成功時發布正式 Release，失敗時以 pre-release 保存版本組合、原因、logs 與機器可讀報告。eSpeak 與 iPhone 測試不屬於本 repository 的 release gate。
 
 ```sh
 pnpm fetch:matcha-assets
