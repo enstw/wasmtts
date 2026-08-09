@@ -7,7 +7,8 @@ WASM runtime。兩個 module 各自持有獨立的 `WebAssembly.Memory`。
 
 ## 固定版本與記憶體
 
-- kaldifst `1.8.0`，commit `ab5bdd013bdf13921e6aeee77db5722ebf9955fb`
+- kaldifst `v1.8.0`，目前解析至 commit
+  `ab5bdd013bdf13921e6aeee77db5722ebf9955fb`；Renovate 追蹤 stable tag
 - kaldifst 上游固定的 OpenFST `v1.8.5-2026-04-10`，下載 SHA-256
   `c3549940384cbe4fa9f18c2bcfb1bfbd0a80492fd1b0bfa27433cee395a6a199`
 - Emscripten 初始 linear memory `16 MiB`，允許成長，上限 `128 MiB`

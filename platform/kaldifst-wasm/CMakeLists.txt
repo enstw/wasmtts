@@ -15,7 +15,8 @@ else()
   FetchContent_Declare(
     kaldifst
     GIT_REPOSITORY https://github.com/k2-fsa/kaldifst.git
-    GIT_TAG ab5bdd013bdf13921e6aeee77db5722ebf9955fb
+    # renovate: datasource=github-tags depName=kaldifst packageName=k2-fsa/kaldifst
+    GIT_TAG v1.8.0
     GIT_SHALLOW TRUE
   )
   FetchContent_GetProperties(kaldifst)

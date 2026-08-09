@@ -1,0 +1,65 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":dependencyDashboard", ":semanticCommits"],
+  "timezone": "Asia/Taipei",
+  "schedule": ["before 6am on monday"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "minimumReleaseAge": "7 days",
+  "rangeStrategy": "pin",
+  "automerge": false,
+  "labels": ["dependencies"],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on the first day of the month"]
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^platform\\/upstreams\\.yaml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) packageName=(?<packageName>\\S+)(?: versioning=(?<versioning>\\S+))?\\s+- version: (?<currentValue>\\S+)"
+      ]
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^platform\\/kaldifst-wasm\\/CMakeLists\\.txt$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) packageName=(?<packageName>\\S+)\\s+GIT_TAG (?<currentValue>\\S+)"
+      ],
+      "versioningTemplate": "semver-coerced"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Only stable ONNX Runtime Web releases; every update needs Matcha gates",
+      "matchPackageNames": ["onnxruntime-web"],
+      "allowedVersions": "/^\\d+\\.\\d+\\.\\d+$/",
+      "dependencyDashboardApproval": true,
+      "groupName": "ONNX Runtime Web stable",
+      "prBodyNotes": [
+        "Matcha gate: run `pnpm test:matcha-fst:tables`, `pnpm test:matcha-kaldifst-wasm`, `pnpm benchmark:matcha`, and `pnpm benchmark:matcha-stream`.",
+        "Do not merge until waveform validity, three-run RTF, initialization/stream memory snapshots, and zero underflow/append/producer errors are recorded. Target-iPhone memory remains a separate required gate."
+      ]
+    },
+    {
+      "description": "Upstream assets and native WASM toolchain require manual review",
+      "matchManagers": ["custom.regex"],
+      "groupName": "Matcha frontend upstreams",
+      "dependencyDashboardApproval": true,
+      "labels": ["dependencies", "upstream-assets", "manual-validation"],
+      "prBodyNotes": [
+        "This PR is an upstream notification, not a validated asset replacement. Update download URLs, SHA-256 values, licenses/notices, and local ignored assets deliberately.",
+        "Matcha/Vocos/FST gate: verify acoustic model, Vocos, lexicon/tokens, phone/date/number FST order, 32-case golden output, valid waveform, RTF, memory, and iPhone/PWA compatibility before merge.",
+        "kaldifst/OpenFST/Emscripten gate: rebuild `pnpm build:matcha-kaldifst`, review generated dist, then run both JavaScript and WASM FST tests. Never auto-merge generated WASM changes."
+      ]
+    },
+    {
+      "description": "Group non-major npm updates while keeping major upgrades separate",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["!onnxruntime-web"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "npm non-major dependencies"
+    }
+  ]
+}

@@ -9,6 +9,7 @@
 - `kokoro-browser.html`、`run-kokoro-browser.mjs`：歷史 Kokoro ORT Web、profiling、shape probe 與 thread 測試。
 - `matcha-browser.html`、`run-matcha-browser.mjs`：Matcha acoustic model、Vocos 與 JavaScript ISTFT 的單執行緒 ORT Web 路徑。
 - `kaldifst-wasm/`、`kaldifst-normalizer.js`：獨立 kaldifst + OpenFST text-normalizer WASM、最小 C ABI 與 UTF-8 bridge；Matcha/Vocos 的 ORT Web memory 與此 module 的 memory 相互獨立。
+- `upstreams.yaml`：Renovate 追蹤的 Matcha acoustic、Vocos、lexicon/tokens、三個 FST、sherpa browser control、kaldifst/OpenFST 與 Emscripten 上游版本；版本 PR 只是通知，資產仍須人工驗證。
 - `matcha-fst.js`：從 Bookworm 移植的純 JavaScript OpenFST reader，保留作 golden A/B 與診斷基線。
 - `matcha-frontend.js`、`matcha-synthesis.js`：可供 Worker 與測試共用的繁體直輸／FST／lexicon 前端及 Matcha + Vocos 合成核心。
 - `run-matcha-upstream-fst-browser.mjs`：未修改的 sherpa-onnx 官方 browser bundle＋建議中文 FST 基線。

@@ -1,0 +1,39 @@
+# Renovate 只更新此 manifest 的上游版本，模型與規則資產仍由人工下載、
+# 驗證 SHA-256、授權、golden output、音質、RTF 與記憶體後才可採用。
+
+upstreams:
+  # Matcha acoustic model、Vocos、lexicon 與 tokens 來自此 browser bundle。
+  # renovate: datasource=github-releases depName=matcha-acoustic-vocos packageName=k2-fsa/sherpa-onnx
+  - version: v1.12.20
+    assets:
+      - matcha-icefall-zh-en/model-steps-3.onnx
+      - vocos-16khz-univ.onnx
+      - matcha-icefall-zh-en/lexicon.txt
+      - matcha-icefall-zh-en/tokens.txt
+
+  # phone/date/number 必須同版更新並維持固定套用順序。
+  # renovate: datasource=github-releases depName=matcha-zh-fst packageName=k2-fsa/sherpa-onnx
+  - version: v1.12.20
+    assets:
+      - matcha-icefall-zh-en/phone-zh.fst
+      - matcha-icefall-zh-en/date-zh.fst
+      - matcha-icefall-zh-en/number-zh.fst
+
+  # 完整 512 MiB frontend bundle 只保留為上游 control，仍需收到更新通知。
+  # renovate: datasource=github-releases depName=sherpa-onnx-browser-control packageName=k2-fsa/sherpa-onnx
+  - version: v1.12.20
+    assets:
+      - sherpa-onnx-wasm-simd-matcha-icefall-zh-en
+
+  # kaldifst 由 CMakeLists.txt 直接更新；此項追蹤它使用的 OpenFST fork。
+  # renovate: datasource=github-tags depName=kaldifst-openfst packageName=csukuangfj/openfst
+  - version: v1.8.5-2026-04-10
+    assets:
+      - OpenFST static library linked into matcha-kaldifst-normalizer.wasm
+
+  # 本機建置工具版本；升級後必須確認 dist 可重現且 browser golden 通過。
+  # renovate: datasource=github-releases depName=emscripten packageName=emscripten-core/emscripten
+  - version: 6.0.6
+    assets:
+      - platform/kaldifst-wasm/dist/matcha-kaldifst-normalizer.js
+      - platform/kaldifst-wasm/dist/matcha-kaldifst-normalizer.wasm

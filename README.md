@@ -10,6 +10,7 @@ Matcha 在相同文本盲測得到 90 分，高於 Kokoro 的 80 分與 Piper Hu
 - [frameworks/](frameworks/)：各框架的細節、benchmark 與最佳化紀錄
 - [platform/](platform/)：統一 WASM 測試平台、runner、模型掛載點與原始結果
 - [mobile-host/](mobile-host/)：供手機與平板實機連線的測試 host，以及 bookworm-derived 長篇鎖屏串流框架
+- [renovate.json](renovate.json)：npm 與 Matcha／FST／kaldifst 等上游更新 PR 規則；所有模型、規則與 runtime 更新都禁止自動合併
 - [AGENTS.md](AGENTS.md)：專案架構、慣例與代理操作命令
 
 ## 快速開始
@@ -42,6 +43,18 @@ pnpm benchmark:matcha-stream
 ## 重現性
 
 CPU 比例只適合在相同硬體、瀏覽器、量測邊界與執行緒設定下橫向比較；使用相同 runtime 時還必須固定其版本。文字前處理是否納入計時必須一致；不同取樣率、聲線、合成架構與輸出長度均記錄在結果文件中。標準 `RTF` 是產生可 append 音訊的 wall time 除以音訊長度，`realtime multiplier` 則是其倒數。任何輸出若含非有限值、peak 為零或 RMS 為零，均不得列入有效效能比較。
+
+## 上游更新
+
+Renovate 的 npm manager 追蹤所有 pnpm dependencies；custom managers 另讀取
+[`platform/upstreams.yaml`](platform/upstreams.yaml)，追蹤 Matcha acoustic、
+Vocos、lexicon/tokens、三個中文 FST、sherpa browser control、kaldifst、
+OpenFST 與 Emscripten。必須先讓 Renovate GitHub App 存取此 repository，
+它才會建立 Dependency Dashboard 與升級 PR。
+
+所有升級 PR 都禁止自動合併。模型、FST 或 native WASM 上游版本變更只
+代表「有新版」，不代表資產已可採用；PR 內列出的 SHA-256、授權、golden、
+waveform、RTF、記憶體與 iPhone/PWA gates 必須人工完成。
 
 ## License
 
