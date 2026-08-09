@@ -1,0 +1,48 @@
+# The weekly upstream roll-up (Monday 05:03 Asia/Taipei — one hour before
+# bookworm's, so this repo's weekly release exists by the time bookworm's
+# roll-up looks for the newest tag): renovate opens or refreshes the single
+# grouped PR, this job runs the candidate gate on it, merges on green, and
+# dispatches the release run on main — one gated release a week.
+#
+# The explicit candidate dispatch is load-bearing: a PR created with
+# GITHUB_TOKEN fires no pull_request workflows (GitHub's recursion guard),
+# but workflow_dispatch is exempt, and the dispatched run's check runs land
+# on the same head SHA — which is what the required candidate-gate check
+# reads. Same story for the release dispatch after the merge.
+name: renovate
+
+on:
+  schedule:
+    - cron: "3 21 * * 0" # Sunday 21:03 UTC = Monday 05:03 Asia/Taipei
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  roll-up:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Run Renovate
+        run: npx --yes renovate --platform=github enstw/wasmtts
+        env:
+          RENOVATE_TOKEN: ${{ github.token }}
+          LOG_LEVEL: info
+      - name: Gate, merge and release the roll-up
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR=$(gh pr list -R enstw/wasmtts --head renovate/weekly-roll-up --json number --jq '.[0].number // empty')
+          if [ -z "$PR" ]; then echo "no roll-up this week"; exit 0; fi
+          gh workflow run candidate --ref renovate/weekly-roll-up -R enstw/wasmtts
+          sleep 30
+          RUN=$(gh run list -R enstw/wasmtts --workflow candidate --branch renovate/weekly-roll-up --limit 1 --json databaseId --jq '.[0].databaseId')
+          gh run watch "$RUN" --exit-status -R enstw/wasmtts
+          gh pr merge "$PR" --rebase --delete-branch -R enstw/wasmtts
+          gh workflow run release --ref main -R enstw/wasmtts

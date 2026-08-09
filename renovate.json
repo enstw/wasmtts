@@ -2,21 +2,12 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", ":dependencyDashboard", ":semanticCommits"],
   "timezone": "Asia/Taipei",
-  "schedule": ["before 6am on monday"],
   "prConcurrentLimit": 5,
-  "prHourlyLimit": 2,
+  "prHourlyLimit": 0,
   "minimumReleaseAge": "7 days",
   "rangeStrategy": "pin",
-  "automerge": true,
-  "automergeType": "pr",
-  "automergeStrategy": "squash",
-  "platformAutomerge": true,
-  "ignoreTests": false,
   "labels": ["dependencies"],
-  "lockFileMaintenance": {
-    "enabled": true,
-    "schedule": ["before 6am on the first day of the month"]
-  },
+  "lockFileMaintenance": { "enabled": false },
   "customManagers": [
     {
       "customType": "regex",
@@ -58,7 +49,8 @@
       "matchPackageNames": ["onnxruntime-web"],
       "allowedVersions": "/^\\d+\\.\\d+\\.\\d+$/",
       "dependencyDashboardApproval": false,
-      "groupName": "ONNX Runtime Web stable",
+      "groupName": "weekly upstream roll-up",
+      "groupSlug": "weekly-roll-up",
       "prBodyNotes": [
         "Matcha gate: run `pnpm test:matcha-fst:tables`, `pnpm test:matcha-kaldifst-wasm`, `pnpm benchmark:matcha`, and `pnpm benchmark:matcha-stream`.",
         "`candidate-gate` must pass waveform validity, three-run RTF, 512 MiB memory budget, ASR CER, and zero underflow/append/producer errors before automerge."
@@ -67,7 +59,8 @@
     {
       "description": "Upstream assets and native WASM toolchain use the automated Matcha gates",
       "matchManagers": ["custom.regex"],
-      "groupName": "Matcha frontend upstreams",
+      "groupName": "weekly upstream roll-up",
+      "groupSlug": "weekly-roll-up",
       "dependencyDashboardApproval": false,
       "labels": ["dependencies", "upstream-assets", "automated-validation"],
       "prBodyNotes": [
@@ -81,7 +74,8 @@
       "matchManagers": ["npm"],
       "matchPackageNames": ["!onnxruntime-web"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-      "groupName": "npm non-major dependencies"
+      "groupName": "weekly upstream roll-up",
+      "groupSlug": "weekly-roll-up"
     }
   ]
 }
