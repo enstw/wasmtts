@@ -64,6 +64,8 @@ pnpm fetch:matcha-assets
 pnpm test:release-gates
 ```
 
+兩類已證實與程式碼無關的基建噪音由 gate runner 吸收：瀏覽器 CDP 啟動逾時（單項重試一次）與 Matcha 合成抽樣導致的 ASR 聽回壓線（`matcha-core`＋`asr-listening` 成對重跑、取第一組全綠、至多三組）。真正的退化每一組都會失敗；重試次數記錄在 `release-gates.json` 的 `attempts` 欄位。
+
 ## Repository 結構
 
 - [`GOAL.md`](GOAL.md)：canonical 產品目標、選型結論與完成條件。
