@@ -108,7 +108,10 @@
 
   function normalizeFullWidth(value) {
     return value
-      .replace(/[０-９]/gu, (character) => String(character.charCodeAt(0) - 0xfee0))
+      .replace(/[０-９]/gu, (character) => String.fromCharCode(character.charCodeAt(0) - 0xfee0))
+      // 全形小數點跟著數字一起折疊：留著它，２５．５ 的整數與小數就會被
+      // FST 當成兩個不相干的數各讀各的。
+      .replace(/．/gu, '.')
       .replace(/％/gu, '%')
       .replace(/＋/gu, '+')
       .replace(/－/gu, '-')
@@ -258,6 +261,7 @@
   const api = {
     createFrontend,
     integerToChinese,
+    normalizeFullWidth,
     normalizeNumbers,
     normalizeLocalForms,
     normalizePunctuation,

@@ -14,6 +14,7 @@
     "benchmark:matcha-upstream-fst": "node platform/run-matcha-upstream-fst-browser.mjs",
     "benchmark:matcha-fst-ab": "node platform/run-matcha-fst-ab-browser.mjs",
     "benchmark:matcha-stream": "pnpm vendor:mobile && node platform/run-matcha-stream-browser.mjs",
+    "test:matcha-frontend": "node platform/test-matcha-frontend.mjs",
     "test:matcha-fst": "node platform/test-matcha-fst.mjs",
     "test:matcha-fst:tables": "MATCHA_FST_DIR=platform/models/matcha-icefall-zh-en node platform/test-matcha-fst.mjs",
     "test:matcha-kaldifst-wasm": "node platform/test-kaldifst-wasm-browser.mjs",
