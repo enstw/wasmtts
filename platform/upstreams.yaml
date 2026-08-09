@@ -1,5 +1,5 @@
-# Renovate 只更新此 manifest 的上游版本，模型與規則資產仍由人工下載、
-# 驗證 SHA-256、授權、golden output、音質、RTF 與記憶體後才可採用。
+# Renovate 更新此 manifest 的上游版本；candidate workflow 會自動下載該
+# revision，記錄 SHA-256，並執行 FST、waveform、RTF、memory 與 ASR gates。
 
 upstreams:
   # CI 聽回模型固定 revision，避免 ASR oracle 自行漂移。
@@ -8,22 +8,17 @@ upstreams:
     assets:
       - Systran/faster-whisper-small
 
-  # Matcha acoustic model、Vocos、lexicon 與 tokens 來自此 browser bundle。
-  # renovate: datasource=github-releases depName=matcha-acoustic-vocos packageName=k2-fsa/sherpa-onnx
-  - version: v1.12.20
+  # Matcha acoustic model、lexicon、tokens 與三個中文 FST 必須同 commit 更新。
+  # renovate: datasource=git-refs depName=matcha-frontend packageName=https://huggingface.co/csukuangfj/matcha-icefall-zh-en.git versioning=loose
+  - version: fbe59d77057428c32111d5f3ea4ed67a7d440c61
     assets:
       - matcha-icefall-zh-en/model-steps-3.onnx
-      - vocos-16khz-univ.onnx
       - matcha-icefall-zh-en/lexicon.txt
       - matcha-icefall-zh-en/tokens.txt
-
-  # phone/date/number 必須同版更新並維持固定套用順序。
-  # renovate: datasource=github-releases depName=matcha-zh-fst packageName=k2-fsa/sherpa-onnx
-  - version: v1.12.20
-    assets:
       - matcha-icefall-zh-en/phone-zh.fst
       - matcha-icefall-zh-en/date-zh.fst
       - matcha-icefall-zh-en/number-zh.fst
+      - platform/matcha-assets.json
 
   # 完整 512 MiB frontend bundle 只保留為上游 control，仍需收到更新通知。
   # renovate: datasource=github-releases depName=sherpa-onnx-browser-control packageName=k2-fsa/sherpa-onnx
@@ -37,7 +32,7 @@ upstreams:
     assets:
       - OpenFST static library linked into matcha-kaldifst-normalizer.wasm
 
-  # 本機建置工具版本；升級後必須確認 dist 可重現且 browser golden 通過。
+  # 本機建置工具版本；升級後由 native build 與 browser golden 自動驗證。
   # renovate: datasource=github-releases depName=emscripten packageName=emscripten-core/emscripten
   - version: 6.0.6
     assets:

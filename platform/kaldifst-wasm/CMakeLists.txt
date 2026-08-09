@@ -6,12 +6,24 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(KALDIFST_BUILD_PYTHON OFF CACHE BOOL "" FORCE)
 set(KALDIFST_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 
+include(FetchContent)
+FetchContent_Declare(
+  openfst
+  GIT_REPOSITORY https://github.com/csukuangfj/openfst.git
+  # renovate: datasource=github-tags depName=kaldifst-openfst packageName=csukuangfj/openfst
+  GIT_TAG v1.8.5-2026-04-10
+  GIT_SHALLOW TRUE
+)
+FetchContent_GetProperties(openfst)
+if(NOT openfst_POPULATED)
+  FetchContent_Populate(openfst)
+endif()
+
 set(KALDIFST_SOURCE_DIR "" CACHE PATH "Optional checkout of pinned kaldifst source")
 if(KALDIFST_SOURCE_DIR)
   set(kaldifst_SOURCE_DIR "${KALDIFST_SOURCE_DIR}")
   set(kaldifst_BINARY_DIR "${CMAKE_BINARY_DIR}/_deps/kaldifst-build")
 else()
-  include(FetchContent)
   FetchContent_Declare(
     kaldifst
     GIT_REPOSITORY https://github.com/k2-fsa/kaldifst.git

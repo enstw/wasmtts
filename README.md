@@ -27,7 +27,7 @@ Matcha 與 Vocos 共用 ONNX Runtime Web；text normalizer 使用另一個獨立
 - Chromium 單執行緒完整 producer：RTF `0.1387`，約 `7.21x realtime`。
 - 10 個 MP3 append、51.228 秒音訊，無 underflow、append error 或 producer error。
 - 固定 Whisper small 聽回 baseline：49 字錯 1 字，CER `2.04%`。
-- ORT Web `1.27.0` 初始化後記憶體為快照而非真正 peak；不可解讀為 iPhone 結果。
+- ORT Web `1.27.0` 初始化後記憶體為快照而非真正 peak；release gate 採桌面 browser 的 512 MiB 上限。
 
 測試硬體、瀏覽器版本、量測邊界與限制請以 [GOAL.md](GOAL.md) 和 [platform/RESULTS.md](platform/RESULTS.md) 為準。
 
@@ -56,7 +56,12 @@ pnpm test:matcha-asr
 
 ## 自動上游追蹤
 
-[Renovate](renovate.json) 追蹤 npm、ONNX Runtime Web、Matcha/Vocos 資產來源、FST、kaldifst、OpenFST、Emscripten 與固定 ASR oracle。目標流程是 candidate 必須通過 FST golden、有效 waveform、RTF、記憶體與 ASR CER gate 才能自動合併；失敗組合以 pre-release 保存原因與機器可讀報告。iPhone 不列入 required gate，除非日後出現可持續免費使用的真機自動化方案。
+[Renovate](renovate.json) 追蹤 npm、ONNX Runtime Web、Matcha/Vocos 資產來源、FST、kaldifst、OpenFST、Emscripten 與固定 ASR oracle。Candidate 必須通過 native WASM build、FST golden、有效 waveform、RTF、512 MiB 記憶體上限與 ASR CER gate 才能自動合併。`main` 會重跑相同 gates；成功時發布正式 Release，失敗時以 pre-release 保存版本組合、原因、logs 與機器可讀報告。eSpeak 與 iPhone 測試不屬於本 repository 的 release gate。
+
+```sh
+pnpm fetch:matcha-assets
+pnpm test:release-gates
+```
 
 ## Repository 結構
 

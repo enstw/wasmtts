@@ -7,7 +7,11 @@
   "prHourlyLimit": 2,
   "minimumReleaseAge": "7 days",
   "rangeStrategy": "pin",
-  "automerge": false,
+  "automerge": true,
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
+  "platformAutomerge": true,
+  "ignoreTests": false,
   "labels": ["dependencies"],
   "lockFileMaintenance": {
     "enabled": true,
@@ -28,6 +32,24 @@
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) packageName=(?<packageName>\\S+)\\s+GIT_TAG (?<currentValue>\\S+)"
       ],
       "versioningTemplate": "semver-coerced"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^platform\\/matcha-assets\\.json$/"],
+      "matchStrings": [
+        "\\\"repository\\\": \\\"(?<packageName>https://huggingface\\.co/csukuangfj/matcha-icefall-zh-en\\.git)\\\",\\s+\\\"revision\\\": \\\"(?<currentValue>[0-9a-f]+)\\\""
+      ],
+      "datasourceTemplate": "git-refs",
+      "depNameTemplate": "matcha-frontend-assets",
+      "versioningTemplate": "loose"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^platform\\/asr-listening-gate\\.py$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) packageName=(?<packageName>\\S+)\\s+MODEL_REVISION = \\\"(?<currentValue>[0-9a-f]+)\\\""
+      ],
+      "versioningTemplate": "loose"
     }
   ],
   "packageRules": [
@@ -35,23 +57,23 @@
       "description": "Only stable ONNX Runtime Web releases; every update needs Matcha gates",
       "matchPackageNames": ["onnxruntime-web"],
       "allowedVersions": "/^\\d+\\.\\d+\\.\\d+$/",
-      "dependencyDashboardApproval": true,
+      "dependencyDashboardApproval": false,
       "groupName": "ONNX Runtime Web stable",
       "prBodyNotes": [
         "Matcha gate: run `pnpm test:matcha-fst:tables`, `pnpm test:matcha-kaldifst-wasm`, `pnpm benchmark:matcha`, and `pnpm benchmark:matcha-stream`.",
-        "Do not merge until waveform validity, three-run RTF, initialization/stream memory snapshots, and zero underflow/append/producer errors are recorded. Target-iPhone memory remains a separate required gate."
+        "`candidate-gate` must pass waveform validity, three-run RTF, 512 MiB memory budget, ASR CER, and zero underflow/append/producer errors before automerge."
       ]
     },
     {
-      "description": "Upstream assets and native WASM toolchain require manual review",
+      "description": "Upstream assets and native WASM toolchain use the automated Matcha gates",
       "matchManagers": ["custom.regex"],
       "groupName": "Matcha frontend upstreams",
-      "dependencyDashboardApproval": true,
-      "labels": ["dependencies", "upstream-assets", "manual-validation"],
+      "dependencyDashboardApproval": false,
+      "labels": ["dependencies", "upstream-assets", "automated-validation"],
       "prBodyNotes": [
-        "This PR is an upstream notification, not a validated asset replacement. Update download URLs, SHA-256 values, licenses/notices, and local ignored assets deliberately.",
-        "Matcha/Vocos/FST gate: verify acoustic model, Vocos, lexicon/tokens, phone/date/number FST order, 32-case golden output, valid waveform, RTF, memory, and iPhone/PWA compatibility before merge.",
-        "kaldifst/OpenFST/Emscripten gate: rebuild `pnpm build:matcha-kaldifst`, review generated dist, then run both JavaScript and WASM FST tests. Never auto-merge generated WASM changes."
+        "The PR checks out the selected Matcha revision, records asset SHA-256 values, and runs the complete candidate gate.",
+        "Matcha/Vocos/FST gate: acoustic model, Vocos, lexicon/tokens, fixed phone/date/number order, 32-case golden output, valid waveform, RTF, 512 MiB memory budget, and ASR CER.",
+        "kaldifst/OpenFST/Emscripten changes must also pass the native WASM rebuild and browser golden checks."
       ]
     },
     {

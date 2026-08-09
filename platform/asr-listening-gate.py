@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import unicodedata
 from pathlib import Path
@@ -21,6 +22,7 @@ from huggingface_hub import snapshot_download
 
 
 MODEL_REPOSITORY = "Systran/faster-whisper-small"
+# renovate: datasource=git-refs depName=asr-faster-whisper-small packageName=https://huggingface.co/Systran/faster-whisper-small.git
 MODEL_REVISION = "2ec96c5472da50d38d40c0cfe0602af2e94b4c8a"
 
 
@@ -53,7 +55,11 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--absolute-cer-limit", required=True, type=float)
     parser.add_argument("--baseline-report", type=Path)
     parser.add_argument("--regression-tolerance", type=float, default=0.01)
-    parser.add_argument("--model-cache", type=Path, default=Path(".cache/asr"))
+    parser.add_argument(
+        "--model-cache",
+        type=Path,
+        default=Path(os.environ.get("WASM_TTS_ASR_CACHE", ".cache/asr")),
+    )
     return parser.parse_args()
 
 

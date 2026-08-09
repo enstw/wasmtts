@@ -82,7 +82,7 @@ pnpm sample:matcha-upstream-fst-traditional
 pnpm benchmark:matcha-stream
 ```
 
-首次使用先執行 `pnpm build:matcha-kaldifst` 產生小型 normalizer dist；`pnpm host:mobile` 會將它與 ORT Web 一起複製到本機 vendor 目錄。`benchmark:matcha-stream` 使用另一個終端機已啟動的 host，採單一 thread，量測 kaldifst WASM FST、lexicon、推論、ISTFT、silence scaling 與 MP3 encode；英文 eSpeak 尚未接入。
+首次使用先執行 `pnpm build:matcha-kaldifst` 產生小型 normalizer dist；`pnpm host:mobile` 會將它與 ORT Web 一起複製到本機 vendor 目錄。`benchmark:matcha-stream` 使用另一個終端機已啟動的 host，採單一 thread，量測 kaldifst WASM FST、lexicon、推論、ISTFT、silence scaling 與 MP3 encode。eSpeak 不屬於本 repository 範圍。
 
 FST applier 的無資產 fixture 與真實 tables golden 測試：
 

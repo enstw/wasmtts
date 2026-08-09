@@ -2,9 +2,11 @@
   "name": "wasmtts-benchmark",
   "private": true,
   "type": "commonjs",
+  "packageManager": "pnpm@11.9.0",
   "scripts": {
     "build:matcha-kaldifst": "platform/kaldifst-wasm/build.sh",
     "vendor:mobile": "node scripts/vendor-mobile.mjs",
+    "fetch:matcha-assets": "node scripts/fetch-matcha-assets.mjs",
     "host:mobile": "pnpm vendor:mobile && node mobile-host/server.mjs",
     "benchmark:vits": "node platform/run-vits-browser.mjs",
     "benchmark:kokoro": "node platform/run-kokoro-browser.mjs",
@@ -16,6 +18,8 @@
     "test:matcha-fst:tables": "MATCHA_FST_DIR=platform/models/matcha-icefall-zh-en node platform/test-matcha-fst.mjs",
     "test:matcha-kaldifst-wasm": "node platform/test-kaldifst-wasm-browser.mjs",
     "test:matcha-asr": "uv run platform/asr-listening-gate.py --audio platform/results/matcha_icefall_zh_en-browser-wasm.wav --expected-file frameworks/matcha/samples/quality.txt --absolute-cer-limit 0.08 --baseline-report platform/asr-baseline/current.json --regression-tolerance 0.02 --output platform/results/asr-listening-report.json",
+    "test:release-gates": "node scripts/run-release-gates.mjs",
+    "validate:release-results": "node scripts/validate-release-results.mjs",
     "sample:matcha-upstream-fst-traditional": "node platform/generate-matcha-upstream-fst-traditional-sample.mjs",
     "sample:matcha-stream": "pnpm vendor:mobile && node platform/generate-matcha-stream-sample.mjs"
   },

@@ -44,27 +44,23 @@ Matcha `matcha-icefall-zh-en` 使用相同五句中文做三方盲測後得到 `
 
 2026-08-08 的 iPhone Safari LAN HTTP 初測確認低記憶體 JavaScript lexicon adapter 可完成模型下載、初始化、繁體直輸、前景播放與鎖屏播放；`ManagedMediaSource` 必須依 WebKit 要求在長駐 media element 設定 `disableRemotePlayback=true`。本輪不是 secure context 或 standalone PWA，且未達 2 小時／3 章、熱與耗電門檻，只能視為初步相容性證據。實聽發現引號 acoustic tokens 會發音後，已改為在 tokenization 前移除中英文開閉引號並加入迴歸測試。臺灣讀音覆寫目前只有「垃圾」；完整、有來源的詞典與「堤壩」等區域讀音留待另案開發。
 
-## Matcha 完成條件
+## Matcha repository release 條件
 
-Matcha 的選型已完成；以下證據齊全後，才可宣告 iOS／PWA 產品路徑完成：
+Matcha 的選型已完成；本 repository 的自動 Release 只採可由免費 GitHub runner 重現的桌面 browser gates：
 
 - 統一平台保存三輪測試、環境版本、引擎／聲音資料識別、合成架構與機器可讀 JSON。
 - 有效音訊檢查通過，並保存至少一個可實聽樣本。
 - 使用目標小說語料完成長章節、對話、破音字、數字、日期、中英混讀、罕見字與長時間耐聽度檢查。
-- 在目標 iPhone／iPad 上完成首次載入、連續合成、背景切換與低記憶體測試。
-- 使用者只需一次前景手勢啟動播放；鎖屏後，方案持續合成並把片段 append 到同一條長駐媒體 timeline，不得在句子或章節邊界呼叫新的 `play()`。
-- 端到端 RTF 在目標裝置上持續小於 `1`，buffer 不枯竭且有界；測試不得以預先產生完整章節或完整測試音訊規避背景合成。
-- 至少完成連續鎖屏 2 小時且跨越 3 個章節的驗收，期間沒有可聽停頓、使用者回前景補產或隨時間持續成長的音訊佇列。
-- Safari tab 與 Home Screen PWA 必須分開驗證；不得以 `AudioContext.state === "running"` 取代實際可聽輸出測試。
-- 記錄引擎、runtime、模型或聲音資料的授權、總下載大小及峰值記憶體。
-- 音質由目標語料評估，不以 CPU 數字替代主觀品質判定。
+- 桌面 Chromium 單一 WASM thread 的核心與完整 producer `RTF < 1`。
+- 初始化與串流記憶體快照均不得超過 512 MiB。
+- 串流 underflow、append error 與 producer error 均為零。
+- 固定 Whisper ASR 聽回同時通過絕對 CER 與相對正式 baseline 的退化上限。
+- 記錄引擎、runtime、模型/FST revision、逐檔 SHA-256、下載大小及測試報告。
+- eSpeak 與 iPhone/PWA 實機驗收均不屬於本 repository 的 release gate；既有 iPhone 紀錄只保存為歷史產品相容性證據。
 
 ## 下一步
 
-- 上游更新採全自動 candidate gate：桌面 WASM、FST golden、有效 waveform、RTF、記憶體與固定 Whisper ASR 聽回全部通過才可合併並發布正式 Release；失敗 candidate 不合併，另以 pre-release 保存版本組合、逐項失敗原因、log 與機器可讀 JSON。iPhone 不列入 required gate；除非日後有免付費且可持續使用的真機自動化服務，否則只保留為產品驗收證據。
+- 上游更新採全自動 candidate gate：桌面 WASM、FST golden、有效 waveform、RTF、512 MiB 記憶體上限與固定 Whisper ASR 聽回全部通過才可合併並發布正式 Release；失敗 candidate 不合併，另以 pre-release 保存版本組合、逐項失敗原因、log 與機器可讀 JSON。
 - 完成獨立 kaldifst WASM 與既有 JavaScript applier 的完整 golden A/B，維持 phone、date、number 固定順序；JavaScript 版本暫留作診斷基線。
-- 將英文 eSpeak 接入目前的「繁體直輸 → 官方中文 FST → Matcha」producer。
-- 在真實 iPhone／iPad 量測峰值記憶體、端到端 RTF、鎖屏熱穩態、耗電與降頻。
-- 分別在 Safari tab 與 Home Screen PWA 完成 2 小時、跨 3 章、Media Session 與中斷恢復驗收。
-- 補齊英文 eSpeak、貨幣／範圍／序號等文字正規化，以及可審核的臺灣讀音詞典。
+- 補齊貨幣／範圍／序號等中文文字正規化，以及可審核的臺灣讀音詞典。
 - 在產品採用前釐清 Matcha acoustic model、Vocos、lexicon、FST 與聲音資料的授權。

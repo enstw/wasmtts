@@ -1,0 +1,139 @@
+name: Tested release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+
+concurrency:
+  group: tested-release
+  cancel-in-progress: false
+
+jobs:
+  native-wasm:
+    name: release-native-wasm
+    runs-on: ubuntu-latest
+    # renovate: datasource=docker depName=emscripten/emsdk
+    container: emscripten/emsdk:6.0.6
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build kaldifst + OpenFST WASM
+        run: platform/kaldifst-wasm/build.sh
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-kaldifst-wasm
+          path: platform/kaldifst-wasm/dist/
+
+  test-and-release:
+    name: test-and-release
+    if: always()
+    needs: native-wasm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.9.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
+      - if: needs.native-wasm.result == 'success'
+        uses: actions/download-artifact@v8
+        with:
+          name: release-kaldifst-wasm
+          path: platform/kaldifst-wasm/dist/
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium-headless-shell
+      - name: Fetch immutable Matcha assets
+        id: assets
+        continue-on-error: true
+        run: pnpm fetch:matcha-assets
+        env:
+          WASM_TTS_ASSET_REPORT: release-artifacts/assets.json
+      - name: Run complete release gate
+        id: gates
+        if: steps.assets.outcome == 'success' && needs.native-wasm.result == 'success'
+        continue-on-error: true
+        run: pnpm test:release-gates
+      - name: Record infrastructure failure
+        if: steps.gates.outcome == 'skipped'
+        env:
+          NATIVE_RESULT: ${{ needs.native-wasm.result }}
+          ASSET_RESULT: ${{ steps.assets.outcome }}
+        run: |
+          mkdir -p release-artifacts
+          printf '# wasmtts release gate\n\n- Result: **FAILED**\n- native-wasm: %s\n- assets: %s\n' "$NATIVE_RESULT" "$ASSET_RESULT" > release-artifacts/release-report.md
+          printf '{"status":"failed","combinations":[{"name":"native-wasm","status":"%s"},{"name":"assets","status":"%s"}]}\n' "$NATIVE_RESULT" "$ASSET_RESULT" > release-artifacts/release-gates.json
+      - name: Package tested frontend
+        id: package
+        if: steps.gates.outcome == 'success'
+        continue-on-error: true
+        run: |
+          mkdir -p release-artifacts/package
+          cp LICENSE README.md platform/upstreams.yaml platform/matcha-assets.json release-artifacts/package/
+          cp platform/kaldifst-wasm/dist/matcha-kaldifst-normalizer.js release-artifacts/package/
+          cp platform/kaldifst-wasm/dist/matcha-kaldifst-normalizer.wasm release-artifacts/package/
+          tar czf release-artifacts/wasmtts-frontend.tar.gz -C release-artifacts/package .
+      - name: Attest tested frontend
+        id: attest
+        if: steps.package.outcome == 'success'
+        continue-on-error: true
+        uses: actions/attest@v4
+        with:
+          subject-path: release-artifacts/wasmtts-frontend.tar.gz
+      - name: Record packaging or attestation failure
+        if: steps.gates.outcome == 'success' && (steps.package.outcome != 'success' || steps.attest.outcome != 'success')
+        env:
+          PACKAGE_RESULT: ${{ steps.package.outcome }}
+          ATTEST_RESULT: ${{ steps.attest.outcome }}
+        run: |
+          printf '\n## Release infrastructure failure\n\n- package: %s\n- attestation: %s\n' "$PACKAGE_RESULT" "$ATTEST_RESULT" >> release-artifacts/release-report.md
+          jq --arg package "$PACKAGE_RESULT" --arg attest "$ATTEST_RESULT" '.status="failed" | .combinations += [{name:"package",status:$package},{name:"attestation",status:$attest}]' release-artifacts/release-gates.json > release-artifacts/release-gates.tmp
+          mv release-artifacts/release-gates.tmp release-artifacts/release-gates.json
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: tested-release-report
+          path: release-artifacts/
+      - name: Publish successful release
+        if: steps.gates.outcome == 'success' && steps.package.outcome == 'success' && steps.attest.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view v0.1.0 >/dev/null 2>&1; then
+            tag=v0.1.0
+          else
+            tag="v0.1.${GITHUB_RUN_NUMBER}"
+          fi
+          gh release create "$tag" \
+            release-artifacts/wasmtts-frontend.tar.gz \
+            release-artifacts/release-gates.json \
+            release-artifacts/assets.json \
+            platform/results/results-matcha_icefall_zh_en-browser-wasm.json \
+            platform/results/results-matcha_icefall_zh_en-stream-browser-wasm.json \
+            platform/results/asr-listening-report.json \
+            --target "$GITHUB_SHA" \
+            --title "$tag — Matcha browser frontend" \
+            --notes-file release-artifacts/release-report.md \
+            --latest
+      - name: Publish failed candidate record
+        if: steps.gates.outcome != 'success' || steps.package.outcome != 'success' || steps.attest.outcome != 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="candidate-failed-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          gh release create "$tag" \
+            release-artifacts/release-gates.json \
+            release-artifacts/release-report.md \
+            --target "$GITHUB_SHA" \
+            --title "Failed candidate — ${GITHUB_SHA::12}" \
+            --notes-file release-artifacts/release-report.md \
+            --prerelease

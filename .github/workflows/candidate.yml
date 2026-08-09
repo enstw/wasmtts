@@ -1,0 +1,75 @@
+name: Upstream candidate
+
+on:
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-wasm:
+    name: native-wasm
+    runs-on: ubuntu-latest
+    # renovate: datasource=docker depName=emscripten/emsdk
+    container: emscripten/emsdk:6.0.6
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build kaldifst + OpenFST WASM
+        run: platform/kaldifst-wasm/build.sh
+      - uses: actions/upload-artifact@v7
+        with:
+          name: kaldifst-wasm
+          path: platform/kaldifst-wasm/dist/
+
+  browser-gates:
+    name: browser-gates
+    needs: native-wasm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.9.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
+      - uses: actions/download-artifact@v8
+        with:
+          name: kaldifst-wasm
+          path: platform/kaldifst-wasm/dist/
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium-headless-shell
+      - name: Fetch immutable Matcha assets
+        run: pnpm fetch:matcha-assets
+        env:
+          WASM_TTS_ASSET_REPORT: release-artifacts/assets.json
+      - name: Run complete candidate gate
+        run: pnpm test:release-gates
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: candidate-report
+          path: |
+            release-artifacts/
+            platform/results/results-matcha_icefall_zh_en-browser-wasm.json
+            platform/results/results-matcha_icefall_zh_en-stream-browser-wasm.json
+            platform/results/asr-listening-report.json
+
+  candidate-gate:
+    name: candidate-gate
+    if: always()
+    needs: [native-wasm, browser-gates]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every candidate combination
+        env:
+          NATIVE_RESULT: ${{ needs.native-wasm.result }}
+          BROWSER_RESULT: ${{ needs.browser-gates.result }}
+        run: |
+          printf 'native-wasm=%s\nbrowser-gates=%s\n' "$NATIVE_RESULT" "$BROWSER_RESULT"
+          test "$NATIVE_RESULT" = success
+          test "$BROWSER_RESULT" = success
