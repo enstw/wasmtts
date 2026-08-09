@@ -48,5 +48,7 @@ try {
   if (result.drift.length) process.exitCode = 1;
 } finally {
   await browser?.close();
-  fs.rmSync(profile, {recursive: true, force: true});
+  // close() 回來時 Chromium 可能還在寫 profile（macOS 上常見），裸 rmSync 會
+  // 撞 ENOTEMPTY 把一輪全綠的 gate 變成紅燈 — 讓 rm 自己重試。
+  fs.rmSync(profile, {recursive: true, force: true, maxRetries: 10, retryDelay: 100});
 }
