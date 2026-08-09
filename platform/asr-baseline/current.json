@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "model": {
+    "repository": "Systran/faster-whisper-small",
+    "revision": "2ec96c5472da50d38d40c0cfe0602af2e94b4c8a"
+  },
+  "audio": "platform/results/matcha_icefall_zh_en-browser-wasm.wav",
+  "expected": "清晨的阳光穿过窗帘。轻轻落在安静的房间里。远处传来清脆的鸟鸣。微风带着花草的清香。让崭新的一天显得格外明亮。",
+  "recognized": "清晨的阳光穿过窗帘,轻轻落在安静的房间里,远处传来清脆的鸟鸣。微风带着花草的清香,让展新的一天显得格外明亮。",
+  "normalizedExpected": "清晨的阳光穿过窗帘轻轻落在安静的房间里远处传来清脆的鸟鸣微风带着花草的清香让崭新的一天显得格外明亮",
+  "normalizedRecognized": "清晨的阳光穿过窗帘轻轻落在安静的房间里远处传来清脆的鸟鸣微风带着花草的清香让展新的一天显得格外明亮",
+  "metrics": {
+    "characters": 49,
+    "editDistance": 1,
+    "cer": 0.02040816326530612,
+    "absoluteCerLimit": 0.08,
+    "baselineCer": null,
+    "regressionLimit": null
+  },
+  "failures": []
+}

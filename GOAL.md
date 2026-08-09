@@ -61,6 +61,7 @@ Matcha 的選型已完成；以下證據齊全後，才可宣告 iOS／PWA 產�
 
 ## 下一步
 
+- 上游更新採全自動 candidate gate：桌面 WASM、FST golden、有效 waveform、RTF、記憶體與固定 Whisper ASR 聽回全部通過才可合併並發布正式 Release；失敗 candidate 不合併，另以 pre-release 保存版本組合、逐項失敗原因、log 與機器可讀 JSON。iPhone 不列入 required gate；除非日後有免付費且可持續使用的真機自動化服務，否則只保留為產品驗收證據。
 - 完成獨立 kaldifst WASM 與既有 JavaScript applier 的完整 golden A/B，維持 phone、date、number 固定順序；JavaScript 版本暫留作診斷基線。
 - 將英文 eSpeak 接入目前的「繁體直輸 → 官方中文 FST → Matcha」producer。
 - 在真實 iPhone／iPad 量測峰值記憶體、端到端 RTF、鎖屏熱穩態、耗電與降頻。

@@ -10,6 +10,7 @@
 - `matcha-browser.html`、`run-matcha-browser.mjs`：Matcha acoustic model、Vocos 與 JavaScript ISTFT 的單執行緒 ORT Web 路徑。
 - `kaldifst-wasm/`、`kaldifst-normalizer.js`：獨立 kaldifst + OpenFST text-normalizer WASM、最小 C ABI 與 UTF-8 bridge；Matcha/Vocos 的 ORT Web memory 與此 module 的 memory 相互獨立。
 - `upstreams.yaml`：Renovate 追蹤的 Matcha acoustic、Vocos、lexicon/tokens、三個 FST、sherpa browser control、kaldifst/OpenFST 與 Emscripten 上游版本；版本 PR 只是通知，資產仍須人工驗證。
+- `asr-listening-gate.py`、`asr-baseline/`：以固定 revision 的 multilingual Whisper 聽回 Matcha WAV，計算正規化 CER，並同時套用絕對上限與相對正式 baseline 的退化上限。這是可懂度回歸 gate，不等同主觀自然度盲聽。
 - `matcha-fst.js`：從 Bookworm 移植的純 JavaScript OpenFST reader，保留作 golden A/B 與診斷基線。
 - `matcha-frontend.js`、`matcha-synthesis.js`：可供 Worker 與測試共用的繁體直輸／FST／lexicon 前端及 Matcha + Vocos 合成核心。
 - `run-matcha-upstream-fst-browser.mjs`：未修改的 sherpa-onnx 官方 browser bundle＋建議中文 FST 基線。
@@ -89,6 +90,7 @@ FST applier 的無資產 fixture 與真實 tables golden 測試：
 pnpm test:matcha-fst
 pnpm test:matcha-fst:tables
 pnpm test:matcha-kaldifst-wasm
+pnpm test:matcha-asr
 ```
 
 歷史 Piper、VITS、Kokoro runner 不屬於日常流程；若要重現舊結果，需另行取得已移除的模型資產，且不得把跨瀏覽器版本數字當成嚴格 A/B。

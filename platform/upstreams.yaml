@@ -2,6 +2,12 @@
 # 驗證 SHA-256、授權、golden output、音質、RTF 與記憶體後才可採用。
 
 upstreams:
+  # CI 聽回模型固定 revision，避免 ASR oracle 自行漂移。
+  # renovate: datasource=git-refs depName=asr-faster-whisper-small packageName=https://huggingface.co/Systran/faster-whisper-small.git versioning=loose
+  - version: 2ec96c5472da50d38d40c0cfe0602af2e94b4c8a
+    assets:
+      - Systran/faster-whisper-small
+
   # Matcha acoustic model、Vocos、lexicon 與 tokens 來自此 browser bundle。
   # renovate: datasource=github-releases depName=matcha-acoustic-vocos packageName=k2-fsa/sherpa-onnx
   - version: v1.12.20
