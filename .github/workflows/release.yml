@@ -50,28 +50,38 @@ jobs:
         with:
           name: release-kaldifst-wasm
           path: platform/kaldifst-wasm/dist/
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps chromium-headless-shell
+      - name: Install JavaScript dependencies
+        id: dependencies
+        continue-on-error: true
+        run: pnpm install --frozen-lockfile
+      - name: Install Chromium headless shell
+        id: browser
+        if: steps.dependencies.outcome == 'success'
+        continue-on-error: true
+        run: pnpm exec playwright-core install --with-deps chromium-headless-shell
       - name: Fetch immutable Matcha assets
         id: assets
+        if: steps.browser.outcome == 'success' && needs.native-wasm.result == 'success'
         continue-on-error: true
         run: pnpm fetch:matcha-assets
         env:
           WASM_TTS_ASSET_REPORT: release-artifacts/assets.json
       - name: Run complete release gate
         id: gates
-        if: steps.assets.outcome == 'success' && needs.native-wasm.result == 'success'
+        if: steps.assets.outcome == 'success'
         continue-on-error: true
         run: pnpm test:release-gates
       - name: Record infrastructure failure
         if: steps.gates.outcome == 'skipped'
         env:
           NATIVE_RESULT: ${{ needs.native-wasm.result }}
+          DEPENDENCY_RESULT: ${{ steps.dependencies.outcome }}
+          BROWSER_RESULT: ${{ steps.browser.outcome }}
           ASSET_RESULT: ${{ steps.assets.outcome }}
         run: |
           mkdir -p release-artifacts
-          printf '# wasmtts release gate\n\n- Result: **FAILED**\n- native-wasm: %s\n- assets: %s\n' "$NATIVE_RESULT" "$ASSET_RESULT" > release-artifacts/release-report.md
-          printf '{"status":"failed","combinations":[{"name":"native-wasm","status":"%s"},{"name":"assets","status":"%s"}]}\n' "$NATIVE_RESULT" "$ASSET_RESULT" > release-artifacts/release-gates.json
+          printf '# wasmtts release gate\n\n- Result: **FAILED**\n- native-wasm: %s\n- dependencies: %s\n- browser: %s\n- assets: %s\n' "$NATIVE_RESULT" "$DEPENDENCY_RESULT" "$BROWSER_RESULT" "$ASSET_RESULT" > release-artifacts/release-report.md
+          printf '{"status":"failed","combinations":[{"name":"native-wasm","status":"%s"},{"name":"dependencies","status":"%s"},{"name":"browser","status":"%s"},{"name":"assets","status":"%s"}]}\n' "$NATIVE_RESULT" "$DEPENDENCY_RESULT" "$BROWSER_RESULT" "$ASSET_RESULT" > release-artifacts/release-gates.json
       - name: Package tested frontend
         id: package
         if: steps.gates.outcome == 'success'
