@@ -44,6 +44,7 @@ pnpm host:mobile
 另開終端機執行：
 
 ```sh
+pnpm test:matcha-frontend
 pnpm test:matcha-fst
 pnpm test:matcha-fst:tables
 pnpm test:matcha-kaldifst-wasm

@@ -32,6 +32,7 @@ function run(name, command, args, env = {}) {
   console.log(`${entry.status === 'passed' ? 'PASS' : 'FAIL'} ${name} (${entry.durationMs} ms)`);
 }
 
+run('frontend-fixtures', 'pnpm', ['test:matcha-frontend']);
 run('fst-fixtures', 'pnpm', ['test:matcha-fst']);
 run('fst-tables', 'pnpm', ['test:matcha-fst:tables']);
 run('vendor-mobile', 'pnpm', ['vendor:mobile']);
