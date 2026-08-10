@@ -65,9 +65,31 @@ Adapter 使用 sherpa-onnx 前端預先產生的固定 token；文字前處理�
 
 第一次播放停在 `ManagedMediaSource` 的 `opening`，`sourceopen` 未發生，producer 也未被呼叫。依 WebKit 要求在單一長駐 `HTMLAudioElement` 明確設定 `disableRemotePlayback=true` 後，使用者確認前景播放與鎖屏播放皆正常，繁體原文直輸及「垃圾 → `le4 se4`」讀音覆寫亦正常。測試未達 2 小時／3 章門檻，不能寫成鎖屏驗收完成。
 
-本輪另確認 `「」` 等引號映射為 acoustic tokens `“”` 後會發音；2026-08-08 已改為在 tokenization 前移除 `「」『』《》“”‘’"`，保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。所謂「臺灣覆寫」目前只有手工加入且與教育部辭典一致的「垃圾 → `le4 se4`」，尚非完整、有來源欄位的臺灣讀音詞典。繁體「關卡」目前逐字得到 `guan1 ka3`，符合臺灣讀音；「堤壩」得到 `di1 ba4`，但臺灣教育部讀音為 `ti2 ba4`。臺灣讀音詞典留待獨立開發，不納入本次引號修正。
+本輪另確認 `「」` 等引號映射為 acoustic tokens `“”` 後會發音；2026-08-08 已改為在 tokenization 前移除 `「」『』《》“”‘’"`，保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。Taiwan profile 後續加入「垃圾」、七個有來源的固定詞與保守的「著」contextual rule；official profile 保持上游詞典。繁體「關卡」目前逐字得到 `guan1 ka3`，符合臺灣讀音；「堤壩」得到 `di1 ba4`，但臺灣教育部讀音為 `ti2 ba4`，仍待獨立審核實作。
 
 上游 lexicon 將「垃圾」讀成 `la1 ji1`；臺灣 `le4 se4` 只作明示的可選覆寫。正式效能結果使用上游原詞典。原始結果為 [results-matcha_icefall_zh_en-stream-browser-wasm.json](results/results-matcha_icefall_zh_en-stream-browser-wasm.json)。
+
+### 小說 frontend／g2pW 稽核
+
+2026-08-10 對外部繁體小說 ZIP 的 1,182 個章節、257,153 行執行現況 A 基線；小說與本機 `*.local.json` 報告均未提交。固定產品的版面清理、`phone → date → number` FST 與 Matcha lexicon longest-match 後，共產生 11,942,487 個 token、1,026 次 unknown（29 種）及 9,318,402 次單字 fallback（5,293 種）。「著」有 42,758 次單字 fallback，全部使用 `zhu4`，顯示錯讀是前端的系統性問題而非少數 acoustic 偶發錯誤。
+
+另以 g2pW `0.1.1`／`G2PWModel-v2-onnx` 對 archive-order 首 500 句作開發期 A/B。19,143 個可逐字對齊漢字中，17,987 個一致、1,156 個不同，表面一致率 `93.96%`；wall time 272.82 秒，吞吐每秒 1.83 句。高頻差異包含 `著 zhu4 → zhe5` 108 次與 `得 de2 → de5` 55 次，但「一／不」變調、輕聲及臺灣區域讀音也計入差異，不能把 1,156 筆全算成 Matcha 錯誤。g2pW archive 為 589,075,404 bytes、解壓 ONNX 約 635 MB，SHA-256 `699f3c1fd7fb0e2c2d49ed2486826fd5bff233fee7759350a91c3b49aedc4ed2`；其體積與速度只適合作離線候選判讀，不是 iOS runtime frontend 候選。
+
+Python pilot 目前直接比較原文漢字的 Matcha lexicon 與 g2pW，沒有套用 FST；數字與非漢字不進逐字一致率。正式 B/C 評測仍須讓兩個 G2P 都消費相同 FST 後文字。g2pW 程式碼、checkpoint、BERT tokenizer 與訓練資料的授權也必須分開查核，現階段不散布任何下載資產。
+
+第一輪以教育部辭典確認 `記得 ji4 de5`、`柵欄 zha4 lan2`、`駐紮 zhu4 zha2`、`長短 chang2 duan3`、`著急 zhao1 ji2`、`著重 zhuo2 zhong4`、`執著 zhi2 zhuo2`；C 候選把這七筆作 phrase override，全書 dry-run 依序命中 1,137、67、35、124、831、57、25 次，合計 2,276 次。加入 U+2015 分隔線清理後，C 的 token 總數仍為 11,942,487，unknown 為 1,018 次（28 種），單字 fallback 從 A 的 9,318,402 降至 9,313,906，實測減少 4,496 次。這七詞只載入可選 Taiwan profile，official profile 不變。`著` 的教育部條目確認持續助詞讀輕聲 `zhe5`，但它另有 `zhu4/zhuo2/zhao2/zhao1`，因此只列 contextual-rule 候選，不做全域單字覆寫。
+
+「著」targeted pilot 共跑四輪、各 300 句。第一輪按 archive order，以「同一前字至少兩筆且全部為 `zhe5`」得到 49 字、254 次；後三輪排除既有 allowlist，按前一字分層抽樣，以「至少三筆且全部為 `zhe5`」再得到 90 字／285 次、67 字／206 次與 54 字／163 次。合計 260 個前字、908 次且零反例；多讀音前字排除。產品只在 longest-match 仍落到單字「著」時套用 allowlist；加入固定詞後全書實際 contextual 命中 36,705 次，剩餘 `著 zhu4` trace 為 4,402 次。後者包含正確的 `zhu4` 案例，不可解讀成已確認錯誤數。這不是全域覆寫，長詞仍先行。
+
+收斂後的 review schema v2 將證據與部署分離：260 字 contextual allowlist 標為 `model-supported`，辭典與 pilot 共同支持的固定詞標為 `source-and-model-supported`，有獨立辭典條目的固定詞維持 `confirmed`；只有 `profiles.taiwan` 明列的 pattern 會進產品。release gates 新增真實 Matcha lexicon/tokens 的 Taiwan profile 測試，固定 `帶著、找著、著手、看著急、垃圾` 的 phones 與 longest-match precedence。小型 review manifest 改採 network-first／離線 cache fallback，大型模型、FST 與字典維持 cache-first。
+
+教育部《國語辭典簡編本》明列 `著 zhao2` 可作結果助詞並以 `找著、睡著` 為例，另有 `睡著、摸不著、犯不著、睡不著` 與 `著手 zhuo2 shou3` 獨立條目。依該規則及分層 pilot，新增 12 個 longest-match overrides：`睡著、找著、碰著、逮著、嚇著、正著、摸不著、犯不著、睡不著、用得著、管不著、著手`，全書命中 738 次。最終單字 fallback 為 9,275,437；token 仍為 11,942,487、unknown 仍為 1,018。`見著` 的 pilot 同時出現 `zhe5/zhao2`，未自動處理。
+
+Taiwan profile 另以指定文字跑一個完整瀏覽器 append，實際得到 `找著 zhao3 zhao2`、`睡著 shui4 zhao2`、`著手 zhuo2 shou3`。該段 3.9538 秒、63,260 samples 全為有限值，peak `0.7911`、RMS `0.1380`，MP3 48,384 bytes；underflow、append error、producer error 均為 0。結果只寫入 `/tmp`，不取代 official benchmark。
+
+同日以 Chromium 151 對 Taiwan profile 跑完整 Worker、Matcha/Vocos、MP3 與單一 MediaSource sequence。五個 append 共 25.416 秒，producer `RTF 0.1466`、`6.82 倍即時`，underflow、append error、producer error 均為 0；含「垃圾」的 segment 實際輸出 `le4 se4`，waveform 81,682 samples 全為有限值、peak `0.9377`、RMS `0.1380`，MP3 62,208 bytes。結果只寫入 `/tmp` 作功能驗證，不取代 official profile 的正式 benchmark JSON；七個新審核詞的 token mapping 另由 manifest 與 frontend 測試覆蓋。
+
+加入 contextual rule 後另跑兩個 append、10.656 秒的 Taiwan profile smoke test；含「帶著」的 segment 實際輸出 `dai4 zhe5`，103,825 samples 全為有限值、peak `0.8463`、RMS `0.1419`，MP3 79,056 bytes，三類串流錯誤仍為 0。結果同樣只寫入 `/tmp`。
 
 ## Kokoro selective INT8 修正實驗
 

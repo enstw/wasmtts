@@ -5,7 +5,7 @@ importScripts(
   '/mobile-host/vendor/lame.min.js',
   '/mobile-host/vendor/kaldifst/matcha-kaldifst-normalizer.js',
   '/platform/kaldifst-normalizer.js',
-  '/platform/matcha-frontend.js?v=20260808-022258',
+  '/platform/matcha-frontend.js?v=20260810-contextual-zhe',
   '/platform/matcha-synthesis.js',
 );
 
@@ -15,13 +15,14 @@ const ACOUSTIC_URL = `${MODEL_ROOT}/model-steps-3.onnx`;
 const VOCODER_URL = '/platform/models/vocos-16khz-univ.onnx';
 const LEXICON_URL = `${MODEL_ROOT}/lexicon.txt`;
 const TOKENS_URL = `${MODEL_ROOT}/tokens.txt`;
+const G2P_REVIEW_URL = '/platform/matcha-g2p-review.json';
 const RULE_FSTS = [
   {key: 'phoneFst', url: `${MODEL_ROOT}/phone-zh.fst`, label: '電話規則 FST'},
   {key: 'dateFst', url: `${MODEL_ROOT}/date-zh.fst`, label: '日期規則 FST'},
   {key: 'numberFst', url: `${MODEL_ROOT}/number-zh.fst`, label: '數字規則 FST'},
 ];
 const BIT_RATE_KBPS = 96;
-const EXPECTED_ASSET_BYTES = 131351620;
+const EXPECTED_LARGE_ASSET_BYTES = 131233620;
 
 ort.env.wasm.numThreads = 1;
 ort.env.wasm.proxy = false;
@@ -37,13 +38,35 @@ function postProgress(stage, detail = {}) {
   postMessage({type: 'progress', stage, detail});
 }
 
-async function downloadResponse(url, onProgress) {
+async function downloadResponse(url, onProgress, {networkFirst = false} = {}) {
   const absolute = new URL(url, self.location.href).href;
   const cache = 'caches' in self ? await caches.open(ASSET_CACHE) : null;
-  const cached = await cache?.match(absolute);
-  const response = cached ?? await fetch(absolute, {cache: 'no-cache'});
+  let cached = null;
+  let response = null;
+  let source = 'network';
+  if (networkFirst) {
+    try {
+      response = await fetch(absolute, {cache: 'no-cache'});
+    } catch (error) {
+      cached = await cache?.match(absolute);
+      if (!cached) throw error;
+      response = cached;
+      source = 'cache fallback';
+    }
+  } else {
+    cached = await cache?.match(absolute);
+    response = cached ?? await fetch(absolute, {cache: 'no-cache'});
+    source = cached ? 'cache' : 'network';
+  }
+  if (!response.ok && networkFirst) {
+    cached = await cache?.match(absolute);
+    if (cached) {
+      response = cached;
+      source = 'cache fallback';
+    }
+  }
   if (!response.ok) throw new Error(`${url} HTTP ${response.status}`);
-  const source = cached ? 'cache' : cache ? 'network' : 'network (CacheStorage unavailable)';
+  if (!cache && source === 'network') source = 'network (CacheStorage unavailable)';
   const total = Number(response.headers.get('content-length')) || 0;
 
   if (!response.body) {
@@ -78,6 +101,7 @@ async function downloadAssets() {
   const assets = [
     {key: 'lexicon', url: LEXICON_URL, label: '前端詞典'},
     {key: 'tokens', url: TOKENS_URL, label: 'Tokens'},
+    {key: 'g2pReview', url: G2P_REVIEW_URL, label: '臺灣讀音審核資料', networkFirst: true},
     ...RULE_FSTS,
     {key: 'acoustic', url: ACOUSTIC_URL, label: 'Matcha acoustic model'},
     {key: 'vocoder', url: VOCODER_URL, label: 'Vocos'},
@@ -93,9 +117,9 @@ async function downloadAssets() {
         type: 'download-progress',
         asset: asset.label,
         loaded: [...completed.values()].reduce((sum, value) => sum + value, 0),
-        total: EXPECTED_ASSET_BYTES,
+        total: EXPECTED_LARGE_ASSET_BYTES + (totals.get('g2pReview') || 0),
       });
-    });
+    }, {networkFirst: asset.networkFirst});
   }
   downloadedAssets = results;
   postMessage({type: 'download-complete', sources: Object.fromEntries(
@@ -146,6 +170,9 @@ async function initialize() {
     const decoder = new TextDecoder();
     const lexiconText = decoder.decode(lexicon.buffer);
     const tokensText = decoder.decode(tokens.buffer);
+    const g2pReview = JSON.parse(decoder.decode(downloadedAssets.g2pReview.buffer));
+    const reviewedOverrides = MatchaFrontend.pronunciationOverridesFromReview(g2pReview);
+    const reviewedContextualRules = MatchaFrontend.contextualRulesFromReview(g2pReview);
     postProgress('載入 kaldifst text-normalizer WASM');
     const ruleNormalizer = await MatchaKaldifst.createNormalizer({
       moduleFactory: KaldifstNormalizerModule,
@@ -167,7 +194,8 @@ async function initialize() {
         lexiconText,
         tokensText,
         ruleNormalizer,
-        pronunciationOverrides: {'垃圾': 'le4 se4'},
+        pronunciationOverrides: {'垃圾': 'le4 se4', ...reviewedOverrides},
+        contextualRules: reviewedContextualRules,
       }),
     };
 
@@ -183,6 +211,7 @@ async function initialize() {
     const assetSources = {
       lexicon: lexicon.source,
       tokens: tokens.source,
+      g2pReview: downloadedAssets.g2pReview.source,
       phoneFst: downloadedAssets.phoneFst.source,
       dateFst: downloadedAssets.dateFst.source,
       numberFst: downloadedAssets.numberFst.source,
@@ -213,6 +242,11 @@ async function initialize() {
         ruleFsts: ['phone-zh.fst', 'date-zh.fst', 'number-zh.fst'],
         numericNormalization: 'sherpa zh rule FSTs applied by standalone kaldifst WASM',
         englishFrontend: false,
+        pronunciationProfiles: {
+          official: [],
+          taiwan: ['垃圾', ...Object.keys(reviewedOverrides), '著（contextual）'],
+          reviewSchemaVersion: g2pReview.schemaVersion,
+        },
       },
       warmup: {
         frontendMs: warmupFrontendMs,

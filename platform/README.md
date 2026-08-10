@@ -13,6 +13,8 @@
 - `asr-listening-gate.py`、`asr-baseline/`：以固定 revision 的 multilingual Whisper 聽回 Matcha WAV，計算正規化 CER，並同時套用絕對上限與相對正式 baseline 的退化上限。這是可懂度回歸 gate，不等同主觀自然度盲聽。
 - `matcha-fst.js`：從 Bookworm 移植的純 JavaScript OpenFST reader，保留作 golden A/B 與診斷基線。
 - `matcha-frontend.js`、`matcha-synthesis.js`：可供 Worker 與測試共用的繁體直輸／FST／lexicon 前端及 Matcha + Vocos 合成核心。
+- `audit-matcha-g2p.mjs`、`run-g2pw-pilot.py`：對外部小說 ZIP 執行現況 frontend trace 與開發期 contextual G2P 差異掃描；小說、g2pW 模型與 `*.local.json` 報告皆不提交。
+- `matcha-g2p-review.json`：schema v2 分開保存辭典來源、模型證據與產品 profile。entry 不因存在就自動生效；`profiles.taiwan` 明列啟用的 phrase overrides 與 contextual rules。`著` 的前字 allowlist 標為 `model-supported`，不得寫成逐項人工確認或降級成全域單字覆寫。
 - `run-matcha-upstream-fst-browser.mjs`：未修改的 sherpa-onnx 官方 browser bundle＋建議中文 FST 基線。
 - `matcha-upstream-benchmark.html`、`matcha-upstream-benchmark.js`、`run-matcha-fst-ab-browser.mjs`：同 runtime 只切換 FST 的控制實驗。
 - `generate-matcha-upstream-fst-traditional-sample.mjs`：繁體原文、不經 OpenCC 的官方 FST 試聽樣本產生器。
@@ -82,20 +84,42 @@ pnpm benchmark:matcha-fst-ab
 pnpm sample:matcha-upstream-fst-traditional
 pnpm sample:matcha-frequency-ab
 pnpm benchmark:matcha-stream
+pnpm audit:matcha-g2p -- ~/Downloads/novel.zip
 ```
 
 首次使用先執行 `pnpm build:matcha-kaldifst` 產生小型 normalizer dist；`pnpm host:mobile` 會將它與 ORT Web 一起複製到本機 vendor 目錄。`benchmark:matcha-stream` 使用另一個終端機已啟動的 host，採單一 thread，量測 kaldifst WASM FST、lexicon、推論、ISTFT、silence scaling 與 MP3 encode。eSpeak 不屬於本 repository 範圍。
+
+要單獨驗證可選 Taiwan pronunciation profile，請把結果寫到未追蹤路徑，避免覆蓋 official benchmark：
+
+```sh
+WASM_TTS_PRONUNCIATION_PROFILE=taiwan \
+WASM_TTS_STREAM_RESULT=/tmp/matcha-stream-taiwan.json \
+pnpm benchmark:matcha-stream
+```
+
+可用 `WASM_TTS_STREAM_TEXT` 指定單次 smoke-test 語料；runner 會在開始播放前寫入測試頁 textarea。
 
 FST applier 的無資產 fixture 與真實 tables golden 測試：
 
 ```sh
 pnpm test:matcha-fst
+pnpm test:matcha-g2p-review
 pnpm test:matcha-fst:tables
 pnpm test:matcha-kaldifst-wasm
 pnpm test:matcha-asr
 ```
 
 歷史 Piper、VITS、Kokoro runner 不屬於日常流程；若要重現舊結果，需另行取得已移除的模型資產，且不得把跨瀏覽器版本數字當成嚴格 A/B。
+
+g2pW pilot 另需把官方 `G2PWModel-v2-onnx` 解壓至 `platform/models/g2pw/G2PWModel/`，並將 `google-bert/bert-base-chinese` tokenizer cache 放在 `platform/models/g2pw/hf/`；兩者均由 Git 忽略。確認 archive SHA-256 為 `699f3c1fd7fb0e2c2d49ed2486826fd5bff233fee7759350a91c3b49aedc4ed2` 後執行：
+
+```sh
+UV_CACHE_DIR=/tmp/wasmtts-uv-cache \
+UV_TOOL_DIR=/tmp/wasmtts-uv-tools \
+pnpm audit:matcha-g2pw-pilot -- ~/Downloads/novel.zip --max-sentences 500
+```
+
+pilot 報告把差異分為 `polyphone`、`tone_sandhi`、`neutral_tone` 與 `tone_disagreement`，並保存差異字附近的短詞窗。這些是人工審核候選，不是可直接匯入產品的正確答案；目前 Python pilot 沒有套 FST，只比較可逐字對齊的漢字，正式 B/C 前端必須改吃 FST 後文字。
 
 ## 結果規則
 

@@ -102,7 +102,37 @@ PWA runtime、Worker、兩個模型與字典均進入 CacheStorage 後，實際�
 
 2026-08-08 在 iOS `18.7` Safari 以 LAN HTTP 測試低記憶體 JavaScript lexicon adapter。模型下載、Worker 初始化與有效 waveform 暖機皆通過；設定 WebKit 要求的 `HTMLAudioElement.disableRemotePlayback=true` 後，使用者確認繁體原文直輸、前景播放、鎖屏播放及「垃圾 → `le4 se4`」讀音覆寫正常。因本輪 `secureContext=false`、`standalone=false`，且未記錄裝置型號、鎖屏時長、溫度、耗電、降頻或 2 小時跨章結果，只能判定 transport 初步相容，不是 PWA 或熱穩態完成。
 
-實聽發現 `「」` 被映射為 `“”` acoustic tokens 後會發音；目前已在 tokenization 前移除中英文開閉引號、保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。「臺灣覆寫」目前只有「垃圾」一詞，尚未形成有來源欄位的正式詞典；「關卡」逐字讀音符合臺灣 `guan1 ka3`，「堤壩」則需由上游 `di1 ba4` 覆寫為教育部辭典的 `ti2 ba4`。臺灣讀音詞典留待另案開發；完整事件與數值保存在 [共同結果](../../platform/RESULTS.md)。
+實聽發現 `「」` 被映射為 `“”` acoustic tokens 後會發音；目前已在 tokenization 前移除中英文開閉引號、保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。Taiwan profile 現含「垃圾」、19 個 phrase overrides，以及本節說明的保守 `著 → zhe5` contextual rule；official profile 保持上游結果。review schema v2 把 `confirmed`、`source-and-model-supported`、`model-supported` 證據狀態與 `profiles.taiwan` 產品啟用清單分開，260 字 allowlist 不宣稱為逐項人工確認。「關卡」逐字讀音符合臺灣 `guan1 ka3`，「堤壩」仍需獨立審核。完整事件與數值保存在 [共同結果](../../platform/RESULTS.md)。
+
+## 小說 G2P 稽核 pilot
+
+長篇小說的讀音診斷分成兩層，不能把 ASR 聽回當成破音字的唯一判定：正式比較須先固定既有 `phone → date → number` FST，再比較 FST 後的 Matcha lexicon longest-match 與 contextual G2P。小說 ZIP 是外部測試輸入，不提交 repository；本機完整報告使用 `*.local.json` 並由 `.gitignore` 排除。
+
+現況稽核器會逐行串流讀取 ZIP，輸出正規化文字的聚合統計、實際 lexicon match、單字 fallback 與 unknown：
+
+```sh
+pnpm audit:matcha-g2p -- ~/Downloads/jl.zip
+```
+
+2026-08-10 對 1,182 個章節、257,153 行的本機小說跑完 A 基線，共得到 11,942,487 個 Matcha token、1,026 次 unknown（29 種）與 9,318,402 次單字 fallback（5,293 種）。最明顯的系統性候選是「著」：42,758 次單字 fallback 全部使用 `zhu4`。版面清理辨識 1,615 條由常見 dash 組成的獨立分隔線，包含兩行 U+2015 `―`；修正後這些單元輸出空文字、不進合成，unknown 降為 1,018 次（28 種）。unknown 主要是正文中的半形連字號、遮字 `**`、作者附註英文與檔尾 URL，必須和真正的缺字分開分類。
+
+contextual G2P pilot 使用 g2pW `0.1.1` 的 `G2PWModel-v2-onnx`，只作開發期比較，不接產品 Worker。官方 archive 為 589,075,404 bytes，SHA-256 `699f3c1fd7fb0e2c2d49ed2486826fd5bff233fee7759350a91c3b49aedc4ed2`；解壓後 ONNX 約 635 MB。程式碼為 Apache-2.0，但 checkpoint、BERT tokenizer 與訓練資料仍須各自完成授權查核，不能由程式碼授權推定可隨產品散布。
+
+本機準備好已忽略的 model 與 tokenizer cache 後執行：
+
+```sh
+UV_CACHE_DIR=/tmp/wasmtts-uv-cache \
+UV_TOOL_DIR=/tmp/wasmtts-uv-tools \
+pnpm audit:matcha-g2pw-pilot -- ~/Downloads/jl.zip --max-sentences 500
+```
+
+首 500 句 pilot 使用 g2pW ONNX、單程序 DataLoader、batch 32；19,143 個可對齊漢字中有 17,987 個同音，1,156 個差異，表面一致率 `93.96%`。wall time 為 272.82 秒，即每秒 1.83 句，因此它適合在靜態掃描後對高風險句做第二階段判讀，不適合直接成為 iOS 即時 frontend。高頻差異包含 `著 zhu4 → zhe5` 108 次、`得 de2 → de5` 55 次、`長 zhang3 → chang2` 10 次及 `柵 shan1 → zha4` 7 次；另有「一／不」變調、輕聲與臺灣讀音差異，不能把全部 1,156 筆直接視為 Matcha 錯誤。這輪 Python pilot 尚未套 FST，只比較可逐字對齊的原文漢字；正式 B/C 必須改吃同一份 FST 後文字。報告會先按 `polyphone`、`tone_sandhi`、`neutral_tone`、`tone_disagreement` 分類，再由人工抽樣判定區域音與模型爭議。
+
+第一輪人工審核已把教育部來源、版本、觀察值、目標 phones 與實作範圍寫入 [`matcha-g2p-review.json`](../../platform/matcha-g2p-review.json)。七個 `phrase-override` 對全書 dry-run 共命中 2,276 次：`記得` 1,137、`著急` 831、`長短` 124、`柵欄` 67、`著重` 57、`駐紮` 35、`執著` 25；token 總數不變、沒有新增 unknown，單字 fallback 實測減少 4,496 次。
+
+「著」contextual rule 共做四輪各 300 句的 targeted pilot。第一輪按 archive order，只收錄同一前字至少兩筆且全部為 `zhe5` 的 49 字；後三輪排除既有 allowlist，再按前一字分層抽樣，每字最多三個不同句子，只收錄至少三筆且全部為 `zhe5` 的 90、67、54 字。四輪合計 260 個前字、908 次 `zhe5`、零反例；`見／不／有／得／餘／一／在／用／空／覺／撿／側／撈／摔` 等多讀音前字明確排除。加入下一段固定詞後，全書 contextual rule 實際命中 36,705 次，剩餘 `著 zhu4` fallback 為 4,402 次。這 4,402 是待分類 trace，不是 4,402 個已確認錯讀；其中含 `顯著／卓著／著名／著稱` 等原本就應維持 `zhu4` 的案例。規則只在 longest-match 最後仍落到單字「著」時生效，因此完整詞優先，allowlist 外也維持上游讀音。Taiwan profile 的瀏覽器產品路徑已直接確認 `帶著 → dai4 zhe5`，兩個 append 共 10.656 秒，waveform、MP3 與 MediaSource 有效且無 underflow／append／producer error；official profile 不套此規則。
+
+第三輪另把教育部明列的 `著 zhao2` 結果助詞與 `著手 zhuo2 shou3` 落成 12 個 longest-match phrase overrides：`睡著、找著、碰著、逮著、嚇著、正著、摸不著、犯不著、睡不著、用得著、管不著、著手`。全書共命中 738 次；加入所有 phrase 與四輪 contextual rules 後，單字 fallback 為 9,275,437，token 仍為 11,942,487、unknown 仍為 1,018。`見著` 在分層 pilot 中 `zhe5/zhao2` 各有樣本，因此刻意不作固定詞。
 
 ## 一次性效能初測
 

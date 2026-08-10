@@ -1,0 +1,282 @@
+{
+  "schemaVersion": 2,
+  "locale": "zh-TW",
+  "purpose": "分開保存辭典來源、模型證據與產品啟用範圍；候選不因出現在 entries 就自動進產品",
+  "profiles": {
+    "taiwan": {
+      "phraseOverrides": ["記得", "柵欄", "駐紮", "長短", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手"],
+      "contextualRules": ["著"]
+    }
+  },
+  "entries": [
+    {
+      "pattern": "著",
+      "observed": ["zhu4"],
+      "target": ["zhe5"],
+      "scope": "附在動詞或形容詞後，表示動作或狀態持續的助詞",
+      "implementation": "contextual-rule",
+      "status": "model-supported",
+      "previousCharacters": "住來含味坐對帶幫循急想抬抱拉拎拼拿掛揉提揹摸放曬望板活牽留盯看瞧穿站笑等苦裝視託說跑跟蹲退透靠領養仗低做偷兜冀厚受叨吃咬喊喝喪嗑嚷嚼夾奔守寫待忍忙念悠愣憋打扛拖拗拽指挲捏捧掙接握揣撐擺攔攥晃橫欠歪求沿由當皺瞅硬端管繃繞翹耐聊聽藉藏試護變貼走趁趴踩躲躺追逼量閉閒陪隔隨離頂順顧鬧黑仰佔候停傳冒刻叼向哭哼啃圍壓壯學就弄彎慣憑戴扎扯扶抽拄拍挑挨捻掖揪搓搶據擰收昧朝杵沾泛照熬發盪省瞞瞪磨立算紅縮繫罩耗聞衝讓跳載過防雜騎擱反負唱開磕舔流吹瞰記光披攢奉挎緊掇押懸淌撓拭挽捂拘浮別眨斜思徵合掰賴推跪數怨纏心冷踞溢抹持翻按抓叫憬綁馱動",
+      "evidence": {
+        "pilotSentences": 1200,
+        "pilotMatches": 908,
+        "pilotCounterexamples": 0,
+        "novelOccurrences": 36896,
+        "selectionRule": "archive-order pilot 至少兩筆、分層 pilot 至少三筆，且同一前字全部為 zhe5",
+        "excludedNonZheOrAmbiguousPreviousCharacters": "一不些人側卓嚇在執始彆得找撿是最有正用的睡知碰空要見覺趙身逮顯餘麼，"
+      },
+      "source": {
+        "title": "教育部《國語辭典簡編本》：著",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29560&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "記得",
+      "observed": ["ji4", "de2"],
+      "target": ["ji4", "de5"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：記得",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=21600&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "柵欄",
+      "observed": ["shan1", "lan2"],
+      "target": ["zha4", "lan2"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：柵欄",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29476&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "駐紮",
+      "observed": ["zhu4", "za1"],
+      "target": ["zhu4", "zha2"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：駐紮",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=30720&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "長短",
+      "observed": ["zhang3", "duan3"],
+      "target": ["chang2", "duan3"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：長短",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=32115&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "著急",
+      "observed": ["zhu4", "ji2"],
+      "target": ["zhao1", "ji2"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：著急",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29634&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "著重",
+      "observed": ["zhu4", "zhong4"],
+      "target": ["zhuo2", "zhong4"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》：著重",
+        "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=118963",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "執著",
+      "observed": ["zhi2", "zhu4"],
+      "target": ["zhi2", "zhuo2"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：執著",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29070&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "睡著",
+      "observed": ["shui4", "zhu4"],
+      "target": ["shui4", "zhao2"],
+      "scope": "結果補語固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：睡著",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=35742&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "找著",
+      "observed": ["zhao3", "zhu4"],
+      "target": ["zhao3", "zhao2"],
+      "scope": "結果補語固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：著（zháo）",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29651&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "碰著",
+      "observed": ["peng4", "zhu4"],
+      "target": ["peng4", "zhao2"],
+      "scope": "結果補語；分層 pilot 三筆均為 zhao2",
+      "implementation": "phrase-override",
+      "status": "source-and-model-supported",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：著（zháo）",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29651&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "逮著",
+      "observed": ["dai3", "zhu4"],
+      "target": ["dai3", "zhao2"],
+      "scope": "結果補語；分層 pilot 三筆均為 zhao2",
+      "implementation": "phrase-override",
+      "status": "source-and-model-supported",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：著（zháo）",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29651&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "嚇著",
+      "observed": ["xia4", "zhu4"],
+      "target": ["xia4", "zhao2"],
+      "scope": "結果補語；分層 pilot 三筆均為 zhao2",
+      "implementation": "phrase-override",
+      "status": "source-and-model-supported",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：著（zháo）",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29651&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "正著",
+      "observed": ["zheng4", "zhu4"],
+      "target": ["zheng4", "zhao2"],
+      "scope": "撞個正著等結果結構；分層 pilot 三筆均為 zhao2",
+      "implementation": "phrase-override",
+      "status": "source-and-model-supported",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：著（zháo）",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29651&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "摸不著",
+      "observed": ["mo1", "bu4", "zhu4"],
+      "target": ["mo1", "bu4", "zhao2"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：摸不著",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=3604&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "犯不著",
+      "observed": ["fan4", "bu4", "zhu4"],
+      "target": ["fan4", "bu4", "zhao2"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：犯不著",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=5655&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "睡不著",
+      "observed": ["shui4", "bu4", "zhu4"],
+      "target": ["shui4", "bu4", "zhao2"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：睡不著",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=35735&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "用得著",
+      "observed": ["yong4", "de2", "zhu4"],
+      "target": ["yong4", "de5", "zhao2"],
+      "scope": "固定結果結構",
+      "implementation": "phrase-override",
+      "status": "source-and-model-supported",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：著（zháo）",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29651&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "管不著",
+      "observed": ["guan3", "bu4", "zhu4"],
+      "target": ["guan3", "bu4", "zhao2"],
+      "scope": "固定結果結構",
+      "implementation": "phrase-override",
+      "status": "source-and-model-supported",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：著（zháo）",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29651&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "著手",
+      "observed": ["zhu4", "shou3"],
+      "target": ["zhuo2", "shou3"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：著手",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=30825&la=0&powerMode=0",
+        "version": "2021"
+      }
+    }
+  ]
+}
