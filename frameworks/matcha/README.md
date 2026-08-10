@@ -156,6 +156,8 @@ WebGPU → SQLite architecture slice 另把同一 batch 的 32 個多音字 occu
 
 coordinator 已以真實 `jl.zip` 做兩輪各 4 句的 bounded smoke。第一輪寫入 checkpoint 3、4 句、39 個多音字 occurrence、4 個表面差異；第二輪以同一 fingerprint／run 接到 checkpoint 7，累計 8 句、138 occurrence、12 個表面差異。SQLite 同存 source text 與正式 frontend 後 normalized text，例如 `二月二，龍抬頭。` 對應 `二月二,龍抬頭.`；prediction 與 checkpoint 位於同一 transaction。差異中的「一」已分類為 `tone_sandhi`，證明資料庫保存的是審核候選而非自動修正清單。這仍是 bounded functional smoke，不是全文完成時間或吞吐量。
 
+端到端 throughput 另以獨立 SQLite 連跑兩批各 100 句。第一批 2,046 個 query，含 input／model hashing、Chrome WebGPU 與 Python worker 冷啟動為 81.85 queries/s，扣除這些一次性成本後為 110.50 queries/s；第二批 1,450 個 query，分別為 75.30 與 112.80 queries/s。checkpoint 由 99 接到 199，累計 3,496 筆 occurrence，複合 key 重複數為零。兩批穩態相差約 2%，瓶頸主要位於 WebGPU inference；差異共 388 筆，其中 agreement 3,108、tone sandhi 161、tone disagreement 88、neutral tone 81、polyphone 58。這些是候選分層，不等於 388 個 Matcha 錯讀。
+
 ## 一次性效能初測
 
 使用 `sherpa-onnx 1.13.4` Node WASM、單一推論 thread、語速 1.0，在沒有暖機與重複取中位數的情況下得到：

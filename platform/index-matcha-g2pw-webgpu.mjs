@@ -10,6 +10,7 @@ import {spawn} from 'node:child_process';
 import {createInterface} from 'node:readline';
 import {DatabaseSync} from 'node:sqlite';
 import {fileURLToPath} from 'node:url';
+import {performance} from 'node:perf_hooks';
 
 import './matcha-fst.js';
 import './matcha-frontend.js';
@@ -112,6 +113,18 @@ function startPreprocessor() {
   };
 }
 
+const invocationStarted = performance.now();
+const timing = {
+  identityMs: 0,
+  browserInitializeMs: 0,
+  preprocessorInitializeMs: 0,
+  frontendMs: 0,
+  preprocessMs: 0,
+  webgpuRoundTripMs: 0,
+  webgpuInferenceMs: 0,
+  sqliteMs: 0,
+};
+let queryCount = 0;
 const args = parseArguments(process.argv.slice(2));
 const fstFiles = ['phone', 'date', 'number'].map((name) => path.resolve(matchaModel, `${name}-zh.fst`));
 const review = JSON.parse(fs.readFileSync(reviewFile, 'utf8'));
@@ -122,6 +135,7 @@ const frontend = globalThis.MatchaFrontend.createFrontend({
   pronunciationOverrides: globalThis.MatchaFrontend.pronunciationOverridesFromReview(review),
   contextualRules: globalThis.MatchaFrontend.contextualRulesFromReview(review),
 });
+const identityStarted = performance.now();
 const metadata = {
   sourceSha256: await sha256File(args.input),
   modelSha256: await sha256File(path.resolve(g2pwModel, 'g2pw.onnx')),
@@ -130,6 +144,7 @@ const metadata = {
   profileSha256: await sha256File(reviewFile),
   backend: 'onnxruntime-web:webgpu', runtime: 'onnxruntime-web@1.27.0+g2pw@0.1.1',
 };
+timing.identityMs = performance.now() - identityStarted;
 const fingerprint = sha256Json(metadata);
 fs.mkdirSync(path.dirname(args.database), {recursive: true});
 const db = new DatabaseSync(args.database);
@@ -168,9 +183,13 @@ try {
     if (Date.now() > deadline) throw new Error('WebGPU page 未就緒');
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
+  const browserInitializeStarted = performance.now();
   await evalJs(`window.g2pwWebgpuBench.initialize(${JSON.stringify('/platform/models/g2pw/G2PWModel/g2pw.onnx')})`);
+  timing.browserInitializeMs = performance.now() - browserInitializeStarted;
   worker = startPreprocessor();
+  const preprocessorInitializeStarted = performance.now();
   const {labels} = await worker.ready;
+  timing.preprocessorInitializeMs = performance.now() - preprocessorInitializeStarted;
   const insertSentence = db.prepare(`INSERT OR REPLACE INTO sentences
     (run_id, source_sentence_id, text, source_text) VALUES (?, ?, ?, ?)`);
   const insertOccurrence = db.prepare(`INSERT OR REPLACE INTO occurrences(
@@ -179,16 +198,23 @@ try {
   let pending = [];
   const flush = async () => {
     if (!pending.length) return;
+    const preprocessStarted = performance.now();
     const encoded = await worker.encode(pending.map(({sourceSentenceId, normalizedText}) =>
       ({sourceSentenceId, text: normalizedText})), checkpoint + processed + 1);
+    timing.preprocessMs += performance.now() - preprocessStarted;
+    queryCount += encoded.queryCount;
     const predictions = [];
     for (const batch of encoded.batches) {
+      const webgpuStarted = performance.now();
       const result = await evalJs(`window.g2pwWebgpuBench.inferFeeds(${JSON.stringify(batch.feeds)})`);
+      timing.webgpuRoundTripMs += performance.now() - webgpuStarted;
+      timing.webgpuInferenceMs += result.wallMs;
       result.argmax.forEach((labelId, index) => predictions.push({
         ...batch.queries[index], phone: labels[labelId], confidence: result.maxProbability[index],
       }));
     }
     const byId = new Map(pending.map((sentence) => [sentence.sourceSentenceId, sentence]));
+    const sqliteStarted = performance.now();
     db.exec('BEGIN IMMEDIATE');
     try {
       for (const sentence of pending) insertSentence.run(
@@ -206,13 +232,16 @@ try {
       db.prepare('UPDATE runs SET last_sentence_id = ? WHERE id = ?').run(checkpoint, runId);
       db.exec('COMMIT');
     } catch (error) { db.exec('ROLLBACK'); throw error; }
+    timing.sqliteMs += performance.now() - sqliteStarted;
     processed += pending.length;
     pending = [];
   };
   for await (const sentence of novelSentences(args.input)) {
     if (sentence.sourceSentenceId <= checkpoint) continue;
     if (processed + pending.length >= args.maxSentences) { reachedLimit = true; break; }
+    const frontendStarted = performance.now();
     const trace = frontend.tokensFor(sentence.sourceText, {allowUnknown: true});
+    timing.frontendMs += performance.now() - frontendStarted;
     if (!trace.normalizedText || !HAN.test(trace.normalizedText)) continue;
     pending.push({...sentence, normalizedText: trace.normalizedText, readings: matchaReadings(trace)});
     if (pending.length >= args.sentenceBatchSize) await flush();
@@ -223,8 +252,15 @@ try {
   const summary = db.prepare(`SELECT COUNT(*) AS occurrences,
     SUM(category != 'agreement') AS differences, COUNT(DISTINCT source_sentence_id) AS sentences
     FROM occurrences WHERE run_id = ?`).get(runId);
+  const totalMs = performance.now() - invocationStarted;
   console.log(JSON.stringify({database: args.database, runId, reused: false,
-    status: reachedLimit ? 'building' : 'complete', checkpoint, processed, ...summary}, null, 2));
+    status: reachedLimit ? 'building' : 'complete', checkpoint, processed, queryCount, ...summary,
+    timing: {...Object.fromEntries(Object.entries(timing).map(([key, value]) => [key, Number(value.toFixed(2))])),
+      totalMs: Number(totalMs.toFixed(2)),
+      sentencesPerSecond: Number((processed * 1000 / totalMs).toFixed(2)),
+      queriesPerSecond: Number((queryCount * 1000 / totalMs).toFixed(2)),
+      steadyQueriesPerSecond: Number((queryCount * 1000 /
+        (timing.frontendMs + timing.preprocessMs + timing.webgpuRoundTripMs + timing.sqliteMs)).toFixed(2))}}, null, 2));
 } catch (error) {
   db.prepare("UPDATE runs SET status = 'failed' WHERE id = ?").run(runId);
   throw error;

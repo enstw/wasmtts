@@ -57,6 +57,8 @@ pnpm index:matcha-g2pw-webgpu -- ~/Downloads/jl.zip --max-sentences 100
 
 第二個命令需留在另一個 terminal；benchmark 與兩種 index command 都透過該 host 執行。固定 benchmark 只涵蓋 ONNX inference，不含 BERT tokenizer、句子切分、FST、SQLite 或跨程序傳輸。`g2pw-preprocess-worker.py` 已把 tokenizer／`TextDataset` 拆成 JSONL 常駐程序，並以 `G2PWConverter.__new__` 加載 upstream 設定與字典，刻意不建立 606 MiB native ORT session；browser page 的 `initialize`／`inferFeeds` 也重用單一 WebGPU session。fixture slice 本身尚未真正通過 FST；全文 command 才是正式 pipeline。`--max-sentences` 表示本次最多新增幾句，不是全文範圍；再次執行相同輸入、模型、FST 與 profile 會從 `last_sentence_id` 接續。移除上限才會掃到 EOF 並把 run 標成 `complete`。
 
+全文 command 的 JSON 另回報 `identityMs`、browser／preprocessor 初始化、frontend、preprocessing、WebGPU round trip／純 inference、SQLite 與 `totalMs`。`queriesPerSecond` 包含本次冷啟動；`steadyQueriesPerSecond` 只以 frontend、preprocessing、WebGPU round trip 與 SQLite 計算，不含 input／model hashing 與兩個 runtime 初始化。兩者都只代表 g2pW index throughput，不是 TTS `RTF`。
+
 上游 FST runner 使用 sherpa-onnx `v1.12.20` 官方 release asset；壓縮檔 SHA-256 為 `a09b2b2c5d5aab156650ea3da270ea8d7f358e6f315732f481b731f87dec6d88`：
 
 ```sh
