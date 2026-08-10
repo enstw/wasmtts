@@ -11,6 +11,10 @@
 # reads. Same story for the release dispatch after the merge.
 name: renovate
 
+env:
+  # renovate: datasource=npm depName=renovate
+  RENOVATE_VERSION: "43.257.7"
+
 on:
   schedule:
     - cron: "3 21 * * 0" # Sunday 21:03 UTC = Monday 05:03 Asia/Taipei
@@ -26,17 +30,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-      # renovate shells out to pnpm to regenerate pnpm-lock.yaml (first
-      # scheduled run died on spawn pnpm ENOENT); no checkout here, so the
-      # version cannot come from packageManager — keep it in step with it
-      - uses: pnpm/action-setup@v6
-        with:
-          version: 11.9.0
       - name: Run Renovate
-        run: npx --yes renovate --platform=github enstw/wasmtts
+        run: pnpm dlx "renovate@${RENOVATE_VERSION}" --platform=github enstw/wasmtts
         env:
           RENOVATE_TOKEN: ${{ github.token }}
           LOG_LEVEL: info

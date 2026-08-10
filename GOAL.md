@@ -60,6 +60,7 @@ Matcha 的選型已完成；本 repository 的自動 Release 只採可由免費 
 
 ## 下一步
 
+- 所有 Renovate 管理的 upstream 版本必須在 datasource 可驗證的發布時間滿 30 天後，才可進入 weekly roll-up；缺少 release timestamp 時採 fail-closed，不得建立 candidate branch／PR。ONNX Runtime Web 另依穩定版規則排除 dev、alpha、beta 與 RC。
 - 上游更新採全自動 candidate gate：桌面 WASM、FST golden、有效 waveform、RTF、512 MiB 記憶體上限與固定 Whisper ASR 聽回全部通過才可合併並發布正式 Release；失敗 candidate 不合併，另以 pre-release 保存版本組合、逐項失敗原因、log 與機器可讀 JSON。
 - 完成獨立 kaldifst WASM 與既有 JavaScript applier 的完整 golden A/B，維持 phone、date、number 固定順序；JavaScript 版本暫留作診斷基線。
 - 補齊貨幣／範圍／序號等中文文字正規化，以及可審核的臺灣讀音詞典。

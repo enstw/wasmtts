@@ -5,6 +5,8 @@
   "prConcurrentLimit": 5,
   "prHourlyLimit": 0,
   "minimumReleaseAge": "30 days",
+  "minimumReleaseAgeBehaviour": "timestamp-required",
+  "internalChecksFilter": "strict",
   "rangeStrategy": "pin",
   "labels": ["dependencies"],
   "lockFileMaintenance": { "enabled": false },
@@ -14,6 +16,13 @@
       "managerFilePatterns": ["/^platform\\/upstreams\\.yaml$/"],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) packageName=(?<packageName>\\S+)(?: versioning=(?<versioning>\\S+))?\\s+- version: (?<currentValue>\\S+)"
+      ]
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github\\/workflows\\/renovate\\.yml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+RENOVATE_VERSION: \\\"(?<currentValue>[^\\\"]+)\\\""
       ]
     },
     {

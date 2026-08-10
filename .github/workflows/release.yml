@@ -16,8 +16,26 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  changes:
+    name: artifact-changes
+    runs-on: ubuntu-latest
+    outputs:
+      artifact: ${{ steps.filter.outputs.artifact }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Detect artifact-sensitive changes
+        id: filter
+        run: node scripts/ci-scope.mjs
+
   native-wasm:
     name: release-native-wasm
+    needs: changes
+    if: needs.changes.outputs.artifact == 'true'
     runs-on: ubuntu-latest
     # renovate: datasource=docker depName=emscripten/emsdk
     container: emscripten/emsdk:6.0.6
@@ -32,8 +50,8 @@ jobs:
 
   test-and-release:
     name: test-and-release
-    if: always()
-    needs: native-wasm
+    if: always() && needs.changes.outputs.artifact == 'true'
+    needs: [changes, native-wasm]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
