@@ -31,15 +31,19 @@ function parseArguments(argv) {
   let database = 'platform/results/matcha-g2p-index.local.sqlite';
   let maxSentences = Infinity;
   let sentenceBatchSize = 8;
+  let g2pwBatchSize = 32;
   for (let index = 0; index < argv.length; index += 1) {
     if (argv[index] === '--database' && argv[index + 1]) database = argv[++index];
     else if (argv[index] === '--max-sentences' && argv[index + 1]) maxSentences = Number(argv[++index]);
     else if (argv[index] === '--sentence-batch-size' && argv[index + 1]) sentenceBatchSize = Number(argv[++index]);
+    else if (argv[index] === '--g2pw-batch-size' && argv[index + 1]) g2pwBatchSize = Number(argv[++index]);
     else throw new Error(`不支援的參數：${argv[index]}`);
   }
   if (!input) throw new Error('用法：index-matcha-g2pw-webgpu.mjs <novel.zip> [--max-sentences N]');
-  if (!(maxSentences > 0) || !(sentenceBatchSize > 0)) throw new Error('句數參數必須大於零');
-  return {input: path.resolve(input), database: path.resolve(database), maxSentences, sentenceBatchSize};
+  if (!(maxSentences > 0) || !(sentenceBatchSize > 0) || !(g2pwBatchSize > 0))
+    throw new Error('句數與 batch 參數必須大於零');
+  return {input: path.resolve(input), database: path.resolve(database), maxSentences, sentenceBatchSize,
+    g2pwBatchSize};
 }
 
 async function sha256File(filename) {
@@ -83,11 +87,11 @@ function matchaReadings(trace) {
   return readings;
 }
 
-function startPreprocessor() {
+function startPreprocessor(batchSize) {
   const child = spawn('uv', [
     'run', '--with', 'g2pw==0.1.1', '--with', 'requests==2.32.5', '--with', 'torch==2.13.0',
     '--with', 'onnxruntime==1.28.0', '--with', 'transformers==5.15.0',
-    'platform/g2pw-preprocess-worker.py', '--batch-size', '32',
+    'platform/g2pw-preprocess-worker.py', '--batch-size', String(batchSize),
   ], {
     cwd: root,
     env: {...process.env, HF_HOME: 'platform/models/g2pw/hf', TRANSFORMERS_OFFLINE: '1', HF_HUB_OFFLINE: '1'},
@@ -186,7 +190,7 @@ try {
   const browserInitializeStarted = performance.now();
   await evalJs(`window.g2pwWebgpuBench.initialize(${JSON.stringify('/platform/models/g2pw/G2PWModel/g2pw.onnx')})`);
   timing.browserInitializeMs = performance.now() - browserInitializeStarted;
-  worker = startPreprocessor();
+  worker = startPreprocessor(args.g2pwBatchSize);
   const preprocessorInitializeStarted = performance.now();
   const {labels} = await worker.ready;
   timing.preprocessorInitializeMs = performance.now() - preprocessorInitializeStarted;
@@ -254,7 +258,8 @@ try {
     FROM occurrences WHERE run_id = ?`).get(runId);
   const totalMs = performance.now() - invocationStarted;
   console.log(JSON.stringify({database: args.database, runId, reused: false,
-    status: reachedLimit ? 'building' : 'complete', checkpoint, processed, queryCount, ...summary,
+    status: reachedLimit ? 'building' : 'complete', checkpoint, processed, queryCount,
+    configuration: {sentenceBatchSize: args.sentenceBatchSize, g2pwBatchSize: args.g2pwBatchSize}, ...summary,
     timing: {...Object.fromEntries(Object.entries(timing).map(([key, value]) => [key, Number(value.toFixed(2))])),
       totalMs: Number(totalMs.toFixed(2)),
       sentencesPerSecond: Number((processed * 1000 / totalMs).toFixed(2)),

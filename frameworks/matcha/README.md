@@ -158,6 +158,8 @@ coordinator 已以真實 `jl.zip` 做兩輪各 4 句的 bounded smoke。第一�
 
 端到端 throughput 另以獨立 SQLite 連跑兩批各 100 句。第一批 2,046 個 query，含 input／model hashing、Chrome WebGPU 與 Python worker 冷啟動為 81.85 queries/s，扣除這些一次性成本後為 110.50 queries/s；第二批 1,450 個 query，分別為 75.30 與 112.80 queries/s。checkpoint 由 99 接到 199，累計 3,496 筆 occurrence，複合 key 重複數為零。兩批穩態相差約 2%，瓶頸主要位於 WebGPU inference；差異共 388 筆，其中 agreement 3,108、tone sandhi 161、tone disagreement 88、neutral tone 81、polyphone 58。這些是候選分層，不等於 388 個 Matcha 錯讀。
 
+相同開頭 100 句、單一 Chrome process 的 batch 32／64／128 A/B 為 112.58／114.99／116.24 steady queries/s，放大 batch 的最大收益約 3.3%。同一 ORT Web runtime 的雙 session concurrent run 會在 `getBindGroupLayout` 失敗；改用兩個獨立 Chrome process 後，每個 process 為 69.63／67.72，合計約 137.35 queries/s，較單 process 快約 22%，但不是線性加速。正式單 process 預設仍保守維持 32；桌機一次性全文 scan 可明確指定 128。多 process 只有在新增 source sentence sharding、確保結果可無重複合併後才應進入正式 coordinator。
+
 ## 一次性效能初測
 
 使用 `sherpa-onnx 1.13.4` Node WASM、單一推論 thread、語速 1.0，在沒有暖機與重複取中位數的情況下得到：
