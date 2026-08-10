@@ -63,6 +63,11 @@ window.g2pwWebgpuBench = {
       warmups: 1,
       runs: runs.map(({wallMs}) => ({wallMs, queriesPerSecond: fixture.batchSize * 1000 / wallMs})),
       predictionMismatches: mismatches,
+      predictions: runs[0].argmax.map((labelId, index) => ({
+        labelId,
+        phone: fixture.labels[labelId],
+        confidence: runs[0].maxProbability[index],
+      })),
       maxProbabilityDelta: Math.max(...runs[0].maxProbability.map((value, index) => Math.abs(value - fixture.expectedMaxProbability[index]))),
     };
   },

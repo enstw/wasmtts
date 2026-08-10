@@ -16,6 +16,7 @@
 - `audit-matcha-g2p.mjs`、`run-g2pw-pilot.py`：對外部小說 ZIP 執行現況 frontend trace 與開發期 contextual G2P 差異掃描；小說、g2pW 模型與 `*.local.json` 報告皆不提交。
 - `rank-matcha-g2p-roi.mjs`：把前字或後字分層 pilot 的抽樣一致性與全文相鄰字次數合併排序，並保留各樣本的 Matcha phone 以處理多讀音；`estimatedAffectedCeiling` 只是候選上限，不是已確認錯讀數。
 - `generate-g2pw-webgpu-fixture.py`、`g2pw-webgpu-benchmark.html`、`run-g2pw-webgpu-browser.mjs`：用 Python ORT CPU 產生真實 g2pW ONNX input/golden，再以 ORT Web WebGPU 跑同一 batch；fixture 與結果均為忽略的 `*.local.json`。
+- `index-g2pw-webgpu-fixture.mjs`：WebGPU → SQLite architecture slice；以模型、lexicon、FST、profile 與 input hashes 隔離 run，transaction 寫入 agreement/difference occurrences，相同 fingerprint 完成後直接 reuse。SQLite 是本機忽略產物。
 - `matcha-g2p-review.json`：schema v2 分開保存辭典來源、模型證據與產品 profile。entry 不因存在就自動生效；`profiles.taiwan` 明列啟用的 phrase overrides 與 contextual rules。contextual rule 可限制前字或後字；`著` 的前字 allowlist 標為 `model-supported`，不得寫成逐項人工確認或降級成全域單字覆寫。
 - `run-matcha-upstream-fst-browser.mjs`：未修改的 sherpa-onnx 官方 browser bundle＋建議中文 FST 基線。
 - `matcha-upstream-benchmark.html`、`matcha-upstream-benchmark.js`、`run-matcha-fst-ab-browser.mjs`：同 runtime 只切換 FST 的控制實驗。
@@ -49,9 +50,10 @@ g2pW WebGPU feasibility A/B 使用本機已忽略的 606 MiB ONNX 與 tokenizer 
 pnpm fixture:matcha-g2pw-webgpu -- --batch-size 32
 pnpm host:mobile
 pnpm benchmark:matcha-g2pw-webgpu
+pnpm index:matcha-g2pw-webgpu-fixture
 ```
 
-第二、三個命令需分別在兩個 terminal 執行。量測只涵蓋固定 ONNX feed 的 inference，不含 BERT tokenizer、句子切分、FST、SQLite 或跨程序傳輸。
+第二個命令需留在另一個 terminal；benchmark 與 index command 都透過該 host 執行。量測只涵蓋固定 ONNX feed 的 inference，不含 BERT tokenizer、句子切分、FST、SQLite 或跨程序傳輸。SQLite slice 雖把 FST/profile hashes 納入 run fingerprint，fixture 本身尚未真正通過 FST；不得把它寫成全文正式 B/C。
 
 上游 FST runner 使用 sherpa-onnx `v1.12.20` 官方 release asset；壓縮檔 SHA-256 為 `a09b2b2c5d5aab156650ea3da270ea8d7f358e6f315732f481b731f87dec6d88`：
 

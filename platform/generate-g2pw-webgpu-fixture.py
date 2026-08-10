@@ -29,6 +29,41 @@ SENTENCES = [
 ]
 
 
+def load_lexicon(path: Path) -> tuple[dict[str, list[str]], int]:
+    lexicon: dict[str, list[str]] = {}
+    max_length = 1
+    with path.open(encoding="utf-8") as source:
+        for raw in source:
+            parts = raw.strip().split()
+            if len(parts) < 2:
+                continue
+            lexicon[parts[0]] = parts[1:]
+            max_length = max(max_length, len(parts[0]))
+    return lexicon, max_length
+
+
+def matcha_character_readings(
+    sentence: str, lexicon: dict[str, list[str]], max_length: int
+) -> list[str | None]:
+    readings: list[str | None] = [None] * len(sentence)
+    offset = 0
+    while offset < len(sentence):
+        match: tuple[str, list[str]] | None = None
+        for length in range(min(max_length, len(sentence) - offset), 0, -1):
+            word = sentence[offset : offset + length]
+            if word in lexicon:
+                match = word, lexicon[word]
+                break
+        if match is None:
+            offset += 1
+            continue
+        word, phones = match
+        if len(word) == len(phones):
+            readings[offset : offset + len(word)] = phones
+        offset += len(word)
+    return readings
+
+
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as source:
@@ -41,6 +76,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model-dir", type=Path, default=Path("platform/models/g2pw/G2PWModel"))
     parser.add_argument("--model-source", default="google-bert/bert-base-chinese")
+    parser.add_argument(
+        "--lexicon",
+        type=Path,
+        default=Path("platform/models/matcha-icefall-zh-en/lexicon.txt"),
+    )
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument(
         "--output",
@@ -64,7 +104,7 @@ def main() -> int:
     initialization_seconds = time.perf_counter() - initialized_at
     converter.num_workers = 0
     translated = [converter._convert_s2t(sentence) for sentence in SENTENCES]
-    texts, query_ids, _, _ = converter._prepare_data(translated)
+    texts, query_ids, sentence_ids, _ = converter._prepare_data(translated)
     dataset = TextDataset(
         converter.tokenizer,
         converter.labels,
@@ -89,6 +129,39 @@ def main() -> int:
         cpu_runs_ms.append((time.perf_counter() - started) * 1000)
     assert probabilities is not None
     expected = np.argmax(probabilities, axis=-1)
+    def label_to_pinyin(label: str) -> str:
+        bopomofo = label.split(" ", 1)[1] if converter.config.use_char_phoneme else label
+        component = converter.bopomofo_convert_dict.get(bopomofo[:-1])
+        return f"{component}{bopomofo[-1]}" if component else bopomofo
+
+    lexicon, max_lexicon_length = load_lexicon(args.lexicon)
+    matcha_readings = [
+        matcha_character_readings(sentence, lexicon, max_lexicon_length)
+        for sentence in SENTENCES
+    ]
+    query_metadata = []
+    for sentence_id, query_id, label_id in zip(
+        sentence_ids[: len(expected)], query_ids[: len(expected)], expected.tolist(), strict=True
+    ):
+        label = converter.labels[label_id]
+        query_metadata.append(
+            {
+                "sentenceId": sentence_id,
+                "offset": query_id,
+                "character": SENTENCES[sentence_id][query_id],
+                "previous": SENTENCES[sentence_id][query_id - 1] if query_id > 0 else "",
+                "following": SENTENCES[sentence_id][query_id + 1] if query_id + 1 < len(SENTENCES[sentence_id]) else "",
+                "matcha": matcha_readings[sentence_id][query_id],
+                "expectedG2pw": label_to_pinyin(label),
+            }
+        )
+    identity_payload = {
+        "modelSha256": sha256(args.model_dir / "g2pw.onnx"),
+        "lexiconSha256": sha256(args.lexicon),
+        "sentences": SENTENCES,
+        "feeds": {name: value.tolist() for name, value in feed.items()},
+        "queries": query_metadata,
+    }
     report = {
         "schemaVersion": 1,
         "model": {
@@ -96,6 +169,10 @@ def main() -> int:
             "bytes": (args.model_dir / "g2pw.onnx").stat().st_size,
             "sha256": sha256(args.model_dir / "g2pw.onnx"),
         },
+        "lexicon": {"path": str(args.lexicon), "sha256": sha256(args.lexicon)},
+        "inputSha256": hashlib.sha256(
+            json.dumps(identity_payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest(),
         "sentences": SENTENCES,
         "queries": len(texts),
         "batchSize": len(expected),
@@ -109,6 +186,8 @@ def main() -> int:
             ],
         },
         "expectedArgmax": expected.tolist(),
+        "labels": [label_to_pinyin(label) for label in converter.labels],
+        "queryMetadata": query_metadata,
         "expectedMaxProbability": probabilities[np.arange(len(expected)), expected].tolist(),
         "feeds": {
             name: {

@@ -150,6 +150,8 @@ Taiwan profile 的指定句瀏覽器測試實際輸出五個 `de5`，71,365 個 
 
 為支援一次性全文 SQLite index，另以固定真實 g2pW ONNX batch 比較 Python native ORT CPU 與 ORT Web WebGPU。Apple Silicon、Chrome 151、ORT Web 1.27.0、batch 32 下，CPU ORT 1.28.0 中位為 49.86 queries/s，WebGPU 中位為 206.91 queries/s，即純 inference 約 4.15×；606 MiB 模型的 WebGPU session 初始化為 2.38 秒。32/32 argmax 與 CPU golden 相同，最大 probability 差 `1.19e-7`。此 feasibility 數字不含 tokenizer、句子準備、FST、SQLite I/O 或程序間傳輸，不能直接把全文 wall time 除以 4.15；下一步應以串流 preprocessing＋WebGPU batch＋SQLite checkpoint 做端到端量測。
 
+WebGPU → SQLite architecture slice 另把同一 batch 的 32 個多音字 occurrence 寫入本機 WAL database，保存 agreement 與 difference、句子、offset、前後字、Matcha/g2pW phone、confidence 與 category。第一個 schema-correct run 寫入 5 句、32 筆 occurrence、12 筆 difference，SQL ROI 得到 `為` 7、`長` 2、`和／得／著` 各 1；相同 fingerprint 第二次執行直接 reuse，row count 不變。run fingerprint 已含 input、606 MiB model、lexicon、固定順序三個 FST、Taiwan profile 與 backend/runtime hashes。此 slice 的 fixture 尚未真正套 FST，只驗證 schema、transaction、WebGPU prediction 寫入與 idempotency；全文 feeder 必須先套正式 frontend，再依可對齊範圍寫入。
+
 ## 一次性效能初測
 
 使用 `sherpa-onnx 1.13.4` Node WASM、單一推論 thread、語速 1.0，在沒有暖機與重複取中位數的情況下得到：

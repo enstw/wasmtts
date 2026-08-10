@@ -47,6 +47,7 @@ function run(name, command, args, env = {}, {attempts = 1, retryOn = null} = {})
 run('frontend-fixtures', 'pnpm', ['test:matcha-frontend']);
 run('g2p-review', 'pnpm', ['test:matcha-g2p-review']);
 run('g2p-roi', 'pnpm', ['test:matcha-g2p-roi']);
+run('g2p-index', 'pnpm', ['test:matcha-g2pw-index']);
 run('taiwan-profile', 'pnpm', ['test:matcha-taiwan-profile']);
 run('fst-fixtures', 'pnpm', ['test:matcha-fst']);
 run('fst-tables', 'pnpm', ['test:matcha-fst:tables']);

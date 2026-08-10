@@ -103,6 +103,8 @@ Taiwan profile 另以指定文字跑一個完整瀏覽器 append，實際得到 
 
 g2pW WebGPU feasibility 使用同一個 Python 產生的真實 ONNX feed 與 CPU golden，模型 `g2pw.onnx` 為 635,212,732 bytes、SHA-256 `bb40c8c7b5baa755b2acd317c6bc5a65e4af7b80c40a569247fbd76989299999`。Apple Silicon、macOS kernel 25.5.0、Headless Chrome 151、ORT Web 1.27.0、batch 32、一次暖機與五次量測下，WebGPU session 初始化 2,381.84 ms，五輪為 197.04、207.19、208.27、206.91、200.28 queries/s，中位 206.91。相同 feed 的 Python ORT 1.28.0 CPU 為 49.77、49.86、50.25、50.13、48.24 queries/s，中位 49.86，WebGPU inference speedup 為 4.15×。32 個 argmax 零差異，最大 probability 差 `1.19e-7`。fixture、完整輸出與模型皆為本機忽略產物；本數字排除 tokenizer、句子切分、FST、SQLite 與 IPC，僅證明 WebGPU graph 可用且值得整合。
 
+同一 fixture 的 WebGPU → SQLite slice 使用 WAL、foreign keys、transaction 與 `(run_id, source_sentence_id, character_offset)` primary key；run fingerprint 納入 input/model/lexicon/FST/profile/backend/runtime。修正 agreement 優先分類後，run 2 寫入 5 句、32 個多音字 occurrence、12 個 difference；SQL 聚合為 `為 wei4→wei2` 7、`長 zhang3→chang2` 2、`和 he2→han4`、`得 de2→de5`、`著 zhu4→zhe5` 各 1。立即重跑回報 `reused: true`，occurrence 仍為 32。此結果只驗證 architecture slice；fixture 未真正套用 FST，全文正式 index 必須補上相同 frontend、串流 tokenizer feeder、batch checkpoint 與中斷續跑。
+
 同日以 Chromium 151 對 Taiwan profile 跑完整 Worker、Matcha/Vocos、MP3 與單一 MediaSource sequence。五個 append 共 25.416 秒，producer `RTF 0.1466`、`6.82 倍即時`，underflow、append error、producer error 均為 0；含「垃圾」的 segment 實際輸出 `le4 se4`，waveform 81,682 samples 全為有限值、peak `0.9377`、RMS `0.1380`，MP3 62,208 bytes。結果只寫入 `/tmp` 作功能驗證，不取代 official profile 的正式 benchmark JSON；七個新審核詞的 token mapping 另由 manifest 與 frontend 測試覆蓋。
 
 加入 contextual rule 後另跑兩個 append、10.656 秒的 Taiwan profile smoke test；含「帶著」的 segment 實際輸出 `dai4 zhe5`，103,825 samples 全為有限值、peak `0.8463`、RMS `0.1419`，MP3 79,056 bytes，三類串流錯誤仍為 0。結果同樣只寫入 `/tmp`。
