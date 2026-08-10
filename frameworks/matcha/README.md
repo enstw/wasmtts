@@ -162,6 +162,8 @@ coordinator 已以真實 `jl.zip` 做兩輪各 4 句的 bounded smoke。第一�
 
 ORT Web host threads 另以相同 100 句、batch 128 比較 `ORT.env.wasm.numThreads=1／2／4／8`，steady throughput 為 117.08／117.08／116.58／116.93 queries/s，差異約 0.4%，沒有實質加速。這證實目前主要成本是 WebGPU kernels，WASM threads 不控制 GPU shader 平行度；正式配置維持 ORT auto，`--wasm-threads` 只保留為可重現診斷參數。
 
+全文正式資料庫的十分鐘觀察從空 run 寫到 checkpoint 3,999，共 4,000 句、63,539 個 occurrence；含冷啟動的端到端吞吐約 6.4 句／秒、101 queries／秒。依此估計 315,593 句全文約需 12.8 小時，保守安排 13–15 小時。候選分層為 agreement 56,098、tone sandhi 3,129、neutral tone 1,677、tone disagreement 1,535、polyphone 1,100；這些仍是待分析候選，不等同錯讀數。coordinator 已補每十秒進度、可選總句數 ETA、訊號中斷 checkpoint，以及 Python／CDP／Chromium 完整關閉；2 句 smoke 正常退出且沒有產生新的殘留程序。
+
 ## 一次性效能初測
 
 使用 `sherpa-onnx 1.13.4` Node WASM、單一推論 thread、語速 1.0，在沒有暖機與重複取中位數的情況下得到：

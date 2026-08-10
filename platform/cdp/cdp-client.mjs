@@ -68,8 +68,21 @@ export async function launch({ port, profile, args = [], gpu = false, onFail } =
   };
 
   const close = async () => {
-    await send("Target.closeTarget", { targetId });
-    proc.kill();
+    if (sock.readyState === WebSocket.OPEN) {
+      try { await send("Target.closeTarget", { targetId }); } catch {}
+      sock.close();
+      await new Promise((resolve) => {
+        if (sock.readyState === WebSocket.CLOSED) return resolve();
+        const timer = setTimeout(resolve, 2000);
+        sock.addEventListener("close", () => { clearTimeout(timer); resolve(); }, { once: true });
+      });
+    }
+    if (proc.exitCode === null && proc.signalCode === null) proc.kill();
+    await new Promise((resolve) => {
+      if (proc.exitCode !== null || proc.signalCode !== null) return resolve();
+      const timer = setTimeout(() => { proc.kill("SIGKILL"); resolve(); }, 3000);
+      proc.once("close", () => { clearTimeout(timer); resolve(); });
+    });
   };
 
   return { proc, send, evalJs, close, sessionId, targetId, bin };
