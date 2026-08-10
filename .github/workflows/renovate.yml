@@ -23,6 +23,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  issues: write # the dependency dashboard is an issue
   actions: write
 
 jobs:
