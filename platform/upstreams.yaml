@@ -22,7 +22,7 @@ upstreams:
 
   # 完整 512 MiB frontend bundle 只保留為上游 control，仍需收到更新通知。
   # renovate: datasource=github-releases depName=sherpa-onnx-browser-control packageName=k2-fsa/sherpa-onnx
-  - version: v1.12.20
+  - version: v1.13.4
     assets:
       - sherpa-onnx-wasm-simd-matcha-icefall-zh-en
 
