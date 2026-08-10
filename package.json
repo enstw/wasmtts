@@ -2,7 +2,7 @@
   "name": "wasmtts-benchmark",
   "private": true,
   "type": "commonjs",
-  "packageManager": "pnpm@11.9.0",
+  "packageManager": "pnpm@11.11.0",
   "scripts": {
     "build:matcha-kaldifst": "platform/kaldifst-wasm/build.sh",
     "vendor:mobile": "node scripts/vendor-mobile.mjs",
@@ -29,9 +29,9 @@
     "onnxruntime-web": "1.27.0"
   },
   "devDependencies": {
-    "@huggingface/transformers": "^4.2.0",
+    "@huggingface/transformers": "4.2.0",
     "opencc-js": "1.4.1",
-    "playwright-core": "^1.62.1",
+    "playwright-core": "1.62.1",
     "sherpa-onnx": "1.13.4"
   }
 }
