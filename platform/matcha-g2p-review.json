@@ -4,7 +4,7 @@
   "purpose": "分開保存辭典來源、模型證據與產品啟用範圍；候選不因出現在 entries 就自動進產品",
   "profiles": {
     "taiwan": {
-      "phraseOverrides": ["記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手"],
+      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手"],
       "contextualRules": ["著", "和"]
     }
   },
@@ -52,6 +52,56 @@
         "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=5054&la=0&powerMode=0",
         "version": "2021"
       }
+    },
+    {
+      "pattern": "作為", "observed": ["zuo4", "wei4"], "target": ["zuo4", "wei2"],
+      "scope": "固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：作為", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=139574&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "成為", "observed": ["cheng2", "wei4"], "target": ["cheng2", "wei2"],
+      "scope": "固定結構", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：為", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=11447&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "名為", "observed": ["ming2", "wei4"], "target": ["ming2", "wei2"],
+      "scope": "固定結構", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：為", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=11447&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "修為", "observed": ["xiu1", "wei4"], "target": ["xiu1", "wei2"],
+      "scope": "固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：為", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=11447&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "極為", "observed": ["ji2", "wei4"], "target": ["ji2", "wei2"],
+      "scope": "程度副詞結構", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：為", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=11447&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "身為", "observed": ["shen1", "wei4"], "target": ["shen1", "wei2"],
+      "scope": "固定結構", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：為", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=11447&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "視為", "observed": ["shi4", "wei4"], "target": ["shi4", "wei2"],
+      "scope": "固定結構", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：為", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=11447&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "最為", "observed": ["zui4", "wei4"], "target": ["zui4", "wei2"],
+      "scope": "程度副詞結構", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：為", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=11447&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "譽為", "observed": ["yu4", "wei4"], "target": ["yu4", "wei2"],
+      "scope": "固定結構", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：為", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=11447&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "淪為", "observed": ["lun2", "wei4"], "target": ["lun2", "wei2"],
+      "scope": "固定結構", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：為", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=11447&la=0&powerMode=0", "version": "2021"}
     },
     {
       "pattern": "記得",

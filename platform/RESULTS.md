@@ -99,6 +99,8 @@ Taiwan profile 另以指定文字跑一個完整瀏覽器 append，實際得到 
 
 「和」pilot 新增按後一字分層與多 current-phone ROI，避免把 `附和 he4` 等完整詞混入單字 `he2` 候選。300 句共比較 20,077 字，18,616 字一致、1,461 字不同，表面一致率 `92.72%`；120 個後字桶中 86 個 actionable、5 個維持目前讀音、11 個混合、18 個樣本不足。86 個 actionable 桶共 270 筆皆為 `he2 → han4`；排除 tokenization 前會移除的引號後，產品採 85 字、267 筆的後字 allowlist。依教育部連詞語音條目，規則只在 longest-match 落到單字「和」時生效。全文新增命中 8,014 次，contextual 總命中 44,719，fallback 降至 9,226,871；token 11,942,487、unknown 1,018 不變。`和平、和氣、附和` 及混合桶均有負向迴歸保護；`摻和` 的繁體 lexicon 缺口仍維持現況，不在本輪擴張處理。
 
+「為」按前字分層的 300 句 pilot 比較 19,624 字，18,309 字一致、1,315 字不同，表面一致率 `93.30%`。ROI 將 123 個前字桶分為 50 個 actionable、24 個維持目前讀音、30 個混合、19 個樣本不足；高頻 `因為` 12/12 維持 `wei4`，`以為` 6/7 為 `wei2` 但仍按 mixed 排除。依教育部 `wei2/wei4` 詞義與「作為」獨立詞條，只加入 `作為、成為、名為、修為、極為、身為、視為、最為、譽為、淪為` 十個固定結構。ROI 上限 11,715 次，全文實際依序命中 2,838、2,420、1,286、1,136、905、794、726、620、467、459 次，合計 11,651；fallback 由 9,226,871 降至 9,203,569，token 11,942,487、unknown 1,018、contextual 44,719 不變。負向測試固定 `因為、為了、為何、為此 → wei4`。
+
 同日以 Chromium 151 對 Taiwan profile 跑完整 Worker、Matcha/Vocos、MP3 與單一 MediaSource sequence。五個 append 共 25.416 秒，producer `RTF 0.1466`、`6.82 倍即時`，underflow、append error、producer error 均為 0；含「垃圾」的 segment 實際輸出 `le4 se4`，waveform 81,682 samples 全為有限值、peak `0.9377`、RMS `0.1380`，MP3 62,208 bytes。結果只寫入 `/tmp` 作功能驗證，不取代 official profile 的正式 benchmark JSON；七個新審核詞的 token mapping 另由 manifest 與 frontend 測試覆蓋。
 
 加入 contextual rule 後另跑兩個 append、10.656 秒的 Taiwan profile smoke test；含「帶著」的 segment 實際輸出 `dai4 zhe5`，103,825 samples 全為有限值、peak `0.8463`、RMS `0.1419`，MP3 79,056 bytes，三類串流錯誤仍為 0。結果同樣只寫入 `/tmp`。

@@ -26,6 +26,17 @@ assert.deepEqual(taiwan.tokensFor('和他').phones, ['han4', 'ta1']);
 assert.deepEqual(taiwan.tokensFor('和平和氣附和摻和').phones, [
   'he2', 'ping2', 'he2', 'qi4', 'fu4', 'he4', 'can4', 'he2',
 ]);
+assert.deepEqual(official.tokensFor('作為成為名為修為極為身為視為最為譽為淪為').phones, [
+  'zuo4', 'wei4', 'cheng2', 'wei4', 'ming2', 'wei4', 'xiu1', 'wei4', 'ji2', 'wei4',
+  'shen1', 'wei4', 'shi4', 'wei4', 'zui4', 'wei4', 'yu4', 'wei4', 'lun2', 'wei4',
+]);
+assert.deepEqual(taiwan.tokensFor('作為成為名為修為極為身為視為最為譽為淪為').phones, [
+  'zuo4', 'wei2', 'cheng2', 'wei2', 'ming2', 'wei2', 'xiu1', 'wei2', 'ji2', 'wei2',
+  'shen1', 'wei2', 'shi4', 'wei2', 'zui4', 'wei2', 'yu4', 'wei2', 'lun2', 'wei2',
+]);
+assert.deepEqual(taiwan.tokensFor('因為為了為何為此').phones, [
+  'yin1', 'wei4', 'wei4', 'le5', 'wei4', 'he2', 'wei4', 'ci3',
+]);
 assert.deepEqual(taiwan.tokensFor('找著').phones, ['zhao3', 'zhao2']);
 assert.deepEqual(taiwan.tokensFor('著手').phones, ['zhuo2', 'shou3']);
 assert.deepEqual(taiwan.tokensFor('看著急').phones, ['kan4', 'zhao1', 'ji2']);

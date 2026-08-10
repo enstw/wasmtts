@@ -102,7 +102,7 @@ PWA runtime、Worker、兩個模型與字典均進入 CacheStorage 後，實際�
 
 2026-08-08 在 iOS `18.7` Safari 以 LAN HTTP 測試低記憶體 JavaScript lexicon adapter。模型下載、Worker 初始化與有效 waveform 暖機皆通過；設定 WebKit 要求的 `HTMLAudioElement.disableRemotePlayback=true` 後，使用者確認繁體原文直輸、前景播放、鎖屏播放及「垃圾 → `le4 se4`」讀音覆寫正常。因本輪 `secureContext=false`、`standalone=false`，且未記錄裝置型號、鎖屏時長、溫度、耗電、降頻或 2 小時跨章結果，只能判定 transport 初步相容，不是 PWA 或熱穩態完成。
 
-實聽發現 `「」` 被映射為 `“”` acoustic tokens 後會發音；目前已在 tokenization 前移除中英文開閉引號、保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。Taiwan profile 現含「垃圾」、37 個 phrase overrides，以及本節說明的保守 `著 → zhe5`、連詞 `和 → han4` contextual rules；official profile 保持上游結果。review schema v2 把 `confirmed`、`source-and-model-supported`、`model-supported` 證據狀態與 `profiles.taiwan` 產品啟用清單分開，allowlist 不宣稱為逐項人工確認。「關卡」逐字讀音符合臺灣 `guan1 ka3`；「堤壩」已依教育部讀音覆寫為 `ti2 ba4`。完整事件與數值保存在 [共同結果](../../platform/RESULTS.md)。
+實聽發現 `「」` 被映射為 `“”` acoustic tokens 後會發音；目前已在 tokenization 前移除中英文開閉引號、保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。Taiwan profile 現含「垃圾」、47 個 phrase overrides，以及本節說明的保守 `著 → zhe5`、連詞 `和 → han4` contextual rules；official profile 保持上游結果。review schema v2 把 `confirmed`、`source-and-model-supported`、`model-supported` 證據狀態與 `profiles.taiwan` 產品啟用清單分開，allowlist 不宣稱為逐項人工確認。「關卡」逐字讀音符合臺灣 `guan1 ka3`；「堤壩」已依教育部讀音覆寫為 `ti2 ba4`。完整事件與數值保存在 [共同結果](../../platform/RESULTS.md)。
 
 ## 小說 G2P 稽核 pilot
 
@@ -145,6 +145,8 @@ Taiwan profile 的指定句瀏覽器測試實際輸出五個 `de5`，71,365 個 
 「地」按前字分層抽 300 句，20,709 個可比較漢字中有 19,393 個一致、1,316 個差異，表面一致率 `93.65%`。ROI 工具把 129 個有抽樣的前字分為 2 個 actionable、95 個維持目前讀音、5 個混合與 27 個樣本不足；只有 `兆` 4/4 與 `主` 3/3 全為 `de5`。產品採更窄的 `徵兆地`、`自主地` 固定結構，全文命中 75、40 次，單字 fallback 降至 9,234,885；不建立全域「地」或單前字規則。
 
 「和」需要由後方詞組判定，pilot 與 ROI 因此新增對稱的 `--stratify-following`，並在每筆 evidence 保存 Matcha phone，允許同一目標字已有多個 lexicon 讀音。300 句共比較 20,077 字，18,616 字一致、1,461 字不同；120 個後字桶中 86 個至少三筆且全部為 `he2 → han4`、11 個混合；排除 tokenization 前會移除的引號後，產品 allowlist 為 85 字、267 筆。依教育部「`ㄏㄢˋ`為連詞`ㄏㄜˊ`之語音」加入後字 allowlist rule，只在 longest-match 落到單字「和」時生效；`和平、和氣、附和` 與混合桶維持原讀音。全文新增命中 8,014 次，總 contextual 命中 44,719，fallback 降至 9,226,871；token 與 unknown 不變。
+
+「為」按前字分層抽 300 句，19,624 個可比較漢字中有 18,309 個一致、1,315 個差異，表面一致率 `93.30%`。123 個前字桶分為 50 個 actionable、24 個維持目前讀音、30 個混合與 19 個樣本不足；`因為` 12/12 維持 `wei4`，`以為` 則為混合桶，因此不建立全域或前字 contextual rule。產品只加入前十個穩定固定結構 `作為、成為、名為、修為、極為、身為、視為、最為、譽為、淪為 → wei2`；ROI 同前字上限為 11,715，全文 longest-match 實際命中 11,651 次，fallback 降至 9,203,569。`因為、為了、為何、為此 → wei4` 另有負向迴歸測試；token、unknown 與既有 contextual 命中不變。
 
 ## 一次性效能初測
 
