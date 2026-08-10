@@ -46,9 +46,12 @@ jobs:
         run: |
           PR=$(gh pr list -R enstw/wasmtts --head renovate/weekly-roll-up --json number --jq '.[0].number // empty')
           if [ -z "$PR" ]; then echo "no roll-up this week"; exit 0; fi
-          gh workflow run candidate --ref renovate/weekly-roll-up -R enstw/wasmtts
+          # file names, not display names: the workflows are named "Upstream
+          # candidate" and "Tested release", which gh does not match as
+          # "candidate"/"release"
+          gh workflow run candidate.yml --ref renovate/weekly-roll-up -R enstw/wasmtts
           sleep 30
-          RUN=$(gh run list -R enstw/wasmtts --workflow candidate --branch renovate/weekly-roll-up --limit 1 --json databaseId --jq '.[0].databaseId')
+          RUN=$(gh run list -R enstw/wasmtts --workflow candidate.yml --branch renovate/weekly-roll-up --limit 1 --json databaseId --jq '.[0].databaseId')
           gh run watch "$RUN" --exit-status -R enstw/wasmtts
           gh pr merge "$PR" --rebase --delete-branch -R enstw/wasmtts
-          gh workflow run release --ref main -R enstw/wasmtts
+          gh workflow run release.yml --ref main -R enstw/wasmtts
