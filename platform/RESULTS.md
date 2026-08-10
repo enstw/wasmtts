@@ -97,6 +97,8 @@ Taiwan profile 另以指定文字跑一個完整瀏覽器 append，實際得到 
 
 「地」分層 pilot 抽 300 句，20,709 個可比較漢字有 19,393 個一致、1,316 個差異，表面一致率 `93.65%`。新 ROI 排名把分層抽樣一致性與全文同前字次數合併，但明列 estimated ceiling 不是已確認錯讀數；129 個候選中只有 `兆` 4/4 與 `主` 3/3 穩定指向 `de5`，另有 95 個維持 `di4`、5 個混合、27 個樣本不足。依教育部結構助詞條目，產品只加入 `徵兆地` 75 次與 `自主地` 40 次兩個固定結構；fallback 降至 9,234,885，token 與 unknown 不變，不建立全域「地」規則。
 
+「和」pilot 新增按後一字分層與多 current-phone ROI，避免把 `附和 he4` 等完整詞混入單字 `he2` 候選。300 句共比較 20,077 字，18,616 字一致、1,461 字不同，表面一致率 `92.72%`；120 個後字桶中 86 個 actionable、5 個維持目前讀音、11 個混合、18 個樣本不足。86 個 actionable 桶共 270 筆皆為 `he2 → han4`；排除 tokenization 前會移除的引號後，產品採 85 字、267 筆的後字 allowlist。依教育部連詞語音條目，規則只在 longest-match 落到單字「和」時生效。全文新增命中 8,014 次，contextual 總命中 44,719，fallback 降至 9,226,871；token 11,942,487、unknown 1,018 不變。`和平、和氣、附和` 及混合桶均有負向迴歸保護；`摻和` 的繁體 lexicon 缺口仍維持現況，不在本輪擴張處理。
+
 同日以 Chromium 151 對 Taiwan profile 跑完整 Worker、Matcha/Vocos、MP3 與單一 MediaSource sequence。五個 append 共 25.416 秒，producer `RTF 0.1466`、`6.82 倍即時`，underflow、append error、producer error 均為 0；含「垃圾」的 segment 實際輸出 `le4 se4`，waveform 81,682 samples 全為有限值、peak `0.9377`、RMS `0.1380`，MP3 62,208 bytes。結果只寫入 `/tmp` 作功能驗證，不取代 official profile 的正式 benchmark JSON；七個新審核詞的 token mapping 另由 manifest 與 frontend 測試覆蓋。
 
 加入 contextual rule 後另跑兩個 append、10.656 秒的 Taiwan profile smoke test；含「帶著」的 segment 實際輸出 `dai4 zhe5`，103,825 samples 全為有限值、peak `0.8463`、RMS `0.1419`，MP3 79,056 bytes，三類串流錯誤仍為 0。結果同樣只寫入 `/tmp`。

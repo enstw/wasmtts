@@ -21,6 +21,11 @@ const taiwan = MatchaFrontend.createFrontend({
 
 assert.deepEqual(official.tokensFor('帶著').phones, ['dai4', 'zhu4']);
 assert.deepEqual(taiwan.tokensFor('帶著').phones, ['dai4', 'zhe5']);
+assert.deepEqual(official.tokensFor('和他').phones, ['he2', 'ta1']);
+assert.deepEqual(taiwan.tokensFor('和他').phones, ['han4', 'ta1']);
+assert.deepEqual(taiwan.tokensFor('和平和氣附和摻和').phones, [
+  'he2', 'ping2', 'he2', 'qi4', 'fu4', 'he4', 'can4', 'he2',
+]);
 assert.deepEqual(taiwan.tokensFor('找著').phones, ['zhao3', 'zhao2']);
 assert.deepEqual(taiwan.tokensFor('著手').phones, ['zhuo2', 'shou3']);
 assert.deepEqual(taiwan.tokensFor('看著急').phones, ['kan4', 'zhao1', 'ji2']);

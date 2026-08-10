@@ -5,7 +5,7 @@
   "profiles": {
     "taiwan": {
       "phraseOverrides": ["記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手"],
-      "contextualRules": ["著"]
+      "contextualRules": ["著", "和"]
     }
   },
   "entries": [
@@ -28,6 +28,28 @@
       "source": {
         "title": "教育部《國語辭典簡編本》：著",
         "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29560&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "和",
+      "observed": ["he2"],
+      "target": ["han4"],
+      "scope": "單字 fallback 作連詞，且後一字位於分層 pilot 零反例 allowlist；完整詞 longest-match 優先",
+      "implementation": "contextual-rule",
+      "status": "source-and-model-supported",
+      "followingCharacters": "一那小大陳山劍劉青白李金老裴兩陸馬謝曹崔寧落心周神十仙朱文師天魏齊顧水柳幾江林武桃書他張鄭粉玉徐少姜雲真桐龍宋三修各寶黃年董風扶不北晏曾手趙竹自身人石禮蠻納南姚王米我隋孫",
+      "evidence": {
+        "pilotSentences": 300,
+        "pilotMatches": 267,
+        "pilotCounterexamples": 0,
+        "candidateFollowingCharacters": 85,
+        "selectionRule": "依後一字分層，每桶至少三筆，且 g2pW 全部為 han4、Matcha 全部為 he2",
+        "excludedMixedFollowingCharacters": "道和氣，。地事笑高這善"
+      },
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》：和",
+        "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=5054&la=0&powerMode=0",
         "version": "2021"
       }
     },

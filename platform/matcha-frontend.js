@@ -77,12 +77,16 @@
         && entry?.implementation === 'contextual-rule'
         && typeof entry.pattern === 'string'
         && Array.isArray(entry.target)
-        && typeof entry.previousCharacters === 'string'
+        && (typeof entry.previousCharacters === 'string'
+          || typeof entry.followingCharacters === 'string')
         && (enabled ? enabled.has(entry.pattern) : entry.status === 'confirmed'))
       .map((entry) => ({
         pattern: entry.pattern,
         target: [...entry.target],
-        previousCharacters: new Set([...entry.previousCharacters]),
+        previousCharacters: typeof entry.previousCharacters === 'string'
+          ? new Set([...entry.previousCharacters]) : null,
+        followingCharacters: typeof entry.followingCharacters === 'string'
+          ? new Set([...entry.followingCharacters]) : null,
       }));
   }
 
@@ -278,7 +282,10 @@
 
         const contextualRule = [...match.word].length === 1
           ? contextualRules.find((rule) => rule.pattern === match.word
-            && rule.previousCharacters.has(normalizedText[offset - 1] ?? ''))
+            && (!rule.previousCharacters
+              || rule.previousCharacters.has(normalizedText[offset - 1] ?? ''))
+            && (!rule.followingCharacters
+              || rule.followingCharacters.has(normalizedText[offset + match.word.length] ?? '')))
           : null;
         const matchPhones = contextualRule?.target ?? match.phones;
         const traceEntry = {

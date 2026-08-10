@@ -15,9 +15,14 @@ for (const entry of review.entries) {
   assert.ok(['contextual-rule', 'phrase-override'].includes(entry.implementation));
   assert.ok(['confirmed', 'source-and-model-supported', 'model-supported'].includes(entry.status));
   if (entry.implementation === 'contextual-rule') {
-    assert.match(entry.previousCharacters, /^\p{Script=Han}+$/u);
-    assert.equal(new Set([...entry.previousCharacters]).size, [...entry.previousCharacters].length,
-      `${entry.pattern} 的前字 allowlist 不可重複`);
+    const directions = ['previousCharacters', 'followingCharacters']
+      .filter((key) => typeof entry[key] === 'string');
+    assert.ok(directions.length > 0, `${entry.pattern} 至少需要一側 allowlist`);
+    for (const key of directions) {
+      assert.match(entry[key], /^\S+$/u);
+      assert.equal(new Set([...entry[key]]).size, [...entry[key]].length,
+        `${entry.pattern} 的 ${key} allowlist 不可重複`);
+    }
     assert.ok(entry.evidence.pilotMatches > 0);
     assert.equal(entry.evidence.pilotCounterexamples, 0);
   }

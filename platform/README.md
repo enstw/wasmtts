@@ -14,8 +14,8 @@
 - `matcha-fst.js`：從 Bookworm 移植的純 JavaScript OpenFST reader，保留作 golden A/B 與診斷基線。
 - `matcha-frontend.js`、`matcha-synthesis.js`：可供 Worker 與測試共用的繁體直輸／FST／lexicon 前端及 Matcha + Vocos 合成核心。
 - `audit-matcha-g2p.mjs`、`run-g2pw-pilot.py`：對外部小說 ZIP 執行現況 frontend trace 與開發期 contextual G2P 差異掃描；小說、g2pW 模型與 `*.local.json` 報告皆不提交。
-- `rank-matcha-g2p-roi.mjs`：把分層 pilot 的抽樣一致性與全文前字次數合併排序；`estimatedAffectedCeiling` 只是候選上限，不是已確認錯讀數。
-- `matcha-g2p-review.json`：schema v2 分開保存辭典來源、模型證據與產品 profile。entry 不因存在就自動生效；`profiles.taiwan` 明列啟用的 phrase overrides 與 contextual rules。`著` 的前字 allowlist 標為 `model-supported`，不得寫成逐項人工確認或降級成全域單字覆寫。
+- `rank-matcha-g2p-roi.mjs`：把前字或後字分層 pilot 的抽樣一致性與全文相鄰字次數合併排序，並保留各樣本的 Matcha phone 以處理多讀音；`estimatedAffectedCeiling` 只是候選上限，不是已確認錯讀數。
+- `matcha-g2p-review.json`：schema v2 分開保存辭典來源、模型證據與產品 profile。entry 不因存在就自動生效；`profiles.taiwan` 明列啟用的 phrase overrides 與 contextual rules。contextual rule 可限制前字或後字；`著` 的前字 allowlist 標為 `model-supported`，不得寫成逐項人工確認或降級成全域單字覆寫。
 - `run-matcha-upstream-fst-browser.mjs`：未修改的 sherpa-onnx 官方 browser bundle＋建議中文 FST 基線。
 - `matcha-upstream-benchmark.html`、`matcha-upstream-benchmark.js`、`run-matcha-fst-ab-browser.mjs`：同 runtime 只切換 FST 的控制實驗。
 - `generate-matcha-upstream-fst-traditional-sample.mjs`：繁體原文、不經 OpenCC 的官方 FST 試聽樣本產生器。

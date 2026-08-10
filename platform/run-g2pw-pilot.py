@@ -40,7 +40,9 @@ def arguments() -> argparse.Namespace:
     parser.add_argument("--contains", help="只保留包含此字串的句子")
     parser.add_argument("--stratify-previous", help="依此字的前一字分層抽樣")
     parser.add_argument("--per-previous", type=int, default=3)
-    parser.add_argument("--review", type=Path, help="排除 review 中已確認的前字 allowlist")
+    parser.add_argument("--stratify-following", help="依此字的後一字分層抽樣")
+    parser.add_argument("--per-following", type=int, default=3)
+    parser.add_argument("--review", type=Path, help="排除 review 中已確認的相鄰字 allowlist")
     parser.add_argument(
         "--output",
         type=Path,
@@ -90,8 +92,9 @@ def stratified_sentences(
     path: Path,
     character: str,
     limit: int,
-    per_previous: int,
-    excluded_previous: set[str],
+    per_context: int,
+    excluded_contexts: set[str],
+    direction: str,
 ) -> tuple[list[str], dict[str, int]]:
     occurrences = Counter()
     samples: dict[str, list[str]] = {}
@@ -108,22 +111,25 @@ def stratified_sentences(
                         sentence = sentence.strip()[:500]
                         if not sentence:
                             continue
-                        previous_in_sentence: set[str] = set()
+                        contexts_in_sentence: set[str] = set()
                         for index, current in enumerate(sentence):
-                            if current != character or index == 0:
+                            if current != character:
                                 continue
-                            previous = sentence[index - 1]
-                            if previous in excluded_previous:
+                            context_index = index - 1 if direction == "previous" else index + 1
+                            if context_index < 0 or context_index >= len(sentence):
                                 continue
-                            occurrences[previous] += 1
-                            previous_in_sentence.add(previous)
-                        for previous in previous_in_sentence:
-                            bucket = samples.setdefault(previous, [])
-                            if len(bucket) < per_previous and sentence not in bucket:
+                            context = sentence[context_index]
+                            if context in excluded_contexts:
+                                continue
+                            occurrences[context] += 1
+                            contexts_in_sentence.add(context)
+                        for context in contexts_in_sentence:
+                            bucket = samples.setdefault(context, [])
+                            if len(bucket) < per_context and sentence not in bucket:
                                 bucket.append(sentence)
     selected: list[str] = []
-    for previous, _ in occurrences.most_common():
-        for sentence in samples.get(previous, []):
+    for context, _ in occurrences.most_common():
+        for sentence in samples.get(context, []):
             if sentence not in selected:
                 selected.append(sentence)
                 if len(selected) >= limit:
@@ -226,24 +232,35 @@ def main() -> int:
     args = arguments()
     if args.max_sentences < 1:
         raise ValueError("--max-sentences 必須大於零")
+    if args.stratify_previous and args.stratify_following:
+        raise ValueError("--stratify-previous 與 --stratify-following 不可同時使用")
 
     lexicon, max_length = load_lexicon(
         Path("platform/models/matcha-icefall-zh-en/lexicon.txt")
     )
-    excluded_previous: set[str] = set()
+    stratify_character = args.stratify_previous or args.stratify_following
+    stratify_direction = "previous" if args.stratify_previous else "following"
+    excluded_contexts: set[str] = set()
     if args.review:
         review = json.loads(args.review.read_text(encoding="utf-8"))
         for entry in review.get("entries", []):
-            if entry.get("pattern") == args.stratify_previous:
-                excluded_previous.update(entry.get("previousCharacters", ""))
+            if entry.get("pattern") == stratify_character:
+                exclusion_key = (
+                    "previousCharacters"
+                    if stratify_direction == "previous"
+                    else "followingCharacters"
+                )
+                excluded_contexts.update(entry.get(exclusion_key, ""))
     stratified_occurrences: dict[str, int] | None = None
-    if args.stratify_previous:
+    if stratify_character:
+        per_context = args.per_previous if args.stratify_previous else args.per_following
         sentences, stratified_occurrences = stratified_sentences(
             args.input,
-            args.stratify_previous,
+            stratify_character,
             args.max_sentences,
-            args.per_previous,
-            excluded_previous,
+            per_context,
+            excluded_contexts,
+            stratify_direction,
         )
     else:
         sentences = novel_sentences(args.input, args.max_sentences, args.contains)
@@ -266,7 +283,7 @@ def main() -> int:
     agreement = 0
     g2pw_missing = Counter()
     focus_contexts = Counter()
-    focus_character = args.stratify_previous or (
+    focus_character = stratify_character or (
         args.contains if args.contains and len(args.contains) == 1 else None
     )
 
@@ -285,7 +302,7 @@ def main() -> int:
             if focus_character and character == focus_character:
                 previous = sentence[character_index - 1] if character_index > 0 else ""
                 following = sentence[character_index + 1] if character_index + 1 < len(sentence) else ""
-                focus_contexts[(previous, following, g2pw_phone)] += 1
+                focus_contexts[(previous, following, matcha_phone, g2pw_phone)] += 1
             comparable += 1
             if matcha_phone == g2pw_phone:
                 agreement += 1
@@ -316,15 +333,18 @@ def main() -> int:
             )[:10]
         ]
     report = {
-        "schemaVersion": 2,
+        "schemaVersion": 3,
         "input": {
             "type": "zip",
             "sentences": len(sentences),
-            "selection": "previous-character stratified" if args.stratify_previous else "archive-order head",
+            "selection": f"{stratify_direction}-character stratified" if stratify_character else "archive-order head",
             "contains": args.contains,
             "stratifyPrevious": args.stratify_previous,
             "perPrevious": args.per_previous if args.stratify_previous else None,
-            "excludedPreviousCharacters": "".join(sorted(excluded_previous)),
+            "stratifyFollowing": args.stratify_following,
+            "perFollowing": args.per_following if args.stratify_following else None,
+            "excludedPreviousCharacters": "".join(sorted(excluded_contexts)) if args.stratify_previous else "",
+            "excludedFollowingCharacters": "".join(sorted(excluded_contexts)) if args.stratify_following else "",
             "stratifiedOccurrences": stratified_occurrences,
         },
         "measurementBoundary": {
@@ -358,10 +378,11 @@ def main() -> int:
             {
                 "previous": previous,
                 "following": following,
+                "matcha": matcha_phone,
                 "g2pw": phone,
                 "count": count,
             }
-            for (previous, following, phone), count in focus_contexts.most_common()
+            for (previous, following, matcha_phone, phone), count in focus_contexts.most_common()
         ],
         "differenceGroups": sorted(
             differences.values(),
