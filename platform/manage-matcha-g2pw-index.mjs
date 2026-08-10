@@ -4,7 +4,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import {spawn} from 'node:child_process';
+import {spawn, spawnSync} from 'node:child_process';
 import {DatabaseSync} from 'node:sqlite';
 import {fileURLToPath} from 'node:url';
 
@@ -17,8 +17,7 @@ const defaultDatabase = path.resolve(root, 'platform/results/matcha-g2p-index.lo
 
 function usage() {
   return `用法：
-  pnpm g2pw-index run <novel.zip> [index 參數]
-  pnpm g2pw-index resume
+  pnpm g2pw-index run [<novel.zip> [index 參數]]
   pnpm g2pw-index status
   pnpm g2pw-index logs [行數]
   pnpm g2pw-index stop`;
@@ -39,6 +38,17 @@ function isAlive(pid) {
   try { process.kill(pid, 0); return true; } catch { return false; }
 }
 
+function indexPids() {
+  const result = spawnSync('pgrep', ['-f', 'platform/index-matcha-g2pw-webgpu.mjs'], {encoding: 'utf8'});
+  if (result.status !== 0 && result.status !== 1) return [];
+  return result.stdout.trim().split(/\s+/).filter(Boolean).map(Number)
+    .filter((pid) => Number.isInteger(pid) && pid !== process.pid && isAlive(pid));
+}
+
+async function browserActive() {
+  try { return (await fetch('http://127.0.0.1:9393/json/version')).ok; } catch { return false; }
+}
+
 function databaseFromArgs(args) {
   const index = args.indexOf('--database');
   return index >= 0 && args[index + 1] ? path.resolve(args[index + 1]) : defaultDatabase;
@@ -49,9 +59,21 @@ function totalFromArgs(args) {
   return index >= 0 && args[index + 1] ? Number(args[index + 1]) : null;
 }
 
-function start(config) {
+function databaseRecentlyUpdated(args, thresholdMs = 60000) {
+  const database = databaseFromArgs(args);
+  const mtimes = [database, `${database}-wal`].filter((filename) => fs.existsSync(filename))
+    .map((filename) => fs.statSync(filename).mtimeMs);
+  return mtimes.length > 0 && Date.now() - Math.max(...mtimes) < thresholdMs;
+}
+
+async function start(config) {
   const currentPid = readPid();
   if (isAlive(currentPid)) throw new Error(`掃描已在執行（PID ${currentPid}）`);
+  const runners = indexPids();
+  if (runners.length) throw new Error(`掃描已在執行（index PID ${runners.join(', ')}）`);
+  if (await browserActive()) throw new Error('掃描已在執行（WebGPU browser port 9393 使用中）');
+  if (databaseRecentlyUpdated(config.args))
+    throw new Error('掃描可能已在執行（SQLite 在最近 60 秒內更新）');
   fs.mkdirSync(path.dirname(statePrefix), {recursive: true});
   fs.writeFileSync(configFile, `${JSON.stringify(config, null, 2)}\n`);
   const output = fs.openSync(logFile, 'a');
@@ -76,7 +98,7 @@ async function waitForHost(child) {
 
 async function worker() {
   const config = readConfig();
-  if (!config) throw new Error('找不到 resume 設定');
+  if (!config) throw new Error('找不到續跑設定');
   let host;
   try {
     try {
@@ -101,7 +123,7 @@ async function worker() {
   }
 }
 
-function status(args) {
+async function status(args) {
   const config = readConfig();
   const pid = readPid();
   const database = config ? databaseFromArgs(config.args) : defaultDatabase;
@@ -114,7 +136,12 @@ function status(args) {
   const explicitTotal = totalFromArgs(args);
   const totalSentences = explicitTotal ?? (config ? totalFromArgs(config.args) : null);
   const completed = run ? run.last_sentence_id + 1 : 0;
-  console.log(JSON.stringify({process: {pid, alive: isAlive(pid)}, database, run,
+  const runners = indexPids();
+  const webgpuBrowserActive = await browserActive();
+  const databaseActive = config ? databaseRecentlyUpdated(config.args) : databaseRecentlyUpdated(args);
+  console.log(JSON.stringify({process: {managedPid: pid, managedAlive: isAlive(pid), indexPids: runners,
+    webgpuBrowserActive, databaseActive,
+    running: isAlive(pid) || runners.length > 0 || webgpuBrowserActive || databaseActive}, database, run,
     progress: {completed, totalSentences,
       percent: totalSentences ? Number((completed * 100 / totalSentences).toFixed(2)) : null}, logFile}, null, 2));
 }
@@ -122,19 +149,23 @@ function status(args) {
 const [command, ...args] = process.argv.slice(2);
 if (command === 'worker') await worker();
 else if (command === 'run') {
-  if (!args.length) throw new Error(usage());
-  start({args, savedAt: new Date().toISOString()});
-} else if (command === 'resume') {
-  const config = readConfig();
-  if (!config) throw new Error(`找不到先前設定。\n${usage()}`);
-  start(config);
-} else if (command === 'status') status(args);
+  const config = args.length ? {args, savedAt: new Date().toISOString()} : readConfig();
+  if (!config) throw new Error(`找不到續跑設定，第一次執行必須提供小說路徑。\n${usage()}`);
+  await start(config);
+} else if (command === 'status') await status(args);
 else if (command === 'logs') {
   const count = Number(args[0] ?? 20);
   if (!fs.existsSync(logFile)) console.log('尚無 log');
   else console.log(fs.readFileSync(logFile, 'utf8').trimEnd().split('\n').slice(-count).join('\n'));
 } else if (command === 'stop') {
   const pid = readPid();
-  if (!isAlive(pid)) console.log('管理中的掃描未執行');
-  else { process.kill(pid, 'SIGINT'); console.log(`已要求 PID ${pid} 在目前 batch 後停止`); }
+  if (isAlive(pid)) { process.kill(pid, 'SIGINT'); console.log(`已要求管理 PID ${pid} 在目前 batch 後停止`); }
+  else {
+    const runners = indexPids();
+    if (!runners.length) console.log('掃描未執行');
+    else {
+      runners.forEach((runnerPid) => process.kill(runnerPid, 'SIGINT'));
+      console.log(`已要求 index PID ${runners.join(', ')} 在目前 batch 後停止`);
+    }
+  }
 } else throw new Error(usage());
