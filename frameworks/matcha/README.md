@@ -154,6 +154,8 @@ WebGPU → SQLite architecture slice 另把同一 batch 的 32 個多音字 occu
 
 全文 feeder 的 preprocessing 邊界已拆出：常駐 Python JSONL worker 只初始化 BERT tokenizer、g2pW config／字典與 `TextDataset`，不建立 native ORT `InferenceSession`；每批回傳 upstream 一致的六個 tensor feeds 與 `sourceSentenceId`／offset。browser page 同時新增可重用的 `initialize`／`inferFeeds` API；重跑既有 batch 仍為 32/32 argmax 零差異、最大 probability 差 `1.19e-7`。下一步是 coordinator 將正式 frontend trace、這兩個常駐端點與 SQLite checkpoint 串起來。
 
+coordinator 已以真實 `jl.zip` 做兩輪各 4 句的 bounded smoke。第一輪寫入 checkpoint 3、4 句、39 個多音字 occurrence、4 個表面差異；第二輪以同一 fingerprint／run 接到 checkpoint 7，累計 8 句、138 occurrence、12 個表面差異。SQLite 同存 source text 與正式 frontend 後 normalized text，例如 `二月二，龍抬頭。` 對應 `二月二,龍抬頭.`；prediction 與 checkpoint 位於同一 transaction。差異中的「一」已分類為 `tone_sandhi`，證明資料庫保存的是審核候選而非自動修正清單。這仍是 bounded functional smoke，不是全文完成時間或吞吐量。
+
 ## 一次性效能初測
 
 使用 `sherpa-onnx 1.13.4` Node WASM、單一推論 thread、語速 1.0，在沒有暖機與重複取中位數的情況下得到：

@@ -28,12 +28,14 @@ export function initializeG2pwIndex(db) {
       fst_sha256 TEXT NOT NULL,
       profile_sha256 TEXT NOT NULL,
       backend TEXT NOT NULL,
-      runtime TEXT NOT NULL
+      runtime TEXT NOT NULL,
+      last_sentence_id INTEGER NOT NULL DEFAULT -1
     );
     CREATE TABLE IF NOT EXISTS sentences (
       run_id INTEGER NOT NULL REFERENCES runs(id) ON DELETE CASCADE,
       source_sentence_id INTEGER NOT NULL,
       text TEXT NOT NULL,
+      source_text TEXT,
       PRIMARY KEY (run_id, source_sentence_id)
     ) WITHOUT ROWID;
     CREATE TABLE IF NOT EXISTS occurrences (
@@ -54,4 +56,13 @@ export function initializeG2pwIndex(db) {
     CREATE INDEX IF NOT EXISTS occurrence_difference_roi
       ON occurrences(run_id, character, category, previous_character, following_character);
   `);
+  // 既有 architecture-slice database 可直接升級，不必刪除本機稽核結果。
+  const runColumns = new Set(db.prepare("SELECT name FROM pragma_table_info('runs')").all()
+    .map(({name}) => name));
+  if (!runColumns.has('last_sentence_id')) {
+    db.exec('ALTER TABLE runs ADD COLUMN last_sentence_id INTEGER NOT NULL DEFAULT -1');
+  }
+  const sentenceColumns = new Set(db.prepare("SELECT name FROM pragma_table_info('sentences')").all()
+    .map(({name}) => name));
+  if (!sentenceColumns.has('source_text')) db.exec('ALTER TABLE sentences ADD COLUMN source_text TEXT');
 }

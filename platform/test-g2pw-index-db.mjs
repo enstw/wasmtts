@@ -15,6 +15,8 @@ assert.deepEqual(columns, [
   'run_id', 'source_sentence_id', 'character_offset', 'character', 'previous_character',
   'following_character', 'matcha_phone', 'g2pw_phone', 'confidence', 'category',
 ]);
+assert.ok(db.prepare("SELECT name FROM pragma_table_info('runs') WHERE name = 'last_sentence_id'").get());
+assert.ok(db.prepare("SELECT name FROM pragma_table_info('sentences') WHERE name = 'source_text'").get());
 assert.equal(db.prepare('PRAGMA foreign_keys').get().foreign_keys, 1);
 assert.equal(db.prepare('PRAGMA integrity_check').get().integrity_check, 'ok');
 db.close();
