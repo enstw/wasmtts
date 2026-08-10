@@ -29,6 +29,12 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
+      # renovate shells out to pnpm to regenerate pnpm-lock.yaml (first
+      # scheduled run died on spawn pnpm ENOENT); no checkout here, so the
+      # version cannot come from packageManager — keep it in step with it
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.9.0
       - name: Run Renovate
         run: npx --yes renovate --platform=github enstw/wasmtts
         env:
