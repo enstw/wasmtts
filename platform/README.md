@@ -56,6 +56,19 @@ pnpm index:matcha-g2pw-webgpu -- ~/Downloads/jl.zip --max-sentences 100 --g2pw-b
 pnpm index:matcha-g2pw-webgpu -- ~/Downloads/jl.zip --sentence-batch-size 100 --g2pw-batch-size 128 --total-sentences 315593
 ```
 
+長時間掃描可改由背景管理 CLI 執行：
+
+```sh
+pnpm g2pw-index run ~/Downloads/jl.zip --sentence-batch-size 100 --g2pw-batch-size 128 --total-sentences 315593
+pnpm g2pw-index status
+pnpm g2pw-index logs 20
+pnpm g2pw-index stop
+pnpm g2pw-index resume
+```
+
+`run` 會保存參數並在背景啟動，必要時一併啟動 `mobile-host`；`resume` 以相同 fingerprint 與 SQLite checkpoint 接續。`stop` 對管理程序送出 `SIGINT`，runner 會完成目前 batch 後落盤並清理。PID、設定與 log 位於 `platform/results/matcha-g2pw-manager.local.*`，均由 Git 忽略。
+目前由舊命令直接啟動、尚未建立管理設定的掃描，可用 `pnpm g2pw-index status --total-sentences 315593` 顯示百分比；它不會被 `stop` 控制，下一次由 `run`／`resume` 啟動後才會完整納管。
+
 第二個命令需留在另一個 terminal；benchmark 與兩種 index command 都透過該 host 執行。固定 benchmark 只涵蓋 ONNX inference，不含 BERT tokenizer、句子切分、FST、SQLite 或跨程序傳輸。`g2pw-preprocess-worker.py` 已把 tokenizer／`TextDataset` 拆成 JSONL 常駐程序，並以 `G2PWConverter.__new__` 加載 upstream 設定與字典，刻意不建立 606 MiB native ORT session；browser page 的 `initialize`／`inferFeeds` 也重用單一 WebGPU session。fixture slice 本身尚未真正通過 FST；全文 command 才是正式 pipeline。`--max-sentences` 表示本次最多新增幾句，不是全文範圍；再次執行相同輸入、模型、FST 與 profile 會從 `last_sentence_id` 接續。移除上限才會掃到 EOF 並把 run 標成 `complete`。
 
 全文 command 每十秒向 stderr 輸出 checkpoint、當次句數、query 數與吞吐；若提供可重現的 `--total-sentences`，也會輸出剩餘句數與 ETA。最終 JSON 仍獨立寫到 stdout，另回報 `identityMs`、browser／preprocessor 初始化、frontend、preprocessing、WebGPU round trip／純 inference、SQLite 與 `totalMs`。`queriesPerSecond` 包含本次冷啟動；`steadyQueriesPerSecond` 只以 frontend、preprocessing、WebGPU round trip 與 SQLite 計算，不含 input／model hashing 與兩個 runtime 初始化。兩者都只代表 g2pW index throughput，不是 TTS `RTF`。`SIGINT`／`SIGTERM` 會在目前 batch 完成後保留 `building` 狀態與 checkpoint，並關閉 Python worker、CDP WebSocket 與 Chromium。

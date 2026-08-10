@@ -15,6 +15,7 @@ platform/results/g2pw-webgpu-*.local.json
 platform/results/matcha-g2p-index*.sqlite*
 platform/results/g2pw-ab-*.local.sqlite*
 platform/results/g2pw-threads-*.local.sqlite*
+platform/results/matcha-g2pw-manager.local.*
 platform/results/asr-listening-report.json
 *.onnx
 *.tar
