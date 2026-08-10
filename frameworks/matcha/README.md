@@ -152,6 +152,8 @@ Taiwan profile 的指定句瀏覽器測試實際輸出五個 `de5`，71,365 個 
 
 WebGPU → SQLite architecture slice 另把同一 batch 的 32 個多音字 occurrence 寫入本機 WAL database，保存 agreement 與 difference、句子、offset、前後字、Matcha/g2pW phone、confidence 與 category。第一個 schema-correct run 寫入 5 句、32 筆 occurrence、12 筆 difference，SQL ROI 得到 `為` 7、`長` 2、`和／得／著` 各 1；相同 fingerprint 第二次執行直接 reuse，row count 不變。run fingerprint 已含 input、606 MiB model、lexicon、固定順序三個 FST、Taiwan profile 與 backend/runtime hashes。此 slice 的 fixture 尚未真正套 FST，只驗證 schema、transaction、WebGPU prediction 寫入與 idempotency；全文 feeder 必須先套正式 frontend，再依可對齊範圍寫入。
 
+全文 feeder 的 preprocessing 邊界已拆出：常駐 Python JSONL worker 只初始化 BERT tokenizer、g2pW config／字典與 `TextDataset`，不建立 native ORT `InferenceSession`；每批回傳 upstream 一致的六個 tensor feeds 與 `sourceSentenceId`／offset。browser page 同時新增可重用的 `initialize`／`inferFeeds` API；重跑既有 batch 仍為 32/32 argmax 零差異、最大 probability 差 `1.19e-7`。下一步是 coordinator 將正式 frontend trace、這兩個常駐端點與 SQLite checkpoint 串起來。
+
 ## 一次性效能初測
 
 使用 `sherpa-onnx 1.13.4` Node WASM、單一推論 thread、語速 1.0，在沒有暖機與重複取中位數的情況下得到：

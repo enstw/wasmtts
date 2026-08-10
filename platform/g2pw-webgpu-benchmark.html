@@ -13,38 +13,54 @@ const tensor = ({type, dims, data}) => new ORT.Tensor(
   dims,
 );
 
+let persistentSession = null;
+
+async function initialize(modelPath) {
+  if (!navigator.gpu) throw new Error('navigator.gpu is unavailable');
+  if (!persistentSession) persistentSession = await ORT.InferenceSession.create(modelPath, {
+    executionProviders: ['webgpu'],
+    graphOptimizationLevel: 'all',
+  });
+  return {runtime: ORT.env.versions?.web};
+}
+
+async function inferFeeds(feedValues) {
+  if (!persistentSession) throw new Error('g2pW WebGPU session is not initialized');
+  const feeds = Object.fromEntries(Object.entries(feedValues).map(([name, value]) => [name, tensor(value)]));
+  const started = performance.now();
+  const outputs = await persistentSession.run(feeds);
+  const first = outputs[persistentSession.outputNames[0]];
+  const values = await first.getData();
+  const classes = first.dims.at(-1);
+  const argmax = [];
+  const maxProbability = [];
+  for (let row = 0; row < first.dims[0]; row += 1) {
+    let best = 0;
+    for (let column = 1; column < classes; column += 1) {
+      if (values[row * classes + column] > values[row * classes + best]) best = column;
+    }
+    argmax.push(best);
+    maxProbability.push(values[row * classes + best]);
+  }
+  Object.values(outputs).forEach((output) => output.dispose());
+  Object.values(feeds).forEach((input) => input.dispose());
+  return {wallMs: performance.now() - started, argmax, maxProbability};
+}
+
 window.g2pwWebgpuBench = {
+  initialize,
+  inferFeeds,
   async run({fixtureUrl, iterations = 5}) {
     if (!navigator.gpu) throw new Error('navigator.gpu is unavailable');
     const adapter = await navigator.gpu.requestAdapter();
     if (!adapter) throw new Error('WebGPU adapter is unavailable');
     const fixture = await (await fetch(fixtureUrl)).json();
-    const feeds = Object.fromEntries(Object.entries(fixture.feeds).map(([name, value]) => [name, tensor(value)]));
     const initializedAt = performance.now();
-    const session = await ORT.InferenceSession.create(fixture.model.path, {
-      executionProviders: ['webgpu'],
-      graphOptimizationLevel: 'all',
-    });
+    await initialize(fixture.model.path);
     const initializationMs = performance.now() - initializedAt;
 
     const infer = async () => {
-      const started = performance.now();
-      const outputs = await session.run(feeds);
-      const first = outputs[session.outputNames[0]];
-      const values = await first.getData();
-      const classes = first.dims.at(-1);
-      const argmax = [];
-      const maxProbability = [];
-      for (let row = 0; row < first.dims[0]; row += 1) {
-        let best = 0;
-        for (let column = 1; column < classes; column += 1) {
-          if (values[row * classes + column] > values[row * classes + best]) best = column;
-        }
-        argmax.push(best);
-        maxProbability.push(values[row * classes + best]);
-      }
-      Object.values(outputs).forEach((output) => output.dispose());
-      return {wallMs: performance.now() - started, argmax, maxProbability};
+      return inferFeeds(fixture.feeds);
     };
 
     await infer();
