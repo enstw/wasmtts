@@ -4,7 +4,7 @@
   "timezone": "Asia/Taipei",
   "prConcurrentLimit": 5,
   "prHourlyLimit": 0,
-  "minimumReleaseAge": "7 days",
+  "minimumReleaseAge": "30 days",
   "rangeStrategy": "pin",
   "labels": ["dependencies"],
   "lockFileMaintenance": { "enabled": false },
