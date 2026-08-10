@@ -32,18 +32,21 @@ function parseArguments(argv) {
   let maxSentences = Infinity;
   let sentenceBatchSize = 8;
   let g2pwBatchSize = 32;
+  let wasmThreads;
   for (let index = 0; index < argv.length; index += 1) {
     if (argv[index] === '--database' && argv[index + 1]) database = argv[++index];
     else if (argv[index] === '--max-sentences' && argv[index + 1]) maxSentences = Number(argv[++index]);
     else if (argv[index] === '--sentence-batch-size' && argv[index + 1]) sentenceBatchSize = Number(argv[++index]);
     else if (argv[index] === '--g2pw-batch-size' && argv[index + 1]) g2pwBatchSize = Number(argv[++index]);
+    else if (argv[index] === '--wasm-threads' && argv[index + 1]) wasmThreads = Number(argv[++index]);
     else throw new Error(`不支援的參數：${argv[index]}`);
   }
   if (!input) throw new Error('用法：index-matcha-g2pw-webgpu.mjs <novel.zip> [--max-sentences N]');
-  if (!(maxSentences > 0) || !(sentenceBatchSize > 0) || !(g2pwBatchSize > 0))
+  if (!(maxSentences > 0) || !(sentenceBatchSize > 0) || !(g2pwBatchSize > 0) ||
+      (wasmThreads !== undefined && !(wasmThreads > 0)))
     throw new Error('句數與 batch 參數必須大於零');
   return {input: path.resolve(input), database: path.resolve(database), maxSentences, sentenceBatchSize,
-    g2pwBatchSize};
+    g2pwBatchSize, wasmThreads};
 }
 
 async function sha256File(filename) {
@@ -187,6 +190,8 @@ try {
     if (Date.now() > deadline) throw new Error('WebGPU page 未就緒');
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
+  if (args.wasmThreads !== undefined)
+    await evalJs(`window.g2pwWebgpuBench.setWasmThreads(${args.wasmThreads})`);
   const browserInitializeStarted = performance.now();
   await evalJs(`window.g2pwWebgpuBench.initialize(${JSON.stringify('/platform/models/g2pw/G2PWModel/g2pw.onnx')})`);
   timing.browserInitializeMs = performance.now() - browserInitializeStarted;
@@ -259,7 +264,8 @@ try {
   const totalMs = performance.now() - invocationStarted;
   console.log(JSON.stringify({database: args.database, runId, reused: false,
     status: reachedLimit ? 'building' : 'complete', checkpoint, processed, queryCount,
-    configuration: {sentenceBatchSize: args.sentenceBatchSize, g2pwBatchSize: args.g2pwBatchSize}, ...summary,
+    configuration: {sentenceBatchSize: args.sentenceBatchSize, g2pwBatchSize: args.g2pwBatchSize,
+      wasmThreads: args.wasmThreads ?? 'auto'}, ...summary,
     timing: {...Object.fromEntries(Object.entries(timing).map(([key, value]) => [key, Number(value.toFixed(2))])),
       totalMs: Number(totalMs.toFixed(2)),
       sentencesPerSecond: Number((processed * 1000 / totalMs).toFixed(2)),

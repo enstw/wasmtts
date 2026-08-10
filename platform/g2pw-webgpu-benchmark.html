@@ -15,6 +15,12 @@ const tensor = ({type, dims, data}) => new ORT.Tensor(
 
 let persistentSession = null;
 
+function setWasmThreads(numThreads) {
+  if (persistentSession) throw new Error('WASM threads 必須在建立 session 前設定');
+  ORT.env.wasm.numThreads = numThreads;
+  return ORT.env.wasm.numThreads;
+}
+
 async function initialize(modelPath) {
   if (!navigator.gpu) throw new Error('navigator.gpu is unavailable');
   if (!persistentSession) persistentSession = await ORT.InferenceSession.create(modelPath, {
@@ -48,6 +54,7 @@ async function inferFeeds(feedValues) {
 }
 
 window.g2pwWebgpuBench = {
+  setWasmThreads,
   initialize,
   inferFeeds,
   async run({fixtureUrl, iterations = 5}) {
