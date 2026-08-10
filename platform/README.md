@@ -14,6 +14,7 @@
 - `matcha-fst.js`：從 Bookworm 移植的純 JavaScript OpenFST reader，保留作 golden A/B 與診斷基線。
 - `matcha-frontend.js`、`matcha-synthesis.js`：可供 Worker 與測試共用的繁體直輸／FST／lexicon 前端及 Matcha + Vocos 合成核心。
 - `audit-matcha-g2p.mjs`、`run-g2pw-pilot.py`：對外部小說 ZIP 執行現況 frontend trace 與開發期 contextual G2P 差異掃描；小說、g2pW 模型與 `*.local.json` 報告皆不提交。
+- `rank-matcha-g2p-roi.mjs`：把分層 pilot 的抽樣一致性與全文前字次數合併排序；`estimatedAffectedCeiling` 只是候選上限，不是已確認錯讀數。
 - `matcha-g2p-review.json`：schema v2 分開保存辭典來源、模型證據與產品 profile。entry 不因存在就自動生效；`profiles.taiwan` 明列啟用的 phrase overrides 與 contextual rules。`著` 的前字 allowlist 標為 `model-supported`，不得寫成逐項人工確認或降級成全域單字覆寫。
 - `run-matcha-upstream-fst-browser.mjs`：未修改的 sherpa-onnx 官方 browser bundle＋建議中文 FST 基線。
 - `matcha-upstream-benchmark.html`、`matcha-upstream-benchmark.js`、`run-matcha-fst-ab-browser.mjs`：同 runtime 只切換 FST 的控制實驗。
@@ -117,6 +118,7 @@ g2pW pilot 另需把官方 `G2PWModel-v2-onnx` 解壓至 `platform/models/g2pw/G
 UV_CACHE_DIR=/tmp/wasmtts-uv-cache \
 UV_TOOL_DIR=/tmp/wasmtts-uv-tools \
 pnpm audit:matcha-g2pw-pilot -- ~/Downloads/novel.zip --max-sentences 500
+pnpm report:matcha-g2p-roi -- platform/results/matcha-g2pw-di-stratified.local.json --output platform/results/matcha-g2p-roi-di.local.json
 ```
 
 pilot 報告把差異分為 `polyphone`、`tone_sandhi`、`neutral_tone` 與 `tone_disagreement`，並保存差異字附近的短詞窗。這些是人工審核候選，不是可直接匯入產品的正確答案；目前 Python pilot 沒有套 FST，只比較可逐字對齊的漢字，正式 B/C 前端必須改吃 FST 後文字。

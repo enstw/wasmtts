@@ -95,6 +95,8 @@ Taiwan profile 另以指定文字跑一個完整瀏覽器 append，實際得到 
 
 「長」第二批加入有教育部獨立詞條的 `長命、長生、長久、長遠、長袍`，全書依序命中 564、483、433、165、185 次，共 1,830 次，單字 fallback 再降至 9,235,107，token 與 unknown 仍不變。測試同時避免把 `成長`、`生長` 無分隔拼成跨測試案例的 `長生`，保留逐詞 `zhang3` 反向 gate。
 
+「地」分層 pilot 抽 300 句，20,709 個可比較漢字有 19,393 個一致、1,316 個差異，表面一致率 `93.65%`。新 ROI 排名把分層抽樣一致性與全文同前字次數合併，但明列 estimated ceiling 不是已確認錯讀數；129 個候選中只有 `兆` 4/4 與 `主` 3/3 穩定指向 `de5`，另有 95 個維持 `di4`、5 個混合、27 個樣本不足。依教育部結構助詞條目，產品只加入 `徵兆地` 75 次與 `自主地` 40 次兩個固定結構；fallback 降至 9,234,885，token 與 unknown 不變，不建立全域「地」規則。
+
 同日以 Chromium 151 對 Taiwan profile 跑完整 Worker、Matcha/Vocos、MP3 與單一 MediaSource sequence。五個 append 共 25.416 秒，producer `RTF 0.1466`、`6.82 倍即時`，underflow、append error、producer error 均為 0；含「垃圾」的 segment 實際輸出 `le4 se4`，waveform 81,682 samples 全為有限值、peak `0.9377`、RMS `0.1380`，MP3 62,208 bytes。結果只寫入 `/tmp` 作功能驗證，不取代 official profile 的正式 benchmark JSON；七個新審核詞的 token mapping 另由 manifest 與 frontend 測試覆蓋。
 
 加入 contextual rule 後另跑兩個 append、10.656 秒的 Taiwan profile smoke test；含「帶著」的 segment 實際輸出 `dai4 zhe5`，103,825 samples 全為有限值、peak `0.8463`、RMS `0.1419`，MP3 79,056 bytes，三類串流錯誤仍為 0。結果同樣只寫入 `/tmp`。
