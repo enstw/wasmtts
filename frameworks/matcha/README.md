@@ -148,6 +148,8 @@ Taiwan profile 的指定句瀏覽器測試實際輸出五個 `de5`，71,365 個 
 
 「為」按前字分層抽 300 句，19,624 個可比較漢字中有 18,309 個一致、1,315 個差異，表面一致率 `93.30%`。123 個前字桶分為 50 個 actionable、24 個維持目前讀音、30 個混合與 19 個樣本不足；`因為` 12/12 維持 `wei4`，`以為` 則為混合桶，因此不建立全域或前字 contextual rule。產品只加入前十個穩定固定結構 `作為、成為、名為、修為、極為、身為、視為、最為、譽為、淪為 → wei2`；ROI 同前字上限為 11,715，全文 longest-match 實際命中 11,651 次，fallback 降至 9,203,569。`因為、為了、為何、為此 → wei4` 另有負向迴歸測試；token、unknown 與既有 contextual 命中不變。
 
+為支援一次性全文 SQLite index，另以固定真實 g2pW ONNX batch 比較 Python native ORT CPU 與 ORT Web WebGPU。Apple Silicon、Chrome 151、ORT Web 1.27.0、batch 32 下，CPU ORT 1.28.0 中位為 49.86 queries/s，WebGPU 中位為 206.91 queries/s，即純 inference 約 4.15×；606 MiB 模型的 WebGPU session 初始化為 2.38 秒。32/32 argmax 與 CPU golden 相同，最大 probability 差 `1.19e-7`。此 feasibility 數字不含 tokenizer、句子準備、FST、SQLite I/O 或程序間傳輸，不能直接把全文 wall time 除以 4.15；下一步應以串流 preprocessing＋WebGPU batch＋SQLite checkpoint 做端到端量測。
+
 ## 一次性效能初測
 
 使用 `sherpa-onnx 1.13.4` Node WASM、單一推論 thread、語速 1.0，在沒有暖機與重複取中位數的情況下得到：

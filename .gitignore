@@ -11,6 +11,7 @@ platform/assets/
 platform/results/matcha-g2p-audit*.json
 platform/results/matcha-g2pw*.json
 platform/results/matcha-g2p-roi*.json
+platform/results/g2pw-webgpu-*.local.json
 platform/results/asr-listening-report.json
 *.onnx
 *.tar

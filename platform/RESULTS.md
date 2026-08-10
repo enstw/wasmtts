@@ -101,6 +101,8 @@ Taiwan profile 另以指定文字跑一個完整瀏覽器 append，實際得到 
 
 「為」按前字分層的 300 句 pilot 比較 19,624 字，18,309 字一致、1,315 字不同，表面一致率 `93.30%`。ROI 將 123 個前字桶分為 50 個 actionable、24 個維持目前讀音、30 個混合、19 個樣本不足；高頻 `因為` 12/12 維持 `wei4`，`以為` 6/7 為 `wei2` 但仍按 mixed 排除。依教育部 `wei2/wei4` 詞義與「作為」獨立詞條，只加入 `作為、成為、名為、修為、極為、身為、視為、最為、譽為、淪為` 十個固定結構。ROI 上限 11,715 次，全文實際依序命中 2,838、2,420、1,286、1,136、905、794、726、620、467、459 次，合計 11,651；fallback 由 9,226,871 降至 9,203,569，token 11,942,487、unknown 1,018、contextual 44,719 不變。負向測試固定 `因為、為了、為何、為此 → wei4`。
 
+g2pW WebGPU feasibility 使用同一個 Python 產生的真實 ONNX feed 與 CPU golden，模型 `g2pw.onnx` 為 635,212,732 bytes、SHA-256 `bb40c8c7b5baa755b2acd317c6bc5a65e4af7b80c40a569247fbd76989299999`。Apple Silicon、macOS kernel 25.5.0、Headless Chrome 151、ORT Web 1.27.0、batch 32、一次暖機與五次量測下，WebGPU session 初始化 2,381.84 ms，五輪為 197.04、207.19、208.27、206.91、200.28 queries/s，中位 206.91。相同 feed 的 Python ORT 1.28.0 CPU 為 49.77、49.86、50.25、50.13、48.24 queries/s，中位 49.86，WebGPU inference speedup 為 4.15×。32 個 argmax 零差異，最大 probability 差 `1.19e-7`。fixture、完整輸出與模型皆為本機忽略產物；本數字排除 tokenizer、句子切分、FST、SQLite 與 IPC，僅證明 WebGPU graph 可用且值得整合。
+
 同日以 Chromium 151 對 Taiwan profile 跑完整 Worker、Matcha/Vocos、MP3 與單一 MediaSource sequence。五個 append 共 25.416 秒，producer `RTF 0.1466`、`6.82 倍即時`，underflow、append error、producer error 均為 0；含「垃圾」的 segment 實際輸出 `le4 se4`，waveform 81,682 samples 全為有限值、peak `0.9377`、RMS `0.1380`，MP3 62,208 bytes。結果只寫入 `/tmp` 作功能驗證，不取代 official profile 的正式 benchmark JSON；七個新審核詞的 token mapping 另由 manifest 與 frontend 測試覆蓋。
 
 加入 contextual rule 後另跑兩個 append、10.656 秒的 Taiwan profile smoke test；含「帶著」的 segment 實際輸出 `dai4 zhe5`，103,825 samples 全為有限值、peak `0.8463`、RMS `0.1419`，MP3 79,056 bytes，三類串流錯誤仍為 0。結果同樣只寫入 `/tmp`。

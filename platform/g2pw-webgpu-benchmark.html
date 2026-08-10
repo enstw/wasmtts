@@ -1,0 +1,71 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>g2pW WebGPU benchmark</title>
+<script type="importmap">
+{"imports":{"onnxruntime-web/webgpu":"/node_modules/onnxruntime-web/dist/ort.webgpu.mjs"}}
+</script>
+<script type="module">
+import * as ORT from 'onnxruntime-web/webgpu';
+
+const tensor = ({type, dims, data}) => new ORT.Tensor(
+  type,
+  type === 'int64' ? BigInt64Array.from(data, BigInt) : Float32Array.from(data),
+  dims,
+);
+
+window.g2pwWebgpuBench = {
+  async run({fixtureUrl, iterations = 5}) {
+    if (!navigator.gpu) throw new Error('navigator.gpu is unavailable');
+    const adapter = await navigator.gpu.requestAdapter();
+    if (!adapter) throw new Error('WebGPU adapter is unavailable');
+    const fixture = await (await fetch(fixtureUrl)).json();
+    const feeds = Object.fromEntries(Object.entries(fixture.feeds).map(([name, value]) => [name, tensor(value)]));
+    const initializedAt = performance.now();
+    const session = await ORT.InferenceSession.create(fixture.model.path, {
+      executionProviders: ['webgpu'],
+      graphOptimizationLevel: 'all',
+    });
+    const initializationMs = performance.now() - initializedAt;
+
+    const infer = async () => {
+      const started = performance.now();
+      const outputs = await session.run(feeds);
+      const first = outputs[session.outputNames[0]];
+      const values = await first.getData();
+      const classes = first.dims.at(-1);
+      const argmax = [];
+      const maxProbability = [];
+      for (let row = 0; row < first.dims[0]; row += 1) {
+        let best = 0;
+        for (let column = 1; column < classes; column += 1) {
+          if (values[row * classes + column] > values[row * classes + best]) best = column;
+        }
+        argmax.push(best);
+        maxProbability.push(values[row * classes + best]);
+      }
+      Object.values(outputs).forEach((output) => output.dispose());
+      return {wallMs: performance.now() - started, argmax, maxProbability};
+    };
+
+    await infer();
+    const runs = [];
+    for (let index = 0; index < iterations; index += 1) runs.push(await infer());
+    const mismatches = runs[0].argmax
+      .map((value, index) => value === fixture.expectedArgmax[index] ? null : ({index, expected: fixture.expectedArgmax[index], actual: value}))
+      .filter(Boolean);
+    return {
+      runtime: {ort: ORT.env.versions?.web, userAgent: navigator.userAgent},
+      adapter: {features: [...adapter.features].sort(), limits: Object.fromEntries(Object.entries(adapter.limits))},
+      model: fixture.model,
+      queries: fixture.queries,
+      batchSize: fixture.batchSize,
+      initializationMs,
+      warmups: 1,
+      runs: runs.map(({wallMs}) => ({wallMs, queriesPerSecond: fixture.batchSize * 1000 / wallMs})),
+      predictionMismatches: mismatches,
+      maxProbabilityDelta: Math.max(...runs[0].maxProbability.map((value, index) => Math.abs(value - fixture.expectedMaxProbability[index]))),
+    };
+  },
+};
+window.ready = true;
+</script>
