@@ -91,6 +91,8 @@ Taiwan profile 另以指定文字跑一個完整瀏覽器 append，實際得到 
 
 新增五詞另以 Taiwan profile 跑實際瀏覽器串流指定句，phones 中五個「得」皆為 `de5`。waveform 71,365 samples 全為有限值，peak `0.7064`、RMS `0.1461`，MP3 54,432 bytes；一個 append 為 4.536 秒，三類串流錯誤均為 0。結果只保存於 `/tmp`。
 
+下一輪針對「長」的 `chang2/zhang3` 分流，不作全域單字或下一字 contextual rule。依教育部固定詞與長度義條目加入 `長城、長劍、長河、長凳、長橋`，並完成待審的 `堤壩 → ti2 ba4`；全書依序命中 5,016、943、725、377、54、23 次，共 7,138 次，單字 fallback 由 9,253,029 降至 9,238,759，token 與 unknown 不變。反向迴歸測試固定 `長輩、長大、成長、生長、長子、長女 → zhang3`，避免長度義修正污染其他詞義。
+
 同日以 Chromium 151 對 Taiwan profile 跑完整 Worker、Matcha/Vocos、MP3 與單一 MediaSource sequence。五個 append 共 25.416 秒，producer `RTF 0.1466`、`6.82 倍即時`，underflow、append error、producer error 均為 0；含「垃圾」的 segment 實際輸出 `le4 se4`，waveform 81,682 samples 全為有限值、peak `0.9377`、RMS `0.1380`，MP3 62,208 bytes。結果只寫入 `/tmp` 作功能驗證，不取代 official profile 的正式 benchmark JSON；七個新審核詞的 token mapping 另由 manifest 與 frontend 測試覆蓋。
 
 加入 contextual rule 後另跑兩個 append、10.656 秒的 Taiwan profile smoke test；含「帶著」的 segment 實際輸出 `dai4 zhe5`，103,825 samples 全為有限值、peak `0.8463`、RMS `0.1419`，MP3 79,056 bytes，三類串流錯誤仍為 0。結果同樣只寫入 `/tmp`。

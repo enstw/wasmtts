@@ -34,6 +34,18 @@ assert.deepEqual(taiwan.tokensFor('覺得曉得顯得懶得捨得').phones, [
 assert.deepEqual(taiwan.tokensFor('值得使得免得省得懂得').phones, [
   'zhi2', 'de5', 'shi3', 'de5', 'mian3', 'de5', 'sheng3', 'de5', 'dong3', 'de5',
 ]);
+assert.deepEqual(official.tokensFor('長城長劍長河長凳長橋堤壩').phones, [
+  'zhang3', 'cheng2', 'zhang3', 'jian4', 'zhang3', 'he2',
+  'zhang3', 'deng4', 'zhang3', 'qiao2', 'di1', 'ba4',
+]);
+assert.deepEqual(taiwan.tokensFor('長城長劍長河長凳長橋堤壩').phones, [
+  'chang2', 'cheng2', 'chang2', 'jian4', 'chang2', 'he2',
+  'chang2', 'deng4', 'chang2', 'qiao2', 'ti2', 'ba4',
+]);
+assert.deepEqual(taiwan.tokensFor('長輩長大成長生長長子長女').phones, [
+  'zhang3', 'bei4', 'zhang3', 'da4', 'cheng2', 'zhang3',
+  'sheng1', 'zhang3', 'zhang3', 'zi5', 'zhang3', 'nv3',
+]);
 
 console.log(JSON.stringify({
   profile: 'taiwan',

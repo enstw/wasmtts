@@ -4,7 +4,7 @@
   "purpose": "分開保存辭典來源、模型證據與產品啟用範圍；候選不因出現在 entries 就自動進產品",
   "profiles": {
     "taiwan": {
-      "phraseOverrides": ["記得", "覺得", "曉得", "顯得", "懶得", "捨得", "柵欄", "駐紮", "長短", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手"],
+      "phraseOverrides": ["記得", "覺得", "曉得", "顯得", "懶得", "捨得", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手"],
       "contextualRules": ["著"]
     }
   },
@@ -145,6 +145,84 @@
       "source": {
         "title": "教育部《國語辭典簡編本》：長短",
         "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=32115&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "長城",
+      "observed": ["zhang3", "cheng2"],
+      "target": ["chang2", "cheng2"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》：長城",
+        "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=123714&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "長劍",
+      "observed": ["zhang3", "jian4"],
+      "target": ["chang2", "jian4"],
+      "scope": "空間、距離大的形容詞結構",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》：長（cháng）",
+        "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=8446&ver=4",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "長河",
+      "observed": ["zhang3", "he2"],
+      "target": ["chang2", "he2"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》：長河",
+        "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=123633&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "長凳",
+      "observed": ["zhang3", "deng4"],
+      "target": ["chang2", "deng4"],
+      "scope": "空間、距離大的形容詞結構",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：長（cháng）",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=32100&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "長橋",
+      "observed": ["zhang3", "qiao2"],
+      "target": ["chang2", "qiao2"],
+      "scope": "空間、距離大的形容詞結構",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：長（cháng）",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=32100&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "堤壩",
+      "observed": ["di1", "ba4"],
+      "target": ["ti2", "ba4"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：堤壩",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=10698&la=0&powerMode=0",
         "version": "2021"
       }
     },
