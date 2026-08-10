@@ -57,7 +57,7 @@ pnpm test:matcha-asr
 
 ## 自動上游追蹤
 
-[Renovate](renovate.json) 追蹤 npm、ONNX Runtime Web、Matcha/Vocos 資產來源、FST、kaldifst、OpenFST、Emscripten 與固定 ASR oracle。每週一早上 [renovate workflow](.github/workflows/renovate.yml) 啟動,所有更新併成單一 roll-up PR;candidate 必須通過 native WASM build、FST golden、有效 waveform、RTF、512 MiB 記憶體上限與 ASR CER gate,workflow 才合併並發版 — 一週一次。`main` 會重跑相同 gates；成功時發布正式 Release，失敗時以 pre-release 保存版本組合、原因、logs 與機器可讀報告。eSpeak 與 iPhone 測試不屬於本 repository 的 release gate。
+[Renovate](renovate.json) 追蹤 npm、ONNX Runtime Web、Matcha/Vocos 資產來源、FST、kaldifst、OpenFST、Emscripten 與固定 ASR oracle。所有可驗證發布時間的 upstream 版本必須發行滿 30 天；缺少 release timestamp 時採 fail-closed，不得進入 candidate。每週一早上 [renovate workflow](.github/workflows/renovate.yml) 啟動，所有更新併成單一 roll-up PR；只有會改變 build／test artifact 的程式碼、manifest、依賴或 fixture 變更才執行完整 candidate gates，純文件與歷史 results 只回報成功的輕量 required check，`renovate.json`／Renovate workflow 變更則只執行官方 config validator。candidate 必須通過 native WASM build、FST golden、有效 waveform、RTF、512 MiB 記憶體上限與 ASR CER gate，workflow 才合併並發版 — 一週一次。`main` 也只有 artifact-sensitive paths 變更才重跑相同 gates；成功時發布正式 Release，失敗時以 pre-release 保存版本組合、原因、logs 與機器可讀報告。eSpeak 與 iPhone 測試不屬於本 repository 的 release gate。
 
 ```sh
 pnpm fetch:matcha-assets

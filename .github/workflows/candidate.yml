@@ -9,8 +9,46 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    name: artifact-changes
+    runs-on: ubuntu-latest
+    outputs:
+      artifact: ${{ steps.filter.outputs.artifact }}
+      renovate_config: ${{ steps.filter.outputs.renovate_config }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Test CI scope classifier
+        run: node scripts/test-ci-scope.mjs
+      - name: Detect artifact-sensitive changes
+        id: filter
+        run: node scripts/ci-scope.mjs
+
+  renovate_config:
+    name: renovate-config
+    needs: changes
+    if: needs.changes.outputs.renovate_config == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Validate Renovate configuration
+        run: |
+          renovate_version=$(sed -n 's/^[[:space:]]*RENOVATE_VERSION: "\([^"]*\)"$/\1/p' .github/workflows/renovate.yml)
+          test -n "$renovate_version"
+          pnpm dlx --package "renovate@$renovate_version" renovate-config-validator renovate.json
+
   native-wasm:
     name: native-wasm
+    needs: changes
+    if: needs.changes.outputs.artifact == 'true'
     runs-on: ubuntu-latest
     # renovate: datasource=docker depName=emscripten/emsdk
     container: emscripten/emsdk:6.0.6
@@ -62,14 +100,42 @@ jobs:
   candidate-gate:
     name: candidate-gate
     if: always()
-    needs: [native-wasm, browser-gates]
+    needs: [changes, renovate_config, native-wasm, browser-gates]
     runs-on: ubuntu-latest
     steps:
       - name: Require every candidate combination
         env:
+          ARTIFACT_CHANGED: ${{ needs.changes.outputs.artifact }}
+          RENOVATE_CONFIG_CHANGED: ${{ needs.changes.outputs.renovate_config }}
+          RENOVATE_CONFIG_RESULT: ${{ needs.renovate_config.result }}
           NATIVE_RESULT: ${{ needs.native-wasm.result }}
           BROWSER_RESULT: ${{ needs.browser-gates.result }}
         run: |
-          printf 'native-wasm=%s\nbrowser-gates=%s\n' "$NATIVE_RESULT" "$BROWSER_RESULT"
-          test "$NATIVE_RESULT" = success
-          test "$BROWSER_RESULT" = success
+          printf 'artifact=%s\nrenovate-config=%s\nrenovate-config-job=%s\nnative-wasm=%s\nbrowser-gates=%s\n' "$ARTIFACT_CHANGED" "$RENOVATE_CONFIG_CHANGED" "$RENOVATE_CONFIG_RESULT" "$NATIVE_RESULT" "$BROWSER_RESULT"
+          case "$RENOVATE_CONFIG_CHANGED" in
+            true)
+              test "$RENOVATE_CONFIG_RESULT" = success
+              ;;
+            false)
+              test "$RENOVATE_CONFIG_RESULT" = skipped
+              ;;
+            *)
+              echo "Renovate config detector did not produce a valid result" >&2
+              exit 1
+              ;;
+          esac
+
+          case "$ARTIFACT_CHANGED" in
+            true)
+              test "$NATIVE_RESULT" = success
+              test "$BROWSER_RESULT" = success
+              ;;
+            false)
+              test "$NATIVE_RESULT" = skipped
+              test "$BROWSER_RESULT" = skipped
+              ;;
+            *)
+              echo "artifact detector did not produce a valid result" >&2
+              exit 1
+              ;;
+          esac
