@@ -42,9 +42,17 @@ assert.deepEqual(taiwan.tokensFor('長城長劍長河長凳長橋堤壩').phones
   'chang2', 'cheng2', 'chang2', 'jian4', 'chang2', 'he2',
   'chang2', 'deng4', 'chang2', 'qiao2', 'ti2', 'ba4',
 ]);
-assert.deepEqual(taiwan.tokensFor('長輩長大成長生長長子長女').phones, [
-  'zhang3', 'bei4', 'zhang3', 'da4', 'cheng2', 'zhang3',
-  'sheng1', 'zhang3', 'zhang3', 'zi5', 'zhang3', 'nv3',
+for (const [text, phones] of [
+  ['長輩', ['zhang3', 'bei4']],
+  ['長大', ['zhang3', 'da4']],
+  ['成長', ['cheng2', 'zhang3']],
+  ['生長', ['sheng1', 'zhang3']],
+  ['長子', ['zhang3', 'zi5']],
+  ['長女', ['zhang3', 'nv3']],
+]) assert.deepEqual(taiwan.tokensFor(text).phones, phones);
+assert.deepEqual(taiwan.tokensFor('長命長生長久長遠長袍').phones, [
+  'chang2', 'ming4', 'chang2', 'sheng1', 'chang2', 'jiu3',
+  'chang2', 'yuan3', 'chang2', 'pao2',
 ]);
 
 console.log(JSON.stringify({

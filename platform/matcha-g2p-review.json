@@ -4,7 +4,7 @@
   "purpose": "分開保存辭典來源、模型證據與產品啟用範圍；候選不因出現在 entries 就自動進產品",
   "profiles": {
     "taiwan": {
-      "phraseOverrides": ["記得", "覺得", "曉得", "顯得", "懶得", "捨得", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手"],
+      "phraseOverrides": ["記得", "覺得", "曉得", "顯得", "懶得", "捨得", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手"],
       "contextualRules": ["著"]
     }
   },
@@ -210,6 +210,71 @@
       "source": {
         "title": "教育部《國語辭典簡編本》：長（cháng）",
         "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=32100&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "長命",
+      "observed": ["zhang3", "ming4"],
+      "target": ["chang2", "ming4"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：長命",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=32108&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "長生",
+      "observed": ["zhang3", "sheng1"],
+      "target": ["chang2", "sheng1"],
+      "scope": "生命長存的固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：長生",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=32152&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "長久",
+      "observed": ["zhang3", "jiu3"],
+      "target": ["chang2", "jiu3"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：長久",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=32130&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "長遠",
+      "observed": ["zhang3", "yuan3"],
+      "target": ["chang2", "yuan3"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：長遠",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=32160&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "長袍",
+      "observed": ["zhang3", "pao2"],
+      "target": ["chang2", "pao2"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "confirmed",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：長袍",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=32103&la=0&powerMode=0",
         "version": "2021"
       }
     },

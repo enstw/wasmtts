@@ -102,7 +102,7 @@ PWA runtime、Worker、兩個模型與字典均進入 CacheStorage 後，實際�
 
 2026-08-08 在 iOS `18.7` Safari 以 LAN HTTP 測試低記憶體 JavaScript lexicon adapter。模型下載、Worker 初始化與有效 waveform 暖機皆通過；設定 WebKit 要求的 `HTMLAudioElement.disableRemotePlayback=true` 後，使用者確認繁體原文直輸、前景播放、鎖屏播放及「垃圾 → `le4 se4`」讀音覆寫正常。因本輪 `secureContext=false`、`standalone=false`，且未記錄裝置型號、鎖屏時長、溫度、耗電、降頻或 2 小時跨章結果，只能判定 transport 初步相容，不是 PWA 或熱穩態完成。
 
-實聽發現 `「」` 被映射為 `“”` acoustic tokens 後會發音；目前已在 tokenization 前移除中英文開閉引號、保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。Taiwan profile 現含「垃圾」、30 個 phrase overrides，以及本節說明的保守 `著 → zhe5` contextual rule；official profile 保持上游結果。review schema v2 把 `confirmed`、`source-and-model-supported`、`model-supported` 證據狀態與 `profiles.taiwan` 產品啟用清單分開，260 字 allowlist 不宣稱為逐項人工確認。「關卡」逐字讀音符合臺灣 `guan1 ka3`；「堤壩」已依教育部讀音覆寫為 `ti2 ba4`。完整事件與數值保存在 [共同結果](../../platform/RESULTS.md)。
+實聽發現 `「」` 被映射為 `“”` acoustic tokens 後會發音；目前已在 tokenization 前移除中英文開閉引號、保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。Taiwan profile 現含「垃圾」、35 個 phrase overrides，以及本節說明的保守 `著 → zhe5` contextual rule；official profile 保持上游結果。review schema v2 把 `confirmed`、`source-and-model-supported`、`model-supported` 證據狀態與 `profiles.taiwan` 產品啟用清單分開，260 字 allowlist 不宣稱為逐項人工確認。「關卡」逐字讀音符合臺灣 `guan1 ka3`；「堤壩」已依教育部讀音覆寫為 `ti2 ba4`。完整事件與數值保存在 [共同結果](../../platform/RESULTS.md)。
 
 ## 小說 G2P 稽核 pilot
 
@@ -139,6 +139,8 @@ pnpm audit:matcha-g2pw-pilot -- ~/Downloads/jl.zip --max-sentences 500
 Taiwan profile 的指定句瀏覽器測試實際輸出五個 `de5`，71,365 個 samples 全為有限值，peak `0.7064`、RMS `0.1461`，MP3 54,432 bytes；一個 append 4.536 秒，underflow、append error、producer error 均為 0。結果只寫入 `/tmp`，不取代 official benchmark。
 
 「長」不能作全域覆寫：長度義讀 `chang2`，生長、年長、排行與首長義讀 `zhang3`。第一批只加入有明確教育部依據的 `長城、長劍、長河、長凳、長橋`，另完成 `堤壩 → ti2 ba4`；全書依序命中 5,016、943、725、377、54、23 次，共 7,138 次，單字 fallback 降至 9,238,759。測試明列 `長輩、長大、成長、生長、長子、長女` 必須維持 `zhang3`。
+
+第二批加入教育部有獨立詞條的 `長命、長生、長久、長遠、長袍`，全書依序命中 564、483、433、165、185 次，共 1,830 次，單字 fallback 降至 9,235,107。保護 `zhang3` 的案例改為逐詞斷言，避免測試字串本身把 `成長` 與 `生長` 無分隔串成另一個合法詞 `長生`；全文稽核另抽查候選左右文。
 
 ## 一次性效能初測
 
