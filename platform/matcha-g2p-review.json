@@ -4,7 +4,7 @@
   "purpose": "分開保存辭典來源、模型證據與產品啟用範圍；候選不因出現在 entries 就自動進產品",
   "profiles": {
     "taiwan": {
-      "phraseOverrides": ["記得", "柵欄", "駐紮", "長短", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手"],
+      "phraseOverrides": ["記得", "覺得", "曉得", "顯得", "懶得", "捨得", "柵欄", "駐紮", "長短", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手"],
       "contextualRules": ["著"]
     }
   },
@@ -41,6 +41,71 @@
       "source": {
         "title": "教育部《國語辭典簡編本》：記得",
         "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=21600&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "覺得",
+      "observed": ["jue2", "de2"],
+      "target": ["jue2", "de5"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "source-and-model-supported",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：覺得",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=24188&la=0&powerMode=1",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "曉得",
+      "observed": ["xiao3", "de2"],
+      "target": ["xiao3", "de5"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "source-and-model-supported",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：曉得",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=27074&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "顯得",
+      "observed": ["xian3", "de2"],
+      "target": ["xian3", "de5"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "source-and-model-supported",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》：顯得",
+        "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=108239&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "懶得",
+      "observed": ["lan3", "de2"],
+      "target": ["lan3", "de5"],
+      "scope": "表示不想、不願意的固定結構",
+      "implementation": "phrase-override",
+      "status": "source-and-model-supported",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：懶",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=13767&la=0&powerMode=0",
+        "version": "2021"
+      }
+    },
+    {
+      "pattern": "捨得",
+      "observed": ["she3", "de2"],
+      "target": ["she3", "de5"],
+      "scope": "固定詞",
+      "implementation": "phrase-override",
+      "status": "source-and-model-supported",
+      "source": {
+        "title": "教育部《國語辭典簡編本》：捨得",
+        "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=33924&la=0&powerMode=0",
         "version": "2021"
       }
     },

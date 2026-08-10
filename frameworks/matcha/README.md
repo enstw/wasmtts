@@ -102,7 +102,7 @@ PWA runtime、Worker、兩個模型與字典均進入 CacheStorage 後，實際�
 
 2026-08-08 在 iOS `18.7` Safari 以 LAN HTTP 測試低記憶體 JavaScript lexicon adapter。模型下載、Worker 初始化與有效 waveform 暖機皆通過；設定 WebKit 要求的 `HTMLAudioElement.disableRemotePlayback=true` 後，使用者確認繁體原文直輸、前景播放、鎖屏播放及「垃圾 → `le4 se4`」讀音覆寫正常。因本輪 `secureContext=false`、`standalone=false`，且未記錄裝置型號、鎖屏時長、溫度、耗電、降頻或 2 小時跨章結果，只能判定 transport 初步相容，不是 PWA 或熱穩態完成。
 
-實聽發現 `「」` 被映射為 `“”` acoustic tokens 後會發音；目前已在 tokenization 前移除中英文開閉引號、保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。Taiwan profile 現含「垃圾」、19 個 phrase overrides，以及本節說明的保守 `著 → zhe5` contextual rule；official profile 保持上游結果。review schema v2 把 `confirmed`、`source-and-model-supported`、`model-supported` 證據狀態與 `profiles.taiwan` 產品啟用清單分開，260 字 allowlist 不宣稱為逐項人工確認。「關卡」逐字讀音符合臺灣 `guan1 ka3`，「堤壩」仍需獨立審核。完整事件與數值保存在 [共同結果](../../platform/RESULTS.md)。
+實聽發現 `「」` 被映射為 `“”` acoustic tokens 後會發音；目前已在 tokenization 前移除中英文開閉引號、保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。Taiwan profile 現含「垃圾」、24 個 phrase overrides，以及本節說明的保守 `著 → zhe5` contextual rule；official profile 保持上游結果。review schema v2 把 `confirmed`、`source-and-model-supported`、`model-supported` 證據狀態與 `profiles.taiwan` 產品啟用清單分開，260 字 allowlist 不宣稱為逐項人工確認。「關卡」逐字讀音符合臺灣 `guan1 ka3`，「堤壩」仍需獨立審核。完整事件與數值保存在 [共同結果](../../platform/RESULTS.md)。
 
 ## 小說 G2P 稽核 pilot
 
@@ -133,6 +133,10 @@ pnpm audit:matcha-g2pw-pilot -- ~/Downloads/jl.zip --max-sentences 500
 「著」contextual rule 共做四輪各 300 句的 targeted pilot。第一輪按 archive order，只收錄同一前字至少兩筆且全部為 `zhe5` 的 49 字；後三輪排除既有 allowlist，再按前一字分層抽樣，每字最多三個不同句子，只收錄至少三筆且全部為 `zhe5` 的 90、67、54 字。四輪合計 260 個前字、908 次 `zhe5`、零反例；`見／不／有／得／餘／一／在／用／空／覺／撿／側／撈／摔` 等多讀音前字明確排除。加入下一段固定詞後，全書 contextual rule 實際命中 36,705 次，剩餘 `著 zhu4` fallback 為 4,402 次。這 4,402 是待分類 trace，不是 4,402 個已確認錯讀；其中含 `顯著／卓著／著名／著稱` 等原本就應維持 `zhu4` 的案例。規則只在 longest-match 最後仍落到單字「著」時生效，因此完整詞優先，allowlist 外也維持上游讀音。Taiwan profile 的瀏覽器產品路徑已直接確認 `帶著 → dai4 zhe5`，兩個 append 共 10.656 秒，waveform、MP3 與 MediaSource 有效且無 underflow／append／producer error；official profile 不套此規則。
 
 第三輪另把教育部明列的 `著 zhao2` 結果助詞與 `著手 zhuo2 shou3` 落成 12 個 longest-match phrase overrides：`睡著、找著、碰著、逮著、嚇著、正著、摸不著、犯不著、睡不著、用得著、管不著、著手`。全書共命中 738 次；加入所有 phrase 與四輪 contextual rules 後，單字 fallback 為 9,275,437，token 仍為 11,942,487、unknown 仍為 1,018。`見著` 在分層 pilot 中 `zhe5/zhao2` 各有樣本，因此刻意不作固定詞。
+
+「得」分層 pilot 另抽 300 句，共比較 19,823 個可對齊漢字，18,378 個一致、1,445 個不同，表面一致率 `92.71%`；其中 neutral-tone 候選 460 次。由於 g2pW 會把教育部與上游 lexicon 均為 `zhi2 de5` 的「值得」也列為差異，這輪仍只把模型當候選產生器。教育部詞條與 pilot 共同支持、且上游繁體 longest-match 缺詞的 `覺得、曉得、顯得、懶得、捨得` 加入 Taiwan profile；全書依序命中 8,692、1,049、558、602、367 次，共 11,268 次，單字 fallback 降至 9,253,029。`值得、使得、免得、省得、懂得` 已由上游整詞正確處理，不重複覆寫。沒有建立全域 `得 → de5` 或按前字套用的 contextual rule，以免破壞 `de2/dei3` 用法。
+
+Taiwan profile 的指定句瀏覽器測試實際輸出五個 `de5`，71,365 個 samples 全為有限值，peak `0.7064`、RMS `0.1461`，MP3 54,432 bytes；一個 append 4.536 秒，underflow、append error、producer error 均為 0。結果只寫入 `/tmp`，不取代 official benchmark。
 
 ## 一次性效能初測
 

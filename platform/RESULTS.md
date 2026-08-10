@@ -87,6 +87,10 @@ Python pilot 目前直接比較原文漢字的 Matcha lexicon 與 g2pW，沒有�
 
 Taiwan profile 另以指定文字跑一個完整瀏覽器 append，實際得到 `找著 zhao3 zhao2`、`睡著 shui4 zhao2`、`著手 zhuo2 shou3`。該段 3.9538 秒、63,260 samples 全為有限值，peak `0.7911`、RMS `0.1380`，MP3 48,384 bytes；underflow、append error、producer error 均為 0。結果只寫入 `/tmp`，不取代 official benchmark。
 
+「得」分層 pilot 抽 300 句，比較 19,823 個可對齊漢字：18,378 個一致、1,445 個不同，表面一致率 `92.71%`，其中 neutral-tone 候選 460 次。依教育部詞條與 pilot，新增 `覺得、曉得、顯得、懶得、捨得 → de5` 五個固定詞；全書依序命中 8,692、1,049、558、602、367 次，共 11,268 次，單字 fallback 由上一輪 9,275,437 降至 9,253,029，token 仍為 11,942,487、unknown 仍為 1,018。上游已正確整詞處理的 `值得、使得、免得、省得、懂得` 不加覆寫。g2pW 對「值得」的候選與教育部及 Matcha lexicon 相反，證明差異不可直接自動部署；本輪不建立任何全域「得」規則。
+
+新增五詞另以 Taiwan profile 跑實際瀏覽器串流指定句，phones 中五個「得」皆為 `de5`。waveform 71,365 samples 全為有限值，peak `0.7064`、RMS `0.1461`，MP3 54,432 bytes；一個 append 為 4.536 秒，三類串流錯誤均為 0。結果只保存於 `/tmp`。
+
 同日以 Chromium 151 對 Taiwan profile 跑完整 Worker、Matcha/Vocos、MP3 與單一 MediaSource sequence。五個 append 共 25.416 秒，producer `RTF 0.1466`、`6.82 倍即時`，underflow、append error、producer error 均為 0；含「垃圾」的 segment 實際輸出 `le4 se4`，waveform 81,682 samples 全為有限值、peak `0.9377`、RMS `0.1380`，MP3 62,208 bytes。結果只寫入 `/tmp` 作功能驗證，不取代 official profile 的正式 benchmark JSON；七個新審核詞的 token mapping 另由 manifest 與 frontend 測試覆蓋。
 
 加入 contextual rule 後另跑兩個 append、10.656 秒的 Taiwan profile smoke test；含「帶著」的 segment 實際輸出 `dai4 zhe5`，103,825 samples 全為有限值、peak `0.8463`、RMS `0.1419`，MP3 79,056 bytes，三類串流錯誤仍為 0。結果同樣只寫入 `/tmp`。
