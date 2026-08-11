@@ -28,6 +28,18 @@
       "source": {"title": "教育部《重編國語辭典修訂本》：得", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=1959&la=0&powerMode=0", "version": "2021"}
     },
     {
+      "character": "得", "matchaPhone": "de2", "g2pwPhone": "de5", "category": "neutral_tone",
+      "status": "deferred",
+      "rationale": "剩餘 6,984 筆混合結構助詞 de5、實詞 de2 與不得等需句法判定的同形結構；既有零反例前字 scope 已部署，餘下資料不能以單一相鄰字安全泛化，待支援多字或句法 scope",
+      "source": {"title": "教育部《重編國語辭典修訂本》：得（de）", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=1928&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "子", "matchaPhone": "zi5", "g2pwPhone": "zi3", "category": "neutral_tone",
+      "status": "deferred",
+      "rationale": "剩餘 4,660 筆混合詞尾輕聲 zi5、實詞 zi3、固定詞與人名專名；既有公子、男子、童子等零反例 scope 已部署，餘下資料需 longest-match 詞表或專名辨識，不能全域覆寫",
+      "source": {"title": "教育部《國語辭典簡編本》：子（zǐ）", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=36691&la=0&powerMode=0", "version": "2021"}
+    },
+    {
       "character": "兒", "matchaPhone": "er2", "g2pwPhone": "er1", "category": "tone_disagreement",
       "status": "rejected_model_error",
       "rationale": "教育部單字與親屬、稱謂義均為 er2，詞尾兒化另以併音表示，沒有 er1 單字讀音；本輪 2,307 筆維持 Matcha er2",
