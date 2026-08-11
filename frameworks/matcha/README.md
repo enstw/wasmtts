@@ -162,6 +162,8 @@ coordinator 已以真實 `jl.zip` 做兩輪各 4 句的 bounded smoke。第一�
 
 第七批擴充 `得、為` 的零反例前字 scope，並加入 `還、處、教、卷、晃、長` 六組明確詞義的相鄰字規則，精確新增排除 12,894 筆；累計約 97,106 筆，未處理量由 145,788 降至 132,894。雙向規則的前字與後字 scope 明確採聯集，產品前端與 SQLite 決策同步語意一致；負向測試保護 `獲得、因為、還是、到處、教育、卷起、一晃、長大`。
 
+第八批將終結性的 group 決策納入受版本控制的 `groupDecisions`，同步 profile 時會與 phrase scope 一起寫入 SQLite，避免只存在本機資料庫。完整語料剩餘的 `和 he2 → han4` 9,557 筆依教育部將 `han4` 標成連詞 `he2` 的語音而分類為區域差異，本臺灣 profile 統一維持 `he2`；`誰 shui2 → shei2` 6,227 筆確認目標音，但 Matcha acoustic tokens 缺少 `shei2`，分類為 `deferred`，不建立無法合成的覆寫。本批精確終結 15,784 筆，累計 112,890 筆，未處理量由 132,894 降至 117,110。
+
 相同開頭 100 句、單一 Chrome process 的 batch 32／64／128 A/B 為 112.58／114.99／116.24 steady queries/s，放大 batch 的最大收益約 3.3%。同一 ORT Web runtime 的雙 session concurrent run 會在 `getBindGroupLayout` 失敗；改用兩個獨立 Chrome process 後，每個 process 為 69.63／67.72，合計約 137.35 queries/s，較單 process 快約 22%，但不是線性加速。正式單 process 預設仍保守維持 32；桌機一次性全文 scan 可明確指定 128。多 process 只有在新增 source sentence sharding、確保結果可無重複合併後才應進入正式 coordinator。
 
 ORT Web host threads 另以相同 100 句、batch 128 比較 `ORT.env.wasm.numThreads=1／2／4／8`，steady throughput 為 117.08／117.08／116.58／116.93 queries/s，差異約 0.4%，沒有實質加速。這證實目前主要成本是 WebGPU kernels，WASM threads 不控制 GPU shader 平行度；正式配置維持 ORT auto，`--wasm-threads` 只保留為可重現診斷參數。

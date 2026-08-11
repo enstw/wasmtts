@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "locale": "zh-TW",
   "purpose": "分開保存辭典來源、模型證據與產品啟用範圍；候選不因出現在 entries 就自動進產品",
   "profiles": {
@@ -8,6 +8,20 @@
       "contextualRules": ["著", "和", "得", "為", "子", "頭", "乾", "差", "當", "分", "還", "處", "教", "卷", "晃", "長"]
     }
   },
+  "groupDecisions": [
+    {
+      "character": "和", "matchaPhone": "he2", "g2pwPhone": "han4", "category": "polyphone",
+      "status": "rejected_regional_difference",
+      "rationale": "完整 SQLite 剩餘 9,557 筆為 g2pW 建議 han4 的連詞候選；教育部將 han4 註為連詞 he2 的語音，本臺灣 profile 統一維持 he2",
+      "source": {"title": "教育部《重編國語辭典修訂本》：和", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=4766&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "誰", "matchaPhone": "shui2", "g2pwPhone": "shei2", "category": "polyphone",
+      "status": "deferred",
+      "rationale": "教育部臺灣讀音為 shei2，但 Matcha acoustic tokens 缺少 shei2；在模型資產支援前終結本輪 6,227 筆審核，不建立無法合成的覆寫",
+      "source": {"title": "教育部《國語辭典簡編本》：誰", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=34016&la=0&powerMode=0", "version": "2021"}
+    }
+  ],
   "entries": [
     {
       "pattern": "得", "observed": ["de2"], "target": ["de5"],

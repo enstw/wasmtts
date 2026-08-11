@@ -24,6 +24,8 @@ occurrence.run(2, '', '平', 'he2', 0.98, 'agreement');
 
 syncImplementedProfile(db, 1, {
   profiles: {taiwan: {phraseOverrides: ['他和'], contextualRules: ['和']}},
+  groupDecisions: [{character: '和', matchaPhone: 'he2', g2pwPhone: 'han4',
+    category: 'polyphone', status: 'needs_context', rationale: '其餘語境仍需審核'}],
   entries: [
     {pattern: '他和', observed: ['ta1', 'he2'], target: ['ta1', 'han4'],
       implementation: 'phrase-override', status: 'source-and-model-supported', scope: 'fixture'},
@@ -31,8 +33,6 @@ syncImplementedProfile(db, 1, {
       implementation: 'contextual-rule', status: 'source-and-model-supported', scope: 'fixture contextual'},
   ],
 });
-setGroupDecision(db, 1, {character: '和', matchaPhone: 'he2', g2pwPhone: 'han4',
-  category: 'polyphone', status: 'needs_context', rationale: '其餘語境仍需審核'});
 const report = buildSqliteRoiReport(db, {minOccurrences: 1, limit: 10, contextLimit: 2, sampleLimit: 1});
 assert.equal(report.run.id, 1);
 assert.equal(report.summary.allOccurrences, 3);

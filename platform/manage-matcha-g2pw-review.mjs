@@ -65,6 +65,16 @@ export function syncImplementedProfile(db, runId, review) {
   let decisions = 0;
   db.exec('BEGIN IMMEDIATE');
   try {
+    for (const decision of review.groupDecisions ?? []) {
+      for (const key of ['character', 'matchaPhone', 'g2pwPhone', 'category', 'status']) {
+        if (!decision[key]) throw new Error(`groupDecisions 缺少 ${key}`);
+      }
+      if (!STATUSES.has(decision.status)) throw new Error(`不支援的 status：${decision.status}`);
+      write.run(runId, decision.character, decision.matchaPhone, decision.g2pwPhone,
+        decision.category, 'group', '', 0, decision.status, decision.rationale ?? '',
+        decision.source?.url ?? null, now, now);
+      decisions += 1;
+    }
     for (const entry of review.entries ?? []) {
       if (!Array.isArray(entry.observed) || !Array.isArray(entry.target)) continue;
       const characters = [...entry.pattern];

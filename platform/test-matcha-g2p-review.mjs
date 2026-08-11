@@ -2,9 +2,21 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
 const review = JSON.parse(readFileSync(new URL('./matcha-g2p-review.json', import.meta.url), 'utf8'));
-assert.equal(review.schemaVersion, 2);
+assert.equal(review.schemaVersion, 3);
 assert.equal(review.locale, 'zh-TW');
 assert.ok(Array.isArray(review.entries) && review.entries.length > 0);
+assert.ok(Array.isArray(review.groupDecisions));
+
+for (const decision of review.groupDecisions) {
+  assert.match(decision.character, /^.$/u);
+  assert.match(decision.matchaPhone, /^[a-z]+[1-5]$/u);
+  assert.match(decision.g2pwPhone, /^[a-z]+[1-5]$/u);
+  assert.ok(['polyphone', 'neutral_tone', 'tone_disagreement'].includes(decision.category));
+  assert.ok(['rejected_current_correct', 'rejected_model_error',
+    'rejected_regional_difference', 'deferred'].includes(decision.status));
+  assert.ok(decision.rationale.length > 0);
+  assert.match(decision.source.url, /^https:\/\/dict\.(?:concised|revised)\.moe\.edu\.tw\//u);
+}
 
 const patterns = new Set();
 for (const entry of review.entries) {
