@@ -8,6 +8,7 @@
     "vendor:mobile": "node scripts/vendor-mobile.mjs",
     "fetch:matcha-assets": "node scripts/fetch-matcha-assets.mjs",
     "host:mobile": "pnpm vendor:mobile && node mobile-host/server.mjs",
+    "host:score": "WASM_TTS_SCORE_ONLY=1 node mobile-host/server.mjs",
     "benchmark:vits": "node platform/run-vits-browser.mjs",
     "benchmark:kokoro": "node platform/run-kokoro-browser.mjs",
     "benchmark:matcha": "node platform/run-matcha-browser.mjs",
@@ -22,6 +23,7 @@
     "test:release-gates": "node scripts/run-release-gates.mjs",
     "validate:release-results": "node scripts/validate-release-results.mjs",
     "sample:matcha-upstream-fst-traditional": "node platform/generate-matcha-upstream-fst-traditional-sample.mjs",
+    "sample:matcha-frequency-ab": "pnpm vendor:mobile && node platform/generate-matcha-frequency-ab.mjs",
     "sample:matcha-stream": "pnpm vendor:mobile && node platform/generate-matcha-stream-sample.mjs"
   },
   "dependencies": {

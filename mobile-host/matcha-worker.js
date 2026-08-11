@@ -288,7 +288,12 @@ async function synthesize(message) {
       },
     },
   };
-  postMessage(result, [result.buffer]);
+  const transfer = [result.buffer];
+  if (message.capturePcm) {
+    result.pcmBuffer = synthesis.samples.buffer;
+    transfer.push(result.pcmBuffer);
+  }
+  postMessage(result, transfer);
 }
 
 self.addEventListener('message', async (event) => {

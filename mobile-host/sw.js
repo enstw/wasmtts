@@ -1,9 +1,12 @@
-const CACHE = 'wasmtts-mobile-stream-v5';
+const CACHE = 'wasmtts-mobile-stream-v6';
 const SHELL = [
   '/mobile-host/',
   '/mobile-host/index.html',
   '/mobile-host/stream-test.html',
   '/mobile-host/matcha-stream-test.html',
+  '/mobile-host/frequency-ab-score.html',
+  '/mobile-host/frequency-ab-score.css',
+  '/mobile-host/frequency-ab-score.mjs',
   '/mobile-host/stream-test.css',
   '/mobile-host/stream-test.mjs',
   '/mobile-host/matcha-stream-test.mjs',

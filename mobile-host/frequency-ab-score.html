@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#17231d">
+  <title>Matcha 16 kHz 匿名試聽</title>
+  <link rel="stylesheet" href="/mobile-host/stream-test.css">
+  <link rel="stylesheet" href="/mobile-host/frequency-ab-score.css">
+</head>
+<body>
+  <main class="shell score-shell">
+    <nav><a href="/mobile-host/">← 返回測試入口</a></nav>
+    <header class="hero score-hero">
+      <p class="eyebrow">BLIND LISTENING TEST</p>
+      <h1>Matcha 16 kHz<br>匿名試聽</h1>
+      <p class="lede">四個版本會為每位受試者隨機排序。請固定音量與播放設備，完整聽過每段後再評分；頁面不顯示模型或處理方式。</p>
+      <div class="submission-count" aria-live="polite">
+        <span>本機已收集</span>
+        <strong id="submissionCount">讀取中…</strong>
+      </div>
+    </header>
+
+    <section class="panel protocol" aria-labelledby="protocolTitle">
+      <div>
+        <p class="section-label">PROTOCOL</p>
+        <h2 id="protocolTitle">同一設備、同一音量、依序比較</h2>
+      </div>
+      <ol>
+        <li>先戴好耳機或固定喇叭位置；測試途中不要調整系統音量。</li>
+        <li>每段至少播放一次；播放新樣本時，上一段會自動暫停。</li>
+        <li>箱音分數越低越好；清晰度與自然度分數越高越好。</li>
+        <li>提交後資料只追加到這台 host 的本機檔案，不會上傳網路。</li>
+      </ol>
+    </section>
+
+    <form id="scoreForm" novalidate>
+      <section class="panel listener-panel" aria-labelledby="listenerTitle">
+        <div>
+          <p class="section-label">LISTENER</p>
+          <h2 id="listenerTitle">測試條件</h2>
+        </div>
+        <label class="field">
+          <span>受試者代號（選填）</span>
+          <input id="participantLabel" name="participantLabel" maxlength="80" autocomplete="off" placeholder="例如 listener-01；請勿填姓名或 email">
+        </label>
+        <label class="field">
+          <span>播放設備</span>
+          <select id="listeningDevice" name="listeningDevice" required>
+            <option value="">請選擇</option>
+            <option value="headphones">耳機</option>
+            <option value="speaker">喇叭</option>
+            <option value="other">其他</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="test-progress" aria-label="評分進度">
+        <div><span id="progressLabel">準備樣本…</span><strong id="progressValue">0%</strong></div>
+        <progress id="scoreProgress" value="0" max="100"></progress>
+      </section>
+
+      <section id="sampleList" class="sample-list" aria-label="匿名音訊樣本"></section>
+
+      <section class="panel final-score" aria-labelledby="finalTitle">
+        <div>
+          <p class="section-label">FINAL CHOICE</p>
+          <h2 id="finalTitle">哪一段整體最好？</h2>
+          <p>請綜合箱音、清晰度與自然度，只選一段。</p>
+        </div>
+        <fieldset class="preference-fieldset">
+          <legend class="visually-hidden">整體最佳樣本</legend>
+          <div id="preferenceOptions" class="preference-options"></div>
+        </fieldset>
+        <label class="field full-width">
+          <span>整體備註（選填）</span>
+          <textarea id="overallNotes" name="overallNotes" maxlength="1000" rows="4" placeholder="例如：鼓聲集中在哪些字、哪段齒音太強、長聽是否疲勞"></textarea>
+        </label>
+      </section>
+
+      <section class="panel submit-panel">
+        <div>
+          <p class="section-label">LOCAL SAVE</p>
+          <h2>提交至本機 host</h2>
+          <p>草稿會保存在此瀏覽器；提交成功後追加至 <code>.cache/frequency-ab-scores.jsonl</code>。</p>
+        </div>
+        <div class="button-row submit-actions">
+          <button id="downloadBtn" type="button">下載目前評分 JSON</button>
+          <button class="primary" type="submit">提交評分</button>
+        </div>
+        <p id="formStatus" class="form-status full-width" role="status" aria-live="polite"></p>
+      </section>
+    </form>
+
+    <section id="successPanel" class="panel success-panel" hidden aria-labelledby="successTitle">
+      <p class="section-label">SAVED</p>
+      <h2 id="successTitle">評分已保存</h2>
+      <p id="successMessage"></p>
+      <div class="button-row">
+        <button id="successDownloadBtn" type="button">下載這筆 JSON</button>
+        <button id="newEvaluationBtn" class="primary" type="button">開始下一位受試者</button>
+      </div>
+    </section>
+
+    <p class="footnote">此頁只收集主觀聽感，不取代 waveform、RTF、記憶體或 iPhone 鎖屏驗收。</p>
+  </main>
+  <script type="module" src="/mobile-host/frequency-ab-score.mjs"></script>
+</body>
+</html>
