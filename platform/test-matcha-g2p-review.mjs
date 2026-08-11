@@ -7,6 +7,7 @@ assert.equal(review.locale, 'zh-TW');
 assert.ok(Array.isArray(review.entries) && review.entries.length > 0);
 assert.ok(Array.isArray(review.groupDecisions));
 
+const groupDecisionKeys = new Set();
 for (const decision of review.groupDecisions) {
   assert.match(decision.character, /^.$/u);
   assert.match(decision.matchaPhone, /^[a-z]+[1-5]$/u);
@@ -16,6 +17,10 @@ for (const decision of review.groupDecisions) {
     'rejected_regional_difference', 'deferred'].includes(decision.status));
   assert.ok(decision.rationale.length > 0);
   assert.match(decision.source.url, /^https:\/\/dict\.(?:concised|revised)\.moe\.edu\.tw\//u);
+  const key = [decision.character, decision.matchaPhone, decision.g2pwPhone,
+    decision.category].join('\u0000');
+  assert.equal(groupDecisionKeys.has(key), false, `重複 group decision：${key}`);
+  groupDecisionKeys.add(key);
 }
 
 const patterns = new Set();

@@ -20,6 +20,42 @@
       "status": "deferred",
       "rationale": "教育部臺灣讀音為 shei2，但 Matcha acoustic tokens 缺少 shei2；在模型資產支援前終結本輪 6,227 筆審核，不建立無法合成的覆寫",
       "source": {"title": "教育部《國語辭典簡編本》：誰", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=34016&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "得", "matchaPhone": "de2", "g2pwPhone": "dei3", "category": "polyphone",
+      "status": "deferred",
+      "rationale": "教育部同時收錄 de2、dei3 與 de5；剩餘 3,128 筆的義項需句法判定，現行單一相鄰字 allowlist 無法安全表達，因此先終結本輪 group 審核而不覆寫",
+      "source": {"title": "教育部《重編國語辭典修訂本》：得", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=1959&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "兒", "matchaPhone": "er2", "g2pwPhone": "er1", "category": "tone_disagreement",
+      "status": "rejected_model_error",
+      "rationale": "教育部單字與親屬、稱謂義均為 er2，詞尾兒化另以併音表示，沒有 er1 單字讀音；本輪 2,307 筆維持 Matcha er2",
+      "source": {"title": "教育部《重編國語辭典修訂本》：兒", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=10486&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "眯", "matchaPhone": "mi1", "g2pwPhone": "mi3", "category": "tone_disagreement",
+      "status": "rejected_model_error",
+      "rationale": "剩餘 2,050 筆集中於笑眯眯、眯眼、眯起等眼皮微合義，教育部該義為 mi1；mi3 限異物入眼義，因此維持 Matcha mi1",
+      "source": {"title": "教育部《重編國語辭典修訂本》：眯", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=1363&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "都", "matchaPhone": "dou1", "g2pwPhone": "du1", "category": "polyphone",
+      "status": "deferred",
+      "rationale": "剩餘 1,446 筆多為玄都、清都、仙都等專名，教育部支持都城義 du1，但全域單字覆寫會破壞副詞 dou1；待加入可審核的專名 scope",
+      "source": {"title": "教育部《重編國語辭典修訂本》：都", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=2280&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "西", "matchaPhone": "xi1", "g2pwPhone": "xi5", "category": "neutral_tone",
+      "status": "deferred",
+      "rationale": "剩餘 1,254 筆全部位於「東西」，教育部依方位義讀 xi1、物品義讀 xi5；同形詞需語義判定，現行字面規則無法安全區分，因此不作全域覆寫",
+      "source": {"title": "教育部《重編國語辭典修訂本》：東西", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=48850&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "佛", "matchaPhone": "fu2", "g2pwPhone": "fo2", "category": "polyphone",
+      "status": "deferred",
+      "rationale": "剩餘 693 筆佛教義應讀 fo2，但全域單字覆寫會破壞仿佛 fu2；待將佛門、佛法等詞彙整理為 longest-match scope 後再啟用",
+      "source": {"title": "教育部《重編國語辭典修訂本》：佛", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=1783&la=0&powerMode=0", "version": "2021"}
     }
   ],
   "entries": [
