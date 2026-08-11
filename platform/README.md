@@ -16,6 +16,7 @@
 - `run-matcha-upstream-fst-browser.mjs`：未修改的 sherpa-onnx 官方 browser bundle＋建議中文 FST 基線。
 - `matcha-upstream-benchmark.html`、`matcha-upstream-benchmark.js`、`run-matcha-fst-ab-browser.mjs`：同 runtime 只切換 FST 的控制實驗。
 - `generate-matcha-upstream-fst-traditional-sample.mjs`：繁體原文、不經 OpenCC 的官方 FST 試聽樣本產生器。
+- `generate-matcha-frequency-ab.mjs`：以同一文本產生官方 PCM、產品 PCM、產品 MP3 與等響度診斷 EQ 四組試聽檔，用來區分官方／產品路徑、MP3 與頻譜平衡。
 - `run-matcha-stream-browser.mjs`：量測 Worker 到 MP3 producer 與單一 MediaSource timeline 的端到端路徑。
 - `cdp/`：browser-cdp 共用的 Chromium 探測與零相依 CDP client。
 - `ort-operator-probe.html`、`run-ort-operator-probe.mjs`：歷史獨立 operator microbenchmark。
@@ -79,6 +80,7 @@ pnpm benchmark:matcha
 pnpm benchmark:matcha-upstream-fst
 pnpm benchmark:matcha-fst-ab
 pnpm sample:matcha-upstream-fst-traditional
+pnpm sample:matcha-frequency-ab
 pnpm benchmark:matcha-stream
 ```
 

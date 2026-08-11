@@ -92,7 +92,7 @@ function restoreLogs() {
 
 class MatchaWorkerProducer {
   constructor() {
-    this.worker = new Worker('/mobile-host/matcha-worker.js?v=5');
+    this.worker = new Worker('/mobile-host/matcha-worker.js?v=6');
     this.pending = new Map();
     this.nextRequestId = 1;
     this.segments = [];
@@ -174,7 +174,11 @@ class MatchaWorkerProducer {
       return;
     }
     this.results.push(message.meta);
-    pending.resolve({buffer: message.buffer, meta: message.meta});
+    pending.resolve({
+      buffer: message.buffer,
+      pcmBuffer: message.pcmBuffer,
+      meta: message.meta,
+    });
   }
 
   download() {
@@ -207,7 +211,7 @@ class MatchaWorkerProducer {
     });
   }
 
-  async next({index, signal}) {
+  async next({index, signal, capturePcm = false}) {
     await this.ready;
     if (!this.segments.length) this.reset();
     if (signal.aborted) throw new DOMException('已停止', 'AbortError');
@@ -237,6 +241,7 @@ class MatchaWorkerProducer {
         pronunciationProfile: this.pronunciationProfile,
         inputNormalization: this.inputNormalization,
         noiseScale: this.noiseScale,
+        capturePcm,
       });
     });
   }
