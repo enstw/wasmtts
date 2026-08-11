@@ -97,6 +97,8 @@ assert.deepEqual(taiwan.tokensFor('會兒今兒這兒個兒那兒').phones, [
 assert.deepEqual(taiwan.tokensFor('兒童嬰兒女兒').phones, [
   'er2', 'tong2', 'ying1', 'er2', 'nv3', 'er2',
 ]);
+assert.deepEqual(official.tokensFor('嗯').phones, ['n2']);
+assert.deepEqual(taiwan.tokensFor('嗯').phones, ['en5']);
 assert.deepEqual(taiwan.tokensFor('事兒哪兒地兒玩意兒明兒娃兒人兒鴉兒老聾兒').phones, [
   'shi4', 'er1', 'na3', 'er1', 'di4', 'er1', 'wan2', 'yi4', 'er1',
   'ming2', 'er1', 'wa2', 'er1', 'ren2', 'er1', 'ya1', 'er1',

@@ -4,7 +4,7 @@
   "purpose": "分開保存辭典來源、模型證據與產品啟用範圍；候選不因出現在 entries 就自動進產品",
   "profiles": {
     "taiwan": {
-      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待", "會兒", "今兒", "這兒", "個兒", "那兒", "事兒", "哪兒", "地兒", "玩意兒", "明兒", "娃兒", "人兒", "鴉兒", "老聾兒", "微", "血", "究", "熟", "叔", "姐姐", "差不多", "擁", "顫", "藉", "爺爺", "下巴", "啞巴", "嘴巴", "掙錢", "倒是", "武將", "適應", "感應", "對應", "應對", "重複", "勁", "識", "期", "質", "頗", "咋", "仔細", "彷彿", "露出", "謝謝", "當真", "情分"],
+      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待", "會兒", "今兒", "這兒", "個兒", "那兒", "事兒", "哪兒", "地兒", "玩意兒", "明兒", "娃兒", "人兒", "鴉兒", "老聾兒", "嗯", "微", "血", "究", "熟", "叔", "姐姐", "差不多", "擁", "顫", "藉", "爺爺", "下巴", "啞巴", "嘴巴", "掙錢", "倒是", "武將", "適應", "感應", "對應", "應對", "重複", "勁", "識", "期", "質", "頗", "咋", "仔細", "彷彿", "露出", "謝謝", "當真", "情分"],
       "contextualRules": ["著", "和", "得", "為", "子", "頭", "乾", "差", "當", "分", "還", "處", "教", "卷", "晃", "長"]
     }
   },
@@ -56,6 +56,24 @@
       "status": "deferred",
       "rationale": "剩餘 693 筆佛教義應讀 fo2，但全域單字覆寫會破壞仿佛 fu2；待將佛門、佛法等詞彙整理為 longest-match scope 後再啟用",
       "source": {"title": "教育部《重編國語辭典修訂本》：佛", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=1783&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "為", "matchaPhone": "wei4", "g2pwPhone": "wei2", "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "剩餘 5,769 筆混合動詞 wei2 與介詞 wei4，且高頻相鄰字桶仍同時包含兩義；現行單一相鄰字 allowlist 無法安全表達句法角色，待改用多字詞或句法 scope",
+      "source": {"title": "教育部《重編國語辭典修訂本》：為", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=11447&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "長", "matchaPhone": "zhang3", "g2pwPhone": "chang2", "category": "polyphone",
+      "status": "deferred",
+      "rationale": "剩餘 4,216 筆混合長度、長處、生長、排行、首長與作品專名；現行相鄰一字 scope 無法在長春等詞與宋長鏡等人名間安全泛化，待整理 longest-match 詞表",
+      "source": {"title": "教育部《重編國語辭典修訂本》：長", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=8472&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "嗯", "matchaPhone": "n2", "g2pwPhone": "en1", "category": "polyphone",
+      "status": "rejected_model_error",
+      "rationale": "教育部將答應、疑問與不以為然的嘆詞統一標為輕聲 en；g2pW en1 與上游 Matcha n2 都不符，本臺灣 profile 另以 en5 明確修正 810 筆語境",
+      "source": {"title": "教育部《國語辭典簡編本》：嗯", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=39854&la=0&powerMode=0", "version": "2021"}
     }
   ],
   "entries": [
@@ -878,6 +896,11 @@
       "pattern": "老聾兒", "observed": ["lao3", "long2", "er2"], "target": ["lao3", "long2", "er1"],
       "scope": "作品內固定兒化稱呼；全文 SQLite ROI 292 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
       "source": {"title": "教育部《國語辭典簡編本》：兒（詞綴）", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=45156&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "嗯", "observed": ["n2"], "target": ["en5"],
+      "scope": "答應、疑問或不以為然的嘆詞；教育部標為輕聲 en", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：嗯", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=39854&la=0&powerMode=0", "version": "2021"}
     },
     {
       "pattern": "微", "observed": ["wei1"], "target": ["wei2"],
