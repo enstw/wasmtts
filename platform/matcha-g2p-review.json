@@ -1112,6 +1112,877 @@
         "url": "https://dict.revised.moe.edu.tw/",
         "version": "2021"
       }
+    },
+    {
+      "character": "啊",
+      "matchaPhone": "a5",
+      "g2pwPhone": "a1",
+      "category": "neutral_tone",
+      "status": "deferred",
+      "rationale": "418 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "差",
+      "matchaPhone": "cha4",
+      "g2pwPhone": "chai1",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "167 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "糊",
+      "matchaPhone": "hu4",
+      "g2pwPhone": "hu2",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "155 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "攘",
+      "matchaPhone": "rang3",
+      "g2pwPhone": "rang2",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "153 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "骨",
+      "matchaPhone": "gu3",
+      "g2pwPhone": "gu2",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "153 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "呵",
+      "matchaPhone": "he1",
+      "g2pwPhone": "o1",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "236 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "撒",
+      "matchaPhone": "sa1",
+      "g2pwPhone": "sa3",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "176 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "累",
+      "matchaPhone": "lei4",
+      "g2pwPhone": "lei3",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "150 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "懾",
+      "matchaPhone": "she4",
+      "g2pwPhone": "zhe2",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "147 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "著",
+      "matchaPhone": "zhuo2",
+      "g2pwPhone": "zhe5",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "147 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "散",
+      "matchaPhone": "san4",
+      "g2pwPhone": "san3",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "219 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "的",
+      "matchaPhone": "di4",
+      "g2pwPhone": "de5",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "141 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "帖",
+      "matchaPhone": "tie1",
+      "g2pwPhone": "tie3",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "140 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "緝",
+      "matchaPhone": "ji1",
+      "g2pwPhone": "qi4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "139 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "揣",
+      "matchaPhone": "chuai1",
+      "g2pwPhone": "chuai3",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "138 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "著",
+      "matchaPhone": "zhu4",
+      "g2pwPhone": "zhuo2",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "214 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "冠",
+      "matchaPhone": "guan1",
+      "g2pwPhone": "guan4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "244 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "曾",
+      "matchaPhone": "zeng1",
+      "g2pwPhone": "ceng2",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "144 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "屏",
+      "matchaPhone": "ping2",
+      "g2pwPhone": "bing3",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "136 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "奶",
+      "matchaPhone": "nai3",
+      "g2pwPhone": "nai5",
+      "category": "neutral_tone",
+      "status": "deferred",
+      "rationale": "132 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "括",
+      "matchaPhone": "kuo4",
+      "g2pwPhone": "gua1",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "130 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "載",
+      "matchaPhone": "zai4",
+      "g2pwPhone": "zai3",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "141 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "豁",
+      "matchaPhone": "huo1",
+      "g2pwPhone": "huo4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "130 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "哥",
+      "matchaPhone": "ge1",
+      "g2pwPhone": "ge5",
+      "category": "neutral_tone",
+      "status": "deferred",
+      "rationale": "125 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "悶",
+      "matchaPhone": "men4",
+      "g2pwPhone": "men1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "237 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "挾",
+      "matchaPhone": "xie2",
+      "g2pwPhone": "xia2",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "125 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "泊",
+      "matchaPhone": "po1",
+      "g2pwPhone": "bo2",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "119 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "得",
+      "matchaPhone": "de5",
+      "g2pwPhone": "de2",
+      "category": "neutral_tone",
+      "status": "deferred",
+      "rationale": "140 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "降",
+      "matchaPhone": "jiang4",
+      "g2pwPhone": "xiang2",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "128 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "葛",
+      "matchaPhone": "ge2",
+      "g2pwPhone": "ge3",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "131 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "喪",
+      "matchaPhone": "sang4",
+      "g2pwPhone": "sang1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "144 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "勝",
+      "matchaPhone": "sheng4",
+      "g2pwPhone": "sheng1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "120 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "落",
+      "matchaPhone": "lao4",
+      "g2pwPhone": "luo4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "117 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "柏",
+      "matchaPhone": "bai3",
+      "g2pwPhone": "bo2",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "115 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "從",
+      "matchaPhone": "cong2",
+      "g2pwPhone": "cong1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "115 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "乘",
+      "matchaPhone": "cheng2",
+      "g2pwPhone": "sheng4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "118 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "莞",
+      "matchaPhone": "guan3",
+      "g2pwPhone": "wan3",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "112 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "奄",
+      "matchaPhone": "yan3",
+      "g2pwPhone": "yan1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "111 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "幾",
+      "matchaPhone": "ji3",
+      "g2pwPhone": "ji1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "128 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "喝",
+      "matchaPhone": "he1",
+      "g2pwPhone": "he4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "117 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "和",
+      "matchaPhone": "he2",
+      "g2pwPhone": "huo4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "171 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "嬸",
+      "matchaPhone": "shen3",
+      "g2pwPhone": "shen5",
+      "category": "neutral_tone",
+      "status": "deferred",
+      "rationale": "107 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "嘍",
+      "matchaPhone": "lou2",
+      "g2pwPhone": "lou5",
+      "category": "neutral_tone",
+      "status": "deferred",
+      "rationale": "289 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "挑",
+      "matchaPhone": "tiao3",
+      "g2pwPhone": "tiao1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "118 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "切",
+      "matchaPhone": "qie4",
+      "g2pwPhone": "qie1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "114 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "繫",
+      "matchaPhone": "xi4",
+      "g2pwPhone": "ji4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "146 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "賈",
+      "matchaPhone": "jia3",
+      "g2pwPhone": "gu3",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "116 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "飩",
+      "matchaPhone": "tun2",
+      "g2pwPhone": "dun4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "102 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "曲",
+      "matchaPhone": "qu1",
+      "g2pwPhone": "qu3",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "109 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "空",
+      "matchaPhone": "kong1",
+      "g2pwPhone": "kong4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "144 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "咽",
+      "matchaPhone": "yan4",
+      "g2pwPhone": "ye4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "103 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "著",
+      "matchaPhone": "zhe5",
+      "g2pwPhone": "zhuo2",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "127 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "觀",
+      "matchaPhone": "guan1",
+      "g2pwPhone": "guan4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "449 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "倆",
+      "matchaPhone": "lia3",
+      "g2pwPhone": "liang3",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "147 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "樂",
+      "matchaPhone": "le4",
+      "g2pwPhone": "yue4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "103 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "參",
+      "matchaPhone": "can1",
+      "g2pwPhone": "shen1",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "100 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "裳",
+      "matchaPhone": "shang5",
+      "g2pwPhone": "chang2",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "112 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "署",
+      "matchaPhone": "shu3",
+      "g2pwPhone": "shu4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "109 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "崗",
+      "matchaPhone": "gang3",
+      "g2pwPhone": "gang1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "107 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "朝",
+      "matchaPhone": "zhao1",
+      "g2pwPhone": "chao2",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "111 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "晟",
+      "matchaPhone": "cheng2",
+      "g2pwPhone": "sheng4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "123 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "麼",
+      "matchaPhone": "me5",
+      "g2pwPhone": "ma5",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "108 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "空",
+      "matchaPhone": "kong4",
+      "g2pwPhone": "kong1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "198 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "拗",
+      "matchaPhone": "ao3",
+      "g2pwPhone": "niu4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "105 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "捋",
+      "matchaPhone": "lv3",
+      "g2pwPhone": "le4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "124 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "怔",
+      "matchaPhone": "zheng1",
+      "g2pwPhone": "leng4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "146 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "作",
+      "matchaPhone": "zuo4",
+      "g2pwPhone": "zuo1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "317 筆語境可能混合；需詞組 scope 與來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
     }
   ],
   "entries": [
