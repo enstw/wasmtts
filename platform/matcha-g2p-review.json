@@ -40,6 +40,42 @@
       "source": {"title": "教育部《國語辭典簡編本》：子（zǐ）", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=36691&la=0&powerMode=0", "version": "2021"}
     },
     {
+      "character": "差", "matchaPhone": "cha4", "g2pwPhone": "cha1", "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "剩餘 2,325 筆混合差錯、差異、程度不佳與出差等不同義項；既有「差點」安全 scope 已部署，單字全域改為 cha1 仍會破壞 chai1 等合法讀音，待 longest-match 詞表",
+      "source": {"title": "教育部《重編國語辭典修訂本》：差", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=9855&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "著", "matchaPhone": "zhu4", "g2pwPhone": "zhao2", "category": "polyphone",
+      "status": "deferred",
+      "rationale": "剩餘 1,927 筆以「著想」等詞為主，也混有結果補語；g2pW 的 zhao2 與臺灣詞典讀音及 Matcha 現值不能直接二選一，既有睡著、找著等固定詞已覆寫，餘下待臺灣 longest-match 詞表",
+      "source": {"title": "教育部《國語辭典簡編本》：著", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29560&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "著", "matchaPhone": "zhu4", "g2pwPhone": "zhe5", "category": "polyphone",
+      "status": "deferred",
+      "rationale": "剩餘 1,767 筆混合持續助詞、詞彙讀音與相鄰字未達零反例門檻的語境；既有 260 個零反例前字 scope 已部署，餘下需多字或句法 scope，不能全域覆寫",
+      "source": {"title": "教育部《國語辭典簡編本》：著", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29560&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "晃", "matchaPhone": "huang3", "g2pwPhone": "huang4", "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "剩餘 1,516 筆混合搖晃、亂晃等搖擺義及人名、瞬間閃現等語境；既有晃盪、晃動安全 scope 已部署，餘下不以單字規則泛化",
+      "source": {"title": "教育部《重編國語辭典修訂本》：晃動", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=86699&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "頭", "matchaPhone": "tou2", "g2pwPhone": "tou5", "category": "neutral_tone",
+      "status": "deferred",
+      "rationale": "剩餘 1,428 筆混合木頭、芋頭等詞尾輕聲與頭部、開頭等實詞讀音；既有八個零反例詞尾 scope 已部署，餘下需 longest-match 詞表或語義判定",
+      "source": {"title": "教育部《國語辭典簡編本》：頭（詞綴）", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=45125&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "當", "matchaPhone": "dang1", "g2pwPhone": "dang4", "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "剩餘 2,011 筆混合上當、得當等 dang4 固定詞與擔任、面對等 dang1 語境；既有當做、當成、當作等安全 scope 已部署，餘下不能全域覆寫",
+      "source": {"title": "教育部《重編國語辭典修訂本》：當", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=1846&la=0&powerMode=0", "version": "2021"}
+    },
+    {
       "character": "兒", "matchaPhone": "er2", "g2pwPhone": "er1", "category": "tone_disagreement",
       "status": "rejected_model_error",
       "rationale": "教育部單字與親屬、稱謂義均為 er2，詞尾兒化另以併音表示，沒有 er1 單字讀音；本輪 2,307 筆維持 Matcha er2",

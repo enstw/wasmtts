@@ -113,6 +113,8 @@ Taiwan profile 另以指定文字跑一個完整瀏覽器 append，實際得到 
 
 第十一批將既有安全 contextual scope 以外的 `得 de2 → de5` 6,984 筆與 `子 zi5 → zi3` 4,660 筆標為 `deferred`。前者混合結構助詞、實詞與「不得」等需句法判定的同形結構；後者混合詞尾輕聲、實詞、固定詞與人名專名。兩組都不能用剩餘相鄰字桶安全泛化，待多字／句法 scope 或可審核 longest-match 詞表。本批精確終結 11,644 筆，累計 146,207 筆，未處理量由 95,437 降至 83,793。
 
+第十二批將既有安全 scope 以外的 `差 cha4 → cha1` 2,325 筆、`著 zhu4 → zhao2` 1,927 筆、`著 zhu4 → zhe5` 1,767 筆、`晃 huang3 → huang4` 1,516 筆、`頭 tou2 → tou5` 1,428 筆及 `當 dang1 → dang4` 2,011 筆標為 `deferred`。六組剩餘資料均混合合法讀音、固定詞、語法角色或專名；可由零反例相鄰字判定的部分已部署，餘下需 longest-match 詞表、多字或句法 scope。本批精確終結 10,974 筆，累計 157,181 筆，未處理量由 83,793 降至 72,819。
+
 g2pW WebGPU feasibility 使用同一個 Python 產生的真實 ONNX feed 與 CPU golden，模型 `g2pw.onnx` 為 635,212,732 bytes、SHA-256 `bb40c8c7b5baa755b2acd317c6bc5a65e4af7b80c40a569247fbd76989299999`。Apple Silicon、macOS kernel 25.5.0、Headless Chrome 151、ORT Web 1.27.0、batch 32、一次暖機與五次量測下，WebGPU session 初始化 2,381.84 ms，五輪為 197.04、207.19、208.27、206.91、200.28 queries/s，中位 206.91。相同 feed 的 Python ORT 1.28.0 CPU 為 49.77、49.86、50.25、50.13、48.24 queries/s，中位 49.86，WebGPU inference speedup 為 4.15×。32 個 argmax 零差異，最大 probability 差 `1.19e-7`。fixture、完整輸出與模型皆為本機忽略產物；本數字排除 tokenizer、句子切分、FST、SQLite 與 IPC，僅證明 WebGPU graph 可用且值得整合。
 
 同一 fixture 的 WebGPU → SQLite slice 使用 WAL、foreign keys、transaction 與 `(run_id, source_sentence_id, character_offset)` primary key；run fingerprint 納入 input/model/lexicon/FST/profile/backend/runtime。修正 agreement 優先分類後，run 2 寫入 5 句、32 個多音字 occurrence、12 個 difference；SQL 聚合為 `為 wei4→wei2` 7、`長 zhang3→chang2` 2、`和 he2→han4`、`得 de2→de5`、`著 zhu4→zhe5` 各 1。立即重跑回報 `reused: true`，occurrence 仍為 32。此結果只驗證 architecture slice；fixture 未真正套用 FST，全文正式 index 必須補上相同 frontend、串流 tokenizer feeder、batch checkpoint 與中斷續跑。
