@@ -4,7 +4,7 @@
   "purpose": "分開保存辭典來源、模型證據與產品啟用範圍；候選不因出現在 entries 就自動進產品",
   "profiles": {
     "taiwan": {
-      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待", "會兒", "今兒", "這兒", "個兒", "那兒", "事兒", "哪兒", "地兒", "玩意兒", "明兒", "娃兒", "人兒", "鴉兒", "老聾兒", "微", "血", "究", "熟", "叔", "姐姐", "差不多"],
+      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待", "會兒", "今兒", "這兒", "個兒", "那兒", "事兒", "哪兒", "地兒", "玩意兒", "明兒", "娃兒", "人兒", "鴉兒", "老聾兒", "微", "血", "究", "熟", "叔", "姐姐", "差不多", "擁", "顫", "藉", "爺爺", "下巴", "啞巴", "嘴巴", "掙錢"],
       "contextualRules": ["著", "和"]
     }
   },
@@ -748,6 +748,46 @@
       "pattern": "差不多", "observed": ["cha4", "bu5", "duo1"], "target": ["cha1", "bu5", "duo1"],
       "scope": "固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
       "source": {"title": "教育部《國語辭典簡編本》：差不多", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=31522&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "擁", "observed": ["yong1"], "target": ["yong3"],
+      "scope": "臺灣標準單字讀音", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：擁", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=45084&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "顫", "observed": ["chan4"], "target": ["zhan4"],
+      "scope": "臺灣標準單字讀音", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：顫", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29924&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "藉", "observed": ["ji2"], "target": ["jie4"],
+      "scope": "依賴、假託義的單字 fallback；完整詞 longest-match 優先", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：藉（jiè）", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=22279&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "爺爺", "observed": ["ye2", "ye2"], "target": ["ye2", "ye5"],
+      "scope": "疊詞第二字讀輕聲", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：爺爺", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=40880", "version": "2021"}
+    },
+    {
+      "pattern": "下巴", "observed": ["xia4", "ba1"], "target": ["xia4", "ba5"],
+      "scope": "固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：下巴", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=105442&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "啞巴", "observed": ["ya3", "ba1"], "target": ["ya3", "ba5"],
+      "scope": "固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：啞巴", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=152196&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "嘴巴", "observed": ["zui3", "ba1"], "target": ["zui3", "ba5"],
+      "scope": "固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：嘴巴", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=139874&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "掙錢", "observed": ["zheng1", "qian2"], "target": ["zheng4", "qian2"],
+      "scope": "固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：掙錢", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=117810&la=0&powerMode=0", "version": "2021"}
     }
   ]
 }
