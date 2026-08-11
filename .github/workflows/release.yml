@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Optional SemVer tag (for example v1.0.0)
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -107,6 +112,7 @@ jobs:
         run: |
           mkdir -p release-artifacts/package
           cp LICENSE README.md platform/upstreams.yaml platform/matcha-assets.json release-artifacts/package/
+          cp platform/matcha-frontend.js platform/matcha-g2p-review.json release-artifacts/package/
           cp platform/kaldifst-wasm/dist/matcha-kaldifst-normalizer.js release-artifacts/package/
           cp platform/kaldifst-wasm/dist/matcha-kaldifst-normalizer.wasm release-artifacts/package/
           tar czf release-artifacts/wasmtts-frontend.tar.gz -C release-artifacts/package .
@@ -135,10 +141,19 @@ jobs:
         if: steps.gates.outcome == 'success' && steps.package.outcome == 'success' && steps.attest.outcome == 'success'
         env:
           GH_TOKEN: ${{ github.token }}
+          REQUESTED_TAG: ${{ inputs.release_tag }}
+          HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
-          if ! gh release view v0.1.0 >/dev/null 2>&1; then
+          tag="$REQUESTED_TAG"
+          if [[ -z "$tag" && "$HEAD_COMMIT_MESSAGE" =~ Release-Version:[[:space:]]*(v[0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            tag="${BASH_REMATCH[1]}"
+          fi
+          if [[ -n "$tag" && ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid release tag: $tag" >&2
+            exit 1
+          elif [[ -z "$tag" ]] && ! gh release view v0.1.0 >/dev/null 2>&1; then
             tag=v0.1.0
-          else
+          elif [[ -z "$tag" ]]; then
             tag="v0.1.${GITHUB_RUN_NUMBER}"
           fi
           gh release create "$tag" \
