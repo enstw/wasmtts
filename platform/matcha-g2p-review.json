@@ -4,7 +4,7 @@
   "purpose": "分開保存辭典來源、模型證據與產品啟用範圍；候選不因出現在 entries 就自動進產品",
   "profiles": {
     "taiwan": {
-      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待", "會兒", "今兒", "這兒", "個兒", "那兒", "事兒", "哪兒", "地兒", "玩意兒", "明兒", "娃兒", "人兒", "鴉兒", "老聾兒", "嗯", "微", "血", "究", "熟", "叔", "姐姐", "差不多", "擁", "顫", "藉", "爺爺", "下巴", "啞巴", "嘴巴", "掙錢", "倒是", "武將", "適應", "感應", "對應", "應對", "重複", "勁", "識", "期", "質", "頗", "咋", "仔細", "彷彿", "露出", "謝謝", "當真", "情分"],
+      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待", "會兒", "今兒", "這兒", "個兒", "那兒", "事兒", "哪兒", "地兒", "玩意兒", "明兒", "娃兒", "人兒", "鴉兒", "老聾兒", "嗯", "微", "血", "究", "熟", "叔", "姐姐", "差不多", "擁", "顫", "藉", "爺爺", "下巴", "啞巴", "嘴巴", "掙錢", "倒是", "武將", "適應", "感應", "對應", "應對", "重複", "勁", "識", "期", "質", "頗", "咋", "仔細", "彷彿", "露出", "謝謝", "當真", "情分", "興許", "更換", "睡覺", "佛門", "搖頭晃腦"],
       "contextualRules": ["著", "和", "得", "為", "子", "頭", "乾", "差", "當", "分", "還", "處", "教", "卷", "晃", "長"]
     }
   },
@@ -9181,6 +9181,31 @@
       "pattern": "情分", "observed": ["qing2", "fen1"], "target": ["qing2", "fen4"],
       "scope": "情誼、親情義的固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
       "source": {"title": "教育部《重編國語辭典修訂本》：分（fèn）", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=1688&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "興許", "observed": ["xing4", "xu3"], "target": ["xing1", "xu3"],
+      "scope": "或許、也許義的固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：興許", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=110547&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "更換", "observed": ["geng4", "huan4"], "target": ["geng1", "huan4"],
+      "scope": "更改替換義的固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：更換", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=70545&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "睡覺", "observed": ["shui4", "jue2"], "target": ["shui4", "jiao4"],
+      "scope": "進入睡眠狀態義的固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：睡覺（shuì jiào）", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=134626&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "佛門", "observed": ["fu2", "men2"], "target": ["fo2", "men2"],
+      "scope": "佛家義的固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：佛門", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=33880&q=1&word=%E4%BD%9B", "version": "2021"}
+    },
+    {
+      "pattern": "搖頭晃腦", "observed": ["yao2", "tou2", "huang3", "nao3"], "target": ["yao2", "tou2", "huang4", "nao3"],
+      "scope": "固定成語", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：搖頭晃腦", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=153060&la=0&powerMode=0", "version": "2021"}
     }
   ]
 }

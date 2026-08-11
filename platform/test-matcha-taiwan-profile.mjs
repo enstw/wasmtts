@@ -145,6 +145,14 @@ assert.deepEqual(taiwan.tokensFor('勁識期質頗咋仔細彷彿露出謝謝當
 assert.deepEqual(taiwan.tokensFor('標識品質露水當前').phones, [
   'biao1', 'shi4', 'pin3', 'zhi2', 'lu4', 'shui3', 'dang1', 'qian2',
 ]);
+assert.deepEqual(official.tokensFor('興許更換睡覺佛門搖頭晃腦').phones, [
+  'xing4', 'xu3', 'geng4', 'huan4', 'shui4', 'jue2', 'fu2', 'men2',
+  'yao2', 'tou2', 'huang3', 'nao3',
+]);
+assert.deepEqual(taiwan.tokensFor('興許更換睡覺佛門搖頭晃腦').phones, [
+  'xing1', 'xu3', 'geng1', 'huan4', 'shui4', 'jiao4', 'fo2', 'men2',
+  'yao2', 'tou2', 'huang4', 'nao3',
+]);
 assert.deepEqual(official.tokensFor('說得看得打得聽得變得以為頗為認為稱為').phones, [
   'shuo1', 'de2', 'kan4', 'de2', 'da3', 'de2', 'ting1', 'de2', 'bian4', 'de2',
   'yi3', 'wei4', 'po1', 'wei4', 'ren4', 'wei4', 'cheng1', 'wei4',
