@@ -462,6 +462,656 @@
     },
     {
       "character": "生", "matchaPhone": "sheng5", "g2pwPhone": "sheng1", "category": "neutral_tone", "status": "deferred", "rationale": "257 筆多在畜生詞尾讀輕聲，獨立義仍讀 sheng1；需要詞組 scope", "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "縛",
+      "matchaPhone": "fu4",
+      "g2pwPhone": "fu2",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "254 筆為束縛、綁縛等詞的聲調差異；需來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "啦",
+      "matchaPhone": "la5",
+      "g2pwPhone": "la1",
+      "category": "neutral_tone",
+      "status": "deferred",
+      "rationale": "245 筆集中於嘩啦啦等擬聲疊詞，與語氣助詞輕聲混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "懵",
+      "matchaPhone": "meng3",
+      "g2pwPhone": "meng2",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "244 筆集中於懵懂，涉及地區聲調差異；需來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "繃",
+      "matchaPhone": "beng3",
+      "g2pwPhone": "beng1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "255 筆多為緊繃，單字仍具多讀音；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "背",
+      "matchaPhone": "bei4",
+      "g2pwPhone": "bei1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "312 筆混合背負 bei1 與背面 bei4；需要語義 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "叔",
+      "matchaPhone": "shu1",
+      "g2pwPhone": "shu5",
+      "category": "neutral_tone",
+      "status": "deferred",
+      "rationale": "238 筆多在叔叔疊詞第二字讀輕聲，單字仍讀 shu1；需位置 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "聘",
+      "matchaPhone": "pin4",
+      "g2pwPhone": "ping4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "236 筆為聘請等詞，疑似模型讀音誤判；需來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "說",
+      "matchaPhone": "shuo1",
+      "g2pwPhone": "shui4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "237 筆集中於說服 shui4，與一般說話 shuo1 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "紮",
+      "matchaPhone": "za1",
+      "g2pwPhone": "zha2",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "236 筆涵蓋紮營、穩紮與包紮；需詞組及地區讀音 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "釘",
+      "matchaPhone": "ding1",
+      "g2pwPhone": "ding4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "273 筆混合名詞 ding1 與動詞 ding4；需要詞性 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "結",
+      "matchaPhone": "jie2",
+      "g2pwPhone": "jie1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "295 筆多為結實 jie1，與結合 jie2 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "通",
+      "matchaPhone": "tong4",
+      "g2pwPhone": "tong1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "226 筆多為一通 tong4，與通行 tong1 混合；需量詞 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "眶",
+      "matchaPhone": "kuang4",
+      "g2pwPhone": "kuang1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "225 筆集中於眼眶，涉及臺灣與模型聲調差異；需來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "縱",
+      "matchaPhone": "zong4",
+      "g2pwPhone": "zong1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "227 筆為縱橫等詞的聲調差異；需來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "佝",
+      "matchaPhone": "gou1",
+      "g2pwPhone": "kou4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "223 筆集中於佝僂，疑似模型讀音誤判；需來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "蹌",
+      "matchaPhone": "qiang1",
+      "g2pwPhone": "qiang4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "223 筆集中於踉蹌，涉及聲調與連讀差異；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "踉",
+      "matchaPhone": "liang2",
+      "g2pwPhone": "liang4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "223 筆集中於踉蹌，涉及聲調與連讀差異；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "與",
+      "matchaPhone": "yu3",
+      "g2pwPhone": "yu4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "224 筆多為參與 yu4，與連詞 yu3 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "摻",
+      "matchaPhone": "can4",
+      "g2pwPhone": "chan1",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "218 筆集中於摻合，存在地區與字形讀音差異；需來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "哄",
+      "matchaPhone": "hong3",
+      "g2pwPhone": "hong1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "225 筆多為鬧哄哄 hong1，與哄騙 hong3 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "煞",
+      "matchaPhone": "sha1",
+      "g2pwPhone": "sha4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "298 筆多為凶神惡煞、煞有其事 sha4，與煞車 sha1 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "都",
+      "matchaPhone": "du1",
+      "g2pwPhone": "dou1",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "233 筆多為副詞 dou1，與首都 du1 混合；需語義 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "個",
+      "matchaPhone": "ge4",
+      "g2pwPhone": "ge3",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "218 筆集中於自個兒 ge3，與量詞 ge4 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "間",
+      "matchaPhone": "jian1",
+      "g2pwPhone": "jian4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "224 筆多為間接、間諜 jian4，與空間 jian1 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "相",
+      "matchaPhone": "xiang4",
+      "g2pwPhone": "xiang1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "277 筆多為相傳、相謝 xiang1，與相貌 xiang4 混合；需語義 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "矇",
+      "matchaPhone": "meng2",
+      "g2pwPhone": "meng1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "213 筆涵蓋矇矇亮、矇混與矇騙；需詞組及聲調 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "帖",
+      "matchaPhone": "tie4",
+      "g2pwPhone": "tie3",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "204 筆集中於字帖 tie4，與模型聲調不同；需來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "子",
+      "matchaPhone": "zi3",
+      "g2pwPhone": "zi5",
+      "category": "neutral_tone",
+      "status": "deferred",
+      "rationale": "405 筆多在哈喇子等詞尾讀輕聲，獨立義仍讀 zi3；需詞尾 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "撮",
+      "matchaPhone": "cuo1",
+      "g2pwPhone": "cuo4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "209 筆集中於一小撮，涉及量詞聲調差異；需來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "弄",
+      "matchaPhone": "nong4",
+      "g2pwPhone": "long4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "195 筆集中於巷弄 long4，與玩弄 nong4 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "朝",
+      "matchaPhone": "chao2",
+      "g2pwPhone": "zhao1",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "233 筆多為朝夕、朝朝暮暮 zhao1，與王朝 chao2 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "妹",
+      "matchaPhone": "mei4",
+      "g2pwPhone": "mei5",
+      "category": "neutral_tone",
+      "status": "deferred",
+      "rationale": "190 筆多在妹妹第二字讀輕聲，單字仍讀 mei4；需位置 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "更",
+      "matchaPhone": "geng1",
+      "g2pwPhone": "geng4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "213 筆混合更深 geng4 與人名董三更 geng1；需語義 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "轍",
+      "matchaPhone": "zhe2",
+      "g2pwPhone": "che4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "190 筆集中於覆轍，疑似模型讀音誤判；需來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "撇",
+      "matchaPhone": "pie1",
+      "g2pwPhone": "pie3",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "182 筆混合兩撇 pie3 與撇頭 pie1；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "折",
+      "matchaPhone": "zhe2",
+      "g2pwPhone": "zhe1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "180 筆集中於折騰 zhe1，與折斷 zhe2 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "勾",
+      "matchaPhone": "gou1",
+      "g2pwPhone": "gou4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "179 筆集中於勾當 gou4，與勾畫 gou1 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "思",
+      "matchaPhone": "si1",
+      "g2pwPhone": "si5",
+      "category": "neutral_tone",
+      "status": "deferred",
+      "rationale": "179 筆集中於不好意思詞尾輕聲，與思想 si1 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "惡",
+      "matchaPhone": "e4",
+      "g2pwPhone": "wu4",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "185 筆多為可惡 wu4，與惡劣 e4 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "唧",
+      "matchaPhone": "ji1",
+      "g2pwPhone": "ji2",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "203 筆集中於傻了吧唧等口語詞，涉及聲調差異；需來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "漲",
+      "matchaPhone": "zhang3",
+      "g2pwPhone": "zhang4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "175 筆集中於漲紅 zhang4，與水漲 zhang3 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "橫",
+      "matchaPhone": "heng2",
+      "g2pwPhone": "heng4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "206 筆集中於蠻橫 heng4，與橫向 heng2 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "摩",
+      "matchaPhone": "ma1",
+      "g2pwPhone": "mo2",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "169 筆集中於摩挲，存在詞內讀音與模型差異；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "扎",
+      "matchaPhone": "zha1",
+      "g2pwPhone": "zha2",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "166 筆集中於掙扎，涉及臺灣與模型聲調差異；需來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "擔",
+      "matchaPhone": "dan1",
+      "g2pwPhone": "dan4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "258 筆多為重擔、擔子 dan4，與擔任 dan1 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "的",
+      "matchaPhone": "di1",
+      "g2pwPhone": "de5",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "162 筆樣本為結構助詞 de5，與既有地的 di1 候選混雜；需字形與語法查核",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "給",
+      "matchaPhone": "gei3",
+      "g2pwPhone": "ji3",
+      "category": "polyphone",
+      "status": "deferred",
+      "rationale": "179 筆多為補給 ji3，與給予 gei3 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "磅",
+      "matchaPhone": "pang2",
+      "g2pwPhone": "pang1",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "165 筆集中於磅礴，涉及聲調差異；需來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "劃",
+      "matchaPhone": "hua4",
+      "g2pwPhone": "hua2",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "200 筆多為劃破 hua2，與規劃 hua4 混合；需詞組 scope",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
+    },
+    {
+      "character": "肋",
+      "matchaPhone": "le1",
+      "g2pwPhone": "le4",
+      "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "158 筆集中於雞肋、兩肋，涉及臺灣與模型聲調差異；需來源核定",
+      "source": {
+        "title": "教育部《重編國語辭典修訂本》",
+        "url": "https://dict.revised.moe.edu.tw/",
+        "version": "2021"
+      }
     }
   ],
   "entries": [
