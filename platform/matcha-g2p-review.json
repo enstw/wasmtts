@@ -268,6 +268,116 @@
       "character": "調", "matchaPhone": "diao4", "g2pwPhone": "tiao2", "category": "polyphone", "status": "deferred",
       "rationale": "剩餘 536 筆混合調劑、調整等 tiao2 與聲調、調動等 diao4；需要 longest-match 或語義 scope",
       "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "拽", "matchaPhone": "zhuai1", "g2pwPhone": "zhuai4", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "524 筆以拉扯義為主，但兩個聲調的地區使用與模型 token 仍需逐詞核對；不採全域單字覆寫",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "還", "matchaPhone": "hai2", "g2pwPhone": "huan2", "category": "polyphone", "status": "deferred",
+      "rationale": "602 筆混合仍然 hai2 與歸還 huan2；既有安全 scope 已部署，剩餘需多字或句法 scope",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "危", "matchaPhone": "wei1", "g2pwPhone": "wei2", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "519 筆主要為危害、安危等固定義；讀音差異需依臺灣來源與 acoustic token 驗證後再部署",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "法", "matchaPhone": "fa3", "g2pwPhone": "fa2", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "536 筆主要落在法子等詞；輕聲、連讀與模型標註差異需以完整詞審核，不能全域改為 fa2",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "夾", "matchaPhone": "jia1", "g2pwPhone": "jia2", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "480 筆混合夾住、夾雜與專名；地區讀音及詞義需逐詞來源確認",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "鋪", "matchaPhone": "pu4", "g2pwPhone": "pu1", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "507 筆混合動詞 pu1 與店鋪、床鋪等 pu4；需要 longest-match 詞表",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "髯", "matchaPhone": "ran2", "g2pwPhone": "ran3", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "473 筆主要為髯鬚相關詞；g2pW 聲調與臺灣來源仍需核對後才可判為模型錯誤",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "寂", "matchaPhone": "ji4", "g2pwPhone": "ji2", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "472 筆主要為死寂等詞；先保留 Matcha 現讀，待來源與 token 聽測確認",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "暫", "matchaPhone": "zan4", "g2pwPhone": "zhan4", "category": "polyphone", "status": "deferred",
+      "rationale": "467 筆為短暫、暫時等詞；g2pW 聲母差異需來源與模型 token 雙重確認",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "穴", "matchaPhone": "xue2", "g2pwPhone": "xue4", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "464 筆含穴位、洞穴等詞；地區聲調差異需依臺灣詞典逐詞確認",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "咧", "matchaPhone": "lie1", "g2pwPhone": "lie3", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "534 筆混合咧嘴實詞結構與語氣詞；需多字詞或句法 scope",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "行", "matchaPhone": "heng2", "g2pwPhone": "xing4", "category": "polyphone", "status": "deferred",
+      "rationale": "508 筆主要為道行，另有異體與專名可能；不能以 g2pW 的 xing4 全域取代",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "賜", "matchaPhone": "ci4", "g2pwPhone": "si4", "category": "polyphone", "status": "deferred",
+      "rationale": "429 筆主要為賞賜、賜名；g2pW 聲母差異待來源與 acoustic token 核對",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "看", "matchaPhone": "kan4", "g2pwPhone": "kan1", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "428 筆混合看護、看門等 kan1 與一般觀看 kan4；需要 longest-match 或句法 scope",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "教", "matchaPhone": "jiao4", "g2pwPhone": "jiao1", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "511 筆混合教導 jiao1 與宗教、教令 jiao4；既有安全 scope 已部署，剩餘需多字 scope",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "濤", "matchaPhone": "tao1", "g2pwPhone": "tao2", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "423 筆主要為波濤，另含人名；聲調差異需按臺灣來源與專名分流",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "從", "matchaPhone": "cong2", "g2pwPhone": "zong4", "category": "polyphone", "status": "deferred",
+      "rationale": "443 筆混合介詞 cong2、主從 zong4 與扈從等詞；需要 longest-match 詞表",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "挑", "matchaPhone": "tiao1", "g2pwPhone": "tiao3", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "495 筆混合挑選 tiao1、挑釁 tiao3 與其他固定詞；需要 longest-match 詞表",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "行", "matchaPhone": "hang2", "g2pwPhone": "xing2", "category": "polyphone", "status": "deferred",
+      "rationale": "444 筆混合行業 hang2、同行與執行 xing2；需要多字或語義 scope",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "縫", "matchaPhone": "feng4", "g2pwPhone": "feng2", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "405 筆混合名詞縫隙 feng4 與動詞縫補 feng2；需要 longest-match 或詞性 scope",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "嚼", "matchaPhone": "jue2", "g2pwPhone": "jiao2", "category": "polyphone", "status": "deferred",
+      "rationale": "400 筆以咀嚼義為主，但書面、口語及地區讀音需逐詞來源確認",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "落", "matchaPhone": "la4", "g2pwPhone": "luo4", "category": "polyphone", "status": "deferred",
+      "rationale": "395 筆混合落下 luo4、落下進度 la4 與大量固定詞；需要 longest-match 或語義 scope",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
     }
   ],
   "entries": [
