@@ -22,6 +22,7 @@
     "index:matcha-g2pw-webgpu-fixture": "node platform/index-g2pw-webgpu-fixture.mjs",
     "index:matcha-g2pw-webgpu": "node platform/index-matcha-g2pw-webgpu.mjs",
     "g2pw-index": "node platform/manage-matcha-g2pw-index.mjs",
+    "g2pw-review": "node platform/manage-matcha-g2pw-review.mjs",
     "test:matcha-g2pw-index": "node platform/test-g2pw-index-db.mjs",
     "report:matcha-g2p-roi": "node platform/rank-matcha-g2p-roi.mjs",
     "report:matcha-g2pw-sqlite-roi": "node platform/report-matcha-g2pw-sqlite-roi.mjs",

@@ -9,6 +9,15 @@ import {fileURLToPath} from 'node:url';
 
 const DEFAULT_DATABASE = 'platform/results/matcha-g2p-index.local.sqlite';
 const REVIEW_CATEGORIES = ['polyphone', 'neutral_tone', 'tone_disagreement'];
+const ACTIVE_STATUSES = ['needs_context', 'accepted'];
+const UNHANDLED_SQL = `NOT EXISTS (
+  SELECT 1 FROM review_decisions d
+  WHERE d.run_id = o.run_id AND d.character = o.character
+    AND d.matcha_phone = o.matcha_phone AND d.g2pw_phone = o.g2pw_phone
+    AND d.category = o.category AND d.status NOT IN ('needs_context', 'accepted')
+    AND (d.scope_type = 'group' OR (d.scope_type = 'phrase'
+      AND substr(s.text, o.character_offset - d.scope_offset + 1, length(d.scope_value)) = d.scope_value))
+)`;
 
 function parseArguments(argv) {
   if (argv[0] === '--') argv = argv.slice(1);
@@ -48,12 +57,13 @@ function rounded(value) {
 
 function contextRows(db, runId, group, column, limit) {
   return db.prepare(`
-    SELECT ${column} AS character, COUNT(*) AS occurrences,
-      AVG(confidence) AS average_confidence
-    FROM occurrences
-    WHERE run_id = ? AND character = ? AND matcha_phone = ? AND g2pw_phone = ?
-      AND category = ? AND ${column} != ''
-    GROUP BY ${column}
+    SELECT o.${column} AS character, COUNT(*) AS occurrences,
+      AVG(o.confidence) AS average_confidence
+    FROM occurrences o JOIN sentences s
+      ON s.run_id = o.run_id AND s.source_sentence_id = o.source_sentence_id
+    WHERE o.run_id = ? AND o.character = ? AND o.matcha_phone = ? AND o.g2pw_phone = ?
+      AND o.category = ? AND o.${column} != '' AND ${UNHANDLED_SQL}
+    GROUP BY o.${column}
     ORDER BY occurrences DESC, average_confidence DESC, character
     LIMIT ?
   `).all(runId, group.character, group.matcha_phone, group.g2pw_phone, group.category, limit)
@@ -68,6 +78,7 @@ function sampleRows(db, runId, group, limit) {
       ON s.run_id = o.run_id AND s.source_sentence_id = o.source_sentence_id
     WHERE o.run_id = ? AND o.character = ? AND o.matcha_phone = ? AND o.g2pw_phone = ?
       AND o.category = ?
+      AND ${UNHANDLED_SQL}
     ORDER BY o.confidence DESC, o.source_sentence_id, o.character_offset
     LIMIT ?
   `).all(runId, group.character, group.matcha_phone, group.g2pw_phone, group.category, limit)
@@ -99,18 +110,23 @@ export function buildSqliteRoiReport(db, options = {}) {
     averageConfidence: rounded(row.average_confidence)}));
   const placeholders = REVIEW_CATEGORIES.map(() => '?').join(', ');
   const groups = db.prepare(`
-    SELECT character, matcha_phone, g2pw_phone, category,
+    SELECT o.character, o.matcha_phone, o.g2pw_phone, o.category,
       COUNT(*) AS occurrences,
-      SUM(CASE WHEN confidence >= ? THEN 1 ELSE 0 END) AS high_confidence_occurrences,
-      AVG(confidence) AS average_confidence,
-      MIN(confidence) AS minimum_confidence,
-      MAX(confidence) AS maximum_confidence
-    FROM occurrences
-    WHERE run_id = ? AND category IN (${placeholders})
-    GROUP BY character, matcha_phone, g2pw_phone, category
+      SUM(CASE WHEN o.confidence >= ? THEN 1 ELSE 0 END) AS high_confidence_occurrences,
+      AVG(o.confidence) AS average_confidence,
+      MIN(o.confidence) AS minimum_confidence,
+      MAX(o.confidence) AS maximum_confidence,
+      COALESCE(MAX(CASE WHEN d.scope_type = 'group' THEN d.status END), 'unreviewed') AS review_status
+    FROM occurrences o JOIN sentences s
+      ON s.run_id = o.run_id AND s.source_sentence_id = o.source_sentence_id
+    LEFT JOIN review_decisions d ON d.run_id = o.run_id AND d.character = o.character
+      AND d.matcha_phone = o.matcha_phone AND d.g2pw_phone = o.g2pw_phone
+      AND d.category = o.category AND d.scope_type = 'group'
+    WHERE o.run_id = ? AND o.category IN (${placeholders}) AND ${UNHANDLED_SQL}
+    GROUP BY o.character, o.matcha_phone, o.g2pw_phone, o.category
     HAVING COUNT(*) >= ?
     ORDER BY high_confidence_occurrences DESC, occurrences DESC, average_confidence DESC,
-      character, matcha_phone, g2pw_phone
+      o.character, o.matcha_phone, o.g2pw_phone
     LIMIT ?
   `).all(highConfidence, run.id, ...REVIEW_CATEGORIES, minOccurrences, limit);
 
@@ -126,7 +142,7 @@ export function buildSqliteRoiReport(db, options = {}) {
     averageConfidence: rounded(group.average_confidence),
     minimumConfidence: rounded(group.minimum_confidence),
     maximumConfidence: rounded(group.maximum_confidence),
-    reviewStatus: 'unreviewed',
+    reviewStatus: group.review_status,
     previousContexts: contextRows(db, run.id, group, 'previous_character', contextLimit),
     followingContexts: contextRows(db, run.id, group, 'following_character', contextLimit),
     samples: sampleRows(db, run.id, group, sampleLimit),
@@ -141,7 +157,7 @@ export function buildSqliteRoiReport(db, options = {}) {
       lastSentenceId: run.last_sentence_id, fingerprint: run.fingerprint},
     selection: {categories: REVIEW_CATEGORIES, excludedCategories: ['agreement', 'tone_sandhi', 'unalignable'],
       minOccurrences, highConfidenceThreshold: highConfidence, limit, contextLimit, sampleLimit,
-      ordering: 'highConfidenceOccurrences DESC, occurrences DESC, averageConfidence DESC'},
+      activeDecisionStatuses: ACTIVE_STATUSES, ordering: 'highConfidenceOccurrences DESC, occurrences DESC, averageConfidence DESC'},
     summary: {allOccurrences: categorySummary.reduce((sum, row) => sum + row.occurrences, 0),
       reviewOccurrences: reviewOccurrenceCount, returnedCandidates: candidates.length, categories: categorySummary},
     caveats: [

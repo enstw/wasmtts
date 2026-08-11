@@ -638,6 +638,11 @@
       "pattern": "期待", "observed": ["qi1", "dai4"], "target": ["qi2", "dai4"],
       "scope": "固定詞；全文 SQLite ROI 約 188 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
       "source": {"title": "教育部《國語辭典簡編本》：期待", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=24459&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "誰", "observed": ["shui2"], "target": ["shei2"],
+      "scope": "臺灣標準單字讀音；全文 SQLite ROI 6,227 筆；Matcha tokens 缺少 shei2", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：誰", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=34016&la=0&powerMode=0", "version": "2021"}
     }
   ]
 }

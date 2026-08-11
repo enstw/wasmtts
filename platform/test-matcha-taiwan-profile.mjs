@@ -86,6 +86,8 @@ assert.deepEqual(taiwan.tokensFor('答應幾乎暫時熟悉認識意識見識資
   'yi4', 'shi4', 'jian4', 'shi4', 'zi1', 'zhi2', 'cai2', 'zhi2', 'qi2', 'jian1',
   'qi2', 'dai4',
 ]);
+assert.deepEqual(official.tokensFor('誰').phones, ['shui2']);
+assert.equal(MatchaFrontend.pronunciationOverridesFromReview(review).誰, undefined);
 
 console.log(JSON.stringify({
   profile: 'taiwan',

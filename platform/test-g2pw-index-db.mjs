@@ -17,6 +17,11 @@ assert.deepEqual(columns, [
 ]);
 assert.ok(db.prepare("SELECT name FROM pragma_table_info('runs') WHERE name = 'last_sentence_id'").get());
 assert.ok(db.prepare("SELECT name FROM pragma_table_info('sentences') WHERE name = 'source_text'").get());
+assert.deepEqual(db.prepare("SELECT name FROM pragma_table_info('review_decisions') ORDER BY cid").all()
+  .map(({name}) => name), [
+  'id', 'run_id', 'character', 'matcha_phone', 'g2pw_phone', 'category', 'scope_type',
+  'scope_value', 'scope_offset', 'status', 'rationale', 'source_url', 'created_at', 'updated_at',
+]);
 assert.equal(db.prepare('PRAGMA foreign_keys').get().foreign_keys, 1);
 assert.equal(db.prepare('PRAGMA integrity_check').get().integrity_check, 'ok');
 db.close();

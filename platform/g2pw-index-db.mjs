@@ -55,6 +55,29 @@ export function initializeG2pwIndex(db) {
     ) WITHOUT ROWID;
     CREATE INDEX IF NOT EXISTS occurrence_difference_roi
       ON occurrences(run_id, character, category, previous_character, following_character);
+    CREATE TABLE IF NOT EXISTS review_decisions (
+      id INTEGER PRIMARY KEY,
+      run_id INTEGER NOT NULL REFERENCES runs(id) ON DELETE CASCADE,
+      character TEXT NOT NULL,
+      matcha_phone TEXT NOT NULL,
+      g2pw_phone TEXT NOT NULL,
+      category TEXT NOT NULL,
+      scope_type TEXT NOT NULL CHECK (scope_type IN ('group', 'phrase')),
+      scope_value TEXT NOT NULL DEFAULT '',
+      scope_offset INTEGER NOT NULL DEFAULT 0,
+      status TEXT NOT NULL CHECK (status IN (
+        'needs_context', 'accepted', 'implemented', 'rejected_current_correct',
+        'rejected_model_error', 'rejected_regional_difference', 'deferred', 'superseded'
+      )),
+      rationale TEXT NOT NULL DEFAULT '',
+      source_url TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      UNIQUE(run_id, character, matcha_phone, g2pw_phone, category,
+        scope_type, scope_value, scope_offset)
+    );
+    CREATE INDEX IF NOT EXISTS review_decision_lookup
+      ON review_decisions(run_id, character, matcha_phone, g2pw_phone, category, status);
   `);
   // 既有 architecture-slice database 可直接升級，不必刪除本機稽核結果。
   const runColumns = new Set(db.prepare("SELECT name FROM pragma_table_info('runs')").all()
