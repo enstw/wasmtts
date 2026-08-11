@@ -1,0 +1,19 @@
+{
+  "repository": "https://huggingface.co/MediaTek-Research/Breeze2-VITS-onnx",
+  "revision": "4592eb1dc4222707c7a6482d3df4bc263c441041",
+  "target": "platform/models/breeze2-vits",
+  "files": {
+    "breeze2-vits.onnx": {
+      "bytes": 121082293,
+      "sha256": "13c5d190f911e8ab78db460749b5216663ea0b9497d4d4a2f35800b86fa4d6cf"
+    },
+    "lexicon.txt": {
+      "bytes": 2518311,
+      "sha256": "fee63cb838fd0fb295292df8e42fcf5470204b4ced1f4fea8a9a01ef6cc1255e"
+    },
+    "tokens.txt": {
+      "bytes": 331,
+      "sha256": "34b035b9aeb070df6188b022f29c00e0e142c7ade9f25611ced65db5e9cc8402"
+    }
+  }
+}
