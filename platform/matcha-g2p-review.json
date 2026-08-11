@@ -188,6 +188,86 @@
       "status": "deferred",
       "rationale": "剩餘 821 筆混合醉倒、跌倒等 dao3 動作與倒影、顛倒等 dao4 詞義；既有「倒是」已覆寫，餘下需 longest-match 詞表或語義判定",
       "source": {"title": "教育部《重編國語辭典修訂本》：倒是", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=42975&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "重", "matchaPhone": "chong2", "g2pwPhone": "zhong4", "category": "polyphone", "status": "deferred",
+      "rationale": "剩餘 899 筆混合重重、重擊等 zhong4 與重複、重新等 chong2 詞義；待 longest-match 詞表，不作全域覆寫",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "掙", "matchaPhone": "zheng1", "g2pwPhone": "zheng4", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "剩餘 731 筆混合掙錢、掙脫等 zheng4 與掙扎等 zheng1；需完整詞 longest-match",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "數", "matchaPhone": "shu4", "g2pwPhone": "shu3", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "剩餘 743 筆混合倒數等計數 shu3 與數目、術數等 shu4 詞義；需詞組或語義 scope",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "強", "matchaPhone": "qiang2", "g2pwPhone": "qiang3", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "剩餘 702 筆混合勉強等 qiang3 與強大、強迫等 qiang2；需 longest-match 詞表",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "難", "matchaPhone": "nan2", "g2pwPhone": "nan4", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "剩餘 732 筆混合劫難、災難等 nan4 與困難、難以等 nan2；待詞組 scope",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "少", "matchaPhone": "shao3", "g2pwPhone": "shao4", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "剩餘 636 筆混合少城主、少師等 shao4 與多少、少量等 shao3，且含人物稱謂；待詞表或專名辨識",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "了", "matchaPhone": "le5", "g2pwPhone": "liao3", "category": "polyphone", "status": "deferred",
+      "rationale": "剩餘 760 筆混合了卻、了結等 liao3 實詞與 le5 助詞；需要完整詞或句法 scope",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "應", "matchaPhone": "ying1", "g2pwPhone": "ying4", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "既有固定詞已覆寫；剩餘 624 筆仍混合回應等 ying4 與應該、應當等 ying1，需擴充可審核詞表",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "薄", "matchaPhone": "bao2", "g2pwPhone": "bo2", "category": "polyphone", "status": "deferred",
+      "rationale": "剩餘 597 筆包含薄紗、薄弱等詞，且 bao2／bo2 涉及地區與詞彙讀音差異；待逐詞審核",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "檔", "matchaPhone": "dang4", "g2pwPhone": "dang3", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "剩餘 580 筆集中於檔案、密檔；啟用單字覆寫前仍須確認 acoustic token 與完整詞優先行為",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "肚", "matchaPhone": "du3", "g2pwPhone": "du4", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "剩餘 570 筆主要是肚子、肚腹等 du4；全域覆寫前仍需確認異讀詞與 acoustic token 支援",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "擰", "matchaPhone": "ning2", "g2pwPhone": "ning3", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "剩餘 570 筆以旋轉義為主，但多音與區域用法需要逐詞來源確認；不直接採 g2pW 全域聲調",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "乾", "matchaPhone": "qian2", "g2pwPhone": "gan1", "category": "polyphone", "status": "deferred",
+      "rationale": "既有安全 scope 已部署；剩餘 573 筆仍混合乾坤 qian2、乾姓與乾燥 gan1，需 longest-match 詞表",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "伐", "matchaPhone": "fa2", "g2pwPhone": "fa1", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "剩餘 546 筆主要為攻伐、討伐；聲調差異仍須按臺灣來源與 acoustic token 核對後部署",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "樸", "matchaPhone": "pu3", "g2pwPhone": "pu2", "category": "tone_disagreement", "status": "deferred",
+      "rationale": "剩餘 542 筆混合古樸、樸拙與晁樸等人名；臺灣讀音與專名均需來源確認",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "調", "matchaPhone": "diao4", "g2pwPhone": "tiao2", "category": "polyphone", "status": "deferred",
+      "rationale": "剩餘 536 筆混合調劑、調整等 tiao2 與聲調、調動等 diao4；需要 longest-match 或語義 scope",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
     }
   ],
   "entries": [
