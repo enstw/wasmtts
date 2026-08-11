@@ -6,6 +6,7 @@
 
 - `benchmark.js`：保留的 sherpa-onnx Node WASM 對照 harness。
 - `vits-browser.html`、`run-vits-browser.mjs`：歷史 Piper、AISHELL3 與 MeloTTS ORT Web 路徑。
+- `breeze2-vits-browser.html`、`run-breeze2-vits-browser.mjs`：MediaTek Breeze2-VITS controlled challenger 的單線程 ORT Web footprint／效能 runner；不屬於現行產品路徑。
 - `kokoro-browser.html`、`run-kokoro-browser.mjs`：歷史 Kokoro ORT Web、profiling、shape probe 與 thread 測試。
 - `matcha-browser.html`、`run-matcha-browser.mjs`：Matcha acoustic model、Vocos 與 JavaScript ISTFT 的單執行緒 ORT Web 路徑。
 - `kaldifst-wasm/`、`kaldifst-normalizer.js`：獨立 kaldifst + OpenFST text-normalizer WASM、最小 C ABI 與 UTF-8 bridge；Matcha/Vocos 的 ORT Web memory 與此 module 的 memory 相互獨立。
@@ -32,12 +33,24 @@
 
 ```text
 platform/models/
+├── breeze2-vits/
 ├── matcha-icefall-zh-en/
 ├── sherpa-onnx-wasm-simd-1.12.20-matcha-icefall-zh-en/
 └── vocos-16khz-univ.onnx
 ```
 
 模型權重、聲音資料與下載產物不可提交。若使用不同路徑，請透過 runner 參數設定，或同步更新程式與方案文件。
+
+Breeze2-VITS 試跑固定 Hugging Face revision 與逐檔 SHA-256；下載後才可執行 benchmark：
+
+```sh
+pnpm fetch:breeze2-vits-assets
+pnpm host:mobile
+# 另一個終端機：
+pnpm benchmark:breeze2-vits
+```
+
+上游 model card 未宣告 Breeze2-VITS 權重 license；這些資產只保存在本機 ignored 目錄，不可散布。完整量測與採用判定見 [RESULTS.md](RESULTS.md)。
 
 上游 FST runner 使用 sherpa-onnx `v1.12.20` 官方 release asset；壓縮檔 SHA-256 為 `a09b2b2c5d5aab156650ea3da270ea8d7f358e6f315732f481b731f87dec6d88`：
 

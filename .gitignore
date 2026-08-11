@@ -12,6 +12,9 @@ platform/assets/
 *.tar.bz2
 *.zip
 
+# Breeze2 權重 license 未釐清前，不散布其合成試聽檔。
+platform/results/breeze2_vits-browser-wasm.wav
+
 # 本機環境與代理狀態。
 .env*
 .claude/

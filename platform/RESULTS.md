@@ -1,6 +1,6 @@
 # 單線程 WASM TTS 本機基準
 
-測試日期：2026-08-06 至 2026-08-07（Asia/Taipei）
+測試日期：2026-08-06 至 2026-08-11（Asia/Taipei）
 
 ## 結論
 
@@ -9,14 +9,15 @@
 | 模型 | 10 秒音訊 CPU 時間（中位數） | 相對 HuaYan | 單線程即時性 | 解壓後資源 |
 |---|---:|---:|---:|---:|
 | Piper HuaYan medium | 1.576 秒 | **1.00x** | 6.35 倍即時 | 79 MiB |
-| Matcha icefall zh-en | 1.467 秒 | **約 0.93x*** | 6.82 倍即時 | 約 152 MiB（其中 ONNX 123.6 MiB） |
+| Matcha icefall zh-en | 1.361 秒 | **約 0.86x*** | 7.35 倍即時 | 約 152 MiB（其中 ONNX 123.6 MiB） |
 | VITS AISHELL3（sid 66） | 0.708 秒 | **0.45x** | 14.1 倍即時 | 207 MiB（其中未載入的 `rule.far` 約 172 MiB） |
 | MeloTTS zh/en | 14.427 秒 | **9.16x** | 0.69 倍即時 | 197 MiB |
+| MediaTek Breeze2-VITS | 13.617 秒 | **約 8.64x*** | 0.734 倍即時 | 117.9 MiB（模型＋lexicon＋tokens） |
 | Kokoro v1.1 zh int8 | 無有效數字 | — | 輸出為非有限值／靜音 | 約 127 MiB ONNX + 51 MiB voices |
 | Kokoro v1.1 zh q8 | 無有效數字 | — | 315,000/315,000 samples 非有限 | 約 127 MiB ONNX + 51 MiB voices |
 | Kokoro v1.1 zh fp32 | 14.225 秒 | **9.03x** | 0.70 倍即時 | 約 339 MiB ONNX + 51 MiB voices |
 
-Piper、VITS 與 Kokoro 使用 Chromium 149；Matcha 使用 Chromium 151。全部採 ONNX Runtime Web WASM、單一 thread 與 CDP `TaskDuration`，但星號標示的 Matcha／Piper `約 0.93x` 因瀏覽器版本不同，只能作方向性參考，不能宣稱為嚴格的 7% 加速。AISHELL3 最省 CPU；Matcha 與 HuaYan 同量級且都遠快於即時；MeloTTS 與 Kokoro fp32 都慢於即時。Kokoro int8 與 Kokoro.js sample 對應的 q8 都能完成 graph execution，但輸出全部為非有限值，不能視為有效 TTS；只有 fp32 已驗證能正常發聲。
+Piper、AISHELL3、MeloTTS 與 Kokoro 使用 Chromium 149；Matcha 與 Breeze2 使用 Chromium 151。全部採 ONNX Runtime Web WASM、單一 thread 與 CDP `TaskDuration`，但星號標示的相對 HuaYan 數字因瀏覽器版本不同，只能作方向性參考。Breeze2 與 Matcha 則是在同一個 Chromium `151.0.7922.108`、ORT Web `1.27.0` 下量測，可作嚴格核心推論 A/B：Breeze2 的運算成本是 Matcha 的 `10.00x`。AISHELL3 最省 CPU；Matcha 與 HuaYan 同量級且都遠快於即時；Breeze2、MeloTTS 與 Kokoro fp32 都慢於即時。Kokoro int8 與 Kokoro.js sample 對應的 q8 都能完成 graph execution，但輸出全部為非有限值，不能視為有效 TTS；只有 fp32 已驗證能正常發聲。
 
 本文件的「倍即時」是 `realtime multiplier = 音訊長度 ÷ 合成時間`，標準 `RTF = 合成時間 ÷ 音訊長度`，兩者互為倒數。Piper HuaYan medium 的 `6.35 倍即時` 對應名目 `RTF ≈ 0.158`；這裡是桌面單 thread CPU benchmark，不能取代 iPhone 上包含文字前處理與 MP3 編碼的端到端串流 RTF。
 
@@ -35,6 +36,16 @@ AISHELL3 的取樣率只有 8 kHz，而且音質、韻律與聲線選擇和 CPU 
 三輪輸出分別有 174,821、174,764、174,688 samples，全部為有限值；peak 為 `0.8093`、`0.8306`、`0.7777`，RMS 為 `0.1336`、`0.1351`、`0.1301`。Phase 中位數是 acoustic `911.1 ms`、Vocos `549.5 ms`、JavaScript ISTFT `20.8 ms`、silence scaling `0.5 ms`，因此後續核心效能最佳化應先看 acoustic 與 Vocos，不應先花時間重寫 ISTFT。
 
 Adapter 使用 sherpa-onnx 前端預先產生的固定 token；文字前處理排除於計時外，與既有 ORT Web 主表一致。中文 FST 在目前 Node WASM wrapper 仍會越界，正式瀏覽器結果也沒有包含 FST、MP3 編碼或 MediaSource append，因此這是核心合成 benchmark，不是 iPhone 端到端串流結果。完整紀錄與樣本位於 [Matcha 文件](../frameworks/matcha/README.md)，機器可讀結果是 [results-matcha_icefall_zh_en-browser-wasm.json](results/results-matcha_icefall_zh_en-browser-wasm.json)。
+
+## MediaTek Breeze2-VITS footprint／效能試跑
+
+2026-08-11 固定 `MediaTek-Research/Breeze2-VITS-onnx` revision `4592eb1dc4222707c7a6482d3df4bc263c441041`，使用與正式 Matcha 相同的 Chromium `151.0.7922.108`、ORT Web `1.27.0`、WASM 與單一 thread。前端採繁體逐字直輸、官方 Bopomofo lexicon、tokens 與 `add_blank=1`，排除於核心推論計時。五句先暖機一次再量三次，task `RTF` 為 `1.3596`、`1.3617`、`1.3634`；中位數為 `1.3617`，即 `0.734x realtime`，未達持續串流必要的 `RTF < 1`。
+
+模型輸出為 22.05 kHz；capture 的 268,544 samples 全部有限，peak `0.0957`、RMS `0.0104`，不是零 waveform。ORT session 初始化為 1.308 秒；包含一次 11.088 秒音訊暖機後，初始化階段 wall time 為 16.584 秒。模型、lexicon 與 tokens 合計 123,600,935 bytes（117.9 MiB），比 Matcha acoustic＋Vocos 129,599,930 bytes（123.6 MiB）少 4.6%。Breeze2 初始化記憶體快照為 347,015,862 bytes（330.9 MiB）；Matcha 完整 producer 初始化快照為 341,536,495 bytes（325.7 MiB）。後者包含 Worker 與 16 MiB normalizer，兩個數字仍都只是不同 harness 的時間點快照，不可宣稱為真正 peak 或 iPhone 記憶體。
+
+結論是 Breeze2 已經約等於、甚至略小於 Matcha 模型尺寸，但核心推論剛好約慢 `10.00x`，所以問題不是 footprint，而是 VITS graph 在單線程 WASM 的運算成本。此 challenger 不取代 Matcha，也不進入 iPhone transport 整合。若要保存 Breeze 聲線，後續研究目標應是 16 kHz 小型 Matcha student 與 `RTF < 0.3`，而不是單純把 121 MB 權重再縮到 Matcha 尺寸。詳細限制與蒸餾判定見 [VITS 文件](../frameworks/vits/README.md)；原始資料為 [results-breeze2_vits-browser-wasm.json](results/results-breeze2_vits-browser-wasm.json)。
+
+兩邊的格式條件相同：Breeze2 的 30,035,547 個 parameters 與 Matcha acoustic＋Vocos 的 32,050,469 個 parameters 都是 FP32，且同樣使用 ORT Web 的 SIMD WASM binary、單一 thread，沒有 INT8 operator。Breeze2 的 graph 直接用 4 個 `ConvTranspose` 與 75 個 decoder `Conv` 經 `8 × 8 × 2 × 2` 上採樣產生 22.05 kHz waveform；Matcha＋Vocos 大部分計算停留在 mel frame／頻譜時間軸，最後才由 ISTFT 展開 16 kHz waveform。參數量決定下載大小，activation 的時間軸、每層重複次數與 operator 實作才決定推論時間。
 
 ### Matcha 上游建議 FST browser 基線
 
@@ -112,6 +123,7 @@ Selective INT8 三輪為 `15.148`、`15.182`、`15.197` 秒／10 秒音訊；FP3
 | MeloTTS（ORT Web；TaskDuration） | 14441.27、14427.35、14403.69 | 14427.35 |
 | Kokoro fp32（ORT Web；TaskDuration） | 14225.42、14205.52、14256.83 | 14225.42 |
 | Matcha zh-en（ORT Web 1.27；TaskDuration） | 1365.03、1357.54、1361.20 | 1361.20 |
+| Breeze2-VITS（ORT Web 1.27；TaskDuration） | 13596.19、13616.94、13634.35 | 13616.94 |
 
 ## 可重現檔案
 
@@ -130,6 +142,8 @@ Selective INT8 三輪為 `15.148`、`15.182`、`15.197` 秒／10 秒音訊；FP3
 - Matcha 上游 FST JSON／WAV：`platform/results/results-matcha_icefall_zh_en-upstream-fst-browser-wasm.json`、`platform/results/matcha_icefall_zh_en-upstream-fst-browser-wasm.wav`
 - Matcha 端到端頁面／runner：`mobile-host/matcha-stream-test.html`、`platform/run-matcha-stream-browser.mjs`
 - Matcha 端到端 JSON：`platform/results/results-matcha_icefall_zh_en-stream-browser-wasm.json`
+- Breeze2 頁面／runner：`platform/breeze2-vits-browser.html`、`platform/run-breeze2-vits-browser.mjs`
+- Breeze2 manifest／正式 JSON：`platform/breeze2-vits-assets.json`、`platform/results/results-breeze2_vits-browser-wasm.json`；本機 WAV 因授權未釐清不提交
 - 統一三款原始結果：`platform/results/results-vits-browser-wasm.json`
 - Selective INT8 與同瀏覽器 FP32 A/B：`platform/results/results-kokoro_v1_1_zh_selective-int8-browser-wasm.json`
 
@@ -142,6 +156,8 @@ pnpm exec node platform/benchmark.js vits_melotts_zh_en
 # 另一個終端機先執行：pnpm host:mobile
 pnpm exec node platform/run-kokoro-browser.mjs fp32
 pnpm exec node platform/run-vits-browser.mjs
+pnpm fetch:breeze2-vits-assets
+pnpm benchmark:breeze2-vits
 pnpm benchmark:matcha
 pnpm benchmark:matcha-upstream-fst
 pnpm benchmark:matcha-fst-ab

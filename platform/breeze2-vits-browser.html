@@ -1,0 +1,174 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Breeze2 VITS WASM benchmark</title>
+<script type="importmap">{"imports":{
+  "onnxruntime-web/webgpu":"/node_modules/onnxruntime-web/dist/ort.webgpu.mjs"
+}}</script>
+<script type="module">
+import * as ORT from 'onnxruntime-web/webgpu';
+
+ORT.env.wasm.numThreads = 1;
+ORT.env.wasm.proxy = false;
+
+const BASE = '/platform/models/breeze2-vits/';
+const SENTENCES = [
+  '清晨的陽光穿過窗簾。',
+  '輕輕落在安靜的房間裡。',
+  '遠處傳來清脆的鳥鳴。',
+  '微風帶著花草的清香。',
+  '讓嶄新的一天顯得格外明亮。',
+];
+const SAMPLE_RATE = 22050;
+const BLANK_ID = 0;
+
+const i64 = (values, dims) =>
+  new ORT.Tensor('int64', BigInt64Array.from(values, BigInt), dims);
+const f32 = (value) =>
+  new ORT.Tensor('float32', new Float32Array([value]), [1]);
+
+function parseTokens(text) {
+  const tokens = new Map();
+  for (const line of text.split(/\r?\n/u)) {
+    const delimiter = line.lastIndexOf(' ');
+    if (delimiter < 0) continue;
+    tokens.set(line.slice(0, delimiter), Number(line.slice(delimiter + 1)));
+  }
+  return tokens;
+}
+
+function parseLexicon(text) {
+  const lexicon = new Map();
+  for (const line of text.split(/\r?\n/u)) {
+    const [word, ...phones] = line.trim().split(/\s+/u);
+    if (word && phones.length && !lexicon.has(word)) lexicon.set(word, phones);
+  }
+  return lexicon;
+}
+
+function addBlanks(ids) {
+  const output = [BLANK_ID];
+  for (const id of ids) output.push(id, BLANK_ID);
+  return output;
+}
+
+function prepareSentence(sentence, tokens, lexicon) {
+  const phones = [];
+  const unknown = [];
+  for (const character of sentence) {
+    if (lexicon.has(character)) {
+      phones.push(...lexicon.get(character));
+    } else if (tokens.has(character)) {
+      phones.push(character);
+    } else if (!/\s/u.test(character)) {
+      unknown.push(character);
+    }
+  }
+  const missingPhones = phones.filter((phone) => !tokens.has(phone));
+  if (unknown.length || missingPhones.length) {
+    throw new Error(`frontend 無法映射：字=${unknown.join('')} phones=${missingPhones.join(',')}`);
+  }
+  return {sentence, phones, ids: addBlanks(phones.map((phone) => tokens.get(phone)))};
+}
+
+function concatenate(chunks) {
+  const length = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+  const output = new Float32Array(length);
+  let offset = 0;
+  for (const chunk of chunks) {
+    output.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return output;
+}
+
+function waveformStats(samples) {
+  let peak = 0;
+  let squares = 0;
+  let finiteSamples = 0;
+  for (const sample of samples) {
+    if (Number.isFinite(sample)) finiteSamples += 1;
+    peak = Math.max(peak, Math.abs(sample));
+    squares += sample * sample;
+  }
+  return {
+    samples: samples.length,
+    finiteSamples,
+    peak,
+    rms: Math.sqrt(squares / samples.length),
+  };
+}
+
+window.bench = {
+  async init() {
+    const [tokensText, lexiconText] = await Promise.all([
+      fetch(`${BASE}tokens.txt`).then((response) => response.text()),
+      fetch(`${BASE}lexicon.txt`).then((response) => response.text()),
+    ]);
+    this.tokens = parseTokens(tokensText);
+    this.lexicon = parseLexicon(lexiconText);
+    this.prepared = SENTENCES.map((sentence) =>
+      prepareSentence(sentence, this.tokens, this.lexicon));
+
+    const started = performance.now();
+    this.session = await ORT.InferenceSession.create(`${BASE}breeze2-vits.onnx`, {
+      executionProviders: ['wasm'],
+    });
+    const initMs = performance.now() - started;
+    const warmup = await this.run(false);
+    return {
+      initMs,
+      warmup,
+      inputs: this.session.inputNames,
+      outputs: this.session.outputNames,
+      tokenCount: this.tokens.size,
+      lexiconSize: this.lexicon.size,
+      prepared: this.prepared,
+    };
+  },
+
+  async run(capture = false) {
+    const started = performance.now();
+    let modelMs = 0;
+    const chunks = [];
+    for (const prepared of this.prepared) {
+      const phaseStarted = performance.now();
+      const output = await this.session.run({
+        x: i64(prepared.ids, [1, prepared.ids.length]),
+        x_length: i64([prepared.ids.length], [1]),
+        noise_scale: f32(0.667),
+        length_scale: f32(1),
+        noise_scale_w: f32(0.8),
+        sid: i64([0], [1]),
+      });
+      modelMs += performance.now() - phaseStarted;
+      chunks.push(Float32Array.from(output.y.data));
+    }
+    const samples = concatenate(chunks);
+    const result = {
+      sampleRate: SAMPLE_RATE,
+      audioSeconds: samples.length / SAMPLE_RATE,
+      wallMs: performance.now() - started,
+      phases: {modelMs},
+      waveform: waveformStats(samples),
+    };
+    if (capture) result.samples = Array.from(samples);
+    return result;
+  },
+};
+
+window.benchmarkMetadata = {
+  source: 'MediaTek-Research/Breeze2-VITS-onnx',
+  revision: '4592eb1dc4222707c7a6482d3df4bc263c441041',
+  text: SENTENCES.join(''),
+  sentences: SENTENCES,
+  sampleRate: SAMPLE_RATE,
+  numThreads: 1,
+  noiseScale: 0.667,
+  lengthScale: 1,
+  noiseScaleW: 0.8,
+  speakerId: 0,
+  frontend: '繁體逐字直輸 → 官方 lexicon Bopomofo → tokens；add_blank=1；計時邊界外',
+  runtime: 'ONNX Runtime Web 1.27.0',
+};
+window.ready = true;
+</script>
