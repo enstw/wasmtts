@@ -121,6 +121,17 @@ assert.deepEqual(taiwan.tokensFor('擁顫藉爺爺下巴啞巴嘴巴掙錢').pho
 assert.deepEqual(taiwan.tokensFor('狼藉東西東西向').phones, [
   'lang2', 'ji2', 'dong1', 'xi1', 'dong1', 'xi1', 'xiang4',
 ]);
+assert.deepEqual(official.tokensFor('倒是武將適應感應對應應對重複').phones, [
+  'dao3', 'shi4', 'wu3', 'jiang1', 'shi4', 'ying1', 'gan3', 'ying1',
+  'dui4', 'ying1', 'ying1', 'dui4', 'zhong4', 'fu4',
+]);
+assert.deepEqual(taiwan.tokensFor('倒是武將適應感應對應應對重複').phones, [
+  'dao4', 'shi4', 'wu3', 'jiang4', 'shi4', 'ying4', 'gan3', 'ying4',
+  'dui4', 'ying4', 'ying4', 'dui4', 'chong2', 'fu4',
+]);
+assert.deepEqual(taiwan.tokensFor('跌倒將來應該重要').phones, [
+  'die1', 'dao3', 'jiang1', 'lai2', 'ying1', 'gai1', 'zhong4', 'yao4',
+]);
 
 console.log(JSON.stringify({
   profile: 'taiwan',

@@ -4,7 +4,7 @@
   "purpose": "分開保存辭典來源、模型證據與產品啟用範圍；候選不因出現在 entries 就自動進產品",
   "profiles": {
     "taiwan": {
-      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待", "會兒", "今兒", "這兒", "個兒", "那兒", "事兒", "哪兒", "地兒", "玩意兒", "明兒", "娃兒", "人兒", "鴉兒", "老聾兒", "微", "血", "究", "熟", "叔", "姐姐", "差不多", "擁", "顫", "藉", "爺爺", "下巴", "啞巴", "嘴巴", "掙錢"],
+      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待", "會兒", "今兒", "這兒", "個兒", "那兒", "事兒", "哪兒", "地兒", "玩意兒", "明兒", "娃兒", "人兒", "鴉兒", "老聾兒", "微", "血", "究", "熟", "叔", "姐姐", "差不多", "擁", "顫", "藉", "爺爺", "下巴", "啞巴", "嘴巴", "掙錢", "倒是", "武將", "適應", "感應", "對應", "應對", "重複"],
       "contextualRules": ["著", "和"]
     }
   },
@@ -788,6 +788,41 @@
       "pattern": "掙錢", "observed": ["zheng1", "qian2"], "target": ["zheng4", "qian2"],
       "scope": "固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
       "source": {"title": "教育部《重編國語辭典修訂本》：掙錢", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=117810&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "倒是", "observed": ["dao3", "shi4"], "target": ["dao4", "shi4"],
+      "scope": "表示轉折的固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：倒是", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=42975&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "武將", "observed": ["wu3", "jiang1"], "target": ["wu3", "jiang4"],
+      "scope": "軍事將領的固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：武將", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=159747&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "適應", "observed": ["shi4", "ying1"], "target": ["shi4", "ying4"],
+      "scope": "固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：適應", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=128920", "version": "2021"}
+    },
+    {
+      "pattern": "感應", "observed": ["gan3", "ying1"], "target": ["gan3", "ying4"],
+      "scope": "固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：感應", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=70189&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "對應", "observed": ["dui4", "ying1"], "target": ["dui4", "ying4"],
+      "scope": "固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：對應", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=48236&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "應對", "observed": ["ying1", "dui4"], "target": ["ying4", "dui4"],
+      "scope": "酬答或對付義的固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：應對", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=158497&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "重複", "observed": ["zhong4", "fu4"], "target": ["chong2", "fu4"],
+      "scope": "反覆相同或重疊義的固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：重複", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=126798&la=0&powerMode=0", "version": "2021"}
     }
   ]
 }
