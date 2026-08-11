@@ -4,7 +4,7 @@
   "purpose": "分開保存辭典來源、模型證據與產品啟用範圍；候選不因出現在 entries 就自動進產品",
   "profiles": {
     "taiwan": {
-      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待", "會兒", "今兒", "這兒", "個兒", "那兒"],
+      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待", "會兒", "今兒", "這兒", "個兒", "那兒", "事兒", "哪兒", "地兒", "玩意兒", "明兒", "娃兒", "人兒", "鴉兒", "老聾兒"],
       "contextualRules": ["著", "和"]
     }
   },
@@ -668,6 +668,51 @@
       "pattern": "那兒", "observed": ["na4", "er2"], "target": ["na4", "er1"],
       "scope": "表示彼處或彼時的固定詞；全文 SQLite ROI 242 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
       "source": {"title": "教育部《重編國語辭典修訂本》：那兒", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=56287&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "事兒", "observed": ["shi4", "er2"], "target": ["shi4", "er1"],
+      "scope": "兒化固定詞；全文 SQLite ROI 175 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：兒（詞綴）", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=45156&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "哪兒", "observed": ["na3", "er2"], "target": ["na3", "er1"],
+      "scope": "兒化固定詞；全文 SQLite ROI 164 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：哪兒的話", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=56176&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "地兒", "observed": ["di4", "er2"], "target": ["di4", "er1"],
+      "scope": "兒化固定詞；全文 SQLite ROI 214 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：兒（詞綴）", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=45156&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "玩意兒", "observed": ["wan2", "yi4", "er2"], "target": ["wan2", "yi4", "er1"],
+      "scope": "固定詞；全文 SQLite ROI 232 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：玩意兒", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=161614&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "明兒", "observed": ["ming2", "er2"], "target": ["ming2", "er1"],
+      "scope": "表示明天的兒化固定詞；全文 SQLite ROI 120 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：兒（詞綴）", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=45156&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "娃兒", "observed": ["wa2", "er2"], "target": ["wa2", "er1"],
+      "scope": "兒化固定詞；全文 SQLite ROI 103 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：兒（詞綴）", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=45156&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "人兒", "observed": ["ren2", "er2"], "target": ["ren2", "er1"],
+      "scope": "兒化固定詞；全文 SQLite ROI 257 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：兒（詞綴）", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=45156&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "鴉兒", "observed": ["ya1", "er2"], "target": ["ya1", "er1"],
+      "scope": "作品內兒化稱呼；全文 SQLite ROI 103 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：兒（詞綴）", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=45156&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "老聾兒", "observed": ["lao3", "long2", "er2"], "target": ["lao3", "long2", "er1"],
+      "scope": "作品內固定兒化稱呼；全文 SQLite ROI 292 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：兒（詞綴）", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=45156&la=0&powerMode=0", "version": "2021"}
     }
   ]
 }
