@@ -64,6 +64,7 @@ pnpm g2pw-index run
 pnpm g2pw-index status
 pnpm g2pw-index logs 20
 pnpm g2pw-index stop
+pnpm report:matcha-g2pw-sqlite-roi
 ```
 
 第一次 `run` 會保存參數並在背景啟動；之後不帶參數的 `run` 會使用相同 fingerprint 與 SQLite checkpoint 接續。啟動前會同時檢查管理 PID 與既有 index PID，若掃描已在執行便拒絕建立第二份。必要時它會一併啟動 `mobile-host`。`stop` 會對管理程序或既有 index 程序送出 `SIGINT`，runner 完成目前 batch 後落盤並清理。PID、設定與 log 位於 `platform/results/matcha-g2pw-manager.local.*`，均由 Git 忽略。
@@ -73,6 +74,8 @@ pnpm g2pw-index stop
 全文 command 每十秒向 stderr 輸出 checkpoint、當次句數、query 數與吞吐；若提供可重現的 `--total-sentences`，也會輸出剩餘句數與 ETA。最終 JSON 仍獨立寫到 stdout，另回報 `identityMs`、browser／preprocessor 初始化、frontend、preprocessing、WebGPU round trip／純 inference、SQLite 與 `totalMs`。`queriesPerSecond` 包含本次冷啟動；`steadyQueriesPerSecond` 只以 frontend、preprocessing、WebGPU round trip 與 SQLite 計算，不含 input／model hashing 與兩個 runtime 初始化。兩者都只代表 g2pW index throughput，不是 TTS `RTF`。`SIGINT`／`SIGTERM` 會在目前 batch 完成後保留 `building` 狀態與 checkpoint，並關閉 Python worker、CDP WebSocket 與 Chromium。
 
 `--g2pw-batch-size` 控制送入 ONNX 的 query batch，預設 32。相同開頭 100 句的 A/B 中，32／64／128 分別為 112.58／114.99／116.24 steady queries/s，因此目前桌機全文掃描可用 128，但收益只有約 3.3%。同一 ORT Web runtime 建立兩個 session 後並行 `session.run()` 會觸發 WebGPU `getBindGroupLayout` 錯誤，不作為支援配置。兩個獨立 Chrome process 可避開該錯誤，合計 steady throughput 約 137.35 queries/s，較單 process 快約 22%；每個 process 則降至 67.72–69.63 queries/s，顯示共用 GPU 已明顯競爭。若採多 process，必須先把 source sentence 範圍分 shard，不能讓兩個 coordinator 重複掃描同一段。
+
+全文完成後，`report:matcha-g2pw-sqlite-roi` 會讀取最新的 complete run，依高信心出現次數排列 `polyphone`、`neutral_tone` 與 `tone_disagreement`，並保存前後字桶及原句樣本至忽略的 `platform/results/matcha-g2pw-sqlite-roi.local.json`。報告中的候選一律為 `unreviewed`；g2pW 信心不是發音真值，必須另經辭典與語境審核才能加入 Taiwan profile。可用 `--limit`、`--min-occurrences`、`--high-confidence`、`--context-limit`、`--sample-limit` 與 `--output` 調整報告。
 
 `--wasm-threads` 可在建立 WebGPU session 前覆寫 `ORT.env.wasm.numThreads`，只供診斷。相同 100 句、batch 128 的 1／2／4／8 threads 分別為 117.08／117.08／116.58／116.93 steady queries/s，落差在約 0.4% 內，沒有可採用的加速；正式掃描維持 ORT auto。
 
