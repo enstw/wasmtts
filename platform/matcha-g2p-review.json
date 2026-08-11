@@ -4,7 +4,7 @@
   "purpose": "分開保存辭典來源、模型證據與產品啟用範圍；候選不因出現在 entries 就自動進產品",
   "profiles": {
     "taiwan": {
-      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待", "會兒", "今兒", "這兒", "個兒", "那兒", "事兒", "哪兒", "地兒", "玩意兒", "明兒", "娃兒", "人兒", "鴉兒", "老聾兒", "微", "血", "究", "熟", "叔", "姐姐", "差不多", "擁", "顫", "藉", "爺爺", "下巴", "啞巴", "嘴巴", "掙錢", "倒是", "武將", "適應", "感應", "對應", "應對", "重複"],
+      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待", "會兒", "今兒", "這兒", "個兒", "那兒", "事兒", "哪兒", "地兒", "玩意兒", "明兒", "娃兒", "人兒", "鴉兒", "老聾兒", "微", "血", "究", "熟", "叔", "姐姐", "差不多", "擁", "顫", "藉", "爺爺", "下巴", "啞巴", "嘴巴", "掙錢", "倒是", "武將", "適應", "感應", "對應", "應對", "重複", "勁", "識", "期", "質", "頗", "咋", "仔細", "彷彿", "露出", "謝謝", "當真"],
       "contextualRules": ["著", "和"]
     }
   },
@@ -823,6 +823,61 @@
       "pattern": "重複", "observed": ["zhong4", "fu4"], "target": ["chong2", "fu4"],
       "scope": "反覆相同或重疊義的固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
       "source": {"title": "教育部《重編國語辭典修訂本》：重複", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=126798&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "勁", "observed": ["jin4"], "target": ["jing4"],
+      "scope": "臺灣標準單字讀音", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：勁", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=23751&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "識", "observed": ["shi2"], "target": ["shi4"],
+      "scope": "知道、見聞或知識義的單字 fallback；完整詞 longest-match 優先", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：識（shì）", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=8801&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "期", "observed": ["qi1"], "target": ["qi2"],
+      "scope": "臺灣標準單字讀音", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：期", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=24454&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "質", "observed": ["zhi4"], "target": ["zhi2"],
+      "scope": "事物特性、稟賦或詢問義的單字 fallback；完整詞 longest-match 優先", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：質（zhí）", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29079&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "頗", "observed": ["po1"], "target": ["po3"],
+      "scope": "臺灣標準單字讀音", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：頗", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=2446&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "咋", "observed": ["za3"], "target": ["ze2"],
+      "scope": "臺灣辭典收錄的單字讀音；完整詞 longest-match 優先", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：咋（zé）", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=9468&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "仔細", "observed": ["zai3", "xi4"], "target": ["zi3", "xi4"],
+      "scope": "固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：仔細", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=36712&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "彷彿", "observed": ["pang2", "fu2"], "target": ["fang3", "fu2"],
+      "scope": "固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：彷彿", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=36481&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "露出", "observed": ["lu4", "chu1"], "target": ["lou4", "chu1"],
+      "scope": "顯現義的固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：露出", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=60835&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "謝謝", "observed": ["xie4", "xie4"], "target": ["xie4", "xie5"],
+      "scope": "疊詞第二字讀輕聲", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：謝謝", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=106288&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "當真", "observed": ["dang1", "zhen1"], "target": ["dang4", "zhen1"],
+      "scope": "信以為真、真實或果真義的固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：當真", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=44493&la=0&powerMode=0", "version": "2021"}
     }
   ]
 }
