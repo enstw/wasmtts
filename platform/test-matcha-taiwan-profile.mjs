@@ -143,6 +143,17 @@ assert.deepEqual(taiwan.tokensFor('勁識期質頗咋仔細彷彿露出謝謝當
 assert.deepEqual(taiwan.tokensFor('標識品質露水當前').phones, [
   'biao1', 'shi4', 'pin3', 'zhi2', 'lu4', 'shui3', 'dang1', 'qian2',
 ]);
+assert.deepEqual(official.tokensFor('說得看得打得聽得變得以為頗為認為稱為').phones, [
+  'shuo1', 'de2', 'kan4', 'de2', 'da3', 'de2', 'ting1', 'de2', 'bian4', 'de2',
+  'yi3', 'wei4', 'po1', 'wei4', 'ren4', 'wei4', 'cheng1', 'wei4',
+]);
+assert.deepEqual(taiwan.tokensFor('說得看得打得聽得變得以為頗為認為稱為').phones, [
+  'shuo1', 'de5', 'kan4', 'de5', 'da3', 'de5', 'ting1', 'de5', 'bian4', 'de5',
+  'yi3', 'wei2', 'po3', 'wei2', 'ren4', 'wei2', 'cheng1', 'wei2',
+]);
+assert.deepEqual(taiwan.tokensFor('獲得因為為了').phones, [
+  'huo4', 'de2', 'yin1', 'wei4', 'wei4', 'le5',
+]);
 
 console.log(JSON.stringify({
   profile: 'taiwan',

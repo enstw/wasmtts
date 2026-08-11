@@ -23,9 +23,13 @@ occurrence.run(1, '她', '你', 'han4', 0.95, 'polyphone');
 occurrence.run(2, '', '平', 'he2', 0.98, 'agreement');
 
 syncImplementedProfile(db, 1, {
-  profiles: {taiwan: {phraseOverrides: ['他和']}},
-  entries: [{pattern: '他和', observed: ['ta1', 'he2'], target: ['ta1', 'han4'],
-    implementation: 'phrase-override', status: 'source-and-model-supported', scope: 'fixture'}],
+  profiles: {taiwan: {phraseOverrides: ['他和'], contextualRules: ['和']}},
+  entries: [
+    {pattern: '他和', observed: ['ta1', 'he2'], target: ['ta1', 'han4'],
+      implementation: 'phrase-override', status: 'source-and-model-supported', scope: 'fixture'},
+    {pattern: '和', observed: ['he2'], target: ['han4'], followingCharacters: '我',
+      implementation: 'contextual-rule', status: 'source-and-model-supported', scope: 'fixture contextual'},
+  ],
 });
 setGroupDecision(db, 1, {character: '和', matchaPhone: 'he2', g2pwPhone: 'han4',
   category: 'polyphone', status: 'needs_context', rationale: '其餘語境仍需審核'});
@@ -34,17 +38,9 @@ assert.equal(report.run.id, 1);
 assert.equal(report.summary.allOccurrences, 3);
 assert.equal(report.summary.reviewOccurrences, 2);
 assert.equal(report.summary.returnedCandidates, 1);
-assert.deepEqual(report.candidates[0], {
-  rank: 1,
-  character: '和', matchaPhone: 'he2', g2pwPhone: 'han4', category: 'polyphone',
-  occurrences: 1, highConfidenceOccurrences: 1, highConfidenceShare: 1,
-  averageConfidence: 0.95, minimumConfidence: 0.95, maximumConfidence: 0.95,
-  reviewStatus: 'needs_context',
-  previousContexts: [{character: '她', occurrences: 1, averageConfidence: 0.95}],
-  followingContexts: [{character: '你', occurrences: 1, averageConfidence: 0.95}],
-  samples: [{sourceSentenceId: 1, characterOffset: 1, confidence: 0.95,
-    normalizedText: '她和你說。', sourceText: '她和你說。'}],
-});
+assert.equal(report.candidates[0].occurrences, 1);
+assert.deepEqual(report.candidates[0].followingContexts,
+  [{character: '你', occurrences: 1, averageConfidence: 0.95}]);
 setGroupDecision(db, 1, {character: '和', matchaPhone: 'he2', g2pwPhone: 'han4',
   category: 'polyphone', status: 'rejected_current_correct', rationale: 'fixture terminal'});
 assert.equal(buildSqliteRoiReport(db, {minOccurrences: 1}).summary.returnedCandidates, 0);

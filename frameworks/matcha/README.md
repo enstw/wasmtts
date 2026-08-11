@@ -102,7 +102,7 @@ PWA runtime、Worker、兩個模型與字典均進入 CacheStorage 後，實際�
 
 2026-08-08 在 iOS `18.7` Safari 以 LAN HTTP 測試低記憶體 JavaScript lexicon adapter。模型下載、Worker 初始化與有效 waveform 暖機皆通過；設定 WebKit 要求的 `HTMLAudioElement.disableRemotePlayback=true` 後，使用者確認繁體原文直輸、前景播放、鎖屏播放及「垃圾 → `le4 se4`」讀音覆寫正常。因本輪 `secureContext=false`、`standalone=false`，且未記錄裝置型號、鎖屏時長、溫度、耗電、降頻或 2 小時跨章結果，只能判定 transport 初步相容，不是 PWA 或熱穩態完成。
 
-實聽發現 `「」` 被映射為 `“”` acoustic tokens 後會發音；目前已在 tokenization 前移除中英文開閉引號、保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。Taiwan profile 現含「垃圾」、105 個 phrase overrides，以及本節說明的保守 `著 → zhe5`、連詞 `和 → han4` contextual rules；official profile 保持上游結果。review schema v2 把 `confirmed`、`source-and-model-supported`、`model-supported` 證據狀態與 `profiles.taiwan` 產品啟用清單分開，allowlist 不宣稱為逐項人工確認。「關卡」逐字讀音符合臺灣 `guan1 ka3`；「堤壩」已依教育部讀音覆寫為 `ti2 ba4`。完整事件與數值保存在 [共同結果](../../platform/RESULTS.md)。
+實聽發現 `「」` 被映射為 `“”` acoustic tokens 後會發音；目前已在 tokenization 前移除中英文開閉引號、保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。Taiwan profile 現含「垃圾」、105 個 phrase overrides，以及 `著、和、得、為` 四個保守 contextual rules；official profile 保持上游結果。review schema v2 把證據狀態與產品啟用清單分開，完整詞 longest-match 優先。完整事件與數值保存在 [共同結果](../../platform/RESULTS.md)。
 
 ## 小說 G2P 稽核 pilot
 
@@ -134,7 +134,7 @@ pnpm audit:matcha-g2pw-pilot -- ~/Downloads/jl.zip --max-sentences 500
 
 第三輪另把教育部明列的 `著 zhao2` 結果助詞與 `著手 zhuo2 shou3` 落成 12 個 longest-match phrase overrides：`睡著、找著、碰著、逮著、嚇著、正著、摸不著、犯不著、睡不著、用得著、管不著、著手`。全書共命中 738 次；加入所有 phrase 與四輪 contextual rules 後，單字 fallback 為 9,275,437，token 仍為 11,942,487、unknown 仍為 1,018。`見著` 在分層 pilot 中 `zhe5/zhao2` 各有樣本，因此刻意不作固定詞。
 
-「得」分層 pilot 另抽 300 句，共比較 19,823 個可對齊漢字，18,378 個一致、1,445 個不同，表面一致率 `92.71%`；其中 neutral-tone 候選 460 次。由於 g2pW 會把教育部與上游 lexicon 均為 `zhi2 de5` 的「值得」也列為差異，這輪仍只把模型當候選產生器。教育部詞條與 pilot 共同支持、且上游繁體 longest-match 缺詞的 `覺得、曉得、顯得、懶得、捨得` 加入 Taiwan profile；全書依序命中 8,692、1,049、558、602、367 次，共 11,268 次，單字 fallback 降至 9,253,029。`值得、使得、免得、省得、懂得` 已由上游整詞正確處理，不重複覆寫。沒有建立全域 `得 → de5` 或按前字套用的 contextual rule，以免破壞 `de2/dei3` 用法。
+「得」分層 pilot 另抽 300 句，共比較 19,823 個可對齊漢字，18,378 個一致、1,445 個不同，表面一致率 `92.71%`。既有五個固定詞先排除 11,268 次；完整 SQLite 完成後，再以零反例前字桶加入 19 字 contextual allowlist，新增排除 8,382 筆。規則不作全域 `得 → de5`，完整詞 longest-match 優先，以保護 `de2/dei3` 用法。
 
 Taiwan profile 的指定句瀏覽器測試實際輸出五個 `de5`，71,365 個 samples 全為有限值，peak `0.7064`、RMS `0.1461`，MP3 54,432 bytes；一個 append 4.536 秒，underflow、append error、producer error 均為 0。結果只寫入 `/tmp`，不取代 official benchmark。
 
@@ -146,7 +146,7 @@ Taiwan profile 的指定句瀏覽器測試實際輸出五個 `de5`，71,365 個 
 
 「和」需要由後方詞組判定，pilot 與 ROI 因此新增對稱的 `--stratify-following`，並在每筆 evidence 保存 Matcha phone，允許同一目標字已有多個 lexicon 讀音。300 句共比較 20,077 字，18,616 字一致、1,461 字不同；120 個後字桶中 86 個至少三筆且全部為 `he2 → han4`、11 個混合；排除 tokenization 前會移除的引號後，產品 allowlist 為 85 字、267 筆。依教育部「`ㄏㄢˋ`為連詞`ㄏㄜˊ`之語音」加入後字 allowlist rule，只在 longest-match 落到單字「和」時生效；`和平、和氣、附和` 與混合桶維持原讀音。全文新增命中 8,014 次，總 contextual 命中 44,719，fallback 降至 9,226,871；token 與 unknown 不變。
 
-「為」按前字分層抽 300 句，19,624 個可比較漢字中有 18,309 個一致、1,315 個差異，表面一致率 `93.30%`。123 個前字桶分為 50 個 actionable、24 個維持目前讀音、30 個混合與 19 個樣本不足；`因為` 12/12 維持 `wei4`，`以為` 則為混合桶，因此不建立全域或前字 contextual rule。產品只加入前十個穩定固定結構 `作為、成為、名為、修為、極為、身為、視為、最為、譽為、淪為 → wei2`；ROI 同前字上限為 11,715，全文 longest-match 實際命中 11,651 次，fallback 降至 9,203,569。`因為、為了、為何、為此 → wei4` 另有負向迴歸測試；token、unknown 與既有 contextual 命中不變。
+「為」早期 300 句 pilot 的 `以為` 為混合桶，因此當時只加入十個固定結構。完整 SQLite 後只採 `以、頗、認、稱` 四個零反例前字，新增排除 2,653 筆；不建立全域 `為 → wei2`，並以負向測試保護 `因為、為了、為何、為此 → wei4`。
 
 為支援一次性全文 SQLite index，另以固定真實 g2pW ONNX batch 比較 Python native ORT CPU 與 ORT Web WebGPU。Apple Silicon、Chrome 151、ORT Web 1.27.0、batch 32 下，CPU ORT 1.28.0 中位為 49.86 queries/s，WebGPU 中位為 206.91 queries/s，即純 inference 約 4.15×；606 MiB 模型的 WebGPU session 初始化為 2.38 秒。32/32 argmax 與 CPU golden 相同，最大 probability 差 `1.19e-7`。此 feasibility 數字不含 tokenizer、句子準備、FST、SQLite I/O 或程序間傳輸，不能直接把全文 wall time 除以 4.15；下一步應以串流 preprocessing＋WebGPU batch＋SQLite checkpoint 做端到端量測。
 
@@ -158,7 +158,7 @@ coordinator 已以真實 `jl.zip` 做兩輪各 4 句的 bounded smoke。第一�
 
 端到端 throughput 另以獨立 SQLite 連跑兩批各 100 句。第一批 2,046 個 query，含 input／model hashing、Chrome WebGPU 與 Python worker 冷啟動為 81.85 queries/s，扣除這些一次性成本後為 110.50 queries/s；第二批 1,450 個 query，分別為 75.30 與 112.80 queries/s。checkpoint 由 99 接到 199，累計 3,496 筆 occurrence，複合 key 重複數為零。兩批穩態相差約 2%，瓶頸主要位於 WebGPU inference；差異共 388 筆，其中 agreement 3,108、tone sandhi 161、tone disagreement 88、neutral tone 81、polyphone 58。這些是候選分層，不等於 388 個 Matcha 錯讀。
 
-完整 SQLite run 已掃描 315,593 句與 4,646,998 筆 occurrence，其中 `polyphone`、`neutral_tone`、`tone_disagreement` 合計 302,765 筆待審核差異。第一輪 ROI 的 11 個固定詞約覆蓋 9,400 筆舊 profile 差異；後兩輪兒化固定詞實際再排除 5,565 筆 `er1` 詞綴語境。四個批次新增 33 個校正，再排除 41,418 筆，累計約 56,383 筆。第四批加入 `勁、識、期、質、頗、咋、仔細、彷彿、露出、謝謝、當真`，扣除和既有固定詞重疊後實際新增排除 10,548 筆。混合讀音群組均持久標為 `needs_context`，不作全域覆寫；單字規則仍由完整詞 longest-match 優先，`應付` 保留語境審核，`誰 → shei2` 因 acoustic tokens 缺少 `shei2` 而不啟用。
+完整 SQLite run 已掃描 315,593 句與 4,646,998 筆 occurrence。第五批新增 `得` 19 個與 `為` 4 個前字 scope，分別排除 8,382、2,653 筆，共 11,035 筆；累計約 67,418 筆。SQLite profile sync 同時開始展開 contextual scope，使已啟用規則不再反覆列為未處理 row。混合讀音群組仍標為 `needs_context`；`誰 → shei2` 因 acoustic tokens 缺少 `shei2` 而不啟用。
 
 相同開頭 100 句、單一 Chrome process 的 batch 32／64／128 A/B 為 112.58／114.99／116.24 steady queries/s，放大 batch 的最大收益約 3.3%。同一 ORT Web runtime 的雙 session concurrent run 會在 `getBindGroupLayout` 失敗；改用兩個獨立 Chrome process 後，每個 process 為 69.63／67.72，合計約 137.35 queries/s，較單 process 快約 22%，但不是線性加速。正式單 process 預設仍保守維持 32；桌機一次性全文 scan 可明確指定 128。多 process 只有在新增 source sentence sharding、確保結果可無重複合併後才應進入正式 coordinator。
 

@@ -59,25 +59,41 @@ function decisionWriter(db) {
 
 export function syncImplementedProfile(db, runId, review) {
   const enabled = new Set(review.profiles?.taiwan?.phraseOverrides ?? []);
+  const enabledContextual = new Set(review.profiles?.taiwan?.contextualRules ?? []);
   const write = decisionWriter(db);
   const now = new Date().toISOString();
   let decisions = 0;
   db.exec('BEGIN IMMEDIATE');
   try {
     for (const entry of review.entries ?? []) {
-      if (!enabled.has(entry.pattern) || entry.implementation !== 'phrase-override' ||
-          !Array.isArray(entry.observed) || !Array.isArray(entry.target)) continue;
+      if (!Array.isArray(entry.observed) || !Array.isArray(entry.target)) continue;
       const characters = [...entry.pattern];
       if (characters.length !== entry.observed.length || characters.length !== entry.target.length) continue;
+      let scopes = [];
+      if (entry.implementation === 'phrase-override' && enabled.has(entry.pattern)) {
+        scopes = [{value: entry.pattern, patternOffset: 0}];
+      } else if (entry.implementation === 'contextual-rule' && enabledContextual.has(entry.pattern)) {
+        if (typeof entry.previousCharacters === 'string') {
+          scopes.push(...[...entry.previousCharacters].map((character) =>
+            ({value: `${character}${entry.pattern}`, patternOffset: 1})));
+        }
+        if (typeof entry.followingCharacters === 'string') {
+          scopes.push(...[...entry.followingCharacters].map((character) =>
+            ({value: `${entry.pattern}${character}`, patternOffset: 0})));
+        }
+      }
+      if (scopes.length === 0) continue;
       for (let offset = 0; offset < characters.length; offset += 1) {
         const matcha = entry.observed[offset];
         const g2pw = entry.target[offset];
         if (matcha === g2pw) continue;
         const category = differenceCategory(characters[offset], matcha, g2pw);
-        write.run(runId, characters[offset], matcha, g2pw, category, 'phrase', entry.pattern,
-          offset, 'implemented', entry.scope ?? 'Taiwan profile phrase override', entry.source?.url ?? null,
-          now, now);
-        decisions += 1;
+        for (const scope of scopes) {
+          write.run(runId, characters[offset], matcha, g2pw, category, 'phrase', scope.value,
+            scope.patternOffset + offset, 'implemented', entry.scope ?? 'Taiwan profile rule',
+            entry.source?.url ?? null, now, now);
+          decisions += 1;
+        }
       }
     }
     db.exec('COMMIT');

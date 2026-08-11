@@ -5,10 +5,26 @@
   "profiles": {
     "taiwan": {
       "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待", "會兒", "今兒", "這兒", "個兒", "那兒", "事兒", "哪兒", "地兒", "玩意兒", "明兒", "娃兒", "人兒", "鴉兒", "老聾兒", "微", "血", "究", "熟", "叔", "姐姐", "差不多", "擁", "顫", "藉", "爺爺", "下巴", "啞巴", "嘴巴", "掙錢", "倒是", "武將", "適應", "感應", "對應", "應對", "重複", "勁", "識", "期", "質", "頗", "咋", "仔細", "彷彿", "露出", "謝謝", "當真"],
-      "contextualRules": ["著", "和"]
+      "contextualRules": ["著", "和", "得", "為"]
     }
   },
   "entries": [
+    {
+      "pattern": "得", "observed": ["de2"], "target": ["de5"],
+      "scope": "動詞或形容詞後表示程度、結果或可能的結構助詞；完整詞 longest-match 優先",
+      "implementation": "contextual-rule", "status": "source-and-model-supported",
+      "previousCharacters": "說看打聽變做走長嚇虧氣認笑害來當過寫活",
+      "evidence": {"pilotMatches": 8382, "pilotCounterexamples": 0, "selectionRule": "完整 SQLite 中指定前字桶全部為 de2 → de5"},
+      "source": {"title": "教育部《重編國語辭典修訂本》：得（de）", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=1928&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "為", "observed": ["wei4"], "target": ["wei2"],
+      "scope": "以為、頗為、認為、稱為固定結構；完整詞 longest-match 優先",
+      "implementation": "contextual-rule", "status": "source-and-model-supported",
+      "previousCharacters": "以頗認稱",
+      "evidence": {"pilotMatches": 2653, "pilotCounterexamples": 0, "selectionRule": "完整 SQLite 中四個固定結構全部為 wei4 → wei2"},
+      "source": {"title": "教育部《重編國語辭典修訂本》：以為", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=150872&la=0&powerMode=0", "version": "2021"}
+    },
     {
       "pattern": "著",
       "observed": ["zhu4"],
