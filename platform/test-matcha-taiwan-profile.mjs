@@ -154,6 +154,30 @@ assert.deepEqual(taiwan.tokensFor('說得看得打得聽得變得以為頗為認
 assert.deepEqual(taiwan.tokensFor('獲得因為為了').phones, [
   'huo4', 'de2', 'yin1', 'wei4', 'wei4', 'le5',
 ]);
+assert.deepEqual(taiwan.tokensFor('公子男子童子瓜子仙子棋子甲子').phones, [
+  'gong1', 'zi3', 'nan2', 'zi3', 'tong2', 'zi3', 'gua1', 'zi3',
+  'xian1', 'zi3', 'qi2', 'zi3', 'jia3', 'zi3',
+]);
+assert.deepEqual(taiwan.tokensFor('丫頭念頭拳頭裡頭苦頭石頭骨頭枕頭').phones, [
+  'ya1', 'tou5', 'nian4', 'tou5', 'quan2', 'tou5', 'li3', 'tou5',
+  'ku3', 'tou5', 'shi2', 'tou5', 'gu3', 'tou5', 'zhen3', 'tou5',
+]);
+assert.deepEqual(taiwan.tokensFor('乾脆乾淨乾涸乾枯乾糧乾瘦差點').phones, [
+  'gan1', 'cui4', 'gan1', 'jing4', 'gan1', 'he2', 'gan1', 'ku1',
+  'gan1', 'liang2', 'gan1', 'shou4', 'cha1', 'dian3',
+]);
+assert.deepEqual(taiwan.tokensFor('當是當做當回事當成當作').phones, [
+  'dang4', 'shi4', 'dang4', 'zuo4', 'dang4', 'hui2', 'shi4',
+  'dang4', 'cheng2', 'dang4', 'zuo4',
+]);
+assert.deepEqual(taiwan.tokensFor('時分輩分過分緣分情分身分').phones, [
+  'shi2', 'fen4', 'bei4', 'fen4', 'guo4', 'fen4', 'yuan2', 'fen4',
+  'qing2', 'fen4', 'shen1', 'fen4',
+]);
+assert.deepEqual(taiwan.tokensFor('椅子頭部乾坤差勁當前分開').phones, [
+  'yi3', 'zi5', 'tou2', 'bu4', 'qian2', 'kun1', 'cha4', 'jing4',
+  'dang1', 'qian2', 'fen1', 'kai1',
+]);
 
 console.log(JSON.stringify({
   profile: 'taiwan',
