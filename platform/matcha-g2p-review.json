@@ -4,7 +4,7 @@
   "purpose": "分開保存辭典來源、模型證據與產品啟用範圍；候選不因出現在 entries 就自動進產品",
   "profiles": {
     "taiwan": {
-      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手"],
+      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待"],
       "contextualRules": ["著", "和"]
     }
   },
@@ -583,6 +583,61 @@
         "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=30825&la=0&powerMode=0",
         "version": "2021"
       }
+    },
+    {
+      "pattern": "答應", "observed": ["da2", "ying1"], "target": ["da1", "ying4"],
+      "scope": "固定詞；全文 SQLite ROI 約 1,348 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：答應", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=6711&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "幾乎", "observed": ["ji3", "hu1"], "target": ["ji1", "hu1"],
+      "scope": "固定詞；全文 SQLite ROI 約 1,721 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：幾乎", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=21213", "version": "2021"}
+    },
+    {
+      "pattern": "暫時", "observed": ["zan4", "shi2"], "target": ["zhan4", "shi2"],
+      "scope": "固定詞；全文 SQLite ROI 約 1,486 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：暫時", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29878&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "熟悉", "observed": ["shu2", "xi1"], "target": ["shou2", "xi1"],
+      "scope": "固定詞；全文 SQLite ROI 約 589 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：熟悉", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=34153&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "認識", "observed": ["ren4", "shi2"], "target": ["ren4", "shi4"],
+      "scope": "固定詞；全文 SQLite ROI 約 812 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：認識", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=36255&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "意識", "observed": ["yi4", "shi2"], "target": ["yi4", "shi4"],
+      "scope": "固定詞；全文 SQLite ROI 約 470 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：意識", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=40687&la=0&powerMode=1", "version": "2021"}
+    },
+    {
+      "pattern": "見識", "observed": ["jian4", "shi2"], "target": ["jian4", "shi4"],
+      "scope": "固定詞；全文 SQLite ROI 約 457 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：見識", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=22995&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "資質", "observed": ["zi1", "zhi4"], "target": ["zi1", "zhi2"],
+      "scope": "固定詞；全文 SQLite ROI 約 1,164 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：資質", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=36651&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "材質", "observed": ["cai2", "zhi4"], "target": ["cai2", "zhi2"],
+      "scope": "固定詞；全文 SQLite ROI 約 428 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：材質", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=37949&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "期間", "observed": ["qi1", "jian1"], "target": ["qi2", "jian1"],
+      "scope": "固定詞；全文 SQLite ROI 約 737 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：期間", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=24463&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "期待", "observed": ["qi1", "dai4"], "target": ["qi2", "dai4"],
+      "scope": "固定詞；全文 SQLite ROI 約 188 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：期待", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=24459&la=0&powerMode=0", "version": "2021"}
     }
   ]
 }

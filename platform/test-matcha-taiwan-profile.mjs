@@ -76,6 +76,16 @@ assert.deepEqual(taiwan.tokensFor('長命長生長久長遠長袍').phones, [
   'chang2', 'ming4', 'chang2', 'sheng1', 'chang2', 'jiu3',
   'chang2', 'yuan3', 'chang2', 'pao2',
 ]);
+assert.deepEqual(official.tokensFor('答應幾乎暫時熟悉認識意識見識資質材質期間期待').phones, [
+  'da2', 'ying1', 'ji3', 'hu1', 'zan4', 'shi2', 'shu2', 'xi1', 'ren4', 'shi2',
+  'yi4', 'shi2', 'jian4', 'shi2', 'zi1', 'zhi4', 'cai2', 'zhi4', 'qi1', 'jian1',
+  'qi1', 'dai4',
+]);
+assert.deepEqual(taiwan.tokensFor('答應幾乎暫時熟悉認識意識見識資質材質期間期待').phones, [
+  'da1', 'ying4', 'ji1', 'hu1', 'zhan4', 'shi2', 'shou2', 'xi1', 'ren4', 'shi4',
+  'yi4', 'shi4', 'jian4', 'shi4', 'zi1', 'zhi2', 'cai2', 'zhi2', 'qi2', 'jian1',
+  'qi2', 'dai4',
+]);
 
 console.log(JSON.stringify({
   profile: 'taiwan',
