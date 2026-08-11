@@ -131,6 +131,8 @@ Taiwan profile 另以指定文字跑一個完整瀏覽器 append，實際得到 
 
 第二十批開始把高價值 `deferred` 群組拆成安全的 longest-match 詞組。依教育部詞條與完整語料加入 `興許` 525、`更換` 347、`睡覺` 265、`佛門` 145、`搖頭晃腦` 126 筆，共覆蓋 1,408 個 occurrence；Taiwan profile 增為 112 個 phrase override、16 個 contextual rule，同步後 phrase `implemented` 為 621 筆 scope 決策。`搖晃` 雖有 470 筆 g2pW `huang4` 候選，但教育部詞條標為輕聲，未照模型候選啟用。
 
+第二十一批再由 `deferred` 群組回收 7 個安全 fixed phrase：`品相` 231、`興師` 162、`修長` 158、`長達` 139、`重遊` 69、`興盛` 18、`興起` 16 筆，共覆蓋 793 個 occurrence。所有規則均以完整詞 longest-match 生效，不把 `相`、`興`、`長`、`重` 擴張為全域單字覆寫；Taiwan profile 增為 119 個 phrase override。另由回歸測試確認目前官方 frontend 已正確處理 `重新`、`重逢`，因此不依舊 SQLite 候選新增冗餘覆寫。
+
 g2pW WebGPU feasibility 使用同一個 Python 產生的真實 ONNX feed 與 CPU golden，模型 `g2pw.onnx` 為 635,212,732 bytes、SHA-256 `bb40c8c7b5baa755b2acd317c6bc5a65e4af7b80c40a569247fbd76989299999`。Apple Silicon、macOS kernel 25.5.0、Headless Chrome 151、ORT Web 1.27.0、batch 32、一次暖機與五次量測下，WebGPU session 初始化 2,381.84 ms，五輪為 197.04、207.19、208.27、206.91、200.28 queries/s，中位 206.91。相同 feed 的 Python ORT 1.28.0 CPU 為 49.77、49.86、50.25、50.13、48.24 queries/s，中位 49.86，WebGPU inference speedup 為 4.15×。32 個 argmax 零差異，最大 probability 差 `1.19e-7`。fixture、完整輸出與模型皆為本機忽略產物；本數字排除 tokenizer、句子切分、FST、SQLite 與 IPC，僅證明 WebGPU graph 可用且值得整合。
 
 同一 fixture 的 WebGPU → SQLite slice 使用 WAL、foreign keys、transaction 與 `(run_id, source_sentence_id, character_offset)` primary key；run fingerprint 納入 input/model/lexicon/FST/profile/backend/runtime。修正 agreement 優先分類後，run 2 寫入 5 句、32 個多音字 occurrence、12 個 difference；SQL 聚合為 `為 wei4→wei2` 7、`長 zhang3→chang2` 2、`和 he2→han4`、`得 de2→de5`、`著 zhu4→zhe5` 各 1。立即重跑回報 `reused: true`，occurrence 仍為 32。此結果只驗證 architecture slice；fixture 未真正套用 FST，全文正式 index 必須補上相同 frontend、串流 tokenizer feeder、batch checkpoint 與中斷續跑。

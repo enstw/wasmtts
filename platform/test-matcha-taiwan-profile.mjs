@@ -153,6 +153,16 @@ assert.deepEqual(taiwan.tokensFor('興許更換睡覺佛門搖頭晃腦').phones
   'xing1', 'xu3', 'geng1', 'huan4', 'shui4', 'jiao4', 'fo2', 'men2',
   'yao2', 'tou2', 'huang4', 'nao3',
 ]);
+assert.deepEqual(official.tokensFor('品相興師興盛興起修長長達重新重逢重遊').phones, [
+  'pin3', 'xiang1', 'xing4', 'shi1', 'xing4', 'sheng4', 'xing4', 'qi3',
+  'xiu1', 'zhang3', 'zhang3', 'da2', 'chong2', 'xin1', 'chong2', 'feng2',
+  'zhong4', 'you2',
+]);
+assert.deepEqual(taiwan.tokensFor('品相興師興盛興起修長長達重新重逢重遊').phones, [
+  'pin3', 'xiang4', 'xing1', 'shi1', 'xing1', 'sheng4', 'xing1', 'qi3',
+  'xiu1', 'chang2', 'chang2', 'da2', 'chong2', 'xin1', 'chong2', 'feng2',
+  'chong2', 'you2',
+]);
 assert.deepEqual(official.tokensFor('說得看得打得聽得變得以為頗為認為稱為').phones, [
   'shuo1', 'de2', 'kan4', 'de2', 'da3', 'de2', 'ting1', 'de2', 'bian4', 'de2',
   'yi3', 'wei4', 'po1', 'wei4', 'ren4', 'wei4', 'cheng1', 'wei4',
