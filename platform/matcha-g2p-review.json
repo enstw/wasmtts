@@ -122,6 +122,72 @@
       "status": "rejected_model_error",
       "rationale": "教育部將答應、疑問與不以為然的嘆詞統一標為輕聲 en；g2pW en1 與上游 Matcha n2 都不符，本臺灣 profile 另以 en5 明確修正 810 筆語境",
       "source": {"title": "教育部《國語辭典簡編本》：嗯", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=39854&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "重", "matchaPhone": "zhong4", "g2pwPhone": "chong2", "category": "polyphone",
+      "status": "deferred",
+      "rationale": "剩餘 1,167 筆混合重新、重逢、重遊等 chong2 語境，以及劉重等專名與重量義 zhong4；既有「重複」已覆寫，餘下需 longest-match 詞表或專名辨識",
+      "source": {"title": "教育部《重編國語辭典修訂本》：重複", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=126798&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "興", "matchaPhone": "xing4", "g2pwPhone": "xing1", "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "剩餘 1,088 筆混合興師、興盛、興起等 xing1 與高興、興致、專名等 xing4；單一相鄰字無法涵蓋詞界及專名，待 longest-match 詞表",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "相", "matchaPhone": "xiang1", "g2pwPhone": "xiang4", "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "剩餘 1,092 筆混合卿相、心相、相貌等 xiang4 名詞與互相、相對等 xiang1 結構；高頻前字桶仍含專名與不同義項，不能全域覆寫",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "地", "matchaPhone": "di4", "g2pwPhone": "de5", "category": "polyphone",
+      "status": "deferred",
+      "rationale": "剩餘 1,064 筆以副詞結構 de5 為主，但相鄰字規則仍可能與土地、境地及專名 di4 重疊；既有零反例固定詞已部署，餘下待多字或句法 scope",
+      "source": {"title": "教育部《重編國語辭典修訂本》：地（de）", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=1925&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "曾", "matchaPhone": "ceng2", "g2pwPhone": "zeng1", "category": "polyphone",
+      "status": "deferred",
+      "rationale": "剩餘 866 筆混合曾先生、曾掖等姓氏 zeng1 與曾經、未曾等副詞 ceng2；需要人名或詞界辨識，不能以單字或單一相鄰字覆寫",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "種", "matchaPhone": "zhong3", "g2pwPhone": "zhong4", "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "剩餘 1,012 筆混合種植、種下等動詞 zhong4 與種類、種子等名詞 zhong3；需詞性或 longest-match 判定，不作全域覆寫",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "將", "matchaPhone": "jiang1", "g2pwPhone": "jiang4", "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "剩餘 866 筆混合武將、猛將、激將法等 jiang4 名詞與將要、將其等 jiang1 結構；既有「武將」已覆寫，餘下待 longest-match 詞表",
+      "source": {"title": "教育部《重編國語辭典修訂本》：武將", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=159747&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "待", "matchaPhone": "dai4", "g2pwPhone": "dai1", "category": "tone_disagreement",
+      "status": "rejected_regional_difference",
+      "rationale": "本批 828 筆主要是待久、待過、待不住等停留義；臺灣教育部詞典以 dai4 收錄等待、停留相關詞，g2pW 的 dai1 不作臺灣 profile 全域覆寫",
+      "source": {"title": "教育部《國語辭典簡編本》：期待", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=24459&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "character": "中", "matchaPhone": "zhong1", "g2pwPhone": "zhong4", "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "剩餘 873 筆混合猜中、選中、命中等 zhong4 動詞與其中、中間等 zhong1 方位義；需要動詞詞表或句法判定，不能全域覆寫",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "掖", "matchaPhone": "ye1", "g2pwPhone": "ye4", "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "剩餘 832 筆包含藏掖、掖藏、曾掖等詞與作品專名；g2pW 高信心支持 ye4，但單字 fallback 仍需先確認 Matcha token 與臺灣多義讀音範圍",
+      "source": {"title": "教育部《重編國語辭典修訂本》", "url": "https://dict.revised.moe.edu.tw/", "version": "2021"}
+    },
+    {
+      "character": "倒", "matchaPhone": "dao4", "g2pwPhone": "dao3", "category": "tone_disagreement",
+      "status": "deferred",
+      "rationale": "剩餘 821 筆混合醉倒、跌倒等 dao3 動作與倒影、顛倒等 dao4 詞義；既有「倒是」已覆寫，餘下需 longest-match 詞表或語義判定",
+      "source": {"title": "教育部《重編國語辭典修訂本》：倒是", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=42975&la=0&powerMode=0", "version": "2021"}
     }
   ],
   "entries": [
