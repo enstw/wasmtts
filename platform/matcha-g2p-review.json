@@ -4,7 +4,7 @@
   "purpose": "分開保存辭典來源、模型證據與產品啟用範圍；候選不因出現在 entries 就自動進產品",
   "profiles": {
     "taiwan": {
-      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待"],
+      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待", "會兒", "今兒", "這兒", "個兒", "那兒"],
       "contextualRules": ["著", "和"]
     }
   },
@@ -643,6 +643,31 @@
       "pattern": "誰", "observed": ["shui2"], "target": ["shei2"],
       "scope": "臺灣標準單字讀音；全文 SQLite ROI 6,227 筆；Matcha tokens 缺少 shei2", "implementation": "phrase-override", "status": "source-and-model-supported",
       "source": {"title": "教育部《國語辭典簡編本》：誰", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=34016&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "會兒", "observed": ["hui4", "er2"], "target": ["hui3", "er1"],
+      "scope": "表示片刻或時候的固定詞；全文 SQLite ROI 兒字 2,417 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：會兒", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=85265&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "今兒", "observed": ["jin1", "er2"], "target": ["jin1", "er1"],
+      "scope": "固定詞；全文 SQLite ROI 459 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：今兒", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=93904&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "這兒", "observed": ["zhe4", "er2"], "target": ["zhe4", "er1"],
+      "scope": "固定詞；全文 SQLite ROI 423 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：這兒", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=29552&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "個兒", "observed": ["ge4", "er2"], "target": ["ge4", "er1"],
+      "scope": "身材、大小、個數或對手的固定詞；全文 SQLite ROI 365 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：個兒", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=68443&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "那兒", "observed": ["na4", "er2"], "target": ["na4", "er1"],
+      "scope": "表示彼處或彼時的固定詞；全文 SQLite ROI 242 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《重編國語辭典修訂本》：那兒", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=56287&la=0&powerMode=0", "version": "2021"}
     }
   ]
 }

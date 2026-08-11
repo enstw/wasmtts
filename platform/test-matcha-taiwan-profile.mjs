@@ -88,6 +88,15 @@ assert.deepEqual(taiwan.tokensFor('答應幾乎暫時熟悉認識意識見識資
 ]);
 assert.deepEqual(official.tokensFor('誰').phones, ['shui2']);
 assert.equal(MatchaFrontend.pronunciationOverridesFromReview(review).誰, undefined);
+assert.deepEqual(official.tokensFor('會兒今兒這兒個兒那兒').phones, [
+  'hui4', 'er2', 'jin1', 'er2', 'zhe4', 'er2', 'ge4', 'er2', 'na4', 'er2',
+]);
+assert.deepEqual(taiwan.tokensFor('會兒今兒這兒個兒那兒').phones, [
+  'hui3', 'er1', 'jin1', 'er1', 'zhe4', 'er1', 'ge4', 'er1', 'na4', 'er1',
+]);
+assert.deepEqual(taiwan.tokensFor('兒童嬰兒女兒').phones, [
+  'er2', 'tong2', 'ying1', 'er2', 'nv3', 'er2',
+]);
 
 console.log(JSON.stringify({
   profile: 'taiwan',
