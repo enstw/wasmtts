@@ -102,7 +102,7 @@ PWA runtime、Worker、兩個模型與字典均進入 CacheStorage 後，實際�
 
 2026-08-08 在 iOS `18.7` Safari 以 LAN HTTP 測試低記憶體 JavaScript lexicon adapter。模型下載、Worker 初始化與有效 waveform 暖機皆通過；設定 WebKit 要求的 `HTMLAudioElement.disableRemotePlayback=true` 後，使用者確認繁體原文直輸、前景播放、鎖屏播放及「垃圾 → `le4 se4`」讀音覆寫正常。因本輪 `secureContext=false`、`standalone=false`，且未記錄裝置型號、鎖屏時長、溫度、耗電、降頻或 2 小時跨章結果，只能判定 transport 初步相容，不是 PWA 或熱穩態完成。
 
-實聽發現 `「」` 被映射為 `“”` acoustic tokens 後會發音；目前已在 tokenization 前移除中英文開閉引號、保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。Taiwan profile 現含「垃圾」、72 個 phrase overrides，以及本節說明的保守 `著 → zhe5`、連詞 `和 → han4` contextual rules；official profile 保持上游結果。review schema v2 把 `confirmed`、`source-and-model-supported`、`model-supported` 證據狀態與 `profiles.taiwan` 產品啟用清單分開，allowlist 不宣稱為逐項人工確認。「關卡」逐字讀音符合臺灣 `guan1 ka3`；「堤壩」已依教育部讀音覆寫為 `ti2 ba4`。完整事件與數值保存在 [共同結果](../../platform/RESULTS.md)。
+實聽發現 `「」` 被映射為 `“”` acoustic tokens 後會發音；目前已在 tokenization 前移除中英文開閉引號、保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。Taiwan profile 現含「垃圾」、79 個 phrase overrides，以及本節說明的保守 `著 → zhe5`、連詞 `和 → han4` contextual rules；official profile 保持上游結果。review schema v2 把 `confirmed`、`source-and-model-supported`、`model-supported` 證據狀態與 `profiles.taiwan` 產品啟用清單分開，allowlist 不宣稱為逐項人工確認。「關卡」逐字讀音符合臺灣 `guan1 ka3`；「堤壩」已依教育部讀音覆寫為 `ti2 ba4`。完整事件與數值保存在 [共同結果](../../platform/RESULTS.md)。
 
 ## 小說 G2P 稽核 pilot
 
@@ -158,7 +158,7 @@ coordinator 已以真實 `jl.zip` 做兩輪各 4 句的 bounded smoke。第一�
 
 端到端 throughput 另以獨立 SQLite 連跑兩批各 100 句。第一批 2,046 個 query，含 input／model hashing、Chrome WebGPU 與 Python worker 冷啟動為 81.85 queries/s，扣除這些一次性成本後為 110.50 queries/s；第二批 1,450 個 query，分別為 75.30 與 112.80 queries/s。checkpoint 由 99 接到 199，累計 3,496 筆 occurrence，複合 key 重複數為零。兩批穩態相差約 2%，瓶頸主要位於 WebGPU inference；差異共 388 筆，其中 agreement 3,108、tone sandhi 161、tone disagreement 88、neutral tone 81、polyphone 58。這些是候選分層，不等於 388 個 Matcha 錯讀。
 
-完整 SQLite run 已掃描 315,593 句與 4,646,998 筆 occurrence，其中 `polyphone`、`neutral_tone`、`tone_disagreement` 合計 302,765 筆待審核差異。第一輪 ROI 的 11 個固定詞約覆蓋 9,400 筆舊 profile 差異；後兩輪兒化固定詞實際再排除 5,565 筆 `er1` 詞綴語境，合計約 14,965 筆。`個 ge4` 依臺灣讀音維持目前結果；`兒童、嬰兒、女兒` 等名詞仍維持 `er2`；`勁兒` 保留前字讀音分歧待審；`誰 → shei2` 已確認但 acoustic tokens 缺少 `shei2`，維持 `accepted` 而不啟用。
+完整 SQLite run 已掃描 315,593 句與 4,646,998 筆 occurrence，其中 `polyphone`、`neutral_tone`、`tone_disagreement` 合計 302,765 筆待審核差異。第一輪 ROI 的 11 個固定詞約覆蓋 9,400 筆舊 profile 差異；後兩輪兒化固定詞實際再排除 5,565 筆 `er1` 詞綴語境。最新多字批次加入 `微、血、究、熟、叔、姐姐、差不多`，再排除 22,069 筆，累計約 37,034 筆。`子、頭、差、乾、晃、處、卷、教` 等混合讀音群組標為 `needs_context`，不作全域覆寫；`誰 → shei2` 已確認但 acoustic tokens 缺少 `shei2`，維持 `accepted` 而不啟用。
 
 相同開頭 100 句、單一 Chrome process 的 batch 32／64／128 A/B 為 112.58／114.99／116.24 steady queries/s，放大 batch 的最大收益約 3.3%。同一 ORT Web runtime 的雙 session concurrent run 會在 `getBindGroupLayout` 失敗；改用兩個獨立 Chrome process 後，每個 process 為 69.63／67.72，合計約 137.35 queries/s，較單 process 快約 22%，但不是線性加速。正式單 process 預設仍保守維持 32；桌機一次性全文 scan 可明確指定 128。多 process 只有在新增 source sentence sharding、確保結果可無重複合併後才應進入正式 coordinator。
 

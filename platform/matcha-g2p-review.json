@@ -4,7 +4,7 @@
   "purpose": "分開保存辭典來源、模型證據與產品啟用範圍；候選不因出現在 entries 就自動進產品",
   "profiles": {
     "taiwan": {
-      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待", "會兒", "今兒", "這兒", "個兒", "那兒", "事兒", "哪兒", "地兒", "玩意兒", "明兒", "娃兒", "人兒", "鴉兒", "老聾兒"],
+      "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待", "會兒", "今兒", "這兒", "個兒", "那兒", "事兒", "哪兒", "地兒", "玩意兒", "明兒", "娃兒", "人兒", "鴉兒", "老聾兒", "微", "血", "究", "熟", "叔", "姐姐", "差不多"],
       "contextualRules": ["著", "和"]
     }
   },
@@ -713,6 +713,41 @@
       "pattern": "老聾兒", "observed": ["lao3", "long2", "er2"], "target": ["lao3", "long2", "er1"],
       "scope": "作品內固定兒化稱呼；全文 SQLite ROI 292 筆", "implementation": "phrase-override", "status": "source-and-model-supported",
       "source": {"title": "教育部《國語辭典簡編本》：兒（詞綴）", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=45156&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "微", "observed": ["wei1"], "target": ["wei2"],
+      "scope": "臺灣標準單字讀音", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：微", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=43426&powerMode=1", "version": "2021"}
+    },
+    {
+      "pattern": "血", "observed": ["xue4"], "target": ["xie3"],
+      "scope": "臺灣標準單字讀音", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：血", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=26761&q=775", "version": "2021"}
+    },
+    {
+      "pattern": "究", "observed": ["jiu1"], "target": ["jiu4"],
+      "scope": "臺灣標準單字讀音", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：究", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=22690&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "熟", "observed": ["shu2"], "target": ["shou2"],
+      "scope": "臺灣標準單字讀音", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：熟", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=34145&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "叔", "observed": ["shu1"], "target": ["shu2"],
+      "scope": "臺灣標準單字讀音", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：叔", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=35363&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "姐姐", "observed": ["jie3", "jie3"], "target": ["jie3", "jie5"],
+      "scope": "疊詞第二字讀輕聲", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：姐姐", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=45347&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "差不多", "observed": ["cha4", "bu5", "duo1"], "target": ["cha1", "bu5", "duo1"],
+      "scope": "固定詞", "implementation": "phrase-override", "status": "source-and-model-supported",
+      "source": {"title": "教育部《國語辭典簡編本》：差不多", "url": "https://dict.concised.moe.edu.tw/dictView.jsp?ID=31522&la=0&powerMode=0", "version": "2021"}
     }
   ]
 }
