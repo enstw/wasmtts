@@ -8,19 +8,20 @@
 import { spawn } from "node:child_process";
 import { findBrowser } from "./find-browser.mjs";
 
-// launch({ port, profile, args, onFail }) →
+// launch({ port, profile, args, gpu, onFail }) →
 //   { proc, send, evalJs, close, sessionId, targetId }
 //
 // - args：額外 browser flags（--window-size、autoplay policy 等）
+// - gpu：預設 false，只有明確測 WebGPU 的 runner 才不加入 --disable-gpu
 // - onFail：browser 無法啟動時執行的清理工作（例如關閉靜態 server）；屆時
 //   browser process 已先被終止
 // - send：原始 CDP 呼叫，供需要 Emulation.*、
 //   Page.addScriptToEvaluateOnNewDocument 或截圖等進階能力的 suite 使用
-export async function launch({ port, profile, args = [], onFail } = {}) {
+export async function launch({ port, profile, args = [], gpu = false, onFail } = {}) {
   const { bin, env } = findBrowser();
   const proc = spawn(bin, [
     "--headless=new", `--remote-debugging-port=${port}`,
-    `--user-data-dir=${profile}`, "--no-first-run", "--disable-gpu",
+    `--user-data-dir=${profile}`, "--no-first-run", ...(gpu ? [] : ["--disable-gpu"]),
     "--no-sandbox", "--disable-dev-shm-usage", ...args,
   ], { stdio: "ignore", env });
 
@@ -67,8 +68,21 @@ export async function launch({ port, profile, args = [], onFail } = {}) {
   };
 
   const close = async () => {
-    await send("Target.closeTarget", { targetId });
-    proc.kill();
+    if (sock.readyState === WebSocket.OPEN) {
+      try { await send("Target.closeTarget", { targetId }); } catch {}
+      sock.close();
+      await new Promise((resolve) => {
+        if (sock.readyState === WebSocket.CLOSED) return resolve();
+        const timer = setTimeout(resolve, 2000);
+        sock.addEventListener("close", () => { clearTimeout(timer); resolve(); }, { once: true });
+      });
+    }
+    if (proc.exitCode === null && proc.signalCode === null) proc.kill();
+    await new Promise((resolve) => {
+      if (proc.exitCode !== null || proc.signalCode !== null) return resolve();
+      const timer = setTimeout(() => { proc.kill("SIGKILL"); resolve(); }, 3000);
+      proc.once("close", () => { clearTimeout(timer); resolve(); });
+    });
   };
 
   return { proc, send, evalJs, close, sessionId, targetId, bin };

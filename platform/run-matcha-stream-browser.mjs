@@ -7,6 +7,10 @@ const host = process.env.WASM_TTS_BENCH_HOST ?? '127.0.0.1';
 const serverPort = Number(process.env.WASM_TTS_BENCH_PORT ?? 8765);
 const cdpPort = Number(process.env.WASM_TTS_CDP_PORT ?? 9390);
 const targetAppendCount = Number(process.env.WASM_TTS_STREAM_APPENDS ?? 10);
+const pronunciationProfile = process.env.WASM_TTS_PRONUNCIATION_PROFILE === 'taiwan'
+  ? 'taiwan'
+  : 'official';
+const streamText = process.env.WASM_TTS_STREAM_TEXT;
 const url = `http://${host}:${serverPort}/mobile-host/matcha-stream-test.html`;
 const profile = path.join(os.tmpdir(), `wasmtts-matcha-stream-cdp-${process.pid}`);
 const resultPath = process.env.WASM_TTS_STREAM_RESULT
@@ -76,12 +80,15 @@ try {
   })`);
   const initialization = await evalJs('globalThis.matchaStreamTest.producer.initialization');
   const memoryAfterInit = await measureMemory(evalJs);
+  if (streamText) {
+    await evalJs(`document.querySelector('#novelText').value = ${JSON.stringify(streamText)}`);
+  }
 
   await send('Performance.enable', {}, sessionId);
   const beforeMetrics = await send('Performance.getMetrics', {}, sessionId);
   const wallStarted = performance.now();
   const startResult = await send('Runtime.evaluate', {
-    expression: 'globalThis.matchaStreamTest.start({muted: true, pronunciationProfile: "official"})',
+    expression: `globalThis.matchaStreamTest.start({muted: true, pronunciationProfile: ${JSON.stringify(pronunciationProfile)}})`,
     returnByValue: true,
     awaitPromise: true,
     userGesture: true,
@@ -169,7 +176,7 @@ try {
     initialization,
     protocol: {
       workerWarmups: 1,
-      pronunciationProfile: 'official',
+      pronunciationProfile,
       targetAppendCount,
     measurementBoundary: 'Traditional-direct + standalone kaldifst WASM sherpa zh FSTs + lexicon/token mapping + Matcha + Vocos + ISTFT + silence scaling + MP3 encode',
       transport: 'single HTMLAudioElement + single MediaSource + sequence SourceBuffer',

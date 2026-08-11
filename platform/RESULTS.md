@@ -65,9 +65,81 @@ Adapter 使用 sherpa-onnx 前端預先產生的固定 token；文字前處理�
 
 第一次播放停在 `ManagedMediaSource` 的 `opening`，`sourceopen` 未發生，producer 也未被呼叫。依 WebKit 要求在單一長駐 `HTMLAudioElement` 明確設定 `disableRemotePlayback=true` 後，使用者確認前景播放與鎖屏播放皆正常，繁體原文直輸及「垃圾 → `le4 se4`」讀音覆寫亦正常。測試未達 2 小時／3 章門檻，不能寫成鎖屏驗收完成。
 
-本輪另確認 `「」` 等引號映射為 acoustic tokens `“”` 後會發音；2026-08-08 已改為在 tokenization 前移除 `「」『』《》“”‘’"`，保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。所謂「臺灣覆寫」目前只有手工加入且與教育部辭典一致的「垃圾 → `le4 se4`」，尚非完整、有來源欄位的臺灣讀音詞典。繁體「關卡」目前逐字得到 `guan1 ka3`，符合臺灣讀音；「堤壩」得到 `di1 ba4`，但臺灣教育部讀音為 `ti2 ba4`。臺灣讀音詞典留待獨立開發，不納入本次引號修正。
+本輪另確認 `「」` 等引號映射為 acoustic tokens `“”` 後會發音；2026-08-08 已改為在 tokenization 前移除 `「」『』《》“”‘’"`，保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。Taiwan profile 後續加入「垃圾」、七個有來源的固定詞與保守的「著」contextual rule；official profile 保持上游詞典。繁體「關卡」目前逐字得到 `guan1 ka3`，符合臺灣讀音；「堤壩」得到 `di1 ba4`，但臺灣教育部讀音為 `ti2 ba4`，仍待獨立審核實作。
 
 上游 lexicon 將「垃圾」讀成 `la1 ji1`；臺灣 `le4 se4` 只作明示的可選覆寫。正式效能結果使用上游原詞典。原始結果為 [results-matcha_icefall_zh_en-stream-browser-wasm.json](results/results-matcha_icefall_zh_en-stream-browser-wasm.json)。
+
+### 小說 frontend／g2pW 稽核
+
+2026-08-10 對外部繁體小說 ZIP 的 1,182 個章節、257,153 行執行現況 A 基線；小說與本機 `*.local.json` 報告均未提交。固定產品的版面清理、`phone → date → number` FST 與 Matcha lexicon longest-match 後，共產生 11,942,487 個 token、1,026 次 unknown（29 種）及 9,318,402 次單字 fallback（5,293 種）。「著」有 42,758 次單字 fallback，全部使用 `zhu4`，顯示錯讀是前端的系統性問題而非少數 acoustic 偶發錯誤。
+
+另以 g2pW `0.1.1`／`G2PWModel-v2-onnx` 對 archive-order 首 500 句作開發期 A/B。19,143 個可逐字對齊漢字中，17,987 個一致、1,156 個不同，表面一致率 `93.96%`；wall time 272.82 秒，吞吐每秒 1.83 句。高頻差異包含 `著 zhu4 → zhe5` 108 次與 `得 de2 → de5` 55 次，但「一／不」變調、輕聲及臺灣區域讀音也計入差異，不能把 1,156 筆全算成 Matcha 錯誤。g2pW archive 為 589,075,404 bytes、解壓 ONNX 約 635 MB，SHA-256 `699f3c1fd7fb0e2c2d49ed2486826fd5bff233fee7759350a91c3b49aedc4ed2`；其體積與速度只適合作離線候選判讀，不是 iOS runtime frontend 候選。
+
+Python pilot 目前直接比較原文漢字的 Matcha lexicon 與 g2pW，沒有套用 FST；數字與非漢字不進逐字一致率。正式 B/C 評測仍須讓兩個 G2P 都消費相同 FST 後文字。g2pW 程式碼、checkpoint、BERT tokenizer 與訓練資料的授權也必須分開查核，現階段不散布任何下載資產。
+
+第一輪以教育部辭典確認 `記得 ji4 de5`、`柵欄 zha4 lan2`、`駐紮 zhu4 zha2`、`長短 chang2 duan3`、`著急 zhao1 ji2`、`著重 zhuo2 zhong4`、`執著 zhi2 zhuo2`；C 候選把這七筆作 phrase override，全書 dry-run 依序命中 1,137、67、35、124、831、57、25 次，合計 2,276 次。加入 U+2015 分隔線清理後，C 的 token 總數仍為 11,942,487，unknown 為 1,018 次（28 種），單字 fallback 從 A 的 9,318,402 降至 9,313,906，實測減少 4,496 次。這七詞只載入可選 Taiwan profile，official profile 不變。`著` 的教育部條目確認持續助詞讀輕聲 `zhe5`，但它另有 `zhu4/zhuo2/zhao2/zhao1`，因此只列 contextual-rule 候選，不做全域單字覆寫。
+
+「著」targeted pilot 共跑四輪、各 300 句。第一輪按 archive order，以「同一前字至少兩筆且全部為 `zhe5`」得到 49 字、254 次；後三輪排除既有 allowlist，按前一字分層抽樣，以「至少三筆且全部為 `zhe5`」再得到 90 字／285 次、67 字／206 次與 54 字／163 次。合計 260 個前字、908 次且零反例；多讀音前字排除。產品只在 longest-match 仍落到單字「著」時套用 allowlist；加入固定詞後全書實際 contextual 命中 36,705 次，剩餘 `著 zhu4` trace 為 4,402 次。後者包含正確的 `zhu4` 案例，不可解讀成已確認錯誤數。這不是全域覆寫，長詞仍先行。
+
+收斂後的 review schema v2 將證據與部署分離：260 字 contextual allowlist 標為 `model-supported`，辭典與 pilot 共同支持的固定詞標為 `source-and-model-supported`，有獨立辭典條目的固定詞維持 `confirmed`；只有 `profiles.taiwan` 明列的 pattern 會進產品。release gates 新增真實 Matcha lexicon/tokens 的 Taiwan profile 測試，固定 `帶著、找著、著手、看著急、垃圾` 的 phones 與 longest-match precedence。小型 review manifest 改採 network-first／離線 cache fallback，大型模型、FST 與字典維持 cache-first。
+
+教育部《國語辭典簡編本》明列 `著 zhao2` 可作結果助詞並以 `找著、睡著` 為例，另有 `睡著、摸不著、犯不著、睡不著` 與 `著手 zhuo2 shou3` 獨立條目。依該規則及分層 pilot，新增 12 個 longest-match overrides：`睡著、找著、碰著、逮著、嚇著、正著、摸不著、犯不著、睡不著、用得著、管不著、著手`，全書命中 738 次。最終單字 fallback 為 9,275,437；token 仍為 11,942,487、unknown 仍為 1,018。`見著` 的 pilot 同時出現 `zhe5/zhao2`，未自動處理。
+
+Taiwan profile 另以指定文字跑一個完整瀏覽器 append，實際得到 `找著 zhao3 zhao2`、`睡著 shui4 zhao2`、`著手 zhuo2 shou3`。該段 3.9538 秒、63,260 samples 全為有限值，peak `0.7911`、RMS `0.1380`，MP3 48,384 bytes；underflow、append error、producer error 均為 0。結果只寫入 `/tmp`，不取代 official benchmark。
+
+「得」分層 pilot 抽 300 句，比較 19,823 個可對齊漢字：18,378 個一致、1,445 個不同，表面一致率 `92.71%`，其中 neutral-tone 候選 460 次。依教育部詞條與 pilot，新增 `覺得、曉得、顯得、懶得、捨得 → de5` 五個固定詞；全書依序命中 8,692、1,049、558、602、367 次，共 11,268 次，單字 fallback 由上一輪 9,275,437 降至 9,253,029，token 仍為 11,942,487、unknown 仍為 1,018。上游已正確整詞處理的 `值得、使得、免得、省得、懂得` 不加覆寫。g2pW 對「值得」的候選與教育部及 Matcha lexicon 相反，證明差異不可直接自動部署；本輪不建立任何全域「得」規則。
+
+新增五詞另以 Taiwan profile 跑實際瀏覽器串流指定句，phones 中五個「得」皆為 `de5`。waveform 71,365 samples 全為有限值，peak `0.7064`、RMS `0.1461`，MP3 54,432 bytes；一個 append 為 4.536 秒，三類串流錯誤均為 0。結果只保存於 `/tmp`。
+
+下一輪針對「長」的 `chang2/zhang3` 分流，不作全域單字或下一字 contextual rule。依教育部固定詞與長度義條目加入 `長城、長劍、長河、長凳、長橋`，並完成待審的 `堤壩 → ti2 ba4`；全書依序命中 5,016、943、725、377、54、23 次，共 7,138 次，單字 fallback 由 9,253,029 降至 9,238,759，token 與 unknown 不變。反向迴歸測試固定 `長輩、長大、成長、生長、長子、長女 → zhang3`，避免長度義修正污染其他詞義。
+
+「長」第二批加入有教育部獨立詞條的 `長命、長生、長久、長遠、長袍`，全書依序命中 564、483、433、165、185 次，共 1,830 次，單字 fallback 再降至 9,235,107，token 與 unknown 仍不變。測試同時避免把 `成長`、`生長` 無分隔拼成跨測試案例的 `長生`，保留逐詞 `zhang3` 反向 gate。
+
+「地」分層 pilot 抽 300 句，20,709 個可比較漢字有 19,393 個一致、1,316 個差異，表面一致率 `93.65%`。新 ROI 排名把分層抽樣一致性與全文同前字次數合併，但明列 estimated ceiling 不是已確認錯讀數；129 個候選中只有 `兆` 4/4 與 `主` 3/3 穩定指向 `de5`，另有 95 個維持 `di4`、5 個混合、27 個樣本不足。依教育部結構助詞條目，產品只加入 `徵兆地` 75 次與 `自主地` 40 次兩個固定結構；fallback 降至 9,234,885，token 與 unknown 不變，不建立全域「地」規則。
+
+「和」pilot 新增按後一字分層與多 current-phone ROI，避免把 `附和 he4` 等完整詞混入單字 `he2` 候選。300 句共比較 20,077 字，18,616 字一致、1,461 字不同，表面一致率 `92.72%`；120 個後字桶中 86 個 actionable、5 個維持目前讀音、11 個混合、18 個樣本不足。86 個 actionable 桶共 270 筆皆為 `he2 → han4`；排除 tokenization 前會移除的引號後，產品採 85 字、267 筆的後字 allowlist。依教育部連詞語音條目，規則只在 longest-match 落到單字「和」時生效。全文新增命中 8,014 次，contextual 總命中 44,719，fallback 降至 9,226,871；token 11,942,487、unknown 1,018 不變。`和平、和氣、附和` 及混合桶均有負向迴歸保護；`摻和` 的繁體 lexicon 缺口仍維持現況，不在本輪擴張處理。
+
+「為」按前字分層的 300 句 pilot 比較 19,624 字，18,309 字一致、1,315 字不同，表面一致率 `93.30%`。ROI 將 123 個前字桶分為 50 個 actionable、24 個維持目前讀音、30 個混合、19 個樣本不足；高頻 `因為` 12/12 維持 `wei4`，`以為` 6/7 為 `wei2` 但仍按 mixed 排除。依教育部 `wei2/wei4` 詞義與「作為」獨立詞條，只加入 `作為、成為、名為、修為、極為、身為、視為、最為、譽為、淪為` 十個固定結構。ROI 上限 11,715 次，全文實際依序命中 2,838、2,420、1,286、1,136、905、794、726、620、467、459 次，合計 11,651；fallback 由 9,226,871 降至 9,203,569，token 11,942,487、unknown 1,018、contextual 44,719 不變。負向測試固定 `因為、為了、為何、為此 → wei4`。
+
+完整 SQLite run 已掃描 315,593 句與 4,646,998 筆 occurrence；`polyphone` 73,447、`neutral_tone` 118,019、`tone_disagreement` 111,299，三類合計 302,765 筆待審核差異。第六批加入 `子、頭、乾、差、當、分` 六個相鄰字 allowlist 與 `情分` 固定詞，新增排除 16,794 筆，累計約 84,212 筆；未處理量由 162,582 降至 145,788。規則涵蓋 `公子／男子／童子`、`丫頭／念頭／拳頭`、`乾脆／乾淨`、`差點`、`當做／當作`、`時分／輩分／過分` 等零反例 scope；負向測試保護 `椅子 zi5`、`頭部 tou2`、`乾坤 qian2`、`差勁 cha4`、`當前 dang1`、`分開 fen1`，完整詞 longest-match 仍優先。
+
+第七批擴充 `得、為` 的保守前字 allowlist，並加入 `還、處、教、卷、晃、長` 六組相鄰字 scope，涵蓋歸還／還禮、相處／處理、教書、畫卷、晃動、擅長／長槍等明確詞義。SQLite 精確新增排除 12,894 筆，累計約 97,106 筆，未處理量由 145,788 降至 132,894。產品前端同步修正同一規則兼具前、後字時的判定為聯集，與 SQLite 展開的 phrase scopes 一致；正向與負向迴歸測試分別固定規則命中及 `獲得、因為、還是、到處、教育、卷起、一晃、長大` 維持原讀音。
+
+第八批把終結性 group 決策從本機 SQLite 提升為 `matcha-g2p-review.json` 的版本化 `groupDecisions`，`sync-profile` 會同步其 status、理由與來源。剩餘 `和 he2 → han4` 9,557 筆經相鄰字桶與高信心樣本檢視後，依教育部「`han4` 為連詞 `he2` 之語音」分類為 `rejected_regional_difference`，本臺灣 profile 統一維持 `he2`；`誰 shui2 → shei2` 6,227 筆已有教育部來源，但 acoustic tokens 缺少 `shei2`，以 `deferred` 終結本輪審核且不啟用覆寫。本批精確排除 15,784 筆，累計 112,890 筆，未處理量由 132,894 降至 117,110；同步後 group status 為 `deferred` 1、`rejected_regional_difference` 1、`rejected_current_correct` 1、`needs_context` 23、`superseded` 2。
+
+第九批集中處理無法由現行字面 scope 安全部署的高頻 group。`兒 er2 → er1` 2,307 筆與眼皮微合義的 `眯 mi1 → mi3` 2,050 筆依教育部讀音分類為 `rejected_model_error`；`得 de2 → dei3` 3,128 筆、專名與副詞混用的 `都 dou1 → du1` 1,446 筆、同形異義的 `東西 xi1 → xi5` 1,254 筆，以及佛教義與「仿佛」共用字形的 `佛 fu2 → fo2` 693 筆，均以 `deferred` 保存原因，避免用全域單字覆寫破壞另一讀音。本批精確終結 10,878 筆，累計 123,768 筆，未處理量由 117,110 降至 106,232。
+
+第十批將剩餘 `為 wei4 → wei2` 5,769 筆與 `長 zhang3 → chang2` 4,216 筆標為 `deferred`：教育部兩字均有多個合法讀音，而資料混合動詞／介詞、長度／生長／排行／首長及作品專名，現行相鄰一字 scope 無法安全泛化。`嗯 n2 → en1` 810 筆則依教育部輕聲 `en` 判為 g2pW tone 錯誤，並在 Taiwan profile 新增可由 acoustic tokens 合成的 `en5` 覆寫。本批精確終結 10,795 筆，累計 134,563 筆，未處理量由 106,232 降至 95,437。
+
+第十一批將既有安全 contextual scope 以外的 `得 de2 → de5` 6,984 筆與 `子 zi5 → zi3` 4,660 筆標為 `deferred`。前者混合結構助詞、實詞與「不得」等需句法判定的同形結構；後者混合詞尾輕聲、實詞、固定詞與人名專名。兩組都不能用剩餘相鄰字桶安全泛化，待多字／句法 scope 或可審核 longest-match 詞表。本批精確終結 11,644 筆，累計 146,207 筆，未處理量由 95,437 降至 83,793。
+
+第十二批將既有安全 scope 以外的 `差 cha4 → cha1` 2,325 筆、`著 zhu4 → zhao2` 1,927 筆、`著 zhu4 → zhe5` 1,767 筆、`晃 huang3 → huang4` 1,516 筆、`頭 tou2 → tou5` 1,428 筆及 `當 dang1 → dang4` 2,011 筆標為 `deferred`。六組剩餘資料均混合合法讀音、固定詞、語法角色或專名；可由零反例相鄰字判定的部分已部署，餘下需 longest-match 詞表、多字或句法 scope。本批精確終結 10,974 筆，累計 157,181 筆，未處理量由 83,793 降至 72,819。
+
+第十三批終結 `重 zhong4 → chong2`、`興 xing4 → xing1`、`相 xiang1 → xiang4`、`地 di4 → de5`、`曾 ceng2 → zeng1`、`種 zhong3 → zhong4`、`將 jiang1 → jiang4`、`待 dai4 → dai1`、`中 zhong1 → zhong4`、`掖 ye1 → ye4` 與 `倒 dao4 → dao3` 共 10,509 筆。除臺灣 profile 維持 `待 dai4`、將 `dai1` 分類為區域差異外，其餘十組都混合合法破音、詞性、句法或專名，標為 `deferred`，待 longest-match、多字／句法 scope 或專名辨識。本批後累計終結 167,690 筆，未處理量由 72,819 降至 62,310。
+
+第十四批終結 `重 chong2 → zhong4`、`掙 zheng1 → zheng4`、`數 shu4 → shu3`、`強 qiang2 → qiang3`、`難 nan2 → nan4`、`少 shao3 → shao4`、`了 le5 → liao3`、`應 ying1 → ying4`、`薄 bao2 → bo2`、`檔 dang4 → dang3`、`肚 du3 → du4`、`擰 ning2 → ning3`、`乾 qian2 → gan1`、`伐 fa2 → fa1`、`樸 pu3 → pu2` 與 `調 diao4 → tiao2` 共 10,341 筆。這些群組混合合法破音、詞義、地區讀音、專名或尚待 acoustic token 核對的候選，均標為 `deferred`；已部署的安全固定詞與 contextual scope 不受影響。本批後累計終結 178,031 筆，未處理量由 62,310 降至 51,969。
+
+第十五批終結 `拽 zhuai1 → zhuai4`、`還 hai2 → huan2`、`危 wei1 → wei2`、`法 fa3 → fa2`、`夾 jia1 → jia2`、`鋪 pu4 → pu1`、`髯 ran2 → ran3`、`寂 ji4 → ji2`、`暫 zan4 → zhan4`、`穴 xue2 → xue4`、`咧 lie1 → lie3`、`行 heng2 → xing4`、`賜 ci4 → si4`、`看 kan4 → kan1`、`教 jiao4 → jiao1`、`濤 tao1 → tao2`、`從 cong2 → zong4`、`挑 tiao1 → tiao3`、`行 hang2 → xing2`、`縫 feng4 → feng2`、`嚼 jue2 → jiao2` 與 `落 la4 → luo4` 共 10,459 筆。這些群組混合合法破音、詞義、地區讀音、專名或需模型 token 核對的候選，均標為 `deferred`；既有安全 phrase/contextual scope 繼續優先。本批後累計終結 188,490 筆，未處理量由 51,969 降至 41,510。
+
+第十六批終結 `彈、覺、更、攢、行（xing2 → xing4）、露、卷、攜、好、嗑、舍、怯、脊、沒、喦、辱、轉、哩、朵、稽、處、行（xing2 → hang2）、糊、儲、諷、了、匹、生` 二十八組，精確排除 10,000 筆。樣本混合合法破音、詞性、輕聲、專名及臺灣／模型讀音差異，不能安全套用單字全域規則，因此標為 `deferred`，留待 longest-match、多字／語法 scope 或逐詞來源審核。本批後累計終結 198,490 筆，未處理量由 41,510 降至 31,510。
+
+第十七批終結報表前五十組，共精確排除 11,087 筆。候選涵蓋合法破音、輕聲、詞性、口語詞及臺灣／模型聲調差異，單字全域覆寫會誤傷其他語義，因此全部保存為 `deferred`，留待詞組、位置或語法 scope 審核。本批後累計終結 209,577 筆，未處理量由 31,510 降至 20,423；同步後 group status 為 `deferred` 141、`needs_context` 5、`rejected_current_correct` 1、`rejected_model_error` 3、`rejected_regional_difference` 2、`superseded` 2。
+
+第十八批終結報表前六十七組，共精確排除 10,157 筆。候選仍混合合法破音、輕聲、詞性、專名及臺灣／模型讀音差異，無法安全套用單字全域規則，因此保存為 `deferred`，留待詞組、位置或語法 scope 審核。本批後累計終結 219,734 筆，未處理量由 20,423 降至 10,266；同步後 group status 為 `deferred` 208、`needs_context` 5、`rejected_current_correct` 1、`rejected_model_error` 3、`rejected_regional_difference` 2、`superseded` 2。
+
+第十九批將剩餘 477 個低頻至中頻群組一次終結，共精確排除 10,266 筆。候選仍需詞組、位置、句法或來源級核定，全部保存為 `deferred`，不建立可能誤傷其他語義的單字全域覆寫。本批後累計終結 230,000 筆，未處理量由 10,266 降至 0；同步後 group status 為 `deferred` 685、`needs_context` 3、`rejected_current_correct` 1、`rejected_model_error` 3、`rejected_regional_difference` 2、`superseded` 2，另有 phrase `implemented` 616 筆。
+
+第二十批開始把高價值 `deferred` 群組拆成安全的 longest-match 詞組。依教育部詞條與完整語料加入 `興許` 525、`更換` 347、`睡覺` 265、`佛門` 145、`搖頭晃腦` 126 筆，共覆蓋 1,408 個 occurrence；Taiwan profile 增為 112 個 phrase override、16 個 contextual rule，同步後 phrase `implemented` 為 621 筆 scope 決策。`搖晃` 雖有 470 筆 g2pW `huang4` 候選，但教育部詞條標為輕聲，未照模型候選啟用。
+
+第二十一批再由 `deferred` 群組回收 7 個安全 fixed phrase：`品相` 231、`興師` 162、`修長` 158、`長達` 139、`重遊` 69、`興盛` 18、`興起` 16 筆，共覆蓋 793 個 occurrence。所有規則均以完整詞 longest-match 生效，不把 `相`、`興`、`長`、`重` 擴張為全域單字覆寫；Taiwan profile 增為 119 個 phrase override。另由回歸測試確認目前官方 frontend 已正確處理 `重新`、`重逢`，因此不依舊 SQLite 候選新增冗餘覆寫。
+
+g2pW WebGPU feasibility 使用同一個 Python 產生的真實 ONNX feed 與 CPU golden，模型 `g2pw.onnx` 為 635,212,732 bytes、SHA-256 `bb40c8c7b5baa755b2acd317c6bc5a65e4af7b80c40a569247fbd76989299999`。Apple Silicon、macOS kernel 25.5.0、Headless Chrome 151、ORT Web 1.27.0、batch 32、一次暖機與五次量測下，WebGPU session 初始化 2,381.84 ms，五輪為 197.04、207.19、208.27、206.91、200.28 queries/s，中位 206.91。相同 feed 的 Python ORT 1.28.0 CPU 為 49.77、49.86、50.25、50.13、48.24 queries/s，中位 49.86，WebGPU inference speedup 為 4.15×。32 個 argmax 零差異，最大 probability 差 `1.19e-7`。fixture、完整輸出與模型皆為本機忽略產物；本數字排除 tokenizer、句子切分、FST、SQLite 與 IPC，僅證明 WebGPU graph 可用且值得整合。
+
+同一 fixture 的 WebGPU → SQLite slice 使用 WAL、foreign keys、transaction 與 `(run_id, source_sentence_id, character_offset)` primary key；run fingerprint 納入 input/model/lexicon/FST/profile/backend/runtime。修正 agreement 優先分類後，run 2 寫入 5 句、32 個多音字 occurrence、12 個 difference；SQL 聚合為 `為 wei4→wei2` 7、`長 zhang3→chang2` 2、`和 he2→han4`、`得 de2→de5`、`著 zhu4→zhe5` 各 1。立即重跑回報 `reused: true`，occurrence 仍為 32。此結果只驗證 architecture slice；fixture 未真正套用 FST，全文正式 index 必須補上相同 frontend、串流 tokenizer feeder、batch checkpoint 與中斷續跑。
+
+同日以 Chromium 151 對 Taiwan profile 跑完整 Worker、Matcha/Vocos、MP3 與單一 MediaSource sequence。五個 append 共 25.416 秒，producer `RTF 0.1466`、`6.82 倍即時`，underflow、append error、producer error 均為 0；含「垃圾」的 segment 實際輸出 `le4 se4`，waveform 81,682 samples 全為有限值、peak `0.9377`、RMS `0.1380`，MP3 62,208 bytes。結果只寫入 `/tmp` 作功能驗證，不取代 official profile 的正式 benchmark JSON；七個新審核詞的 token mapping 另由 manifest 與 frontend 測試覆蓋。
+
+加入 contextual rule 後另跑兩個 append、10.656 秒的 Taiwan profile smoke test；含「帶著」的 segment 實際輸出 `dai4 zhe5`，103,825 samples 全為有限值、peak `0.8463`、RMS `0.1419`，MP3 79,056 bytes，三類串流錯誤仍為 0。結果同樣只寫入 `/tmp`。
 
 ## Kokoro selective INT8 修正實驗
 

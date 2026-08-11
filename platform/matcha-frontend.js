@@ -52,6 +52,44 @@
     return {lexicon, maxKeyLength};
   }
 
+  function enabledReviewPatterns(review, profileName, key) {
+    const configured = review?.profiles?.[profileName]?.[key];
+    return Array.isArray(configured) ? new Set(configured) : null;
+  }
+
+  function pronunciationOverridesFromReview(review, profileName = 'taiwan') {
+    if (!review || !Array.isArray(review.entries)) return {};
+    const enabled = enabledReviewPatterns(review, profileName, 'phraseOverrides');
+    return Object.fromEntries(review.entries
+      .filter((entry) => entry?.status !== 'pending'
+        && entry?.implementation === 'phrase-override'
+        && typeof entry.pattern === 'string'
+        && Array.isArray(entry.target)
+        && (enabled ? enabled.has(entry.pattern) : entry.status === 'confirmed'))
+      .map((entry) => [entry.pattern, [...entry.target]]));
+  }
+
+  function contextualRulesFromReview(review, profileName = 'taiwan') {
+    if (!review || !Array.isArray(review.entries)) return [];
+    const enabled = enabledReviewPatterns(review, profileName, 'contextualRules');
+    return review.entries
+      .filter((entry) => entry?.status !== 'pending'
+        && entry?.implementation === 'contextual-rule'
+        && typeof entry.pattern === 'string'
+        && Array.isArray(entry.target)
+        && (typeof entry.previousCharacters === 'string'
+          || typeof entry.followingCharacters === 'string')
+        && (enabled ? enabled.has(entry.pattern) : entry.status === 'confirmed'))
+      .map((entry) => ({
+        pattern: entry.pattern,
+        target: [...entry.target],
+        previousCharacters: typeof entry.previousCharacters === 'string'
+          ? new Set([...entry.previousCharacters]) : null,
+        followingCharacters: typeof entry.followingCharacters === 'string'
+          ? new Set([...entry.followingCharacters]) : null,
+      }));
+  }
+
   function sectionToChinese(section) {
     let output = '';
     let unitIndex = 0;
@@ -121,6 +159,12 @@
       .replace(/：/gu, ':');
   }
 
+  // 小說常用連字號或框線字元作為場景分隔。只有整行都是分隔符時才移除，
+  // 避免誤傷句內破折號、負數與數值範圍。保留換行，讓前後段落仍形成句界。
+  function normalizeLayoutSeparators(value) {
+    return String(value).replace(/^[\s　]*[-－—–―─]{2,}[\s　]*$/gmu, '');
+  }
+
   // 保留 Bookworm 已驗證的臺灣格式修正：只重整 FST 已知會誤讀的外形，
   // 一般數字仍由 sherpa 原始 phone/date/number tables 決定讀法。
   function normalizeLocalForms(value) {
@@ -172,6 +216,7 @@
     tokensText,
     convertTraditional = (text) => text,
     pronunciationOverrides = {},
+    contextualRules = [],
     ruleNormalizer = null,
   }) {
     const {lexicon, maxKeyLength: sourceMaxKeyLength} = parseLexicon(lexiconText);
@@ -185,7 +230,7 @@
     }
 
     function prepareText(text) {
-      const source = normalizeFullWidth(convertTraditional(String(text)));
+      const source = normalizeFullWidth(normalizeLayoutSeparators(convertTraditional(String(text))));
       const normalized = ruleNormalizer
         ? normalizeNumbers(ruleNormalizer(normalizeLocalForms(source)))
         : normalizeNumbers(source);
@@ -197,6 +242,9 @@
       const ids = [];
       const phones = [];
       const unknown = [];
+      const lexiconMatches = [];
+      const contextualMatches = [];
+      const singleCharacterFallbacks = [];
 
       for (let offset = 0; offset < normalizedText.length;) {
         const character = normalizedText[offset];
@@ -232,11 +280,27 @@
           continue;
         }
 
-        const missingPhones = match.phones.filter((phone) => !tokens.has(phone));
+        const contextualRule = [...match.word].length === 1
+          ? contextualRules.find((rule) => rule.pattern === match.word
+            && ((!rule.previousCharacters && !rule.followingCharacters)
+              || rule.previousCharacters?.has(normalizedText[offset - 1] ?? '')
+              || rule.followingCharacters?.has(normalizedText[offset + match.word.length] ?? '')))
+          : null;
+        const matchPhones = contextualRule?.target ?? match.phones;
+        const traceEntry = {
+          word: match.word,
+          offset,
+          phones: [...matchPhones],
+        };
+        lexiconMatches.push(traceEntry);
+        if (contextualRule) contextualMatches.push(traceEntry);
+        else if ([...match.word].length === 1) singleCharacterFallbacks.push(traceEntry);
+
+        const missingPhones = matchPhones.filter((phone) => !tokens.has(phone));
         if (missingPhones.length) {
           unknown.push({word: match.word, offset, missingPhones});
         } else {
-          for (const phone of match.phones) {
+          for (const phone of matchPhones) {
             ids.push(tokens.get(phone));
             phones.push(phone);
           }
@@ -249,7 +313,16 @@
         error.unknown = unknown;
         throw error;
       }
-      return {text: String(text), normalizedText, ids, phones, unknown};
+      return {
+        text: String(text),
+        normalizedText,
+        ids,
+        phones,
+        unknown,
+        lexiconMatches,
+        contextualMatches,
+        singleCharacterFallbacks,
+      };
     }
 
     return {
@@ -265,12 +338,15 @@
     createFrontend,
     integerToChinese,
     normalizeFullWidth,
+    normalizeLayoutSeparators,
     normalizeNumbers,
     normalizeLocalForms,
     normalizePunctuation,
     numberToChinese,
     parseLexicon,
     parseTokens,
+    pronunciationOverridesFromReview,
+    contextualRulesFromReview,
   };
   globalScope.MatchaFrontend = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

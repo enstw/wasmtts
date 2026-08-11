@@ -92,7 +92,7 @@ function restoreLogs() {
 
 class MatchaWorkerProducer {
   constructor() {
-    this.worker = new Worker('/mobile-host/matcha-worker.js?v=6');
+    this.worker = new Worker('/mobile-host/matcha-worker.js?v=7');
     this.pending = new Map();
     this.nextRequestId = 1;
     this.segments = [];

@@ -1,5 +1,6 @@
 .DS_Store
 .pnpm-store/
+__pycache__/
 .cache/
 node_modules/
 mobile-host/vendor/
@@ -7,6 +8,15 @@ mobile-host/vendor/
 # 不重新散布下載的第三方模型與語音資產。
 platform/models/
 platform/assets/
+platform/results/matcha-g2p-audit*.json
+platform/results/matcha-g2pw*.json
+platform/results/matcha-g2p-roi*.json
+platform/results/g2pw-webgpu-*.local.json
+platform/results/matcha-g2p-index*.sqlite*
+platform/results/g2pw-ab-*.local.sqlite*
+platform/results/g2pw-threads-*.local.sqlite*
+platform/results/matcha-g2pw-manager.local.*
+platform/results/asr-listening-report.json
 *.onnx
 *.tar
 *.tar.bz2

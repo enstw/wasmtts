@@ -12,9 +12,12 @@ import './matcha-frontend.js';
 const {
   createFrontend,
   normalizeFullWidth,
+  normalizeLayoutSeparators,
   normalizeLocalForms,
   normalizeNumbers,
   normalizePunctuation,
+  contextualRulesFromReview,
+  pronunciationOverridesFromReview,
 } = globalThis.MatchaFrontend;
 
 const out = {};
@@ -31,6 +34,17 @@ eq('fullWidthDigits', normalizeFullWidth('０１２３４５６７８９'), '012
 eq('fullWidthPercent', normalizeFullWidth('１００％'), '100%');
 eq('fullWidthColonTime', normalizeFullWidth('１４：３０'), '14:30');
 eq('fullWidthDecimal', normalizeFullWidth('２５．５％'), '25.5%');
+
+// ---- 小說版面分隔符 -------------------------------------------------------
+// 只移除獨立成行的分隔線；句內破折號、負數及數值範圍必須原樣保留。
+eq('layoutAsciiSeparator', normalizeLayoutSeparators('　　-------------'), '');
+eq('layoutEmDashSeparator', normalizeLayoutSeparators('　　————'), '');
+eq('layoutMixedSeparator', normalizeLayoutSeparators('　　——-'), '');
+eq('layoutHorizontalBarSeparator', normalizeLayoutSeparators('――――'), '');
+eq('layoutSeparatorKeepsBoundary', normalizeLayoutSeparators('甲\n————\n乙'), '甲\n\n乙');
+eq('layoutInlineDash', normalizeLayoutSeparators('他喊道——快走！'), '他喊道——快走！');
+eq('layoutRange', normalizeLayoutSeparators('3-5 公里'), '3-5 公里');
+eq('layoutNegative', normalizeLayoutSeparators('-12 度'), '-12 度');
 
 // ---- 臺灣格式重整 ---------------------------------------------------------
 // normalizeLocalForms 只重整 FST 已知會誤讀的外形；全形輸入先經
@@ -60,6 +74,64 @@ eq('punctQuoteStrip', normalizePunctuation('「清晨」'), '清晨');
 // 不會走到這張表。
 eq('punctProseColon', normalizePunctuation('提示:內容'), '提示,內容');
 eq('prepareProseColon', frontend.prepareText('她說:「你好」'), '她說,你好');
+eq('prepareStandaloneSeparator', frontend.prepareText('　　-------------'), '');
+
+// ---- lexicon trace --------------------------------------------------------
+const tracedFrontend = createFrontend({
+  lexiconText: '你好 n i3 h ao3\n你 n i3\n好 h ao3\n',
+  tokensText: 'n 1\ni3 2\nh 3\nao3 4\n',
+});
+const phraseTrace = tracedFrontend.tokensFor('你好');
+eq('tracePhraseMatch', JSON.stringify(phraseTrace.lexiconMatches),
+  JSON.stringify([{word: '你好', offset: 0, phones: ['n', 'i3', 'h', 'ao3']}]));
+eq('tracePhraseNoSingleFallback', phraseTrace.singleCharacterFallbacks.length, 0);
+const singleTrace = tracedFrontend.tokensFor('你');
+eq('traceSingleFallback', JSON.stringify(singleTrace.singleCharacterFallbacks),
+  JSON.stringify([{word: '你', offset: 0, phones: ['n', 'i3']}]));
+
+// ---- 有來源的 profile -----------------------------------------------------
+// 只有已確認的規則能進產品 profile；pending 資料不能自動生效。
+const reviewOverrides = pronunciationOverridesFromReview({entries: [
+  {pattern: '記得', target: ['ji4', 'de5'], implementation: 'phrase-override', status: 'confirmed'},
+  {pattern: '著', target: ['zhe5'], implementation: 'contextual-rule', status: 'confirmed-needs-rule'},
+  {pattern: '待審', target: ['dai4', 'shen3'], implementation: 'phrase-override', status: 'pending'},
+]});
+eq('reviewConfirmedPhrasesOnly', JSON.stringify(reviewOverrides),
+  JSON.stringify({'記得': ['ji4', 'de5']}));
+const reviewContextualRules = contextualRulesFromReview({entries: [
+  {pattern: '著', target: ['zhe5'], previousCharacters: '看笑',
+    implementation: 'contextual-rule', status: 'confirmed'},
+  {pattern: '待', target: ['dai5'], previousCharacters: '等',
+    implementation: 'contextual-rule', status: 'confirmed-needs-rule'},
+  {pattern: '和', target: ['han4'], followingCharacters: '他你',
+    implementation: 'contextual-rule', status: 'confirmed'},
+  {pattern: '還', target: ['huan2'], previousCharacters: '歸', followingCharacters: '禮',
+    implementation: 'contextual-rule', status: 'confirmed'},
+]});
+const contextualFrontend = createFrontend({
+  lexiconText: '看 kan4\n笑 xiao4\n著 zhu4\n著急 zhu4 ji2\n急 ji2\n和 he2\n他 ta1\n平 ping2\n和平 he2 ping2\n歸 gui1\n還 hai2\n禮 li3\n',
+  tokensText: 'kan4 1\nxiao4 2\nzhu4 3\nzhe5 4\nji2 5\nzhao1 6\nhe2 7\nhan4 8\nta1 9\nping2 10\ngui1 11\nhai2 12\nhuan2 13\nli3 14\n',
+  contextualRules: reviewContextualRules,
+  pronunciationOverrides: {'著急': ['zhao1', 'ji2']},
+});
+eq('reviewContextualRule', JSON.stringify(contextualFrontend.tokensFor('看著').phones),
+  JSON.stringify(['kan4', 'zhe5']));
+eq('reviewContextualTrace', contextualFrontend.tokensFor('看著').contextualMatches.length, 1);
+eq('reviewContextualNoFallback', contextualFrontend.tokensFor('看著').singleCharacterFallbacks.length, 1);
+eq('reviewContextualAllowlist', JSON.stringify(contextualFrontend.tokensFor('笑著').phones),
+  JSON.stringify(['xiao4', 'zhe5']));
+eq('reviewContextualOutsideAllowlist', JSON.stringify(contextualFrontend.tokensFor('著').phones),
+  JSON.stringify(['zhu4']));
+eq('reviewLongerPhraseWins', JSON.stringify(contextualFrontend.tokensFor('看著急').phones),
+  JSON.stringify(['kan4', 'zhao1', 'ji2']));
+eq('reviewFollowingContextualRule', JSON.stringify(contextualFrontend.tokensFor('和他').phones),
+  JSON.stringify(['han4', 'ta1']));
+eq('reviewFollowingOutsideAllowlist', JSON.stringify(contextualFrontend.tokensFor('和平').phones),
+  JSON.stringify(['he2', 'ping2']));
+eq('reviewEitherSidePrevious', JSON.stringify(contextualFrontend.tokensFor('歸還').phones),
+  JSON.stringify(['gui1', 'huan2']));
+eq('reviewEitherSideFollowing', JSON.stringify(contextualFrontend.tokensFor('還禮').phones),
+  JSON.stringify(['huan2', 'li3']));
 
 console.log(JSON.stringify(out, null, 2));
 if (Object.values(out).some((v) => String(v).startsWith('FAIL'))) process.exit(1);
