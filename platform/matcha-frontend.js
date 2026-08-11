@@ -282,10 +282,9 @@
 
         const contextualRule = [...match.word].length === 1
           ? contextualRules.find((rule) => rule.pattern === match.word
-            && (!rule.previousCharacters
-              || rule.previousCharacters.has(normalizedText[offset - 1] ?? ''))
-            && (!rule.followingCharacters
-              || rule.followingCharacters.has(normalizedText[offset + match.word.length] ?? '')))
+            && ((!rule.previousCharacters && !rule.followingCharacters)
+              || rule.previousCharacters?.has(normalizedText[offset - 1] ?? '')
+              || rule.followingCharacters?.has(normalizedText[offset + match.word.length] ?? '')))
           : null;
         const matchPhones = contextualRule?.target ?? match.phones;
         const traceEntry = {

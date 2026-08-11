@@ -178,6 +178,29 @@ assert.deepEqual(taiwan.tokensFor('椅子頭部乾坤差勁當前分開').phones
   'yi3', 'zi5', 'tou2', 'bu4', 'qian2', 'kun1', 'cha4', 'jing4',
   'dang1', 'qian2', 'fen1', 'kai1',
 ]);
+for (const [text, phones] of [
+  ['聊得', ['liao2', 'de5']],
+  ['化為', ['hua4', 'wei2']],
+  ['還禮', ['huan2', 'li3']],
+  ['歸還', ['gui1', 'huan2']],
+  ['處境', ['chu3', 'jing4']],
+  ['相處', ['xiang1', 'chu3']],
+  ['教書', ['jiao1', 'shu1']],
+  ['畫卷', ['hua4', 'juan4']],
+  ['晃動', ['huang4', 'dong4']],
+  ['擅長', ['shan4', 'chang2']],
+  ['長槍', ['chang2', 'qiang1']],
+]) assert.deepEqual(taiwan.tokensFor(text).phones, phones);
+for (const [text, phones] of [
+  ['獲得', ['huo4', 'de2']],
+  ['因為', ['yin1', 'wei4']],
+  ['還是', ['hai2', 'shi4']],
+  ['到處', ['dao4', 'chu4']],
+  ['教育', ['jiao4', 'yu4']],
+  ['卷起', ['juan3', 'qi3']],
+  ['一晃', ['yi1', 'huang3']],
+  ['長大', ['zhang3', 'da4']],
+]) assert.deepEqual(taiwan.tokensFor(text).phones, phones);
 
 console.log(JSON.stringify({
   profile: 'taiwan',

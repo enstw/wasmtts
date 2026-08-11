@@ -102,7 +102,7 @@ PWA runtime、Worker、兩個模型與字典均進入 CacheStorage 後，實際�
 
 2026-08-08 在 iOS `18.7` Safari 以 LAN HTTP 測試低記憶體 JavaScript lexicon adapter。模型下載、Worker 初始化與有效 waveform 暖機皆通過；設定 WebKit 要求的 `HTMLAudioElement.disableRemotePlayback=true` 後，使用者確認繁體原文直輸、前景播放、鎖屏播放及「垃圾 → `le4 se4`」讀音覆寫正常。因本輪 `secureContext=false`、`standalone=false`，且未記錄裝置型號、鎖屏時長、溫度、耗電、降頻或 2 小時跨章結果，只能判定 transport 初步相容，不是 PWA 或熱穩態完成。
 
-實聽發現 `「」` 被映射為 `“”` acoustic tokens 後會發音；目前已在 tokenization 前移除中英文開閉引號、保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。Taiwan profile 現含「垃圾」、106 個 phrase overrides，以及 `著、和、得、為、子、頭、乾、差、當、分` 十個保守 contextual rules；official profile 保持上游結果。review schema v2 把證據狀態與產品啟用清單分開，完整詞 longest-match 優先。完整事件與數值保存在 [共同結果](../../platform/RESULTS.md)。
+實聽發現 `「」` 被映射為 `“”` acoustic tokens 後會發音；目前已在 tokenization 前移除中英文開閉引號、保留句內其他韻律標點，並加入繁體直輸 token 迴歸測試。Taiwan profile 現含「垃圾」、106 個 phrase overrides，以及 `著、和、得、為、子、頭、乾、差、當、分、還、處、教、卷、晃、長` 十六個保守 contextual rules；official profile 保持上游結果。review schema v2 把證據狀態與產品啟用清單分開，完整詞 longest-match 優先。完整事件與數值保存在 [共同結果](../../platform/RESULTS.md)。
 
 ## 小說 G2P 稽核 pilot
 
@@ -159,6 +159,8 @@ coordinator 已以真實 `jl.zip` 做兩輪各 4 句的 bounded smoke。第一�
 端到端 throughput 另以獨立 SQLite 連跑兩批各 100 句。第一批 2,046 個 query，含 input／model hashing、Chrome WebGPU 與 Python worker 冷啟動為 81.85 queries/s，扣除這些一次性成本後為 110.50 queries/s；第二批 1,450 個 query，分別為 75.30 與 112.80 queries/s。checkpoint 由 99 接到 199，累計 3,496 筆 occurrence，複合 key 重複數為零。兩批穩態相差約 2%，瓶頸主要位於 WebGPU inference；差異共 388 筆，其中 agreement 3,108、tone sandhi 161、tone disagreement 88、neutral tone 81、polyphone 58。這些是候選分層，不等於 388 個 Matcha 錯讀。
 
 完整 SQLite run 已掃描 315,593 句與 4,646,998 筆 occurrence。第六批以 `子、頭、乾、差、當、分` 的固定相鄰字 scope 加上 `情分` phrase override，新增排除 16,794 筆；累計約 84,212 筆，SQLite 未處理量由 162,582 降至 145,788。完整詞 longest-match 與負向測試保護未列入的讀音；`誰 → shei2` 因 acoustic tokens 缺少 `shei2` 而不啟用。
+
+第七批擴充 `得、為` 的零反例前字 scope，並加入 `還、處、教、卷、晃、長` 六組明確詞義的相鄰字規則，精確新增排除 12,894 筆；累計約 97,106 筆，未處理量由 145,788 降至 132,894。雙向規則的前字與後字 scope 明確採聯集，產品前端與 SQLite 決策同步語意一致；負向測試保護 `獲得、因為、還是、到處、教育、卷起、一晃、長大`。
 
 相同開頭 100 句、單一 Chrome process 的 batch 32／64／128 A/B 為 112.58／114.99／116.24 steady queries/s，放大 batch 的最大收益約 3.3%。同一 ORT Web runtime 的雙 session concurrent run 會在 `getBindGroupLayout` 失敗；改用兩個獨立 Chrome process 後，每個 process 為 69.63／67.72，合計約 137.35 queries/s，較單 process 快約 22%，但不是線性加速。正式單 process 預設仍保守維持 32；桌機一次性全文 scan 可明確指定 128。多 process 只有在新增 source sentence sharding、確保結果可無重複合併後才應進入正式 coordinator。
 

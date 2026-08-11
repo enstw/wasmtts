@@ -5,7 +5,7 @@
   "profiles": {
     "taiwan": {
       "phraseOverrides": ["作為", "成為", "名為", "修為", "極為", "身為", "視為", "最為", "譽為", "淪為", "記得", "覺得", "曉得", "顯得", "懶得", "捨得", "徵兆地", "自主地", "柵欄", "駐紮", "長短", "長城", "長劍", "長河", "長凳", "長橋", "長命", "長生", "長久", "長遠", "長袍", "堤壩", "著急", "著重", "執著", "睡著", "找著", "碰著", "逮著", "嚇著", "正著", "摸不著", "犯不著", "睡不著", "用得著", "管不著", "著手", "答應", "幾乎", "暫時", "熟悉", "認識", "意識", "見識", "資質", "材質", "期間", "期待", "會兒", "今兒", "這兒", "個兒", "那兒", "事兒", "哪兒", "地兒", "玩意兒", "明兒", "娃兒", "人兒", "鴉兒", "老聾兒", "微", "血", "究", "熟", "叔", "姐姐", "差不多", "擁", "顫", "藉", "爺爺", "下巴", "啞巴", "嘴巴", "掙錢", "倒是", "武將", "適應", "感應", "對應", "應對", "重複", "勁", "識", "期", "質", "頗", "咋", "仔細", "彷彿", "露出", "謝謝", "當真", "情分"],
-      "contextualRules": ["著", "和", "得", "為", "子", "頭", "乾", "差", "當", "分"]
+      "contextualRules": ["著", "和", "得", "為", "子", "頭", "乾", "差", "當", "分", "還", "處", "教", "卷", "晃", "長"]
     }
   },
   "entries": [
@@ -13,16 +13,16 @@
       "pattern": "得", "observed": ["de2"], "target": ["de5"],
       "scope": "動詞或形容詞後表示程度、結果或可能的結構助詞；完整詞 longest-match 優先",
       "implementation": "contextual-rule", "status": "source-and-model-supported",
-      "previousCharacters": "說看打聽變做走長嚇虧氣認笑害來當過寫活",
-      "evidence": {"pilotMatches": 8382, "pilotCounterexamples": 0, "selectionRule": "完整 SQLite 中指定前字桶全部為 de2 → de5"},
+      "previousCharacters": "說看打聽變做走長嚇虧氣認笑害來當過寫活聊混想喝死管跑信殺吃瞧輸疼鬧罵猜稱藏生拿對樂算學哭差壓站比問配駛講砸下",
+      "evidence": {"pilotMatches": 11204, "pilotCounterexamples": 0, "selectionRule": "完整 SQLite 中指定前字桶全部為 de2 → de5"},
       "source": {"title": "教育部《重編國語辭典修訂本》：得（de）", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=1928&la=0&powerMode=0", "version": "2021"}
     },
     {
       "pattern": "為", "observed": ["wei4"], "target": ["wei2"],
       "scope": "以為、頗為、認為、稱為固定結構；完整詞 longest-match 優先",
       "implementation": "contextual-rule", "status": "source-and-model-supported",
-      "previousCharacters": "以頗認稱",
-      "evidence": {"pilotMatches": 2653, "pilotCounterexamples": 0, "selectionRule": "完整 SQLite 中四個固定結構全部為 wei4 → wei2"},
+      "previousCharacters": "以頗認稱難化分更大升人轉而呼所意結尤凝之同代",
+      "evidence": {"pilotMatches": 5407, "pilotCounterexamples": 0, "selectionRule": "完整 SQLite 中指定前字桶全部為 wei4 → wei2"},
       "source": {"title": "教育部《重編國語辭典修訂本》：以為", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=150872&la=0&powerMode=0", "version": "2021"}
     },
     {
@@ -72,6 +72,57 @@
       "previousCharacters": "時輩過緣情身生",
       "evidence": {"pilotMatches": 1476, "pilotCounterexamples": 0, "selectionRule": "完整 SQLite 中指定前字桶全部為 fen1 → fen4"},
       "source": {"title": "教育部《重編國語辭典修訂本》：分（fèn）", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=1688&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "還", "observed": ["hai2"], "target": ["huan2"],
+      "scope": "歸還、償還、交還、復還，以及還禮、還錢、還債等返回、交回或回報義結構；完整詞 longest-match 優先",
+      "implementation": "contextual-rule", "status": "source-and-model-supported",
+      "previousCharacters": "歸償交復",
+      "followingCharacters": "禮給手錢鄉價債嘴回清魂願童",
+      "evidence": {"pilotMatches": 1673, "pilotCounterexamples": 0, "selectionRule": "完整 SQLite 中指定相鄰字 scope 全部為 hai2 → huan2"},
+      "source": {"title": "教育部《重編國語辭典修訂本》：還（huán）", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=4787&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "處", "observed": ["chu4"], "target": ["chu3"],
+      "scope": "相處、身處、獨處，以及處境、處置、處理、處世、處於等動詞義結構；完整詞 longest-match 優先",
+      "implementation": "contextual-rule", "status": "source-and-model-supported",
+      "previousCharacters": "相身獨",
+      "followingCharacters": "境置理世於",
+      "evidence": {"pilotMatches": 1517, "pilotCounterexamples": 0, "selectionRule": "完整 SQLite 中指定相鄰字 scope 全部為 chu4 → chu3；交集只計一次"},
+      "source": {"title": "教育部《重編國語辭典修訂本》：處（chǔ）", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=8586&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "教", "observed": ["jiao4"], "target": ["jiao1"],
+      "scope": "教書、教拳及教人等傳授義結構；完整詞 longest-match 優先",
+      "implementation": "contextual-rule", "status": "source-and-model-supported",
+      "followingCharacters": "書拳你我了出他給過她人劍",
+      "evidence": {"pilotMatches": 1217, "pilotCounterexamples": 0, "selectionRule": "完整 SQLite 中指定後字 scope 全部為 jiao4 → jiao1"},
+      "source": {"title": "教育部《重編國語辭典修訂本》：教（jiāo）", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=5688&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "卷", "observed": ["juan3"], "target": ["juan4"],
+      "scope": "畫卷、書卷等書畫名詞；完整詞 longest-match 優先",
+      "implementation": "contextual-rule", "status": "source-and-model-supported",
+      "previousCharacters": "畫書",
+      "evidence": {"pilotMatches": 1122, "pilotCounterexamples": 0, "selectionRule": "完整 SQLite 中指定前字 scope 全部為 juan3 → juan4"},
+      "source": {"title": "教育部《重編國語辭典修訂本》：卷（juàn）", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=6709&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "晃", "observed": ["huang3"], "target": ["huang4"],
+      "scope": "晃盪、晃動等搖擺義固定詞；完整詞 longest-match 優先",
+      "implementation": "contextual-rule", "status": "source-and-model-supported",
+      "followingCharacters": "盪動",
+      "evidence": {"pilotMatches": 411, "pilotCounterexamples": 0, "selectionRule": "完整 SQLite 中指定後字 scope 全部為 huang3 → huang4"},
+      "source": {"title": "教育部《重編國語辭典修訂本》：晃動", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=86699&la=0&powerMode=0", "version": "2021"}
+    },
+    {
+      "pattern": "長", "observed": ["zhang3"], "target": ["chang2"],
+      "scope": "擅長及長褂、長脖、長槍、長線、長眉、長壽、長椅、長刀等長度義結構；完整詞 longest-match 優先",
+      "implementation": "contextual-rule", "status": "source-and-model-supported",
+      "previousCharacters": "擅",
+      "followingCharacters": "褂脖槍線眉壽椅刀",
+      "evidence": {"pilotMatches": 1480, "pilotCounterexamples": 0, "selectionRule": "完整 SQLite 中指定相鄰字 scope 全部為 zhang3 → chang2"},
+      "source": {"title": "教育部《重編國語辭典修訂本》：長槍", "url": "https://dict.revised.moe.edu.tw/dictView.jsp?ID=123676&la=0&powerMode=0", "version": "2021"}
     },
     {
       "pattern": "著",

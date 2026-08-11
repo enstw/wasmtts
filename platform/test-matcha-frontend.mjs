@@ -105,10 +105,12 @@ const reviewContextualRules = contextualRulesFromReview({entries: [
     implementation: 'contextual-rule', status: 'confirmed-needs-rule'},
   {pattern: '和', target: ['han4'], followingCharacters: '他你',
     implementation: 'contextual-rule', status: 'confirmed'},
+  {pattern: '還', target: ['huan2'], previousCharacters: '歸', followingCharacters: '禮',
+    implementation: 'contextual-rule', status: 'confirmed'},
 ]});
 const contextualFrontend = createFrontend({
-  lexiconText: '看 kan4\n笑 xiao4\n著 zhu4\n著急 zhu4 ji2\n急 ji2\n和 he2\n他 ta1\n平 ping2\n和平 he2 ping2\n',
-  tokensText: 'kan4 1\nxiao4 2\nzhu4 3\nzhe5 4\nji2 5\nzhao1 6\nhe2 7\nhan4 8\nta1 9\nping2 10\n',
+  lexiconText: '看 kan4\n笑 xiao4\n著 zhu4\n著急 zhu4 ji2\n急 ji2\n和 he2\n他 ta1\n平 ping2\n和平 he2 ping2\n歸 gui1\n還 hai2\n禮 li3\n',
+  tokensText: 'kan4 1\nxiao4 2\nzhu4 3\nzhe5 4\nji2 5\nzhao1 6\nhe2 7\nhan4 8\nta1 9\nping2 10\ngui1 11\nhai2 12\nhuan2 13\nli3 14\n',
   contextualRules: reviewContextualRules,
   pronunciationOverrides: {'著急': ['zhao1', 'ji2']},
 });
@@ -126,6 +128,10 @@ eq('reviewFollowingContextualRule', JSON.stringify(contextualFrontend.tokensFor(
   JSON.stringify(['han4', 'ta1']));
 eq('reviewFollowingOutsideAllowlist', JSON.stringify(contextualFrontend.tokensFor('和平').phones),
   JSON.stringify(['he2', 'ping2']));
+eq('reviewEitherSidePrevious', JSON.stringify(contextualFrontend.tokensFor('歸還').phones),
+  JSON.stringify(['gui1', 'huan2']));
+eq('reviewEitherSideFollowing', JSON.stringify(contextualFrontend.tokensFor('還禮').phones),
+  JSON.stringify(['huan2', 'li3']));
 
 console.log(JSON.stringify(out, null, 2));
 if (Object.values(out).some((v) => String(v).startsWith('FAIL'))) process.exit(1);
