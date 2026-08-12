@@ -15,6 +15,7 @@
 - `asr-listening-gate.py`、`asr-baseline/`：以固定 revision 的 multilingual Whisper 聽回 Matcha WAV，計算正規化 CER，並同時套用絕對上限與相對正式 baseline 的退化上限。這是可懂度回歸 gate，不等同主觀自然度盲聽。
 - `matcha-fst.js`：從 Bookworm 移植的純 JavaScript OpenFST reader，保留作 golden A/B 與診斷基線。
 - `matcha-frontend.js`、`matcha-synthesis.js`：可供 Worker 與測試共用的繁體直輸／FST／lexicon 前端及 Matcha + Vocos 合成核心。
+- `matcha-taiwan-profile.js`：正式臺灣讀音 profile adapter；集中組合 legacy「垃圾」覆寫與 `matcha-g2p-review.json` 已啟用規則，並隨 Release 獨立發布及納入 frontend tarball。
 - `audit-matcha-g2p.mjs`、`run-g2pw-pilot.py`：對外部小說 ZIP 執行現況 frontend trace 與開發期 contextual G2P 差異掃描；小說、g2pW 模型與 `*.local.json` 報告皆不提交。
 - `rank-matcha-g2p-roi.mjs`：把前字或後字分層 pilot 的抽樣一致性與全文相鄰字次數合併排序，並保留各樣本的 Matcha phone 以處理多讀音；`estimatedAffectedCeiling` 只是候選上限，不是已確認錯讀數。
 - `generate-g2pw-webgpu-fixture.py`、`g2pw-preprocess-worker.py`、`g2pw-webgpu-benchmark.html`、`run-g2pw-webgpu-browser.mjs`：fixture 先以 Python ORT CPU 產生真實 g2pW ONNX input/golden；常駐 Python worker 只建立 tokenizer feeds、不載入 native ORT session，browser page 則可重用單一 ORT Web WebGPU session。fixture 與結果均為忽略的 `*.local.json`。

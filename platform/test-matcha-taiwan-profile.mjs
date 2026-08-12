@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
 import './matcha-frontend.js';
+import './matcha-taiwan-profile.js';
 
 const read = (name) => readFileSync(new URL(name, import.meta.url), 'utf8');
 const review = JSON.parse(read('./matcha-g2p-review.json'));
@@ -10,14 +11,16 @@ const common = {
   tokensText: read('./models/matcha-icefall-zh-en/tokens.txt'),
 };
 const official = MatchaFrontend.createFrontend(common);
-const taiwan = MatchaFrontend.createFrontend({
+const taiwanConfig = MatchaTaiwanProfile.createConfig(review);
+const taiwan = MatchaTaiwanProfile.createFrontend({
+  review,
   ...common,
-  pronunciationOverrides: {
-    '垃圾': ['le4', 'se4'],
-    ...MatchaFrontend.pronunciationOverridesFromReview(review, 'taiwan'),
-  },
-  contextualRules: MatchaFrontend.contextualRulesFromReview(review, 'taiwan'),
 });
+
+assert.deepEqual(taiwanConfig.pronunciationOverrides.垃圾, ['le4', 'se4']);
+assert.equal(Object.keys(taiwanConfig.pronunciationOverrides).length,
+  review.profiles.taiwan.phraseOverrides.length + 1);
+assert.equal(taiwanConfig.contextualRules.length, review.profiles.taiwan.contextualRules.length);
 
 assert.deepEqual(official.tokensFor('帶著').phones, ['dai4', 'zhu4']);
 assert.deepEqual(taiwan.tokensFor('帶著').phones, ['dai4', 'zhe5']);
@@ -225,6 +228,6 @@ for (const [text, phones] of [
 console.log(JSON.stringify({
   profile: 'taiwan',
   schemaVersion: review.schemaVersion,
-  phraseOverrides: review.profiles.taiwan.phraseOverrides.length,
-  contextualRules: review.profiles.taiwan.contextualRules.length,
+  phraseOverrides: Object.keys(taiwanConfig.pronunciationOverrides).length,
+  contextualRules: taiwanConfig.contextualRules.length,
 }, null, 2));

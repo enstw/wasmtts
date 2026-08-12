@@ -21,6 +21,17 @@
 
 Matcha 與 Vocos 共用 ONNX Runtime Web；text normalizer 使用另一個獨立 WASM linear memory，不載入 sherpa-onnx frontend bundle 的固定 512 MiB heap。
 
+正式 Release 的 `wasmtts-frontend.tar.gz` 會包含 `matcha-taiwan-profile.js`。依序載入 `matcha-frontend.js` 與該檔案後，可用同包的 `matcha-g2p-review.json` 直接建立完整臺灣讀音 frontend；不需另外補上產品內部覆寫：
+
+```js
+const taiwanFrontend = MatchaTaiwanProfile.createFrontend({
+  review,
+  lexiconText,
+  tokensText,
+  ruleNormalizer,
+});
+```
+
 ## 目前結果
 
 - 相同文本盲測：Matcha `90`、Kokoro `80`、Piper `60`。
@@ -58,6 +69,8 @@ pnpm test:matcha-asr
 ## 自動上游追蹤
 
 [Renovate](renovate.json) 追蹤 npm、ONNX Runtime Web、Matcha/Vocos 資產來源、FST、kaldifst、OpenFST、Emscripten 與固定 ASR oracle。所有可驗證發布時間的 upstream 版本必須發行滿 30 天；缺少 release timestamp 時採 fail-closed，不得進入 candidate。每週一早上 [renovate workflow](.github/workflows/renovate.yml) 啟動，所有更新併成單一 roll-up PR；只有會改變 build／test artifact 的程式碼、manifest、依賴或 fixture 變更才執行完整 candidate gates，純文件與歷史 results 只回報成功的輕量 required check，`renovate.json`／Renovate workflow 變更則只執行官方 config validator。candidate 必須通過 native WASM build、FST golden、有效 waveform、RTF、512 MiB 記憶體上限與 ASR CER gate，workflow 才合併並發版 — 一週一次。`main` 也只有 artifact-sensitive paths 變更才重跑相同 gates；成功時發布正式 Release，失敗時以 pre-release 保存版本組合、原因、logs 與機器可讀報告。eSpeak 與 iPhone 測試不屬於本 repository 的 release gate。
+
+未明確指定 `Release-Version` 時，自動版本會從所有非 draft、非 prerelease 的最高 SemVer 增加 patch；例如最高版本為 `v1.0.0` 時，下一版是 `v1.0.1`。GitHub Actions run number 不再充當版本號。
 
 ```sh
 pnpm fetch:matcha-assets

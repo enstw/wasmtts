@@ -1,4 +1,4 @@
-/* global KaldifstNormalizerModule, lamejs, MatchaFrontend, MatchaKaldifst, MatchaSynthesis, ort */
+/* global KaldifstNormalizerModule, lamejs, MatchaFrontend, MatchaKaldifst, MatchaSynthesis, MatchaTaiwanProfile, ort */
 
 importScripts(
   '/mobile-host/vendor/ort/ort.min.js',
@@ -6,6 +6,7 @@ importScripts(
   '/mobile-host/vendor/kaldifst/matcha-kaldifst-normalizer.js',
   '/platform/kaldifst-normalizer.js',
   '/platform/matcha-frontend.js?v=20260810-contextual-zhe',
+  '/platform/matcha-taiwan-profile.js?v=20260812-release',
   '/platform/matcha-synthesis.js',
 );
 
@@ -171,8 +172,7 @@ async function initialize() {
     const lexiconText = decoder.decode(lexicon.buffer);
     const tokensText = decoder.decode(tokens.buffer);
     const g2pReview = JSON.parse(decoder.decode(downloadedAssets.g2pReview.buffer));
-    const reviewedOverrides = MatchaFrontend.pronunciationOverridesFromReview(g2pReview);
-    const reviewedContextualRules = MatchaFrontend.contextualRulesFromReview(g2pReview);
+    const taiwanProfile = MatchaTaiwanProfile.createConfig(g2pReview);
     postProgress('載入 kaldifst text-normalizer WASM');
     const ruleNormalizer = await MatchaKaldifst.createNormalizer({
       moduleFactory: KaldifstNormalizerModule,
@@ -194,8 +194,7 @@ async function initialize() {
         lexiconText,
         tokensText,
         ruleNormalizer,
-        pronunciationOverrides: {'垃圾': 'le4 se4', ...reviewedOverrides},
-        contextualRules: reviewedContextualRules,
+        ...taiwanProfile,
       }),
     };
 
@@ -244,7 +243,10 @@ async function initialize() {
         englishFrontend: false,
         pronunciationProfiles: {
           official: [],
-          taiwan: ['垃圾', ...Object.keys(reviewedOverrides), '著（contextual）'],
+          taiwan: [
+            ...Object.keys(taiwanProfile.pronunciationOverrides),
+            ...taiwanProfile.contextualRules.map((rule) => `${rule.pattern}（contextual）`),
+          ],
           reviewSchemaVersion: g2pReview.schemaVersion,
         },
       },

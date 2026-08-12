@@ -49,6 +49,7 @@ run('g2p-review', 'pnpm', ['test:matcha-g2p-review']);
 run('g2p-roi', 'pnpm', ['test:matcha-g2p-roi']);
 run('g2p-index', 'pnpm', ['test:matcha-g2pw-index']);
 run('taiwan-profile', 'pnpm', ['test:matcha-taiwan-profile']);
+run('release-version', 'node', ['scripts/test-next-release-tag.mjs']);
 run('fst-fixtures', 'pnpm', ['test:matcha-fst']);
 run('fst-tables', 'pnpm', ['test:matcha-fst:tables']);
 run('vendor-mobile', 'pnpm', ['vendor:mobile']);

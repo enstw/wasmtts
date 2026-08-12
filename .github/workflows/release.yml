@@ -112,7 +112,7 @@ jobs:
         run: |
           mkdir -p release-artifacts/package
           cp LICENSE README.md platform/upstreams.yaml platform/matcha-assets.json release-artifacts/package/
-          cp platform/matcha-frontend.js platform/matcha-g2p-review.json release-artifacts/package/
+          cp platform/matcha-frontend.js platform/matcha-taiwan-profile.js platform/matcha-g2p-review.json release-artifacts/package/
           cp platform/kaldifst-wasm/dist/matcha-kaldifst-normalizer.js release-artifacts/package/
           cp platform/kaldifst-wasm/dist/matcha-kaldifst-normalizer.wasm release-artifacts/package/
           tar czf release-artifacts/wasmtts-frontend.tar.gz -C release-artifacts/package .
@@ -151,13 +151,13 @@ jobs:
           if [[ -n "$tag" && ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Invalid release tag: $tag" >&2
             exit 1
-          elif [[ -z "$tag" ]] && ! gh release view v0.1.0 >/dev/null 2>&1; then
-            tag=v0.1.0
           elif [[ -z "$tag" ]]; then
-            tag="v0.1.${GITHUB_RUN_NUMBER}"
+            releases_json="$(gh release list --limit 1000 --json tagName,isDraft,isPrerelease)"
+            tag="$(WASM_TTS_RELEASES_JSON="$releases_json" node scripts/next-release-tag.mjs)"
           fi
           gh release create "$tag" \
             release-artifacts/wasmtts-frontend.tar.gz \
+            release-artifacts/package/matcha-taiwan-profile.js \
             release-artifacts/release-gates.json \
             release-artifacts/assets.json \
             platform/results/results-matcha_icefall_zh_en-browser-wasm.json \
