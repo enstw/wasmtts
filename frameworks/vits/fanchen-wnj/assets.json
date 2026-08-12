@@ -1,0 +1,28 @@
+{
+  "repository": "https://github.com/k2-fsa/sherpa-onnx",
+  "releaseTag": "tts-models",
+  "archive": {
+    "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-zh-hf-fanchen-wnj.tar.bz2",
+    "bytes": 119159130,
+    "sha256": "4035c68899e951ccc6e863e6088ba0898fba0ccd5a88df7f2b784a9b0da88503"
+  },
+  "sourceDirectory": "vits-zh-hf-fanchen-wnj",
+  "target": "platform/models/fanchen-vits-wnj",
+  "files": {
+    "model.onnx": {
+      "source": "vits-zh-hf-fanchen-wnj.onnx",
+      "bytes": 121076185,
+      "sha256": "ccd592a5f6fa3f7e8840405c3422ffed9eba58db253d4abd82c75280db98c644"
+    },
+    "lexicon.txt": {
+      "source": "lexicon.txt",
+      "bytes": 2457843,
+      "sha256": "9af2824e49e731bf615927c768fdc36bbbe894cac57d8e0088d9c94331b07320"
+    },
+    "tokens.txt": {
+      "source": "tokens.txt",
+      "bytes": 331,
+      "sha256": "34b035b9aeb070df6188b022f29c00e0e142c7ade9f25611ced65db5e9cc8402"
+    }
+  }
+}

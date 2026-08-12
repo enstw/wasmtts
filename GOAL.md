@@ -34,16 +34,19 @@ Piper `zh_CN-huayan-medium` 是效能基準 `1.00x`。速度較快不代表品�
 | VITS AISHELL3（sid 66） | 神經網路（VITS） | 是 | 0.708 秒 | 0.45x | 最快，但 8 kHz 與音質不足，只保留為技術參考 | [VITS](frameworks/vits/README.md) |
 | VITS MeloTTS zh/en | 神經網路（VITS） | 是 | 14.427 秒 | 9.16x | 單線程慢於即時，不作為行動端主引擎 | [VITS](frameworks/vits/README.md) |
 | MediaTek Breeze2-VITS | 神經網路（VITS） | 是 | 13.617 秒 | 約 8.64x* | 尺寸略小於 Matcha，但同輪推論慢 10.00x；不進入產品路徑 | [VITS](frameworks/vits/README.md) |
+| Fanchen WNJ VITS | 神經網路（VITS） | 是 | 10.261 秒 | 約 6.51x* | 尺寸略小於 Matcha，但 `RTF 1.026` 仍慢於即時；不進入產品路徑 | [VITS](frameworks/vits/README.md) |
 | Kokoro v1.1 zh fp32 | 神經網路（Kokoro） | 是 | 14.225 秒 | 9.03x | 品質通過但成本過高，保留為歷史品質參考 | [Kokoro](frameworks/kokoro/README.md) |
 | Matcha icefall zh-en | 神經網路（Matcha + Vocos） | 是 | 1.361 秒 | 約 0.86x* | **目前選定模型**；盲測 90 分、單執行緒 RTF 0.136 | [Matcha](frameworks/matcha/README.md) |
 | Kokoro 上游 int8／q8 | 神經網路（Kokoro） | 否 | — | — | waveform 含非有限值，不得作為 benchmark | [Kokoro](frameworks/kokoro/README.md) |
 | Kokoro selective INT8 | 神經網路（Kokoro） | 是 | 15.182 秒 wall time | 1.009x 相對同輪 fp32 | 正確性基線；縮小 8.3%，但未加速 | [Kokoro](frameworks/kokoro/README.md) |
 
-Piper、AISHELL3、MeloTTS 與 Kokoro 主比較採 Chromium 149；Matcha 與 Breeze2 採 Chromium 151。全部使用 ONNX Runtime Web WASM、單一 thread 與 CDP `TaskDuration`，但星號標示的相對 Piper 數字只可作跨版本方向性參考。Breeze2 與 Matcha 使用同一 Chromium `151.0.7922.108` 與 ORT Web `1.27.0`，兩者的 `10.00x` 成本差異是同環境 A/B。Selective INT8 A/B 另使用不同瀏覽器版本，因此只可在該組內互相比較。
+Piper、AISHELL3、MeloTTS 與 Kokoro 主比較採 Chromium 149；Matcha、Breeze2 與 Fanchen WNJ 採 Chromium 151。全部使用 ONNX Runtime Web WASM、單一 thread 與 CDP `TaskDuration`，但星號標示的相對 Piper 數字只可作跨版本方向性參考。Breeze2、Fanchen WNJ 與 Matcha 使用同一 Chromium `151.0.7922.108` 與 ORT Web `1.27.0`；前兩者的運算成本分別是 Matcha 的 `10.00x` 與 `7.54x`。Selective INT8 A/B 另使用不同瀏覽器版本，因此只可在該組內互相比較。
 
 Kokoro fp32 已通過主觀品質門檻，但單執行緒只有約 `0.70x realtime`，且桌面雙執行緒仍需約 `5.02x` Piper 運算成本。它不在目前產品路徑；既有數據僅保留為 Matcha 選型的品質與成本對照，不再安排模型下載、量化或實機驗證。
 
 依使用者明確要求，2026-08-11 將 MediaTek `Breeze2-VITS-onnx` 作為 controlled challenger 試跑。模型、lexicon 與 tokens 合計 123,600,935 bytes（117.9 MiB），比 Matcha acoustic＋Vocos 129,599,930 bytes（123.6 MiB）小 4.6%；初始化記憶體快照 347,015,862 bytes（330.9 MiB）則沒有優於 Matcha 完整 producer 的 341,536,495 bytes（325.7 MiB）。同環境單 thread task `RTF` 為 `1.3617`，對 Matcha `0.1361`，完整 VITS graph 慢 `10.00x` 且未達即時。這次只量整個 `session.run()`，尚未將 encoder／duration、flow 與 neural waveform decoder 分段，因此 graph inspection 雖指出直接 waveform decoder 是主要嫌疑之一，不能宣稱它單獨造成全部差距。Breeze2 已經做到約 Matcha 尺寸，失敗點是 CPU 而不是模型下載；因此不更換現行選型。若未來要保存 Breeze 聲線，研究目標應改為以授權允許的合成資料微調 16 kHz 小型 Matcha student，並以 `RTF < 0.3`、記憶體不高於 Matcha、ASR CER 與盲聽共同驗收。官方未公開可直接重現的 Breeze2 專用蒸餾 recipe，且 model card 未宣告權重 license；在授權與可訓練 checkpoint 釐清前，不投入兩張 A10 的正式蒸餾。完整執行順序、資料規格、GPU 時程、驗收與停止條件見 [BreezyVoice 聲線轉移至 Matcha 執行計畫](frameworks/vits/BREEZYVOICE-MATCHA-PLAN.md)。
+
+依使用者明確要求，2026-08-12 再以 `vits-zh-hf-fanchen-wnj` 測試另一個約 Matcha footprint 的中文單聲線 VITS。模型、lexicon 與 tokens 合計 123,534,359 bytes（117.8 MiB），比 Matcha 小 4.7%；初始化記憶體快照為 346,636,910 bytes（330.6 MiB），仍比 Matcha 完整 producer 多約 4.9 MiB。相同 Chromium、ORT Web 與單 thread 下，三輪 task `RTF` 為 `1.0072`、`1.0332`、`1.0261`，中位數 `1.0261`，只達 `0.975x realtime`，運算成本是 Matcha 的 `7.54x`。waveform 全為有限非靜音 samples，但本輪依要求停在核心 benchmark，沒有完成 ASR 或主觀盲聽；因此只可判定 footprint／速度，不作聲線品質排名。結果再次確認接近 118 MiB 的完整 VITS graph 仍缺乏 iOS 背景串流所需的即時餘裕，不更換現行 Matcha 選型。
 
 Matcha `matcha-icefall-zh-en` 使用相同五句中文做三方盲測後得到 `90/100`，高於 Kokoro 的 `80/100` 與 Piper 的 `60/100`；Piper 另被標記有外國腔。上游 `sherpa-onnx 1.12.20` 官方 browser SIMD bundle 以建議的 `phone-zh.fst,date-zh.fst,number-zh.fst`、`noise_scale=0.667`、單一 thread 測得小說 task `RTF 0.1411`，約 `7.09x realtime`；含日期、時間、電話及百分比的原始數字語料同為 `RTF 0.1411`。繁體小說原文不經 OpenCC 亦成功產生 26.73 秒有效音訊，使用者已確認品質沒有問題；這些證據構成目前選定 Matcha 的依據。2026-08-09 升級至 stable ORT Web `1.27.0` 後，獨立 kaldifst WASM 的完整 desktop producer 測得 `RTF 0.1387`、`7.21x realtime`，10 個 append、51.228 秒音訊且無 underflow 或錯誤。初始化記憶體快照為 341,536,495 bytes（325.7 MiB），較 `1.26.0-dev` 增加約 48.7 MiB；其中 normalizer 的獨立 linear memory 仍為 16 MiB。此路徑不承擔官方 frontend bundle 固定 512 MiB heap，但 stable 1.27 的 iPhone 記憶體 gate 尚未驗收，所有桌面數字也只是快照，不是真正 peak。
 
