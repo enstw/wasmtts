@@ -1,6 +1,6 @@
 # Matcha 離線中文 TTS 產品目標與選型紀錄
 
-更新日期：2026-08-11
+更新日期：2026-08-12
 
 ## 目標
 
@@ -26,6 +26,8 @@ Piper `zh_CN-huayan-medium` 是效能基準 `1.00x`。速度較快不代表品�
 
 ## 選型決策
 
+目前開放權重 TTS 的英文、zh_CN、zh_TW 尺寸、授權與公開品質證據整理於 [開放權重 neural TTS 模型比較](frameworks/MODEL-COMPARISON.md)。該文件保存市場快照與 server／teacher 候選；本節只記錄本 repository 以相同 harness 得到的可重現選型證據，兩者不可混為同一排行榜。
+
 | 方案 | 架構 | 有效輸出 | 10 秒音訊時間 | 相對 Piper | 目前判定 | 詳細紀錄 |
 |---|---|---:|---:|---:|---|---|
 | Piper HuaYan medium | 神經網路（VITS） | 是 | 1.576 秒 | 1.00x | Frozen 歷史基準，不是現行模型 | [Piper](frameworks/piper/README.md) |
@@ -41,7 +43,7 @@ Piper、AISHELL3、MeloTTS 與 Kokoro 主比較採 Chromium 149；Matcha 與 Bre
 
 Kokoro fp32 已通過主觀品質門檻，但單執行緒只有約 `0.70x realtime`，且桌面雙執行緒仍需約 `5.02x` Piper 運算成本。它不在目前產品路徑；既有數據僅保留為 Matcha 選型的品質與成本對照，不再安排模型下載、量化或實機驗證。
 
-依使用者明確要求，2026-08-11 將 MediaTek `Breeze2-VITS-onnx` 作為 controlled challenger 試跑。模型、lexicon 與 tokens 合計 123,600,935 bytes（117.9 MiB），比 Matcha acoustic＋Vocos 129,599,930 bytes（123.6 MiB）小 4.6%；初始化記憶體快照 347,015,862 bytes（330.9 MiB）則沒有優於 Matcha 完整 producer 的 341,536,495 bytes（325.7 MiB）。同環境單 thread task `RTF` 為 `1.3617`，對 Matcha `0.1361`，慢 `10.00x` 且未達即時。Breeze2 已經做到約 Matcha 尺寸，失敗點是 CPU 而不是模型下載；因此不更換現行選型。若未來要保存 Breeze 聲線，研究目標應改為以授權允許的合成資料微調 16 kHz 小型 Matcha student，並以 `RTF < 0.3`、記憶體不高於 Matcha、ASR CER 與盲聽共同驗收。官方未公開可直接重現的 Breeze2 專用蒸餾 recipe，且 model card 未宣告權重 license；在授權與可訓練 checkpoint 釐清前，不投入兩張 A10 的正式蒸餾。完整執行順序、資料規格、GPU 時程、驗收與停止條件見 [BreezyVoice 聲線轉移至 Matcha 執行計畫](frameworks/vits/BREEZYVOICE-MATCHA-PLAN.md)。
+依使用者明確要求，2026-08-11 將 MediaTek `Breeze2-VITS-onnx` 作為 controlled challenger 試跑。模型、lexicon 與 tokens 合計 123,600,935 bytes（117.9 MiB），比 Matcha acoustic＋Vocos 129,599,930 bytes（123.6 MiB）小 4.6%；初始化記憶體快照 347,015,862 bytes（330.9 MiB）則沒有優於 Matcha 完整 producer 的 341,536,495 bytes（325.7 MiB）。同環境單 thread task `RTF` 為 `1.3617`，對 Matcha `0.1361`，完整 VITS graph 慢 `10.00x` 且未達即時。這次只量整個 `session.run()`，尚未將 encoder／duration、flow 與 neural waveform decoder 分段，因此 graph inspection 雖指出直接 waveform decoder 是主要嫌疑之一，不能宣稱它單獨造成全部差距。Breeze2 已經做到約 Matcha 尺寸，失敗點是 CPU 而不是模型下載；因此不更換現行選型。若未來要保存 Breeze 聲線，研究目標應改為以授權允許的合成資料微調 16 kHz 小型 Matcha student，並以 `RTF < 0.3`、記憶體不高於 Matcha、ASR CER 與盲聽共同驗收。官方未公開可直接重現的 Breeze2 專用蒸餾 recipe，且 model card 未宣告權重 license；在授權與可訓練 checkpoint 釐清前，不投入兩張 A10 的正式蒸餾。完整執行順序、資料規格、GPU 時程、驗收與停止條件見 [BreezyVoice 聲線轉移至 Matcha 執行計畫](frameworks/vits/BREEZYVOICE-MATCHA-PLAN.md)。
 
 Matcha `matcha-icefall-zh-en` 使用相同五句中文做三方盲測後得到 `90/100`，高於 Kokoro 的 `80/100` 與 Piper 的 `60/100`；Piper 另被標記有外國腔。上游 `sherpa-onnx 1.12.20` 官方 browser SIMD bundle 以建議的 `phone-zh.fst,date-zh.fst,number-zh.fst`、`noise_scale=0.667`、單一 thread 測得小說 task `RTF 0.1411`，約 `7.09x realtime`；含日期、時間、電話及百分比的原始數字語料同為 `RTF 0.1411`。繁體小說原文不經 OpenCC 亦成功產生 26.73 秒有效音訊，使用者已確認品質沒有問題；這些證據構成目前選定 Matcha 的依據。2026-08-09 升級至 stable ORT Web `1.27.0` 後，獨立 kaldifst WASM 的完整 desktop producer 測得 `RTF 0.1387`、`7.21x realtime`，10 個 append、51.228 秒音訊且無 underflow 或錯誤。初始化記憶體快照為 341,536,495 bytes（325.7 MiB），較 `1.26.0-dev` 增加約 48.7 MiB；其中 normalizer 的獨立 linear memory 仍為 16 MiB。此路徑不承擔官方 frontend bundle 固定 512 MiB heap，但 stable 1.27 的 iPhone 記憶體 gate 尚未驗收，所有桌面數字也只是快照，不是真正 peak。
 

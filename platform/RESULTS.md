@@ -43,9 +43,9 @@ Adapter 使用 sherpa-onnx 前端預先產生的固定 token；文字前處理�
 
 模型輸出為 22.05 kHz；capture 的 268,544 samples 全部有限，peak `0.0957`、RMS `0.0104`，不是零 waveform。ORT session 初始化為 1.308 秒；包含一次 11.088 秒音訊暖機後，初始化階段 wall time 為 16.584 秒。模型、lexicon 與 tokens 合計 123,600,935 bytes（117.9 MiB），比 Matcha acoustic＋Vocos 129,599,930 bytes（123.6 MiB）少 4.6%。Breeze2 初始化記憶體快照為 347,015,862 bytes（330.9 MiB）；Matcha 完整 producer 初始化快照為 341,536,495 bytes（325.7 MiB）。後者包含 Worker 與 16 MiB normalizer，兩個數字仍都只是不同 harness 的時間點快照，不可宣稱為真正 peak 或 iPhone 記憶體。
 
-結論是 Breeze2 已經約等於、甚至略小於 Matcha 模型尺寸，但核心推論剛好約慢 `10.00x`，所以問題不是 footprint，而是 VITS graph 在單線程 WASM 的運算成本。此 challenger 不取代 Matcha，也不進入 iPhone transport 整合。若要保存 Breeze 聲線，後續研究目標應是 16 kHz 小型 Matcha student 與 `RTF < 0.3`，而不是單純把 121 MB 權重再縮到 Matcha 尺寸。詳細限制與蒸餾判定見 [VITS 文件](../frameworks/vits/README.md)；原始資料為 [results-breeze2_vits-browser-wasm.json](results/results-breeze2_vits-browser-wasm.json)。
+結論是 Breeze2 已經約等於、甚至略小於 Matcha 模型尺寸，但完整 VITS graph 的核心推論剛好約慢 `10.00x`，所以問題不是 footprint，而是整張 graph 在單線程 WASM 的運算成本。這次只量一次完整 ONNX `session.run()`，尚未把 encoder＋duration、flow 與 neural waveform decoder 分段；因此 decoder 是 graph inspection 指出的主要嫌疑之一，不是已證實的單一 10 倍來源。此 challenger 不取代 Matcha，也不進入 iPhone transport 整合。若要保存 Breeze 聲線，後續研究目標應是 16 kHz 小型 Matcha student 與 `RTF < 0.3`，而不是單純把 121 MB 權重再縮到 Matcha 尺寸。詳細限制與蒸餾判定見 [VITS 文件](../frameworks/vits/README.md)；原始資料為 [results-breeze2_vits-browser-wasm.json](results/results-breeze2_vits-browser-wasm.json)。
 
-兩邊的格式條件相同：Breeze2 的 30,035,547 個 parameters 與 Matcha acoustic＋Vocos 的 32,050,469 個 parameters 都是 FP32，且同樣使用 ORT Web 的 SIMD WASM binary、單一 thread，沒有 INT8 operator。Breeze2 的 graph 直接用 4 個 `ConvTranspose` 與 75 個 decoder `Conv` 經 `8 × 8 × 2 × 2` 上採樣產生 22.05 kHz waveform；Matcha＋Vocos 大部分計算停留在 mel frame／頻譜時間軸，最後才由 ISTFT 展開 16 kHz waveform。參數量決定下載大小，activation 的時間軸、每層重複次數與 operator 實作才決定推論時間。
+兩邊的格式條件相同：Breeze2 的 30,035,547 個 parameters 與 Matcha acoustic＋Vocos 的 32,050,469 個 parameters 都是 FP32，且同樣使用 ORT Web 的 SIMD WASM binary、單一 thread，沒有 INT8 operator。Breeze2 的 neural waveform decoder 直接用 4 個 `ConvTranspose` 與 75 個 decoder `Conv` 經 `8 × 8 × 2 × 2` 上採樣產生 22.05 kHz waveform；Matcha＋Vocos 大部分計算停留在 mel frame／頻譜時間軸，最後才由 ISTFT 展開 16 kHz waveform。參數量決定下載大小，activation 的時間軸、每層重複次數與 operator 實作才決定推論時間；目前沒有分段 timing，不能從 node count 反推出 decoder 的實際占比。
 
 ### Matcha 上游建議 FST browser 基線
 
