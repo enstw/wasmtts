@@ -2,13 +2,14 @@
 
 ## 細節
 
-統一平台已測三個非 Piper 的 VITS 目標：
+統一平台已測四個非 Piper 的 VITS 目標：
 
 - AISHELL3：使用 sid 66，輸出 8 kHz；CPU footprint 很低，但本次主觀實聽只有 `3/10`，且有明顯外國腔。
 - MeloTTS zh/en：輸出 44.1 kHz；音訊有效，但單線程推論成本明顯高於 Piper。
 - MediaTek Breeze2-VITS：單聲線、22.05 kHz 的 zh-TW 模型；官方說明為從 BreezyVoice 蒸餾供行動裝置使用。本輪固定 Hugging Face revision `4592eb1dc4222707c7a6482d3df4bc263c441041`。
+- Fanchen WNJ VITS：單聲線、16 kHz 中文模型；使用 sherpa-onnx `tts-models` release asset，archive 以 SHA-256 `4035c68899e951ccc6e863e6088ba0898fba0ccd5a88df7f2b784a9b0da88503` 固定。
 
-三者都以各自的 lexicon／tokens 完成文字前處理，前處理不納入推論計時。
+四者都以各自的 lexicon／tokens 完成文字前處理，前處理不納入推論計時。
 
 ## Benchmark
 
@@ -17,8 +18,9 @@
 | AISHELL3（sid 66） | 0.708 秒 | 0.45x | 最低 CPU 技術參考，不列入品質候選 |
 | MeloTTS zh/en | 14.427 秒 | 9.16x | 單線程慢於即時，不適合作為行動端主引擎 |
 | MediaTek Breeze2-VITS | 13.617 秒 | 同輪 Matcha 的 10.00x | `RTF 1.362`，單線程慢於即時 |
+| Fanchen WNJ VITS | 10.261 秒 | 同輪 Matcha 的 7.54x | `RTF 1.026`，略慢於即時且沒有背景餘裕 |
 
-AISHELL3／MeloTTS 的完整三輪資料在 `platform/results/results-vits-browser-wasm.json`；Breeze2 的原始量測為 `platform/results/results-breeze2_vits-browser-wasm.json`。Runner 仍會產生本機 `platform/results/breeze2_vits-browser-wasm.wav` 供驗證，但在權重與合成輸出授權釐清前由 Git 忽略，不散布至 repository。
+AISHELL3／MeloTTS 的完整三輪資料在 `platform/results/results-vits-browser-wasm.json`；Breeze2 與 Fanchen WNJ 的原始量測分別為 `platform/results/results-breeze2_vits-browser-wasm.json`、`platform/results/results-fanchen_vits_wnj-browser-wasm.json`。兩個 challenger runner 都會產生本機 WAV 供驗證，但在權重與合成輸出授權釐清前由 Git 忽略，不散布至 repository。
 
 ## Breeze2-VITS controlled challenger
 
@@ -46,8 +48,18 @@ Graph inspection 顯示結構是重要差異，但目前尚未完成分段成本
 
 具體的資料規格、2×A10 時程、訓練路徑、驗收 gate 與停止條件見 [BreezyVoice 聲線轉移至 Matcha 執行計畫](BREEZYVOICE-MATCHA-PLAN.md)。
 
+## Fanchen WNJ VITS controlled challenger
+
+2026-08-12 使用 Brave 所附 Chromium `151.0.7922.108`、ONNX Runtime Web `1.27.0`、WASM execution provider 與一個 thread，對相同五句繁體中文先暖機一次再量三次。前端採逐字直輸、release Bopomofo lexicon、tokens 與 ONNX metadata 指定的 `add_blank=1`，排除於核心推論計時；模型輸出為 16 kHz。
+
+三輪 task `RTF` 為 `1.0072`、`1.0332`、`1.0261`，中位數 `1.0261`，即 `0.975x realtime`；每 10 秒音訊需 `10.261` 秒 task time。這是臨界線外的結果，不符合 `RTF < 1`，也沒有吸收 iOS 背景排程、熱降頻或單句波動的餘裕。相同 runtime 的 Matcha task `RTF` 為 `0.1361`，因此 Fanchen WNJ 的核心運算成本為 Matcha 的 `7.54x`。
+
+模型、lexicon 與 tokens 合計 123,534,359 bytes（117.8 MiB），比 Matcha acoustic＋Vocos 的 123.6 MiB 小 4.7%。ORT session 初始化為 1.285 秒；包含一次 11.504 秒音訊暖機後，初始化階段 wall time 為 12.996 秒。初始化與 benchmark 後的 `measureUserAgentSpecificMemory()` 快照分別為 346,636,910 bytes（330.6 MiB）與 346,741,746 bytes（330.7 MiB），前者仍比 Matcha 完整 producer 多約 4.9 MiB；這些都只是桌面時間點快照，不是真正 peak 或 iPhone 結果。
+
+三輪輸出皆通過有限值與非靜音檢查。獨立 capture 的 177,664 samples 全部有限，peak `0.6841`、RMS `0.1002`。本輪依要求停在核心 benchmark，沒有完成 Whisper ASR、主觀盲聽、MP3／MediaSource 或 iPhone 測試，因此不得據此宣稱品質合格。上游 release 與原始 checkpoint 頁面也沒有提供可直接套用於權重的明確 license；模型與合成 WAV 不提交。結論是此模型符合約 Matcha 下載 footprint，卻仍略慢於即時，不取代 Matcha，也不進入產品 transport 整合。
+
 ## 最佳化
 
-AISHELL3 已有充足的 CPU 餘裕，但 8 kHz 取樣率與中文音質才是主要限制，繼續微調 runtime 不會使它成為品質升級。MeloTTS 的下一步應先 profile encoder、decoder 與 vocoder 的分段成本，再決定是否值得做量化或替換 vocoder；目前沒有證據支持直接擴大量化範圍。Breeze2 的主要限制同樣是 CPU，不是下載尺寸；在沒有 profile 與授權之前，不展開產品整合或大規模蒸餾。
+AISHELL3 已有充足的 CPU 餘裕，但 8 kHz 取樣率與中文音質才是主要限制，繼續微調 runtime 不會使它成為品質升級。MeloTTS 的下一步應先 profile encoder、decoder 與 vocoder 的分段成本，再決定是否值得做量化或替換 vocoder；目前沒有證據支持直接擴大量化範圍。Breeze2 與 Fanchen WNJ 的主要限制同樣是 CPU，不是下載尺寸；在沒有 profile、品質證據與授權之前，不展開產品整合或大規模蒸餾。
 
 重跑方法與共同量測條件請見 [platform/RESULTS.md](../../platform/RESULTS.md)。

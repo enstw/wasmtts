@@ -7,6 +7,7 @@
 - `benchmark.js`：保留的 sherpa-onnx Node WASM 對照 harness。
 - `vits-browser.html`、`run-vits-browser.mjs`：歷史 Piper、AISHELL3 與 MeloTTS ORT Web 路徑。
 - `breeze2-vits-browser.html`、`run-breeze2-vits-browser.mjs`：MediaTek Breeze2-VITS controlled challenger 的單線程 ORT Web footprint／效能 runner；不屬於現行產品路徑。
+- `../frameworks/vits/fanchen-wnj/`：Fanchen WNJ VITS controlled challenger 的 manifest、下載器、browser page 與單線程 ORT Web runner；研究工具不屬於 release artifact 或現行產品路徑。
 - `kokoro-browser.html`、`run-kokoro-browser.mjs`：歷史 Kokoro ORT Web、profiling、shape probe 與 thread 測試。
 - `matcha-browser.html`、`run-matcha-browser.mjs`：Matcha acoustic model、Vocos 與 JavaScript ISTFT 的單執行緒 ORT Web 路徑。
 - `kaldifst-wasm/`、`kaldifst-normalizer.js`：獨立 kaldifst + OpenFST text-normalizer WASM、最小 C ABI 與 UTF-8 bridge；Matcha/Vocos 的 ORT Web memory 與此 module 的 memory 相互獨立。
@@ -40,6 +41,7 @@
 ```text
 platform/models/
 ├── breeze2-vits/
+├── fanchen-vits-wnj/
 ├── matcha-icefall-zh-en/
 ├── sherpa-onnx-wasm-simd-1.12.20-matcha-icefall-zh-en/
 └── vocos-16khz-univ.onnx
@@ -57,6 +59,17 @@ pnpm benchmark:breeze2-vits
 ```
 
 上游 model card 未宣告 Breeze2-VITS 權重 license；這些資產只保存在本機 ignored 目錄，不可散布。完整量測與採用判定見 [RESULTS.md](RESULTS.md)。
+
+Fanchen WNJ VITS 試跑以 release archive SHA-256 與逐檔 SHA-256 固定；下載後使用同一個 host 執行 benchmark：
+
+```sh
+pnpm exec node frameworks/vits/fanchen-wnj/fetch-assets.mjs
+pnpm host:mobile
+# 另一個終端機：
+pnpm exec node frameworks/vits/fanchen-wnj/run-browser.mjs
+```
+
+上游未提供可直接套用於權重的明確 license；模型與合成 WAV 只保存在本機 ignored 路徑，不散布。完整量測與判定見 [RESULTS.md](RESULTS.md)。
 
 g2pW WebGPU feasibility A/B 使用本機已忽略的 606 MiB ONNX 與 tokenizer cache：
 
