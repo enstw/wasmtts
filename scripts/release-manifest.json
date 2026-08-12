@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "tarball": "wasmtts-frontend.tar.gz",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "platform/upstreams.yaml",
+    "platform/matcha-assets.json",
+    "platform/matcha-frontend.js",
+    "platform/matcha-taiwan-profile.js",
+    "platform/matcha-g2p-review.json",
+    "platform/kaldifst-wasm/dist/matcha-kaldifst-normalizer.js",
+    "platform/kaldifst-wasm/dist/matcha-kaldifst-normalizer.wasm"
+  ]
+}

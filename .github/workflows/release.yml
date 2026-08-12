@@ -109,13 +109,9 @@ jobs:
         id: package
         if: steps.gates.outcome == 'success'
         continue-on-error: true
-        run: |
-          mkdir -p release-artifacts/package
-          cp LICENSE README.md platform/upstreams.yaml platform/matcha-assets.json release-artifacts/package/
-          cp platform/matcha-frontend.js platform/matcha-taiwan-profile.js platform/matcha-g2p-review.json release-artifacts/package/
-          cp platform/kaldifst-wasm/dist/matcha-kaldifst-normalizer.js release-artifacts/package/
-          cp platform/kaldifst-wasm/dist/matcha-kaldifst-normalizer.wasm release-artifacts/package/
-          tar czf release-artifacts/wasmtts-frontend.tar.gz -C release-artifacts/package .
+        # 打包內容由 scripts/release-manifest.json 定義，與 package-smoke gate
+        # 共用同一條組包路徑 — 出貨的 tarball 就是 gate 測過的那套邏輯產出的。
+        run: node scripts/package-release.mjs
       - name: Attest tested frontend
         id: attest
         if: steps.package.outcome == 'success'
