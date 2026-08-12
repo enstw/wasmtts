@@ -53,6 +53,10 @@ run('release-version', 'node', ['scripts/test-next-release-tag.mjs']);
 run('fst-fixtures', 'pnpm', ['test:matcha-fst']);
 run('fst-tables', 'pnpm', ['test:matcha-fst:tables']);
 run('vendor-mobile', 'pnpm', ['vendor:mobile']);
+// 消費者視角的完整性 gate：依 release-manifest.json 實際打包、解壓到乾淨
+// 暫存目錄、只用 tarball 檔案跑最小前端流程。其他 gate 全測 repo 檔案，
+// 唯有這裡能抓到「檔案沒進 tarball」這類打包缺漏。
+run('package-smoke', 'node', ['scripts/test-package-smoke.mjs']);
 
 const hostLog = path.join(logs, 'host.log');
 const host = spawn('node', ['mobile-host/server.mjs'], {
