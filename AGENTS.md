@@ -16,6 +16,7 @@
 ## Architecture
 
 - `GOAL.md`：canonical 研究目標與已測方案目錄。
+- `frameworks/MODEL-COMPARISON.md`：跨模型、跨語言的市場尺寸、授權與公開品質證據；不是本機 benchmark 排名。
 - `frameworks/<name>/`：該框架的細節、benchmark、最佳化、限制與專屬樣本。
 - `platform/`：統一 WASM harness、browser pages、runner、分析工具及機器可讀結果。
 - `mobile-host/`：提供 COOP／COEP headers，讓桌面與行動裝置載入 repository 內的測試頁。

@@ -30,7 +30,9 @@ AISHELL3／MeloTTS 的完整三輪資料在 `platform/results/results-vits-brows
 
 這個差距不是 INT8／FP32 或 SIMD 條件不一致。Breeze2 有 30,035,547 個 parameters、473 個 initializer，全是 FP32；Matcha acoustic＋Vocos 合計 32,050,469 個 parameters、385 個 initializer，也全是 FP32。兩邊透過同一個 ORT Web module 載入相同的 SIMD／thread-capable WASM build，並固定 `numThreads=1`，沒有量化 operator。檔案大小接近只表示 FP32 parameters 數量接近，不代表每秒音訊執行的 MAC 或 memory traffic 接近。
 
-Graph 結構才是主要差異。Breeze2 graph 有 6,505 個 nodes、189 個 `Conv`，其中 waveform decoder 含 4 個 `ConvTranspose` 與 75 個 `Conv`；四級上採樣 stride 為 `8 × 8 × 2 × 2 = 256`，大量卷積會在逐步放大的時間軸上直接產生 22.05 kHz waveform。其 stochastic duration predictor／flow 另帶入 `ScatterND` 30 個、`NonZero` 21 個與 `CumSum` 7 個等動態 shape operators。Matcha acoustic graph 有 4,802 個 nodes、113 個 `Conv`，另加 Vocos 272 個 nodes、9 個 `Conv`；核心維持在 80-bin mel frame 時間軸，Vocos 輸出頻譜後才由廉價 JavaScript ISTFT 以 hop 256 展開成 16 kHz waveform。Breeze2 的 22.05 kHz 輸出比 Matcha 16 kHz 多 37.8% samples，但這不足以單獨解釋 10 倍；主要成本仍是直接 waveform decoder 與 flow/duration graph。
+Graph inspection 顯示結構是重要差異，但目前尚未完成分段成本歸因。Breeze2 graph 有 6,505 個 nodes、189 個 `Conv`，其中 neural waveform decoder 含 4 個 `ConvTranspose` 與 75 個 `Conv`；四級上採樣 stride 為 `8 × 8 × 2 × 2 = 256`，大量神經卷積會在逐步放大的時間軸上直接產生 22.05 kHz waveform。其 stochastic duration predictor／flow 另帶入 `ScatterND` 30 個、`NonZero` 21 個與 `CumSum` 7 個等動態 shape operators。Matcha acoustic graph 有 4,802 個 nodes、113 個 `Conv`，另加 Vocos 272 個 nodes、9 個 `Conv`；核心維持在 80-bin mel frame／頻譜時間軸，最後才由 JavaScript ISTFT 以 hop 256 展開成 16 kHz waveform。Breeze2 的 22.05 kHz 輸出比 Matcha 16 kHz 多 37.8% samples，但這不足以單獨解釋 10 倍。
+
+本 runner 的 `modelMs` 與 CDP `TaskDuration` 都量測一次完整 ONNX `session.run()`，沒有把 encoder＋duration、flow、waveform decoder 切成獨立 session，也沒有保存逐 operator profile。因此直接 waveform decoder 是根據 graph 結構得到的主要嫌疑之一，flow／duration graph 也可能占顯著成本；現有證據不能聲稱 decoder 單獨造成全部 `10.00x`，更不能分配各階段百分比。若要回答成本占比，必須在相同輸入與 runtime 下輸出三段 ONNX 分別計時。
 
 本 runner 的前端採「繁體逐字直輸 → 官方 lexicon Bopomofo → tokens」，並依 ONNX metadata 設定 `add_blank=1`；前端排除於核心推論計時。這足以回答 footprint／推論速度，但還不是官方 sherpa Android frontend 的品質等價驗證，因此本輪不作聲線品質排名。
 

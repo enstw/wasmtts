@@ -69,6 +69,7 @@ pnpm test:release-gates
 ## Repository 結構
 
 - [`GOAL.md`](GOAL.md)：canonical 產品目標、選型結論與完成條件。
+- [`frameworks/MODEL-COMPARISON.md`](frameworks/MODEL-COMPARISON.md)：英文、zh_CN、zh_TW 開放權重 TTS 的尺寸、授權與公開品質證據。
 - [`frameworks/matcha/`](frameworks/matcha/)：Matcha 架構、品質與限制。
 - [`platform/`](platform/)：WASM harness、browser runners、分析工具及結果。
 - [`mobile-host/`](mobile-host/)：COOP／COEP host 與長駐 MediaSource transport。
