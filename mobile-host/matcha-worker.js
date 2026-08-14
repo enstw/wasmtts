@@ -12,7 +12,7 @@ importScripts(
 
 const ASSET_CACHE = 'wasmtts-matcha-assets-v1';
 const MODEL_ROOT = '/platform/models/matcha-icefall-zh-en';
-const ACOUSTIC_URL = `${MODEL_ROOT}/model-steps-3.onnx`;
+const ACOUSTIC_URL = `${MODEL_ROOT}/model-steps-6.onnx`;
 const VOCODER_URL = '/platform/models/vocos-16khz-univ.onnx';
 const LEXICON_URL = `${MODEL_ROOT}/lexicon.txt`;
 const TOKENS_URL = `${MODEL_ROOT}/tokens.txt`;
@@ -23,7 +23,7 @@ const RULE_FSTS = [
   {key: 'numberFst', url: `${MODEL_ROOT}/number-zh.fst`, label: '數字規則 FST'},
 ];
 const BIT_RATE_KBPS = 96;
-const EXPECTED_LARGE_ASSET_BYTES = 131233620;
+const EXPECTED_LARGE_ASSET_BYTES = 131901812;
 
 ort.env.wasm.numThreads = 1;
 ort.env.wasm.proxy = false;
@@ -97,8 +97,19 @@ async function downloadResponse(url, onProgress, {networkFirst = false} = {}) {
   return {buffer: bytes.buffer, source};
 }
 
+async function evictStaleAcousticCache() {
+  // 換用其他 ODE steps 的 acoustic model 時，移除舊檔的 CacheStorage 條目，避免裝置殘留約 72 MiB。
+  if (!('caches' in self)) return;
+  const cache = await caches.open(ASSET_CACHE);
+  for (const request of await cache.keys()) {
+    const {pathname} = new URL(request.url);
+    if (/\/model-steps-\d+\.onnx$/u.test(pathname) && pathname !== ACOUSTIC_URL) await cache.delete(request);
+  }
+}
+
 async function downloadAssets() {
   if (downloadedAssets) return downloadedAssets;
+  await evictStaleAcousticCache();
   const assets = [
     {key: 'lexicon', url: LEXICON_URL, label: '前端詞典'},
     {key: 'tokens', url: TOKENS_URL, label: 'Tokens'},

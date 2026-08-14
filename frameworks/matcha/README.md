@@ -1,6 +1,6 @@
 # Matcha
 
-更新日期：2026-08-07
+更新日期：2026-08-15
 
 ## 目前判定
 
@@ -10,12 +10,13 @@
 
 ## 模型與資產
 
-- Acoustic model：`matcha-icefall-zh-en/model-steps-3.onnx`，單一聲線，約 72 MB。
+- Acoustic model：`matcha-icefall-zh-en/model-steps-6.onnx`，單一聲線，約 73 MB；自 ModelScope 上游 [`dengcunqin/matcha_tts_zh_en_20251010`](https://modelscope.cn/models/dengcunqin/matcha_tts_zh_en_20251010) 以 commit 釘版下載。上游提供 `model-steps-2` 至 `model-steps-6` 全套 ODE steps 匯出；HF 鏡像 `csukuangfj/matcha-icefall-zh-en` 只含 `model-steps-3`（SHA-256 與上游一致，同一權重），本專案 2026-08-15 起改採 `model-steps-6`。
 - Vocoder：`vocos-16khz-univ.onnx`，約 51 MB。
 - 輸出：16 kHz、單聲道。
-- 模型包另含 lexicon、tokens、中文 FST 與 `espeak-ng-data`；本次本機解壓後 acoustic model 目錄約 100 MiB，Vocos 約 52 MiB。
-- Acoustic model SHA-256：`524286bf6cf11be74329ae1c682ac69e34d6860c2ea9fd1290319d561540b16a`。
+- lexicon、tokens 與中文 FST 仍由 HF 鏡像依 `platform/matcha-assets.json` 釘定 revision 下載；steps 匯出共用同一套 tokens 與 lexicon，發音路徑不受 steps 切換影響。
+- Acoustic model SHA-256：`f69a099ebe0b576d08a329dac5076fdd2e09f6cbc51b771ee96f84dc8198d7fe`。
 - Vocos SHA-256：`b599142a1fb8ff03de3e84ac35ff537c619e56f4267a6fe894851a42844acf9e`。
+- 既有 benchmark 快照與盲測分數皆以 `model-steps-3` 量測；`model-steps-6` 的 flow decoder 需跑兩倍 ODE steps，RTF 與試聽結論必須經 candidate gate 與聽感驗證重新建立後才能引用。
 - 上游 README 沒有提供可直接採用的模型授權聲明；商用前必須另外釐清，不能因為程式碼可下載就推定權重可商用。
 
 第三方模型與下載壓縮檔只放在被忽略的 `platform/models/`，不納入 repository。

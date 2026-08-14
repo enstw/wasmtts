@@ -153,7 +153,7 @@ const report = {
   purpose: '同一 sherpa-onnx browser WASM runtime 的 FST on/off control；只改 ruleFsts',
   fixedConfiguration: {
     sherpaOnnx: '1.12.20',
-    model: 'matcha-icefall-zh-en / model-steps-3.onnx',
+    model: 'matcha-icefall-zh-en / model-steps-6.onnx',
     vocoder: 'vocos-16khz-univ.onnx',
     lexicon: 'lexicon.txt',
     tokens: 'tokens.txt',

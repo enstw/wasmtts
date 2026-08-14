@@ -200,7 +200,7 @@ window.bench = {
     const initStarted = performance.now();
     [this.acoustic, this.vocoder] = await Promise.all([
       ORT.InferenceSession.create(
-        '/platform/models/matcha-icefall-zh-en/model-steps-3.onnx',
+        '/platform/models/matcha-icefall-zh-en/model-steps-6.onnx',
         {executionProviders: ['wasm']},
       ),
       ORT.InferenceSession.create(

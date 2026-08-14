@@ -1,6 +1,6 @@
 # 單線程 WASM TTS 本機基準
 
-測試日期：2026-08-06 至 2026-08-12（Asia/Taipei）
+測試日期：2026-08-06 至 2026-08-15（Asia/Taipei）
 
 ## 結論
 
@@ -37,6 +37,12 @@ AISHELL3 的取樣率只有 8 kHz，而且音質、韻律與聲線選擇和 CPU 
 三輪輸出分別有 174,821、174,764、174,688 samples，全部為有限值；peak 為 `0.8093`、`0.8306`、`0.7777`，RMS 為 `0.1336`、`0.1351`、`0.1301`。Phase 中位數是 acoustic `911.1 ms`、Vocos `549.5 ms`、JavaScript ISTFT `20.8 ms`、silence scaling `0.5 ms`，因此後續核心效能最佳化應先看 acoustic 與 Vocos，不應先花時間重寫 ISTFT。
 
 Adapter 使用 sherpa-onnx 前端預先產生的固定 token；文字前處理排除於計時外，與既有 ORT Web 主表一致。中文 FST 在目前 Node WASM wrapper 仍會越界，正式瀏覽器結果也沒有包含 FST、MP3 編碼或 MediaSource append，因此這是核心合成 benchmark，不是 iPhone 端到端串流結果。完整紀錄與樣本位於 [Matcha 文件](../frameworks/matcha/README.md)，機器可讀結果是 [results-matcha_icefall_zh_en-browser-wasm.json](results/results-matcha_icefall_zh_en-browser-wasm.json)。
+
+### Acoustic model 改採 `model-steps-6.onnx`
+
+2026-08-15 確認 HF 鏡像 `csukuangfj/matcha-icefall-zh-en` 的來源是 ModelScope `dengcunqin/matcha_tts_zh_en_20251010`，上游提供 `model-steps-2` 至 `model-steps-6` 全套 ODE steps 匯出且 `model-steps-3` SHA-256 與鏡像一致。產品路徑自本日改採 `model-steps-6.onnx`（76,385,274 bytes，SHA-256 `f69a099e…`），權重自 ModelScope 以 commit 釘版下載並驗證 SHA-256，lexicon、tokens 與三個中文 FST 仍由 HF 鏡像釘定 revision 下載；tokens 與 lexicon 共用，發音路徑不受切換影響。兩個 ONNX 合計 130,268,122 bytes（124.2 MiB），較 steps-3 組合增加約 0.6 MiB。
+
+同日本機重測核心 benchmark：三輪 task time 為 `3.111`、`3.243`、`3.244` 秒／10 秒音訊，中位數 task `RTF 0.3243`、wall `RTF 0.3241`，約 `3.08 倍即時`；waveform 全為有限值，peak `0.7720`–`0.9092`、RMS 約 `0.134`。Phase 中位數 acoustic `2672.3 ms`、Vocos `830.3 ms`、ISTFT `31.4 ms`。注意本輪未變動的 Vocos phase 也較 08-09 快照慢約 1.5 倍，顯示本機當下負載較高；以 Vocos 為尺度校正後，acoustic 成本約為 steps-3 的 2 倍，與 ODE steps 3 → 6 的預期一致，估計同條件核心速度約 `4.5`–`4.7 倍即時`。端到端 producer 亦重測通過：producer `RTF 0.3217`、`3.11 倍即時`，underflow／append error／producer error 全為 0，記憶體快照初始化後 343,813,279 bytes、串流後 347,831,910 bytes，仍低於 512 MiB 預算。steps-6 對聽感的實際增益尚未做盲測；依 GOAL.md 的 release 條件，iPhone/PWA 實機驗收不屬於本 repository 的 release gate，既有 iPhone 紀錄僅為 steps-3 時期的歷史相容性證據。
 
 ## MediaTek Breeze2-VITS footprint／效能試跑
 
