@@ -146,7 +146,7 @@ Speaker metric 只作同一 embedding model、同一 references 的相對 A/B，
 1. 固定 Breeze teacher 聲線與 20 句品質基線。
 1. 在 2×A10／12 小時內完成 pseudo-data adaptation A／B。
 1. 通過 CER、speaker similarity、盲測、ONNX 與 WASM gates 後，才考慮 feature-level distillation。
-1. Pilot 全部通過後，才將 candidate 接入既有 MP3／MediaSource transport 並安排 iPhone 實機驗收。
+1. Pilot 全部通過後，才將 candidate 接入既有 MP3／MediaSource transport；iPhone 實機驗收不屬於本 repository 的 release gate。
 
 ## 上游依據
 

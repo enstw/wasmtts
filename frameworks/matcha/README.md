@@ -78,7 +78,7 @@
 | 結束時 buffer ahead | 44.73 秒 |
 | Underflow／append error／producer error | 0／0／0 |
 
-同輪初始化後記憶體快照為 341,536,495 bytes（325.7 MiB），串流快照為 345,817,320 bytes（329.8 MiB）；第二次獨立重跑的初始化快照為 341,535,075 bytes，確認此水位可重現。相較 `1.26.0-dev` 初始化快照增加約 48.7 MiB，normalizer 本身仍維持 16 MiB，增量來自 ORT 1.27 路徑。這只是時間點快照，不是 peak 或 iPhone 結果；stable 1.27 已通過桌面功能與速度 gate，但 iPhone 記憶體 gate 尚未驗收。
+同輪初始化後記憶體快照為 341,536,495 bytes（325.7 MiB），串流快照為 345,817,320 bytes（329.8 MiB）；第二次獨立重跑的初始化快照為 341,535,075 bytes，確認此水位可重現。相較 `1.26.0-dev` 初始化快照增加約 48.7 MiB，normalizer 本身仍維持 16 MiB，增量來自 ORT 1.27 路徑。這只是時間點快照，不是 peak 或 iPhone 結果；stable 1.27 已通過桌面功能與速度 gate，iPhone 上的記憶體行為未在本 repository 驗證。
 
 每段中位數為 4.751 秒音訊、57,888 bytes MP3；前端 `0.580 ms`、核心合成 `607.5 ms`、MP3 encode `55.0 ms`、完整 producer `694.6 ms`。記憶體 API 只在初始化後與串流中取樣，不能宣稱為 peak。
 

@@ -4,7 +4,7 @@
 
 `stream-test.html` 與 `continuous-stream-player.mjs` 抽出 `bookworm` 已在 iOS PWA 驗證的播放框架：單一 `HTMLAudioElement`、單一 `ManagedMediaSource`／`MediaSource` sequence timeline、事件驅動 refill、有界 ahead buffer、舊 buffer 裁切與鎖屏 flight recorder。測試頁以重複的 HuaYan MP3 fixture 驗證 transport；選定的 Matcha adapter 以相同契約逐段回傳 `{ buffer: ArrayBuffer, meta }`。Fixture 與 Piper 不產生本專案的 TTS benchmark，也不需要重做 Piper Worker 或 encoder 實驗。
 
-`matcha-stream-test.html` 是目前選定模型的實際 producer：Worker 逐句執行繁體直輸、獨立 kaldifst WASM `phone/date/number` FST、lexicon/token mapping、Matcha、Vocos、ISTFT、silence scaling 與 96 kbps MP3 encode，再交給同一個 continuous player。Matcha/Vocos 共用 ORT Web WASM；text normalizer 是另一個初始 16 MiB linear memory 的小型 WASM。三個原始 sherpa tables 合計約 208 KiB，不載入 512 MiB sherpa-onnx frontend bundle。`official` profile 保留上游 lexicon；可選 `taiwan` profile 由 [`matcha-taiwan-profile.js`](../platform/matcha-taiwan-profile.js) 集中組合「垃圾」與 [`matcha-g2p-review.json`](../platform/matcha-g2p-review.json) 的 `profiles.taiwan` 明列規則。contextual rule 只在 longest-match 仍落到單字「著」時生效，不是全域覆寫。模型、FST 與大字典採 cache-first；小型 review manifest 採 network-first、離線時才 cache fallback，因此詞典更新不需輪替大型 asset cache。實機仍須確認儲存配額與 eviction 行為。
+`matcha-stream-test.html` 是目前選定模型的實際 producer：Worker 逐句執行繁體直輸、獨立 kaldifst WASM `phone/date/number` FST、lexicon/token mapping、Matcha、Vocos、ISTFT、silence scaling 與 96 kbps MP3 encode，再交給同一個 continuous player。Matcha/Vocos 共用 ORT Web WASM；text normalizer 是另一個初始 16 MiB linear memory 的小型 WASM。三個原始 sherpa tables 合計約 208 KiB，不載入 512 MiB sherpa-onnx frontend bundle。`official` profile 保留上游 lexicon；可選 `taiwan` profile 由 [`matcha-taiwan-profile.js`](../platform/matcha-taiwan-profile.js) 集中組合「垃圾」與 [`matcha-g2p-review.json`](../platform/matcha-g2p-review.json) 的 `profiles.taiwan` 明列規則。contextual rule 只在 longest-match 仍落到單字「著」時生效，不是全域覆寫。模型、FST 與大字典採 cache-first；小型 review manifest 採 network-first、離線時才 cache fallback，因此詞典更新不需輪替大型 asset cache。
 
 `frequency-ab-score.html` 是 16 kHz 箱音診斷的匿名評分頁。每位受試者看到隨機排序的四段音訊，頁面收集箱音／鼓聲、清晰度、自然度、整體偏好與播放設備；草稿保存在瀏覽器 localStorage，提交後由 host 驗證並追加至 `.cache/frequency-ab-scores.jsonl`。受試者資料不加入 Git，音訊版本的 SHA-256 會隨每筆評分保存。
 
@@ -53,14 +53,3 @@ WASM_TTS_SCORE_FILE=/tmp/matcha-frequency-ab-scores.jsonl pnpm host:mobile
 - 手機與測試電腦必須位於可互通的網路，且防火牆允許所選 port。
 - 單線程 WASM 可透過區域網路 HTTP 做功能與效能測試。
 - `SharedArrayBuffer` 需要 secure context；使用區域網路 IP 測雙執行緒時，僅有 COOP／COEP headers 不足，仍需受裝置信任的 HTTPS 憑證或正式 HTTPS host。
-- 實機紀錄應包含 iOS／iPadOS 版本、裝置型號、Safari 版本、是否為 PWA、可用執行緒及 background／foreground 行為。
-
-## 鎖屏播放驗收
-
-- 在使用者點擊後建立單一長駐 `HTMLAudioElement` 與單一 `ManagedMediaSource`／`SourceBuffer` sequence；逐句背景合成、編碼並 append 到既有 timeline，不得預產整章或在片段邊界再次呼叫 `play()`。
-- 分別從 Safari tab 與安裝到主畫面的 PWA 開始播放；開始出聲後鎖屏至少 2 小時並跨越 3 個章節，期間不得要求回前景補產。
-- 每 10 秒記錄合成 wall time、音訊秒數、RTF、realtime multiplier、buffer ahead、待 append 佇列與 document visibility；確認 RTF 持續小於 `1` 且 buffer 沒有 underflow。
-- 限制 ahead buffer 並裁切已播放區段，確認記憶體與佇列不隨小說長度持續成長。
-- 驗證鎖屏的播放／暫停控制、耳機控制、其他 app 音訊中斷，以及解鎖回到前景後的狀態。
-- 記錄實際是否可聽，不只記錄 `play()` Promise、media events 或 `AudioContext.state`。
-- 若使用 `navigator.audioSession`，可在支援時設為 `playback`，但仍必須保留實機版本矩陣。
