@@ -3,6 +3,9 @@
 # roll-up looks for the newest tag): renovate opens or refreshes the single
 # grouped PR, this job runs the candidate gate on it, merges on green, and
 # dispatches the release run on main — one gated release a week.
+# A second six-hour schedule checks GitHub Dependabot alerts. Confirmed
+# vulnerability fixes skip only the 30-day quarantine, take priority over the
+# weekly roll-up, and still pass the identical candidate gate before merge.
 #
 # The explicit candidate dispatch is load-bearing: a PR created with
 # GITHUB_TOKEN fires no pull_request workflows (GitHub's recursion guard),
@@ -18,6 +21,7 @@ env:
 on:
   schedule:
     - cron: "3 21 * * 0" # Sunday 21:03 UTC = Monday 05:03 Asia/Taipei
+    - cron: "17 */6 * * *" # Security alert pickup; normal updates stay in the Monday window
   workflow_dispatch:
 
 permissions:
@@ -25,6 +29,7 @@ permissions:
   pull-requests: write
   issues: write # the dependency dashboard is an issue
   actions: write
+  security-events: read # Renovate reads GitHub Dependabot alerts
 
 jobs:
   roll-up:
@@ -36,23 +41,36 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
+      - name: Require Dependabot alert access
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh api repos/${GITHUB_REPOSITORY}/dependabot/alerts --paginate >/dev/null; then
+            echo "Enable Dependency graph and Dependabot alerts in Settings > Advanced Security; CVE quarantine bypass is fail-closed." >&2
+            exit 1
+          fi
       - name: Run Renovate
         run: pnpm dlx "renovate@${RENOVATE_VERSION}" --platform=github enstw/wasmtts
         env:
           RENOVATE_TOKEN: ${{ github.token }}
           LOG_LEVEL: info
-      - name: Gate, merge and release the roll-up
+      - name: Gate, merge and release the highest-priority candidate
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          PR=$(gh pr list -R enstw/wasmtts --head renovate/weekly-roll-up --json number --jq '.[0].number // empty')
-          if [ -z "$PR" ]; then echo "no roll-up this week"; exit 0; fi
+          CANDIDATE=$(gh pr list -R enstw/wasmtts --state open --limit 100 --json number,headRefName,labels --jq '[.[] | select(any(.labels[]; .name == "security")) | select(.headRefName | endswith("-vulnerability"))][0] // empty')
+          if [ -z "$CANDIDATE" ]; then
+            CANDIDATE=$(gh pr list -R enstw/wasmtts --head renovate/weekly-roll-up --json number,headRefName --jq '.[0] // empty')
+          fi
+          if [ -z "$CANDIDATE" ]; then echo "no security fix or weekly roll-up"; exit 0; fi
+          PR=$(jq -r .number <<<"$CANDIDATE")
+          BRANCH=$(jq -r .headRefName <<<"$CANDIDATE")
           # file names, not display names: the workflows are named "Upstream
           # candidate" and "Tested release", which gh does not match as
           # "candidate"/"release"
-          gh workflow run candidate.yml --ref renovate/weekly-roll-up -R enstw/wasmtts
+          gh workflow run candidate.yml --ref "$BRANCH" -R enstw/wasmtts
           sleep 30
-          RUN=$(gh run list -R enstw/wasmtts --workflow candidate.yml --branch renovate/weekly-roll-up --limit 1 --json databaseId --jq '.[0].databaseId')
+          RUN=$(gh run list -R enstw/wasmtts --workflow candidate.yml --branch "$BRANCH" --limit 1 --json databaseId --jq '.[0].databaseId')
           gh run watch "$RUN" --exit-status -R enstw/wasmtts
           gh pr merge "$PR" --rebase --delete-branch -R enstw/wasmtts
           gh workflow run release.yml --ref main -R enstw/wasmtts
