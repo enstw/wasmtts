@@ -25,7 +25,10 @@ export async function launch({ port, profile, args = [], gpu = false, onFail } =
     "--no-sandbox", "--disable-dev-shm-usage", ...args,
   ], { stdio: "ignore", env });
 
-  const deadline = Date.now() + 20000;
+  // 60 秒上限：免費 GitHub runner 高負載時冷啟動可超過 20 秒（2026-08-14 曾兩次
+  // 連續逾時導致 kaldifst-wasm gate 假性失敗）；polling 在 endpoint 就緒時立即
+  // 返回，加大上限不影響健康情況的量測時間。
+  const deadline = Date.now() + 60000;
   let wsUrl;
   while (true) {
     try {
