@@ -38,6 +38,7 @@
     "test:matcha-kaldifst-wasm": "node platform/test-kaldifst-wasm-browser.mjs",
     "test:matcha-asr": "uv run platform/asr-listening-gate.py --audio platform/results/matcha_icefall_zh_en-browser-wasm.wav --expected-file frameworks/matcha/samples/quality.txt --absolute-cer-limit 0.08 --baseline-report platform/asr-baseline/current.json --regression-tolerance 0.02 --output platform/results/asr-listening-report.json",
     "test:release-gates": "node scripts/run-release-gates.mjs",
+    "generate:release-md": "node scripts/generate-release-md.mjs",
     "validate:release-results": "node scripts/validate-release-results.mjs",
     "sample:matcha-upstream-fst-traditional": "node platform/generate-matcha-upstream-fst-traditional-sample.mjs",
     "sample:matcha-frequency-ab": "pnpm vendor:mobile && node platform/generate-matcha-frequency-ab.mjs",

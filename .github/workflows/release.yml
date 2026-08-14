@@ -103,8 +103,7 @@ jobs:
           ASSET_RESULT: ${{ steps.assets.outcome }}
         run: |
           mkdir -p release-artifacts
-          printf '# wasmtts release gate\n\n- Result: **FAILED**\n- native-wasm: %s\n- dependencies: %s\n- browser: %s\n- assets: %s\n' "$NATIVE_RESULT" "$DEPENDENCY_RESULT" "$BROWSER_RESULT" "$ASSET_RESULT" > release-artifacts/release-report.md
-          printf '{"status":"failed","combinations":[{"name":"native-wasm","status":"%s"},{"name":"dependencies","status":"%s"},{"name":"browser","status":"%s"},{"name":"assets","status":"%s"}]}\n' "$NATIVE_RESULT" "$DEPENDENCY_RESULT" "$BROWSER_RESULT" "$ASSET_RESULT" > release-artifacts/release-gates.json
+          printf '{"schemaVersion":1,"commit":"%s","status":"failed","combinations":[{"name":"native-wasm","status":"%s"},{"name":"dependencies","status":"%s"},{"name":"browser","status":"%s"},{"name":"assets","status":"%s"}]}\n' "$GITHUB_SHA" "$NATIVE_RESULT" "$DEPENDENCY_RESULT" "$BROWSER_RESULT" "$ASSET_RESULT" > release-artifacts/release-gates.json
       - name: Package tested frontend
         id: package
         if: steps.gates.outcome == 'success'
@@ -125,54 +124,73 @@ jobs:
           PACKAGE_RESULT: ${{ steps.package.outcome }}
           ATTEST_RESULT: ${{ steps.attest.outcome }}
         run: |
-          printf '\n## Release infrastructure failure\n\n- package: %s\n- attestation: %s\n' "$PACKAGE_RESULT" "$ATTEST_RESULT" >> release-artifacts/release-report.md
           jq --arg package "$PACKAGE_RESULT" --arg attest "$ATTEST_RESULT" '.status="failed" | .combinations += [{name:"package",status:$package},{name:"attestation",status:$attest}]' release-artifacts/release-gates.json > release-artifacts/release-gates.tmp
           mv release-artifacts/release-gates.tmp release-artifacts/release-gates.json
+      - name: Resolve release identity
+        id: release
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_TAG: ${{ inputs.release_tag }}
+          HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          RELEASE_SUCCEEDED: ${{ steps.gates.outcome == 'success' && steps.package.outcome == 'success' && steps.attest.outcome == 'success' }}
+        run: |
+          if [[ "$RELEASE_SUCCEEDED" != true ]]; then
+            tag="candidate-failed-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          else
+            tag="$REQUESTED_TAG"
+            if [[ -z "$tag" && "$HEAD_COMMIT_MESSAGE" =~ Release-Version:[[:space:]]*(v[0-9]+\.[0-9]+\.[0-9]+) ]]; then
+              tag="${BASH_REMATCH[1]}"
+            fi
+            if [[ -n "$tag" && ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Invalid release tag: $tag" >&2
+              exit 1
+            elif [[ -z "$tag" ]]; then
+              releases_json="$(gh release list --limit 1000 --json tagName,isDraft,isPrerelease)"
+              tag="$(WASM_TTS_RELEASES_JSON="$releases_json" node scripts/next-release-tag.mjs)"
+            fi
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - name: Generate RELEASE.md
+        if: always() && steps.release.outcome == 'success'
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node scripts/generate-release-md.mjs
       - if: always()
         uses: actions/upload-artifact@v7
         with:
           name: tested-release-report
           path: release-artifacts/
       - name: Publish successful release
-        if: steps.gates.outcome == 'success' && steps.package.outcome == 'success' && steps.attest.outcome == 'success'
+        if: steps.release.outcome == 'success' && steps.gates.outcome == 'success' && steps.package.outcome == 'success' && steps.attest.outcome == 'success'
         env:
           GH_TOKEN: ${{ github.token }}
-          REQUESTED_TAG: ${{ inputs.release_tag }}
-          HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
         run: |
-          tag="$REQUESTED_TAG"
-          if [[ -z "$tag" && "$HEAD_COMMIT_MESSAGE" =~ Release-Version:[[:space:]]*(v[0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            tag="${BASH_REMATCH[1]}"
-          fi
-          if [[ -n "$tag" && ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Invalid release tag: $tag" >&2
-            exit 1
-          elif [[ -z "$tag" ]]; then
-            releases_json="$(gh release list --limit 1000 --json tagName,isDraft,isPrerelease)"
-            tag="$(WASM_TTS_RELEASES_JSON="$releases_json" node scripts/next-release-tag.mjs)"
-          fi
-          gh release create "$tag" \
+          gh release create "$RELEASE_TAG" \
             release-artifacts/wasmtts-frontend.tar.gz \
             release-artifacts/package/matcha-taiwan-profile.js \
+            release-artifacts/RELEASE.md \
             release-artifacts/release-gates.json \
             release-artifacts/assets.json \
             platform/results/results-matcha_icefall_zh_en-browser-wasm.json \
             platform/results/results-matcha_icefall_zh_en-stream-browser-wasm.json \
             platform/results/asr-listening-report.json \
             --target "$GITHUB_SHA" \
-            --title "$tag — Matcha browser frontend" \
-            --notes-file release-artifacts/release-report.md \
+            --title "$RELEASE_TAG — Matcha browser frontend" \
+            --notes-file release-artifacts/RELEASE.md \
             --latest
       - name: Publish failed candidate record
-        if: steps.gates.outcome != 'success' || steps.package.outcome != 'success' || steps.attest.outcome != 'success'
+        if: steps.release.outcome == 'success' && (steps.gates.outcome != 'success' || steps.package.outcome != 'success' || steps.attest.outcome != 'success')
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
         run: |
-          tag="candidate-failed-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-          gh release create "$tag" \
+          gh release create "$RELEASE_TAG" \
             release-artifacts/release-gates.json \
-            release-artifacts/release-report.md \
+            release-artifacts/RELEASE.md \
             --target "$GITHUB_SHA" \
             --title "Failed candidate — ${GITHUB_SHA::12}" \
-            --notes-file release-artifacts/release-report.md \
+            --notes-file release-artifacts/RELEASE.md \
             --prerelease
