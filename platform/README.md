@@ -1,6 +1,6 @@
 # 統一 WASM 測試平台
 
-本目錄集中 Matcha 的 browser pages、runner、分析工具、資產掛載點與測試結果。Piper、VITS、Kokoro 與 operator probe 檔案只保留為選型與效能調查的歷史重現工具；目前產品開發、benchmark 與實機驗收均以 Matcha 為主。Matcha 結論寫在 `frameworks/matcha/`，機器可讀結果與跨方案歷史數值保留在此處。
+本目錄集中 Matcha 的 browser pages、runner、分析工具、資產掛載點與測試結果。Piper、VITS、Kokoro 與 operator probe 檔案只保留為選型與效能調查的歷史重現工具；目前產品開發與 benchmark 均以 Matcha 為主。Matcha 結論寫在 `frameworks/matcha/`，機器可讀結果與跨方案歷史數值保留在此處。
 
 ## 目錄內容
 
@@ -133,7 +133,7 @@ tar xjf platform/models/sherpa-onnx-wasm-simd-1.12.20-matcha-icefall-zh-en.tar.b
 
 播放 transport 的參考實作位於 [`mobile-host/continuous-stream-player.mjs`](../mobile-host/continuous-stream-player.mjs)，立即可用的 fixture 頁面為 [`mobile-host/stream-test.html`](../mobile-host/stream-test.html)。新的 TTS adapter 應實作相同 producer 契約，不要各自複製 MediaSource 狀態機。
 
-Fixture 與 Piper transport 只驗證共同播放基礎設施，不產生可排名的 TTS 結果。Matcha producer 使用相同 transport 契約完成端到端 RTF 與鎖屏驗收。
+Fixture 與 Piper transport 只驗證共同播放基礎設施，不產生可排名的 TTS 結果。Matcha producer 使用相同 transport 契約完成端到端 RTF 量測；鎖屏與實機行為不屬於本 repository 的 release gate。
 
 ## 執行
 

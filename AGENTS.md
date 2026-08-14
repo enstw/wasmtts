@@ -2,9 +2,9 @@
 
 ## Project Overview
 
-本 repository 已選定 Matcha `matcha-icefall-zh-en` 作為目前的 iOS Safari／PWA 離線中文 TTS 模型。現行工作只聚焦 Matcha 的正式文字前端、記憶體、串流整合與 iPhone 驗收；除非使用者明確要求重新選型，不要下載、恢復或繼續最佳化 Piper、Kokoro、VITS 或其他模型。Piper HuaYan medium 維持 frozen 品質／效能基準 `1.00x`，既有其他方案只保留為歷史決策證據。
+本 repository 已選定 Matcha `matcha-icefall-zh-en` 作為目前的 iOS Safari／PWA 離線中文 TTS 模型。現行工作只聚焦 Matcha 的正式文字前端、記憶體與串流整合；除非使用者明確要求重新選型，不要下載、恢復或繼續最佳化 Piper、Kokoro、VITS 或其他模型。Piper HuaYan medium 維持 frozen 品質／效能基準 `1.00x`，既有其他方案只保留為歷史決策證據。
 
-先閱讀 [GOAL.md](GOAL.md) 了解 Matcha 選型決策、固定配置與產品驗收標準。不要把含 NaN、Infinity、peak 為零或 RMS 為零的 waveform 當成有效 benchmark。
+先閱讀 [GOAL.md](GOAL.md) 了解 Matcha 選型決策、固定配置與 release 條件。不要把含 NaN、Infinity、peak 為零或 RMS 為零的 waveform 當成有效 benchmark。
 
 ## Setup
 
@@ -26,7 +26,7 @@ Matcha 的產品配置、限制與重現步驟寫入 `frameworks/matcha/README.m
 
 iOS 產品路徑採用「背景逐句合成、單一媒體 timeline」：使用者手勢只啟動一次長駐 `HTMLAudioElement`，Worker 產生的音訊單元經編碼後 append 到同一個 `ManagedMediaSource`／`SourceBuffer` sequence。不得預產整章、在句子或章節邊界建立新 element 或再次呼叫 `play()`。buffer 必須有界並以 media／append 事件驅動 refill，不可只依賴背景 timer；`bookworm` 的 Piper HuaYan medium 單 thread 實作是目前的產品參考。
 
-Piper Worker、MP3 encoder 與上述播放 transport 已由 `bookworm` 驗證；不要在本 repository 重做 Piper 整合或把 fixture transport 數字當成研究結果。Matcha 必須使用 `mobile-host` 的既有 producer 契約完成整合與實機相容性測試。
+Piper Worker、MP3 encoder 與上述播放 transport 已由 `bookworm` 驗證；不要在本 repository 重做 Piper 整合或把 fixture transport 數字當成研究結果。Matcha 必須使用 `mobile-host` 的既有 producer 契約完成整合；iPhone/PWA 實機驗收不屬於本 repository 的 release gate，既有實機紀錄僅為歷史相容性證據。
 
 Matcha `matcha-icefall-zh-en` 是目前選定模型：相同文本盲測為 Matcha `90`、Kokoro `80`、Piper `60`，Piper 被標記有外國腔。正式文字路徑固定為「繁體直輸 → 官方 `phone/date/number` FST → Matcha」，採 `noise_scale=0.667`。目前 pilot 由獨立 kaldifst + OpenFST text-normalizer WASM 執行三個原始 FST；Matcha/Vocos 共用 ORT Web WASM，兩個 module 各自使用 linear memory。`platform/matcha-fst.js` 保留為 JavaScript golden/診斷基線，不載入固定 512 MiB heap 的 sherpa-onnx frontend bundle；修改時必須維持 phone、date、number 順序及 OpenFST tie-break。桌面 Worker／MP3／MediaSource 整合已通過有效 waveform 與零 underflow／append error 驗證，但記憶體數字仍只是快照，不得寫成真正 peak 或 iPhone 結果。前端尚未涵蓋英文 eSpeak。
 
@@ -39,7 +39,6 @@ Matcha `matcha-icefall-zh-en` 是目前選定模型：相同文本盲測為 Matc
 - 保存可重現命令、合成架構、引擎版本、模型／聲音資料版本、聲線、取樣率、適用時的執行緒數與 runtime 版本。
 - 預設基準為單一 WASM thread；多執行緒結果必須確認 `crossOriginIsolated` 與 `SharedArrayBuffer`，不可默默 fallback。
 - `RTF` 固定表示「產生可 append 音訊的 wall time ÷ 音訊長度」；另以 `realtime multiplier = 1 / RTF` 回報速度，不可互換名稱。
-- 鎖屏測試必須記錄 Safari tab／Home Screen PWA、iOS 版本、裝置、音訊 transport、buffer 水位、連續時長、跨章數、Media Session 控制、靜音開關、耳機中斷及重新回到前景的結果。
 
 ## Commands
 

@@ -2,6 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", ":dependencyDashboard", ":semanticCommits"],
   "timezone": "Asia/Taipei",
+  "schedule": ["after 5:00am and before 6:00am on monday"],
   "prConcurrentLimit": 5,
   "prHourlyLimit": 0,
   "minimumReleaseAge": "30 days",
@@ -9,6 +10,18 @@
   "internalChecksFilter": "strict",
   "rangeStrategy": "pin",
   "labels": ["dependencies"],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "minimumReleaseAge": null,
+    "vulnerabilityFixStrategy": "lowest",
+    "rangeStrategy": "update-lockfile",
+    "addLabels": ["security", "quarantine-bypass", "automated-validation"],
+    "automerge": false,
+    "prBodyNotes": [
+      "Security exception: this update bypasses only the normal 30-day release-age quarantine.",
+      "The complete `candidate-gate` remains mandatory; merge and Release occur only after native WASM, waveform, RTF, memory, streaming, and ASR checks pass."
+    ]
+  },
   "lockFileMaintenance": { "enabled": false },
   "customManagers": [
     {

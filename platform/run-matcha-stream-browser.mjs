@@ -166,7 +166,7 @@ try {
     },
     model: {
       name: 'matcha-icefall-zh-en',
-      acousticModel: 'model-steps-3.onnx',
+      acousticModel: 'model-steps-6.onnx',
       vocoder: 'vocos-16khz-univ.onnx',
       sampleRate: 16000,
       threads: 1,

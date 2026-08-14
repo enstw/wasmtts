@@ -379,7 +379,7 @@ try {
   const report = {
     generatedAt: new Date().toISOString(),
     browser: version.product,
-    model: 'matcha-icefall-zh-en / model-steps-3.onnx + vocos-16khz-univ.onnx',
+    model: 'matcha-icefall-zh-en / model-steps-6.onnx + vocos-16khz-univ.onnx',
     text,
     sampleRate,
     channels: 1,

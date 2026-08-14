@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import {createHash} from 'node:crypto';
-import {createWriteStream, existsSync, mkdirSync, readFileSync, rmSync, statSync, copyFileSync} from 'node:fs';
+import {createWriteStream, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, copyFileSync} from 'node:fs';
 import {pipeline} from 'node:stream/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -34,6 +34,21 @@ try {
     copyFileSync(source, path.join(modelDir, file));
   }
 
+  const acousticRepository = manifest.acoustic.repository.replace(/\.git$/u, '');
+  const acousticTarget = path.join(root, manifest.acoustic.target);
+  if (!existsSync(acousticTarget) || sha256(acousticTarget) !== manifest.acoustic.sha256) {
+    await download(`${acousticRepository}/resolve/${manifest.acoustic.revision}/${manifest.acoustic.file}`, acousticTarget);
+  }
+  const acousticHash = sha256(acousticTarget);
+  if (acousticHash !== manifest.acoustic.sha256) {
+    throw new Error(`Acoustic model SHA-256 mismatch: ${acousticHash} != ${manifest.acoustic.sha256}`);
+  }
+  for (const stale of readdirSync(modelDir)) {
+    if (/^model-steps-\d+\.onnx$/u.test(stale) && stale !== manifest.acoustic.file) {
+      rmSync(path.join(modelDir, stale));
+    }
+  }
+
   const vocosTarget = path.join(root, manifest.vocos.target);
   if (!existsSync(vocosTarget) || sha256(vocosTarget) !== manifest.vocos.sha256) {
     await download(manifest.vocos.url, vocosTarget);
@@ -51,6 +66,13 @@ try {
         const target = path.join(modelDir, file);
         return [file, {bytes: statSync(target).size, sha256: sha256(target)}];
       })),
+    },
+    acoustic: {
+      repository: manifest.acoustic.repository,
+      revision: manifest.acoustic.revision,
+      file: manifest.acoustic.file,
+      bytes: statSync(acousticTarget).size,
+      sha256: acousticHash,
     },
     vocos: {url: manifest.vocos.url, bytes: statSync(vocosTarget).size, sha256: vocosHash},
   };

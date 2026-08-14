@@ -1,16 +1,22 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "matcha": {
     "repository": "https://huggingface.co/csukuangfj/matcha-icefall-zh-en.git",
     "revision": "fbe59d77057428c32111d5f3ea4ed67a7d440c61",
     "files": [
-      "model-steps-3.onnx",
       "lexicon.txt",
       "tokens.txt",
       "phone-zh.fst",
       "date-zh.fst",
       "number-zh.fst"
     ]
+  },
+  "acoustic": {
+    "repository": "https://modelscope.cn/models/dengcunqin/matcha_tts_zh_en_20251010",
+    "revision": "f9ec409de129ed1b05c9262cd5b29a1ccec050e4",
+    "file": "model-steps-6.onnx",
+    "sha256": "f69a099ebe0b576d08a329dac5076fdd2e09f6cbc51b771ee96f84dc8198d7fe",
+    "target": "platform/models/matcha-icefall-zh-en/model-steps-6.onnx"
   },
   "vocos": {
     "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/vocoder-models/vocos-16khz-univ.onnx",

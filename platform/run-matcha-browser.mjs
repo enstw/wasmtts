@@ -10,7 +10,7 @@ const url = `http://${host}:${serverPort}/platform/matcha-browser.html`;
 const profile = path.join(os.tmpdir(), `wasmtts-matcha-cdp-${process.pid}`);
 const resultPath = new URL('./results/results-matcha_icefall_zh_en-browser-wasm.json', import.meta.url);
 const wavPath = new URL('./results/matcha_icefall_zh_en-browser-wasm.wav', import.meta.url);
-const acousticModelPath = new URL('./models/matcha-icefall-zh-en/model-steps-3.onnx', import.meta.url);
+const acousticModelPath = new URL('./models/matcha-icefall-zh-en/model-steps-6.onnx', import.meta.url);
 const vocoderPath = new URL('./models/vocos-16khz-univ.onnx', import.meta.url);
 
 function metric(metrics, name) {
@@ -114,7 +114,7 @@ try {
     },
     model: {
       name: 'matcha-icefall-zh-en',
-      acousticModel: 'model-steps-3.onnx',
+      acousticModel: 'model-steps-6.onnx',
       vocoder: 'vocos-16khz-univ.onnx',
       acousticModelBytes: fs.statSync(acousticModelPath).size,
       vocoderBytes: fs.statSync(vocoderPath).size,

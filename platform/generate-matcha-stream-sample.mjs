@@ -121,7 +121,7 @@ try {
     const metadataPath = `${outputStem}.json`;
     const metadata = {
       generatedAt: new Date().toISOString(),
-      model: 'matcha-icefall-zh-en / model-steps-3.onnx + vocos-16khz-univ.onnx',
+      model: 'matcha-icefall-zh-en / model-steps-6.onnx + vocos-16khz-univ.onnx',
       frontend: initialization.frontend,
       pronunciationProfile: 'official',
       inputNormalization: 'traditional-direct',

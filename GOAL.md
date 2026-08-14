@@ -18,7 +18,7 @@
 
 `bookworm` 已在 iOS Home Screen PWA 實證這條路徑：Piper `zh_CN-huayan-medium` 以 ONNX Runtime Web WASM 單一 thread 在 Worker 中持續合成，句子單元經 MP3 編碼後 append 到單一 `ManagedMediaSource`／`SourceBuffer` sequence timeline，鎖屏期間可繼續合成與播放。這證明純 PWA 路徑是正式候選，但結果仍須連同裝置、iOS 版本、鎖屏時長、buffer 水位與中斷恢復行為保存，不可推論為所有 WebKit 版本都相同。
 
-上述 Piper Worker、MP3 encoder 與播放 transport 視為已驗證的基礎設施，不是本專案的研究變數，也不需要在此重做效能或長時間鎖屏實驗。`mobile-host` 保存的通用播放器是 Matcha producer 的產品相容性接點；後續資源集中在 Matcha 的資產體積、記憶體與實機穩態。
+上述 Piper Worker、MP3 encoder 與播放 transport 視為已驗證的基礎設施，不是本專案的研究變數，也不需要在此重做效能或長時間鎖屏實驗。`mobile-host` 保存的通用播放器是 Matcha producer 的產品相容性接點；後續資源集中在 Matcha 的資產體積、記憶體與串流整合。
 
 本專案固定使用標準定義 `RTF = 合成 wall time ÷ 音訊長度`，越低越好；`realtime multiplier = 音訊長度 ÷ 合成 wall time = 1 / RTF`，越高越好。`RTF < 1` 是持續串流的必要條件，還必須保留足以吸收背景排程、熱降頻與單句波動的餘裕。
 
@@ -48,7 +48,7 @@ Kokoro fp32 已通過主觀品質門檻，但單執行緒只有約 `0.70x realti
 
 依使用者明確要求，2026-08-12 再以 `vits-zh-hf-fanchen-wnj` 測試另一個約 Matcha footprint 的中文單聲線 VITS。模型、lexicon 與 tokens 合計 123,534,359 bytes（117.8 MiB），比 Matcha 小 4.7%；初始化記憶體快照為 346,636,910 bytes（330.6 MiB），仍比 Matcha 完整 producer 多約 4.9 MiB。相同 Chromium、ORT Web 與單 thread 下，三輪 task `RTF` 為 `1.0072`、`1.0332`、`1.0261`，中位數 `1.0261`，只達 `0.975x realtime`，運算成本是 Matcha 的 `7.54x`。waveform 全為有限非靜音 samples，但本輪依要求停在核心 benchmark，沒有完成 ASR 或主觀盲聽；因此只可判定 footprint／速度，不作聲線品質排名。結果再次確認接近 118 MiB 的完整 VITS graph 仍缺乏 iOS 背景串流所需的即時餘裕，不更換現行 Matcha 選型。
 
-Matcha `matcha-icefall-zh-en` 使用相同五句中文做三方盲測後得到 `90/100`，高於 Kokoro 的 `80/100` 與 Piper 的 `60/100`；Piper 另被標記有外國腔。上游 `sherpa-onnx 1.12.20` 官方 browser SIMD bundle 以建議的 `phone-zh.fst,date-zh.fst,number-zh.fst`、`noise_scale=0.667`、單一 thread 測得小說 task `RTF 0.1411`，約 `7.09x realtime`；含日期、時間、電話及百分比的原始數字語料同為 `RTF 0.1411`。繁體小說原文不經 OpenCC 亦成功產生 26.73 秒有效音訊，使用者已確認品質沒有問題；這些證據構成目前選定 Matcha 的依據。2026-08-09 升級至 stable ORT Web `1.27.0` 後，獨立 kaldifst WASM 的完整 desktop producer 測得 `RTF 0.1387`、`7.21x realtime`，10 個 append、51.228 秒音訊且無 underflow 或錯誤。初始化記憶體快照為 341,536,495 bytes（325.7 MiB），較 `1.26.0-dev` 增加約 48.7 MiB；其中 normalizer 的獨立 linear memory 仍為 16 MiB。此路徑不承擔官方 frontend bundle 固定 512 MiB heap，但 stable 1.27 的 iPhone 記憶體 gate 尚未驗收，所有桌面數字也只是快照，不是真正 peak。
+Matcha `matcha-icefall-zh-en` 使用相同五句中文做三方盲測後得到 `90/100`，高於 Kokoro 的 `80/100` 與 Piper 的 `60/100`；Piper 另被標記有外國腔。上游 `sherpa-onnx 1.12.20` 官方 browser SIMD bundle 以建議的 `phone-zh.fst,date-zh.fst,number-zh.fst`、`noise_scale=0.667`、單一 thread 測得小說 task `RTF 0.1411`，約 `7.09x realtime`；含日期、時間、電話及百分比的原始數字語料同為 `RTF 0.1411`。繁體小說原文不經 OpenCC 亦成功產生 26.73 秒有效音訊，使用者已確認品質沒有問題；這些證據構成目前選定 Matcha 的依據。2026-08-09 升級至 stable ORT Web `1.27.0` 後，獨立 kaldifst WASM 的完整 desktop producer 測得 `RTF 0.1387`、`7.21x realtime`，10 個 append、51.228 秒音訊且無 underflow 或錯誤。初始化記憶體快照為 341,536,495 bytes（325.7 MiB），較 `1.26.0-dev` 增加約 48.7 MiB；其中 normalizer 的獨立 linear memory 仍為 16 MiB。此路徑不承擔官方 frontend bundle 固定 512 MiB heap；所有桌面記憶體數字只是快照，不是真正 peak，iPhone 上的記憶體行為未在本 repository 驗證。
 
 2026-08-08 的 iPhone Safari LAN HTTP 初測確認低記憶體 JavaScript lexicon adapter 可完成模型下載、初始化、繁體直輸、前景播放與鎖屏播放；`ManagedMediaSource` 必須依 WebKit 要求在長駐 media element 設定 `disableRemotePlayback=true`。本輪不是 secure context 或 standalone PWA，且未達 2 小時／3 章、熱與耗電門檻，只能視為初步相容性證據。實聽發現引號 acoustic tokens 會發音後，已改為在 tokenization 前移除中英文開閉引號並加入迴歸測試。臺灣讀音覆寫目前只有「垃圾」；完整、有來源的詞典與「堤壩」等區域讀音留待另案開發。
 
@@ -68,7 +68,7 @@ Matcha 的選型已完成；本 repository 的自動 Release 只採可由免費 
 
 ## 下一步
 
-- 所有 Renovate 管理的 upstream 版本必須在 datasource 可驗證的發布時間滿 30 天後，才可進入 weekly roll-up；缺少 release timestamp 時採 fail-closed，不得建立 candidate branch／PR。ONNX Runtime Web 另依穩定版規則排除 dev、alpha、beta 與 RC。
+- 所有 Renovate 管理的普通 upstream 版本必須在 datasource 可驗證的發布時間滿 30 天後，才可進入 weekly roll-up；缺少 release timestamp 時採 fail-closed，不得建立 candidate branch／PR。GitHub Dependabot alert 確認的 CVE／GHSA 修補是唯一例外：只略過 30 天 quarantine、採最低已修補版本，仍須通過完整 candidate gate 才可合併與 Release。ONNX Runtime Web 另依穩定版規則排除 dev、alpha、beta 與 RC。
 - 上游更新採全自動 candidate gate：桌面 WASM、FST golden、有效 waveform、RTF、512 MiB 記憶體上限與固定 Whisper ASR 聽回全部通過才可合併並發布正式 Release；失敗 candidate 不合併，另以 pre-release 保存版本組合、逐項失敗原因、log 與機器可讀 JSON。
 - 完成獨立 kaldifst WASM 與既有 JavaScript applier 的完整 golden A/B，維持 phone、date、number 固定順序；JavaScript 版本暫留作診斷基線。
 - 補齊貨幣／範圍／序號等中文文字正規化，以及可審核的臺灣讀音詞典。
