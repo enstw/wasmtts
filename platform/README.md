@@ -13,7 +13,8 @@
 - `kaldifst-wasm/`、`kaldifst-normalizer.js`：獨立 kaldifst + OpenFST text-normalizer WASM、最小 C ABI 與 UTF-8 bridge；Matcha/Vocos 的 ORT Web memory 與此 module 的 memory 相互獨立。
 - `upstreams.yaml`：Renovate 追蹤的 Matcha acoustic、Vocos、lexicon/tokens、三個 FST、sherpa browser control、kaldifst/OpenFST 與 Emscripten 上游版本；版本 PR 只是通知，資產仍須人工驗證。
 - `matcha-assets.json`:語音包的正式定義(schemaVersion 3)——每個資產的來源 repository/revision、`packName`(下游供檔用的扁平檔名)、`bytes` 與 `sha256`。`fetch-matcha-assets.mjs` 逐檔驗證後才落地;下游消費者由此推導自己的檔案清單與資產名,不得自持會分岔的副本。不變量:資產 bytes 改變時 `packName` 必須跟著改變(下游以 cache-first 供檔,同名永不換 bytes)。`synthesis` 區塊是這個語音包的播放參數定案,下游產品一律由此讀取,同樣不得自持副本(2026-08-15,由下游遷入):`noiseScale 1`/`lengthScale 1` 是實機聽測驗收的值——刻意不採 sherpa 的 0.667,且 noise 0.3–1.0 掃測顯示誤讀率不受 noise 影響(2026-08-15);`silenceScale 1` 是因為 `scaleSilence` 是剪停頓的 pass 而非停頓產生器,0.2 會把 ，/。 的停頓剪到 55/147 ms,1 則不動波形、停頓交還模型本身(280/740 ms,實機 A/B 2026-08-08)。研究 benchmark 與歷史 RESULTS 沿用 sherpa 對齊的 0.667/0.2,兩種配置不可混報。
-- `asr-listening-gate.py`、`asr-baseline/`：以固定 revision 的 multilingual Whisper 聽回 Matcha WAV，計算正規化 CER，並同時套用絕對上限與相對正式 baseline 的退化上限。這是可懂度回歸 gate，不等同主觀自然度盲聽。
+- `asr-listening-gate.py`、`asr-baseline/`：以固定 revision 的 multilingual Whisper 聽回 Matcha WAV，計算正規化 CER，並同時套用絕對上限與相對正式 baseline 的退化上限。這是可懂度回歸 gate，不等同主觀自然度盲聽。`current.json` 對應研究序列(noise 1／silence 0.2),`product.json` 對應產品配方腿(讀 `matcha-assets.json` `synthesis` 區塊,2026-08-16 凍結,CER 2.04%);兩條腿各自比對自己的 baseline,數字不可混報。
+- `benchmark:matcha-product`／`test:matcha-asr-product`:同一個 `matcha-browser.html` 加 `?synthesis=product` 改讀 `matcha-assets.json` 的 `synthesis` 區塊(不複製常數,manifest 改值 gate 自動跟),結果寫入獨立的 `results-matcha_icefall_zh_en-product-browser-wasm.json` 與 wav。`silenceScale 1` 讓音訊比研究序列長約 21%,`RTF` 天然偏低,因此 product 腿的 `RTF` 只做 `(0, 1)` sanity 檢查、不設歷史比較;可懂度由獨立 baseline 的 ASR 聽回把關。
 - `matcha-fst.js`：從先行專案移植的純 JavaScript OpenFST reader，保留作 golden A/B 與診斷基線。
 - `matcha-frontend.js`、`matcha-synthesis.js`：可供 Worker 與測試共用的繁體直輸／FST／lexicon 前端及 Matcha + Vocos 合成核心。
 - `matcha-taiwan-profile.js`：正式臺灣讀音 profile adapter；集中組合 legacy「垃圾」覆寫與 `matcha-g2p-review.json` 已啟用規則，並隨 Release 獨立發布及納入 frontend tarball。
@@ -150,6 +151,7 @@ pnpm host:mobile
 
 ```sh
 pnpm benchmark:matcha
+pnpm benchmark:matcha-product
 pnpm benchmark:matcha-upstream-fst
 pnpm benchmark:matcha-fst-ab
 pnpm sample:matcha-upstream-fst-traditional

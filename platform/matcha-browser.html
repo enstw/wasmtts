@@ -23,6 +23,14 @@ const N_FFT = 1024;
 const HOP_LENGTH = 256;
 const NUM_BINS = N_FFT / 2 + 1;
 const SILENCE_SCALE = 0.2;
+// 研究序列固定 noise 1／silence 0.2 保持歷史可比性;?synthesis=product 改讀
+// matcha-assets.json 的 synthesis 區塊(產品播放參數唯一正本,不複製常數)。
+// 兩個序列的結果不可混報。
+const SYNTHESIS_PROFILE = new URLSearchParams(location.search).get('synthesis') === 'product'
+  ? 'product' : 'research';
+const SYNTHESIS = SYNTHESIS_PROFILE === 'product'
+  ? (await (await fetch('/platform/matcha-assets.json')).json()).synthesis
+  : {noiseScale: 1, lengthScale: 1, silenceScale: SILENCE_SCALE};
 const WINDOW = Float64Array.from(
   {length: N_FFT},
   (_, i) => 0.5 - 0.5 * Math.cos(2 * Math.PI * i / N_FFT),
@@ -233,8 +241,8 @@ window.bench = {
       const acousticOutput = await this.acoustic.run({
         x: i64(ids, [1, ids.length]),
         x_length: i64([ids.length], [1]),
-        noise_scale: f32(1),
-        length_scale: f32(1),
+        noise_scale: f32(SYNTHESIS.noiseScale),
+        length_scale: f32(SYNTHESIS.lengthScale),
       });
       acousticMs += performance.now() - phaseStarted;
 
@@ -253,7 +261,7 @@ window.bench = {
       istftMs += performance.now() - phaseStarted;
 
       phaseStarted = performance.now();
-      chunks.push(scaleSilence(raw));
+      chunks.push(scaleSilence(raw, SYNTHESIS.silenceScale));
       silenceMs += performance.now() - phaseStarted;
     }
 
@@ -276,9 +284,10 @@ window.benchmarkMetadata = {
   sentenceIds: SENTENCE_IDS,
   sampleRate: SAMPLE_RATE,
   numThreads: 1,
-  noiseScale: 1,
-  lengthScale: 1,
-  silenceScale: SILENCE_SCALE,
+  synthesisProfile: SYNTHESIS_PROFILE,
+  noiseScale: SYNTHESIS.noiseScale,
+  lengthScale: SYNTHESIS.lengthScale,
+  silenceScale: SYNTHESIS.silenceScale,
   frontend: 'Fixed token IDs from sherpa-onnx 1.13.4 without rule FSTs; outside timed boundary',
   runtime: 'ONNX Runtime Web 1.27.0',
 };

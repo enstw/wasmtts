@@ -17,6 +17,7 @@ platform/results/g2pw-ab-*.local.sqlite*
 platform/results/g2pw-threads-*.local.sqlite*
 platform/results/matcha-g2pw-manager.local.*
 platform/results/asr-listening-report.json
+platform/results/asr-listening-product-report.json
 *.onnx
 *.tar
 *.tar.bz2
