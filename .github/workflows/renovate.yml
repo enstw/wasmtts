@@ -1,6 +1,6 @@
 # The weekly upstream roll-up (Monday 05:03 Asia/Taipei — one hour before
-# bookworm's, so this repo's weekly release exists by the time bookworm's
-# roll-up looks for the newest tag): renovate opens or refreshes the single
+# the downstream consumer's, so this repo's weekly release exists by the time
+# the downstream roll-up looks for the newest tag): renovate opens or refreshes the single
 # grouped PR, this job runs the candidate gate on it, merges on green, and
 # dispatches the release run on main — one gated release a week.
 # A second six-hour schedule checks GitHub Dependabot alerts. Confirmed

@@ -6,7 +6,7 @@
 
 HuaYan 是 Piper 現有的普通話單人女聲，包含 `x_low` 與 `medium` 兩個版本。若目標是呈現 HuaYan 能達到的最佳音質，應採用 `zh_CN-huayan-medium`：模型約 63 MB、約 1,500 萬參數，輸出為 22,050 Hz 單聲道音訊。`medium` 是目前公開 HuaYan 模型中最適合製作音質樣本的版本。
 
-在本專案中，HuaYan medium 是 frozen 品質／效能基準，不是待開發或最佳化的候選。`bookworm` 已在 iOS Home Screen PWA 實證其單 thread Worker、MP3 encoder 與跨章鎖屏播放 transport；這項結果只用來封閉播放架構問題，不列為本專案的新 benchmark。Piper 本身仍有以下限制：
+在本專案中，HuaYan medium 是 frozen 品質／效能基準，不是待開發或最佳化的候選。先行專案已在 iOS Home Screen PWA 實證其單 thread Worker、MP3 encoder 與跨章鎖屏播放 transport；這項結果只用來封閉播放架構問題，不列為本專案的新 benchmark。Piper 本身仍有以下限制：
 
 - ONNX 模型、ONNX Runtime WASM、phonemizer 及 JavaScript heap 疊加後的記憶體壓力。
 - iOS 可能在沒有可捕捉錯誤的情況下終止或重新載入頁面。
@@ -19,7 +19,7 @@ HuaYan 是 Piper 現有的普通話單人女聲，包含 `x_low` 與 `medium` �
 1. 保留 HuaYan medium 的可實聽樣本、既有單 thread benchmark 與授權風險，供所有新候選比較。
 1. 不在此重做 Piper Worker、MP3 encoder、鎖屏長跑、x_low／medium 產品分層或播放器最佳化。
 1. 新候選的第一個 gate 是相對 HuaYan medium 的盲聽品質提升；通過後才比較 RTF、資產體積、記憶體與整合相容性。
-1. 播放 transport 的參考實作位於 [`mobile-host`](../../mobile-host/)，上游實證固定於 [`bookworm` commit `c826781`](https://github.com/enstw/bookworm/blob/c826781a1cb03416a6d69de7af05aadd6ab687f4/public/player.mjs#L580-L806)。
+1. 播放 transport 的參考實作位於 [`mobile-host`](../../mobile-host/)；上游實證來自先行專案的鎖屏播放實作，僅保留為歷史證據。
 
 ## HuaYan 音質與授權
 
@@ -82,4 +82,3 @@ Kokoro 不能使用原 sherpa-onnx 1.13.4 Node WASM binding（初始化觸發 `u
 - WebKit shared WASM memory issue: https://bugs.webkit.org/show_bug.cgi?id=281657
 - WebKit WASM memory issue: https://bugs.webkit.org/show_bug.cgi?id=222097
 - WebKit background AudioContext issue: https://bugs.webkit.org/show_bug.cgi?id=261554
-- Bookworm offline Piper stream implementation: https://github.com/enstw/bookworm/blob/c826781a1cb03416a6d69de7af05aadd6ab687f4/public/player.mjs#L580-L806

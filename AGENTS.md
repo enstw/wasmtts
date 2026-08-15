@@ -24,9 +24,9 @@
 
 Matcha 的產品配置、限制與重現步驟寫入 `frameworks/matcha/README.md`，共同量測結果寫入 `platform/RESULTS.md`。歷史框架目錄與 runner 可供查證，但不是目前開發入口；不得在未獲明確要求時恢復已移除的其他模型資產。Matcha 的核心與端到端量測仍須保留相同文字、計時邊界、量測單位、暖機次數與 waveform 驗證。
 
-iOS 產品路徑採用「背景逐句合成、單一媒體 timeline」：使用者手勢只啟動一次長駐 `HTMLAudioElement`，Worker 產生的音訊單元經編碼後 append 到同一個 `ManagedMediaSource`／`SourceBuffer` sequence。不得預產整章、在句子或章節邊界建立新 element 或再次呼叫 `play()`。buffer 必須有界並以 media／append 事件驅動 refill，不可只依賴背景 timer；`bookworm` 的 Piper HuaYan medium 單 thread 實作是目前的產品參考。
+iOS 產品路徑採用「背景逐句合成、單一媒體 timeline」：使用者手勢只啟動一次長駐 `HTMLAudioElement`，Worker 產生的音訊單元經編碼後 append 到同一個 `ManagedMediaSource`／`SourceBuffer` sequence。不得預產整章、在句子或章節邊界建立新 element 或再次呼叫 `play()`。buffer 必須有界並以 media／append 事件驅動 refill，不可只依賴背景 timer；先行專案的 Piper HuaYan medium 單 thread 實作是目前的產品參考。
 
-Piper Worker、MP3 encoder 與上述播放 transport 已由 `bookworm` 驗證；不要在本 repository 重做 Piper 整合或把 fixture transport 數字當成研究結果。Matcha 必須使用 `mobile-host` 的既有 producer 契約完成整合；iPhone/PWA 實機驗收不屬於本 repository 的 release gate，既有實機紀錄僅為歷史相容性證據。
+Piper Worker、MP3 encoder 與上述播放 transport 已由先行專案驗證；不要在本 repository 重做 Piper 整合或把 fixture transport 數字當成研究結果。Matcha 必須使用 `mobile-host` 的既有 producer 契約完成整合；iPhone/PWA 實機驗收不屬於本 repository 的 release gate，既有實機紀錄僅為歷史相容性證據。
 
 Matcha `matcha-icefall-zh-en` 是目前選定模型：相同文本盲測為 Matcha `90`、Kokoro `80`、Piper `60`，Piper 被標記有外國腔。正式文字路徑固定為「繁體直輸 → 官方 `phone/date/number` FST → Matcha」，採 `noise_scale=0.667`。目前 pilot 由獨立 kaldifst + OpenFST text-normalizer WASM 執行三個原始 FST；Matcha/Vocos 共用 ORT Web WASM，兩個 module 各自使用 linear memory。`platform/matcha-fst.js` 保留為 JavaScript golden/診斷基線，不載入固定 512 MiB heap 的 sherpa-onnx frontend bundle；修改時必須維持 phone、date、number 順序及 OpenFST tie-break。桌面 Worker／MP3／MediaSource 整合已通過有效 waveform 與零 underflow／append error 驗證，但記憶體數字仍只是快照，不得寫成真正 peak 或 iPhone 結果。前端尚未涵蓋英文 eSpeak。
 
@@ -43,6 +43,7 @@ Matcha `matcha-icefall-zh-en` 是目前選定模型：相同文本盲測為 Matc
 - 改動後、push 或開 PR 前,先在本地跑 `pnpm test:release-gates`(模型在 `platform/models/`、kaldifst dist 已提交,全套可本地重現),全綠才推;純文字層改動可先用較快的 `pnpm test:matcha-frontend` / `pnpm test:matcha-fst`,但 gate runner、CI、依賴等 release 級改動一律全套。CI 一輪約 6 分鐘還會排隊,不要拿紅燈當本地測試(owner 要求,2026-08-10)。
 - candidate/release 紅燈先看 `release-gates.json` 的 `attempts` 欄位與 console 的 `RETRY` 行(README 的 flake 吸收段):骰運只失敗一組,真退化每一組重跑都會失敗。
 - `platform/models/` 是本 repo 的工作快照,owner 隨時會換檔;repo 外的實驗或 harness 不得直接讀取,應依 `platform/upstreams.yaml` 的 pin 自行下載私有副本並驗證 SHA-256(owner 要求,2026-08-15)。
+- 本 repo 由多個 session／機器交錯開發,本地分支可能已被其他 session 以 squash 合進 origin/main 且 main 之後又有更新;開始任何提交／release 工作前先 `git fetch origin main`,用 `git diff origin/main HEAD --stat`(必要時逐檔 `git diff --quiet origin/main HEAD -- <file>`)判斷分支是否過時。過時就從 origin/main 開新分支、將未提交變更逐檔重套,不得直接在舊分支上繼續或把它 merge 回去(曾出現分支對 origin/main 淨差 +167/−3394 行、內容早已全在 main 的倒退風險,2026-08-15)。發版走 squash merge PR,並在 squash commit body 以 `Release-Version: vX.Y.Z` trailer 指定版本。
 
 ## Commands
 

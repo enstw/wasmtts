@@ -64,9 +64,9 @@
 
 ## kaldifst WASM 前端與 MP3 append
 
-2026-08-09 從 Bookworm 複製 `matcha-fst.js`：它以純 JavaScript 讀取原始 OpenFST vector archives，重現 kaldifst 的拓撲 shortest-path 與 equal-cost tie-break。三個 tables 依官方固定順序 `phone → date → number` 執行，合計 212,266 bytes，不需載入 sherpa-onnx frontend bundle。無資產 fixtures 與三個真實 tables 的 32 個 kaldifst golden cases 均通過。
+2026-08-09 從先行專案複製 `matcha-fst.js`：它以純 JavaScript 讀取原始 OpenFST vector archives，重現 kaldifst 的拓撲 shortest-path 與 equal-cost tie-break。三個 tables 依官方固定順序 `phone → date → number` 執行，合計 212,266 bytes，不需載入 sherpa-onnx frontend bundle。無資產 fixtures 與三個真實 tables 的 32 個 kaldifst golden cases 均通過。
 
-純 JavaScript applier 保留為 32 個 golden cases 的診斷基線。產品 Worker pilot 已改接獨立的 kaldifst `1.8.0` + OpenFST WASM、繁體直輸、68,037 詞 lexicon 最長匹配與 2,189 個 token mapping。normalizer WASM 約 338 KiB，初始 linear memory 為 16 MiB、允許成長且上限 128 MiB；它與 Matcha/Vocos 共用的 ORT Web WASM memory 相互獨立。產品前端同時保留 Bookworm 的臺灣格式修正：在進 FST 前只重整百分比、時間、日期分隔符與長位數電話，避免 tables 已知的 `%` 遺留、冒號 acoustic token 與 10 碼手機整數讀法；一般數字仍由原始 FST 決定。
+純 JavaScript applier 保留為 32 個 golden cases 的診斷基線。產品 Worker pilot 已改接獨立的 kaldifst `1.8.0` + OpenFST WASM、繁體直輸、68,037 詞 lexicon 最長匹配與 2,189 個 token mapping。normalizer WASM 約 338 KiB，初始 linear memory 為 16 MiB、允許成長且上限 128 MiB；它與 Matcha/Vocos 共用的 ORT Web WASM memory 相互獨立。產品前端同時保留先行專案的臺灣格式修正：在進 FST 前只重整百分比、時間、日期分隔符與長位數電話，避免 tables 已知的 `%` 遺留、冒號 acoustic token 與 10 碼手機整數讀法；一般數字仍由原始 FST 決定。
 
 最新端到端量測使用 Brave／Chromium `151.0.7922.108`、stable ORT Web `1.27.0`、WASM 單一 thread 與 `noise_scale=0.667`。Worker 完整暖機一次後，反覆合成 5 段繁體小說文字，內容包含對話、`2026年8月7日14:30`、`25.5%` 與「垃圾」；每句 PCM 以 lamejs `1.2.1` 編成 16 kHz mono、96 kbps MP3，再 append 到同一個 `audio/mpeg` sequence SourceBuffer。
 

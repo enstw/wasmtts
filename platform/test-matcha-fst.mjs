@@ -157,7 +157,7 @@ out.arcSort = applyFst(unsorted, "abc") === "ABC"
 // through the same chain sherpa configures: phone, then date, then number
 // (sherpa-onnx-tts.js: './phone-zh.fst,./date-zh.fst,./number-zh.fst').
 //
-// Some of these are upstream's answer, not the answer bookworm wants to speak:
+// Some of these are upstream's answer, not the answer the product wants to speak:
 // a Taiwan 10-digit mobile becomes one huge integer, "%" survives to be dropped
 // as an unknown glyph, and "14:30" keeps a colon that reads as a pause. They are
 // pinned as upstream behaviour so this file tests the applier against what
@@ -192,7 +192,7 @@ const GOLDEN = [
   // equal-cost readings — these are the cases the tie-break decides
   ["8.0", "八点零"],
   ["6990700860661", "六千九百九十七亿零八十六万零六百六十一"],
-  // upstream behaviour bookworm overrides in the frontend, pinned here as-is
+  // upstream behaviour the product frontend overrides, pinned here as-is
   ["14:30", "十四:三十"],
   ["25.5%", "二十五点五%"],
   ["100%", "一百%"],

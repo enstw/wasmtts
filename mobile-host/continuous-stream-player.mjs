@@ -1,4 +1,4 @@
-// 從 bookworm 已通過 iOS 鎖屏實測的播放路徑抽出的通用 transport。
+// 從先行專案已通過 iOS 鎖屏實測的播放路徑抽出的通用 transport。
 // Producer 只負責逐段回傳可 append 的編碼音訊；本模組維持單一
 // HTMLAudioElement、單一 MediaSource timeline、有界 buffer 與事件驅動 refill。
 
