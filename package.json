@@ -29,6 +29,8 @@
     "report:matcha-g2p-roi": "node platform/rank-matcha-g2p-roi.mjs",
     "report:matcha-g2pw-sqlite-roi": "node platform/report-matcha-g2pw-sqlite-roi.mjs",
     "test:matcha-frontend": "node platform/test-matcha-frontend.mjs",
+    "generate:matcha-lexicon-traditional": "node platform/generate-matcha-lexicon-traditional.mjs",
+    "test:matcha-lexicon-traditional": "node platform/test-matcha-lexicon-traditional.mjs",
     "test:matcha-g2p-review": "node platform/test-matcha-g2p-review.mjs",
     "test:matcha-g2p-roi": "node platform/test-matcha-g2p-roi.mjs",
     "test:matcha-g2pw-sqlite-roi": "node platform/test-matcha-g2pw-sqlite-roi.mjs",

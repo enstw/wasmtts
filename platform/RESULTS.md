@@ -159,6 +159,14 @@ Taiwan profile 另以指定文字跑一個完整瀏覽器 append，實際得到 
 
 第二十一批再由 `deferred` 群組回收 7 個安全 fixed phrase：`品相` 231、`興師` 162、`修長` 158、`長達` 139、`重遊` 69、`興盛` 18、`興起` 16 筆，共覆蓋 793 個 occurrence。所有規則均以完整詞 longest-match 生效，不把 `相`、`興`、`長`、`重` 擴張為全域單字覆寫；Taiwan profile 增為 119 個 phrase override。另由回歸測試確認目前官方 frontend 已正確處理 `重新`、`重逢`，因此不依舊 SQLite 候選新增冗餘覆寫。
 
+### 繁體 lexicon 鏡像（2026-08-16）
+
+會計 `hui4 ji4`、銀行 `yin2 xing2` 這類錯讀的根因是上游 lexicon 的多字詞條只有簡體（`会计 kuai4 ji4`、`银行 yin2 hang2` 均存在），繁體直輸 longest-match 落空後退到單字 fallback。以 OpenCC `1.4.1` 詞組級 cn→tw 鏡像 47,113 條多字詞條：33,219 條鍵值改變、25 條繁體鍵已存在、11 條轉換 collision 放棄，得 33,136 條候選。與現行 taiwan frontend 分層後，26,763 條（81%）輸出完全相同（冗餘不收）、4,065 條僅差聲調層（一／不變調、兒化、輕聲與 profile 已裁決字位，留給逐詞審核流程）、2,308 條含 base 音節修正。
+
+候選集以 315,593 句全文 A/B 對照現行 taiwan frontend，並以既有 g2pW SQLite index 的逐字意見輔助裁決：617 個詞在語料中造成讀音改變，其中「都會」1,761 處全為「都＋會」副詞連動、「的當」「著眼」「了無」「沒過」「人參（有人＋參與）」等同型跨詞邊界字串共判定 88 條逐條排除；低頻尾部依「g2pW 淨同意度為負或跨界斷裂且無正向證據」再排除 78 條；`樸=piao2`、`尾=yi3`、`纖=qian4`、`乾=gan4` 四條字位規則另攔上游詞條系統性錯誤。g2pW 意見不是發音真值——`模樣 mu2`、`軀殼 qiao4`、`關卡 qia3` 皆為 g2pW 全數反對但教育部支持的正確修正，僅作方向性輔助。
+
+最終 `matcha-lexicon-traditional.txt` 收 2,132 條 base 音節修正＋12 條明列讀音 guard（會計較、有著急、一覺得等），共 2,144 條。全文重跑 A/B：10,508 句、11,070 處讀音改變，僅餘 7 組「舊多字詞讀音被改變」的斷裂且全部是誤分詞修正（洩露天機⇐露天、一語中的⇐中的、東躲西藏⇐西藏、山重水複⇐重水、頂呱呱⇐呱呱、出差錯⇐出差、行道樹⇐行道）。高頻修正包含 `類似 lei4 si4` 1,098、`模樣 mu2 yang4` 978、`剎那 cha4 na4` 353、`調侃 tiao2 kan3` 301、`摻和 chan1 huo5` 197（前輪明確擱置的繁體 lexicon 缺口）；`銀行`、`會計` 於本語料 0 現、由單元測試固定。語料、SQLite 與 A/B 報告均為本機忽略產物。
+
 g2pW WebGPU feasibility 使用同一個 Python 產生的真實 ONNX feed 與 CPU golden，模型 `g2pw.onnx` 為 635,212,732 bytes、SHA-256 `bb40c8c7b5baa755b2acd317c6bc5a65e4af7b80c40a569247fbd76989299999`。Apple Silicon、macOS kernel 25.5.0、Headless Chrome 151、ORT Web 1.27.0、batch 32、一次暖機與五次量測下，WebGPU session 初始化 2,381.84 ms，五輪為 197.04、207.19、208.27、206.91、200.28 queries/s，中位 206.91。相同 feed 的 Python ORT 1.28.0 CPU 為 49.77、49.86、50.25、50.13、48.24 queries/s，中位 49.86，WebGPU inference speedup 為 4.15×。32 個 argmax 零差異，最大 probability 差 `1.19e-7`。fixture、完整輸出與模型皆為本機忽略產物；本數字排除 tokenizer、句子切分、FST、SQLite 與 IPC，僅證明 WebGPU graph 可用且值得整合。
 
 同一 fixture 的 WebGPU → SQLite slice 使用 WAL、foreign keys、transaction 與 `(run_id, source_sentence_id, character_offset)` primary key；run fingerprint 納入 input/model/lexicon/FST/profile/backend/runtime。修正 agreement 優先分類後，run 2 寫入 5 句、32 個多音字 occurrence、12 個 difference；SQL 聚合為 `為 wei4→wei2` 7、`長 zhang3→chang2` 2、`和 he2→han4`、`得 de2→de5`、`著 zhu4→zhe5` 各 1。立即重跑回報 `reused: true`，occurrence 仍為 32。此結果只驗證 architecture slice；fixture 未真正套用 FST，全文正式 index 必須補上相同 frontend、串流 tokenizer feeder、batch checkpoint 與中斷續跑。

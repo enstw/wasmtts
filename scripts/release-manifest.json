@@ -9,6 +9,8 @@
     "platform/matcha-frontend.js",
     "platform/matcha-taiwan-profile.js",
     "platform/matcha-g2p-review.json",
+    "platform/matcha-lexicon-traditional.txt",
+    "platform/matcha-lexicon-traditional.meta.json",
     "platform/kaldifst-wasm/dist/matcha-kaldifst-normalizer.js",
     "platform/kaldifst-wasm/dist/matcha-kaldifst-normalizer.wasm"
   ]

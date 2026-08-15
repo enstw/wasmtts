@@ -21,12 +21,13 @@
 
 Matcha 與 Vocos 共用 ONNX Runtime Web；text normalizer 使用另一個獨立 WASM linear memory，不載入 sherpa-onnx frontend bundle 的固定 512 MiB heap。
 
-正式 Release 的 `wasmtts-frontend.tar.gz` 會包含 `matcha-taiwan-profile.js`。依序載入 `matcha-frontend.js` 與該檔案後，可用同包的 `matcha-g2p-review.json` 直接建立完整臺灣讀音 frontend；不需另外補上產品內部覆寫：
+正式 Release 的 `wasmtts-frontend.tar.gz` 會包含 `matcha-taiwan-profile.js`。依序載入 `matcha-frontend.js` 與該檔案後，可用同包的 `matcha-g2p-review.json` 與 `matcha-lexicon-traditional.txt`（繁體鏡像補充詞典）直接建立完整臺灣讀音 frontend；不需另外補上產品內部覆寫：
 
 ```js
 const taiwanFrontend = MatchaTaiwanProfile.createFrontend({
   review,
   lexiconText,
+  lexiconSupplementText,
   tokensText,
   ruleNormalizer,
 });

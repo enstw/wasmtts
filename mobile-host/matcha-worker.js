@@ -5,7 +5,7 @@ importScripts(
   '/mobile-host/vendor/lame.min.js',
   '/mobile-host/vendor/kaldifst/matcha-kaldifst-normalizer.js',
   '/platform/kaldifst-normalizer.js',
-  '/platform/matcha-frontend.js?v=20260810-contextual-zhe',
+  '/platform/matcha-frontend.js?v=20260816-lexicon-supplement',
   '/platform/matcha-taiwan-profile.js?v=20260812-release',
   '/platform/matcha-synthesis.js',
 );
@@ -17,6 +17,7 @@ const VOCODER_URL = '/platform/models/vocos-16khz-univ.onnx';
 const LEXICON_URL = `${MODEL_ROOT}/lexicon.txt`;
 const TOKENS_URL = `${MODEL_ROOT}/tokens.txt`;
 const G2P_REVIEW_URL = '/platform/matcha-g2p-review.json';
+const LEXICON_SUPPLEMENT_URL = '/platform/matcha-lexicon-traditional.txt';
 const RULE_FSTS = [
   {key: 'phoneFst', url: `${MODEL_ROOT}/phone-zh.fst`, label: '電話規則 FST'},
   {key: 'dateFst', url: `${MODEL_ROOT}/date-zh.fst`, label: '日期規則 FST'},
@@ -114,6 +115,7 @@ async function downloadAssets() {
     {key: 'lexicon', url: LEXICON_URL, label: '前端詞典'},
     {key: 'tokens', url: TOKENS_URL, label: 'Tokens'},
     {key: 'g2pReview', url: G2P_REVIEW_URL, label: '臺灣讀音審核資料', networkFirst: true},
+    {key: 'lexiconSupplement', url: LEXICON_SUPPLEMENT_URL, label: '繁體鏡像補充詞典', networkFirst: true},
     ...RULE_FSTS,
     {key: 'acoustic', url: ACOUSTIC_URL, label: 'Matcha acoustic model'},
     {key: 'vocoder', url: VOCODER_URL, label: 'Vocos'},
@@ -129,7 +131,8 @@ async function downloadAssets() {
         type: 'download-progress',
         asset: asset.label,
         loaded: [...completed.values()].reduce((sum, value) => sum + value, 0),
-        total: EXPECTED_LARGE_ASSET_BYTES + (totals.get('g2pReview') || 0),
+        total: EXPECTED_LARGE_ASSET_BYTES + (totals.get('g2pReview') || 0)
+          + (totals.get('lexiconSupplement') || 0),
       });
     }, {networkFirst: asset.networkFirst});
   }
@@ -182,6 +185,7 @@ async function initialize() {
     const decoder = new TextDecoder();
     const lexiconText = decoder.decode(lexicon.buffer);
     const tokensText = decoder.decode(tokens.buffer);
+    const lexiconSupplementText = decoder.decode(downloadedAssets.lexiconSupplement.buffer);
     const g2pReview = JSON.parse(decoder.decode(downloadedAssets.g2pReview.buffer));
     const taiwanProfile = MatchaTaiwanProfile.createConfig(g2pReview);
     postProgress('載入 kaldifst text-normalizer WASM');
@@ -201,8 +205,10 @@ async function initialize() {
         tokensText,
         ruleNormalizer,
       }),
+      // 繁體鏡像補充詞典只進產品 profile;official 保持上游 golden 可對照。
       taiwan: MatchaFrontend.createFrontend({
         lexiconText,
+        lexiconSupplementText,
         tokensText,
         ruleNormalizer,
         ...taiwanProfile,
@@ -222,6 +228,7 @@ async function initialize() {
       lexicon: lexicon.source,
       tokens: tokens.source,
       g2pReview: downloadedAssets.g2pReview.source,
+      lexiconSupplement: downloadedAssets.lexiconSupplement.source,
       phoneFst: downloadedAssets.phoneFst.source,
       dateFst: downloadedAssets.dateFst.source,
       numberFst: downloadedAssets.numberFst.source,
@@ -244,6 +251,7 @@ async function initialize() {
       sources: assetSources,
       frontend: {
         lexiconSize: frontends.official.lexiconSize,
+        lexiconSupplementSize: frontends.taiwan.lexiconSupplementSize,
         tokenCount: frontends.official.tokenCount,
         traditionalConversion: false,
         inputNormalization: 'traditional-direct',

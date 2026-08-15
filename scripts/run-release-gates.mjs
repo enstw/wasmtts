@@ -45,6 +45,7 @@ function run(name, command, args, env = {}, {attempts = 1, retryOn = null} = {})
 }
 
 run('frontend-fixtures', 'pnpm', ['test:matcha-frontend']);
+run('lexicon-traditional', 'pnpm', ['test:matcha-lexicon-traditional']);
 run('g2p-review', 'pnpm', ['test:matcha-g2p-review']);
 run('g2p-roi', 'pnpm', ['test:matcha-g2p-roi']);
 run('g2p-index', 'pnpm', ['test:matcha-g2pw-index']);

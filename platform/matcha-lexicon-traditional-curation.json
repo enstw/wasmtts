@@ -1,0 +1,973 @@
+{
+  "schemaVersion": 1,
+  "purpose": "繁體 lexicon 鏡像補充詞條的審核決策:exclusions 維持現行單字 fallback,guards 以明列讀音凍結跨詞邊界字串;鏡像產生器依本檔與 matcha-g2p-review.json 決定最終輸出",
+  "corpusEvidence": {
+    "description": "以外部繁體小說語料 315,593 句對 taiwan profile 現行 frontend 與加鏡像版本做全文 A/B,並以既有 g2pW SQLite index 的逐字意見輔助裁決;語料、SQLite 與 A/B 報告均為本機忽略產物,不提交",
+    "analyzedAt": "2026-08-16",
+    "sentences": 315593
+  },
+  "charPhoneExclusions": [
+    {
+      "character": "樸",
+      "phone": "piao2",
+      "reason": "上游將樸(pu2)誤標為 piao2 的系統性錯誤,教育部均為 ㄆㄨˊ"
+    },
+    {
+      "character": "尾",
+      "phone": "yi3",
+      "reason": "尾 yi3 為大陸口語變讀,教育部為 ㄨㄟˇ"
+    },
+    {
+      "character": "纖",
+      "phone": "qian4",
+      "reason": "qian4 為縴之讀音,與纖(xian1)字形不符"
+    },
+    {
+      "character": "乾",
+      "phone": "gan4",
+      "reason": "gan4 屬幹,乾無此讀音"
+    }
+  ],
+  "exclusions": [
+    {
+      "pattern": "都會",
+      "category": "boundary",
+      "reason": "語料 1,761 處全為「都+會」副詞連動（什麼都會做）,名詞「都會」0 例;g2pW 1735:26 支持現行"
+    },
+    {
+      "pattern": "著眼",
+      "category": "boundary",
+      "reason": "語料以「閉著/曬著+眼」為主,g2pW 172:4 支持現行;固定詞「著眼」留待詞組 scope"
+    },
+    {
+      "pattern": "了無",
+      "category": "boundary",
+      "reason": "「吃了無數」類 V了+無 與「了無牽掛」混讀,g2pW 150:38 傾向現行"
+    },
+    {
+      "pattern": "的當",
+      "category": "boundary",
+      "reason": "語料為「的+當地/當初」跨界,g2pW 261:1 支持現行"
+    },
+    {
+      "pattern": "生還",
+      "category": "boundary",
+      "reason": "語料以「先生/齊先生+還」為主,g2pW 93:12 支持現行"
+    },
+    {
+      "pattern": "沒過",
+      "category": "boundary",
+      "reason": "語料全為「沒+過多久」,g2pW 103:0 支持現行"
+    },
+    {
+      "pattern": "了當",
+      "category": "boundary",
+      "reason": "語料為「別忘了+當初」類;四字「直截了當」另以完整詞收錄"
+    },
+    {
+      "pattern": "著法",
+      "category": "boundary",
+      "reason": "語料為「變著法子」zhe5 用法,g2pW 63:0 支持現行"
+    },
+    {
+      "pattern": "著陸",
+      "category": "boundary",
+      "reason": "語料為「站著+陸沉」(人名)等跨界,g2pW 51:6 支持現行"
+    },
+    {
+      "pattern": "外傳",
+      "category": "boundary",
+      "reason": "動詞「不許外傳 chuan2」為主流,名詞 zhuan4 罕見;g2pW 60:0"
+    },
+    {
+      "pattern": "臨了",
+      "category": "boundary",
+      "reason": "「來臨了/降臨了」V+了 為主,g2pW 50:8 傾向現行"
+    },
+    {
+      "pattern": "以還",
+      "category": "boundary",
+      "reason": "語料全為「所以+還是」,g2pW 54:0"
+    },
+    {
+      "pattern": "質的",
+      "category": "boundary",
+      "reason": "語料為「皮質+的」跨界,g2pW 35:0"
+    },
+    {
+      "pattern": "著數",
+      "category": "boundary",
+      "reason": "語料為「帶著+數位」跨界,g2pW 28:0"
+    },
+    {
+      "pattern": "著火",
+      "category": "boundary",
+      "reason": "語料多為「撞擊著+火星」,g2pW 34:3 傾向現行"
+    },
+    {
+      "pattern": "重頭",
+      "category": "boundary",
+      "reason": "「重頭來過 chong2」與「重頭戲 zhong4」混讀,g2pW 24:13 分歧"
+    },
+    {
+      "pattern": "沒收",
+      "category": "boundary",
+      "reason": "「沒+收成」與「沒收 mo4」混讀,g2pW 19:14 分歧"
+    },
+    {
+      "pattern": "著想",
+      "category": "boundary",
+      "reason": "「見著+想見」與「為他著想」混讀,g2pW 11:0 傾向現行"
+    },
+    {
+      "pattern": "中長",
+      "category": "boundary",
+      "reason": "語料為「家中+長輩」跨界,g2pW 24:8 支持現行"
+    },
+    {
+      "pattern": "相稱",
+      "category": "boundary",
+      "reason": "「同輩相稱 cheng1」與「相稱 chen4」混讀"
+    },
+    {
+      "pattern": "了結",
+      "category": "boundary",
+      "reason": "「除了/忘了+結」與「了結」混讀,g2pW 15:19 接近"
+    },
+    {
+      "pattern": "了卻",
+      "category": "boundary",
+      "reason": "「走了/吃了+卻」與「了卻」混讀,g2pW 15:16 接近"
+    },
+    {
+      "pattern": "沒落",
+      "category": "boundary",
+      "reason": "語料 23/30 為「沒+落下」跨界斷裂"
+    },
+    {
+      "pattern": "自傳",
+      "category": "boundary",
+      "reason": "語料為「親自+傳授」,g2pW 27:3 支持現行"
+    },
+    {
+      "pattern": "長於",
+      "category": "boundary",
+      "reason": "語料為「生長+於」,g2pW 24:4 支持現行"
+    },
+    {
+      "pattern": "經傳",
+      "category": "boundary",
+      "reason": "「已經+傳來」與「見於經傳」混讀,g2pW 23:3 傾向現行"
+    },
+    {
+      "pattern": "國都",
+      "category": "boundary",
+      "reason": "語料為「邦國+都」副詞,g2pW 23:2 支持現行"
+    },
+    {
+      "pattern": "著風",
+      "category": "boundary",
+      "reason": "語料為「掛著+風」,g2pW 21:1 支持現行"
+    },
+    {
+      "pattern": "給水",
+      "category": "boundary",
+      "reason": "語料為「留給+水榭」,g2pW 19:1 支持現行"
+    },
+    {
+      "pattern": "自給",
+      "category": "boundary",
+      "reason": "語料為「親自+給」,g2pW 12:5 傾向現行"
+    },
+    {
+      "pattern": "句讀",
+      "category": "boundary",
+      "reason": "語料為「一句句+讀給」,g2pW 17:0 支持現行"
+    },
+    {
+      "pattern": "了賬",
+      "category": "boundary",
+      "reason": "語料為「結了+賬」,g2pW 17:0 支持現行"
+    },
+    {
+      "pattern": "賺得",
+      "category": "boundary",
+      "reason": "「賺得不易」V得 補語為主,g2pW 20:12 傾向現行"
+    },
+    {
+      "pattern": "人參",
+      "category": "boundary",
+      "reason": "語料為「有人+參與」,g2pW 12:3 支持現行"
+    },
+    {
+      "pattern": "這麼著",
+      "category": "boundary",
+      "reason": "語料 14/14 為「這麼+著急」斷裂"
+    },
+    {
+      "pattern": "那麼著",
+      "category": "boundary",
+      "reason": "語料 8/9 為「那麼+著名」斷裂"
+    },
+    {
+      "pattern": "著涼",
+      "category": "boundary",
+      "reason": "「穿著/帶著+涼」與「著涼」混讀,g2pW 8:0 傾向現行"
+    },
+    {
+      "pattern": "著力",
+      "category": "boundary",
+      "reason": "「收著+力氣」與「著力」混讀,g2pW 6:6 分歧"
+    },
+    {
+      "pattern": "和藥",
+      "category": "boundary",
+      "reason": "語料為連詞「和+藥方」"
+    },
+    {
+      "pattern": "舊都",
+      "category": "boundary",
+      "reason": "語料為「新舊+都」副詞,g2pW 12:0 支持現行"
+    },
+    {
+      "pattern": "對稱",
+      "category": "boundary",
+      "reason": "語料為「絕對+稱不上」,g2pW 4:0 傾向現行"
+    },
+    {
+      "pattern": "內傳",
+      "category": "boundary",
+      "reason": "語料為「屋內+傳來」,g2pW 8:1 支持現行"
+    },
+    {
+      "pattern": "別傳",
+      "category": "boundary",
+      "reason": "語料為「分別+傳授」,g2pW 6:0 支持現行"
+    },
+    {
+      "pattern": "璧還",
+      "category": "boundary",
+      "reason": "語料為「白璧+還是」,g2pW 6:0 支持現行"
+    },
+    {
+      "pattern": "長程",
+      "category": "boundary",
+      "reason": "語料為「山長+程姓人名」跨界,g2pW 7:0 支持現行"
+    },
+    {
+      "pattern": "著裝",
+      "category": "boundary",
+      "reason": "語料為「拿著+裝有」,g2pW 7:0 支持現行"
+    },
+    {
+      "pattern": "著墨",
+      "category": "boundary",
+      "reason": "語料為「穿著+墨綠」,g2pW 5:1 傾向現行"
+    },
+    {
+      "pattern": "和麵",
+      "category": "boundary",
+      "reason": "語料為連詞「和+面相」(OpenCC 將面誤併為麵)"
+    },
+    {
+      "pattern": "盛飯",
+      "category": "boundary",
+      "reason": "「豐盛+飯菜」與「盛飯 cheng2」混讀,g2pW 3:4 分歧"
+    },
+    {
+      "pattern": "得虧",
+      "category": "boundary",
+      "reason": "語料樣本為「賣得+虧」V得 補語;「得虧 dei3」為北方口語"
+    },
+    {
+      "pattern": "點著",
+      "category": "boundary",
+      "reason": "「點著頭 zhe5」與「點著 zhao2」混讀,語料樣本為前者"
+    },
+    {
+      "pattern": "沉著",
+      "category": "boundary",
+      "reason": "「沉著臉 zhe5」與「沉著 zhuo2」混讀,g2pW 2:1 樣本過少"
+    },
+    {
+      "pattern": "著意",
+      "category": "boundary",
+      "reason": "語料為「防備著+意外」,g2pW 6:0 支持現行"
+    },
+    {
+      "pattern": "長長",
+      "category": "boundary",
+      "reason": "「長長見識 zhang3」與「長長的 chang2」混讀,兩讀皆合法無法單詞區分"
+    },
+    {
+      "pattern": "過長",
+      "category": "boundary",
+      "reason": "語料含「透過+長輩」跨界,「時間過長」與之混讀"
+    },
+    {
+      "pattern": "著邊",
+      "category": "boundary",
+      "reason": "「不著邊」讀音有 zhao2/zhuo2 之分,樣本過少(5)證據不足"
+    },
+    {
+      "pattern": "還書",
+      "category": "boundary",
+      "reason": "「還+書信往來」與「還書 huan2」混讀,g2pW 2:4 樣本過少"
+    },
+    {
+      "pattern": "沒藥",
+      "category": "boundary",
+      "reason": "藥材「沒藥 mo4」罕用,「沒+藥了」日常用法壓倒性"
+    },
+    {
+      "pattern": "還情",
+      "category": "boundary",
+      "reason": "「還+情願/情有可原」跨界形狀高風險,語料無正例"
+    },
+    {
+      "pattern": "還席",
+      "category": "boundary",
+      "reason": "「還+席捲」跨界形狀,語料無正例"
+    },
+    {
+      "pattern": "發還",
+      "category": "boundary",
+      "reason": "「出發+還」跨界形狀,語料無正例"
+    },
+    {
+      "pattern": "賠還",
+      "category": "boundary",
+      "reason": "「賠+還是不賠」跨界形狀,語料無正例"
+    },
+    {
+      "pattern": "追還",
+      "category": "boundary",
+      "reason": "「追+還是不追」跨界形狀,語料無正例"
+    },
+    {
+      "pattern": "放還",
+      "category": "boundary",
+      "reason": "「放+還是不放」跨界形狀,語料無正例"
+    },
+    {
+      "pattern": "進給",
+      "category": "boundary",
+      "reason": "「前進+給」跨界;「進給」為機械術語,語料無正例"
+    },
+    {
+      "pattern": "吸著",
+      "category": "boundary",
+      "reason": "「吸著菸 zhe5」壓倒性;「吸著」術語罕用"
+    },
+    {
+      "pattern": "支著",
+      "category": "boundary",
+      "reason": "「支著耳朵 zhe5」與「支著兒」混讀"
+    },
+    {
+      "pattern": "蒙著",
+      "category": "boundary",
+      "reason": "「蒙著眼睛 zhe5」壓倒性,武俠語料常見"
+    },
+    {
+      "pattern": "該著",
+      "category": "boundary",
+      "reason": "「應該+著手」跨界;「該著」為口語罕用"
+    },
+    {
+      "pattern": "重數",
+      "category": "boundary",
+      "reason": "「看重+數量」跨界;「重數」為數學術語"
+    },
+    {
+      "pattern": "頻數",
+      "category": "boundary",
+      "reason": "現代「頻+數」讀法為主,古義 shuo4 罕用"
+    },
+    {
+      "pattern": "內省",
+      "category": "boundary",
+      "reason": "「境內/域內+省份」跨界形狀,語料無正例"
+    },
+    {
+      "pattern": "拋頭露面",
+      "category": "regional",
+      "reason": "教育部標 ㄌㄡˋ(lou4),上游 lu4 為大陸文讀;現行單字 fallback 已是 lou4"
+    },
+    {
+      "pattern": "財不露白",
+      "category": "regional",
+      "reason": "教育部標 ㄌㄡˋ(lou4),同「拋頭露面」;現行已正確"
+    },
+    {
+      "pattern": "擇菜",
+      "category": "regional",
+      "reason": "教育部標 ㄗㄜˊ(ze2),上游 zhai2 為大陸口語"
+    },
+    {
+      "pattern": "尋思",
+      "category": "regional",
+      "reason": "教育部標 ㄒㄩㄣˊ(xun2),上游 xin2 為大陸口語"
+    },
+    {
+      "pattern": "可著",
+      "category": "regional",
+      "reason": "「可著勁」為大陸口語,臺灣不用"
+    },
+    {
+      "pattern": "燻著",
+      "category": "regional",
+      "reason": "xun4 為大陸「熏著(中毒)」特殊音,臺灣不用"
+    },
+    {
+      "pattern": "盡著",
+      "category": "regional",
+      "reason": "「盡著」讀音 jin3/jin4 存疑且臺灣罕用"
+    },
+    {
+      "pattern": "古樸",
+      "category": "upstream-error",
+      "reason": "上游詞條 piao2 有誤,教育部為 ㄆㄨˊ(pu2);現行 pu3 較接近,維持現況待審"
+    },
+    {
+      "pattern": "質樸",
+      "category": "upstream-error",
+      "reason": "同「古樸」,上游 樸=piao2 有誤"
+    },
+    {
+      "pattern": "簡樸",
+      "category": "upstream-error",
+      "reason": "同「古樸」,上游 樸=piao2 有誤"
+    },
+    {
+      "pattern": "馬尾",
+      "category": "upstream-error",
+      "reason": "上游 yi3 為口語變讀,教育部為 ㄨㄟˇ(wei3)"
+    },
+    {
+      "pattern": "沒頭沒尾",
+      "category": "upstream-error",
+      "reason": "上游第二個沒=mo4 有誤,應為 mei2"
+    },
+    {
+      "pattern": "乾乾",
+      "category": "upstream-error",
+      "reason": "上游 gan4 有誤(乾乾癟癟應為 gan1)"
+    },
+    {
+      "pattern": "著水",
+      "category": "upstream-error",
+      "reason": "上游 zhe5 存疑(楊花著水應為 zhuo2)"
+    },
+    {
+      "pattern": "纖手",
+      "category": "upstream-error",
+      "reason": "上游 qian4 為縴之讀音,纖手應為 xian1;現行已正確"
+    },
+    {
+      "pattern": "纖繩",
+      "category": "upstream-error",
+      "reason": "縴/纖字形混用,读音存疑,維持現況待審"
+    },
+    {
+      "pattern": "使出渾身解數",
+      "category": "tail-rule",
+      "reason": "語料低頻(4 處)且證據不利:g2pW 淨同意度 -4、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "行話",
+      "category": "tail-rule",
+      "reason": "語料低頻(4 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "著忙",
+      "category": "tail-rule",
+      "reason": "語料低頻(4 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 2 處"
+    },
+    {
+      "pattern": "日沒",
+      "category": "tail-rule",
+      "reason": "語料低頻(4 處)且證據不利:g2pW 淨同意度 -4、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "著筆",
+      "category": "tail-rule",
+      "reason": "語料低頻(4 處)且證據不利:g2pW 淨同意度 -4、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "富賈",
+      "category": "tail-rule",
+      "reason": "語料低頻(4 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "車行",
+      "category": "tail-rule",
+      "reason": "語料低頻(4 處)且證據不利:g2pW 淨同意度 -3、跨界斷裂 1 處"
+    },
+    {
+      "pattern": "取給",
+      "category": "tail-rule",
+      "reason": "語料低頻(4 處)且證據不利:g2pW 淨同意度 -4、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "往還",
+      "category": "tail-rule",
+      "reason": "語料低頻(4 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "長拳",
+      "category": "tail-rule",
+      "reason": "語料低頻(4 處)且證據不利:g2pW 淨同意度 -4、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "將進酒",
+      "category": "tail-rule",
+      "reason": "語料低頻(4 處)且證據不利:g2pW 淨同意度 -4、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "軫宿",
+      "category": "tail-rule",
+      "reason": "語料低頻(4 處)且證據不利:g2pW 淨同意度 -4、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "本著",
+      "category": "tail-rule",
+      "reason": "語料低頻(4 處)且證據不利:g2pW 淨同意度 -4、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "繁花似錦",
+      "category": "tail-rule",
+      "reason": "語料低頻(4 處)且證據不利:g2pW 淨同意度 0、跨界斷裂 4 處"
+    },
+    {
+      "pattern": "心寬體胖",
+      "category": "tail-rule",
+      "reason": "語料低頻(4 處)且證據不利:g2pW 淨同意度 -4、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "還報",
+      "category": "tail-rule",
+      "reason": "語料低頻(3 處)且證據不利:g2pW 淨同意度 -3、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "味同嚼蠟",
+      "category": "tail-rule",
+      "reason": "語料低頻(3 處)且證據不利:g2pW 淨同意度 -3、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "鄉長",
+      "category": "tail-rule",
+      "reason": "語料低頻(3 處)且證據不利:g2pW 淨同意度 -3、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "為著",
+      "category": "tail-rule",
+      "reason": "語料低頻(3 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 1 處"
+    },
+    {
+      "pattern": "將將",
+      "category": "tail-rule",
+      "reason": "語料低頻(3 處)且證據不利:g2pW 淨同意度 -3、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "屬文",
+      "category": "tail-rule",
+      "reason": "語料低頻(3 處)且證據不利:g2pW 淨同意度 -3、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "給與",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "圖窮匕見",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "稱手",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "角鬥",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "固著",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "不見經傳",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "金蟬脫殼",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "著迷",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 0、跨界斷裂 2 處"
+    },
+    {
+      "pattern": "行規",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "配稱",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "剝取",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "剝除",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "給養",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "綠林",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "調人",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "乘輿",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "善善惡惡",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "小傳",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "博採眾長",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "脈脈",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "攪混",
+      "category": "tail-rule",
+      "reason": "語料低頻(2 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "回彈",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "傴僂",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "惡紫奪朱",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "渾身解數",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "沒世",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "無臭",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "棲棲",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "著慌",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "妙著",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "沒著落",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 0、跨界斷裂 1 處"
+    },
+    {
+      "pattern": "沸沸湯湯",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -2、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "澄結",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "像模像樣",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "馬圈",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 0、跨界斷裂 1 處"
+    },
+    {
+      "pattern": "詩行",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 0、跨界斷裂 1 處"
+    },
+    {
+      "pattern": "索還",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "財會",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "回還",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "長隊",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "幾曾",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "都統",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "行幫",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "樂亭",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "稱願",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "擇不開",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "行長",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 0、跨界斷裂 1 處"
+    },
+    {
+      "pattern": "綠林豪客",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "標的",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "長興",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 0、跨界斷裂 1 處"
+    },
+    {
+      "pattern": "長假",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "編校",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "靚麗",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "詐降",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "校對",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    },
+    {
+      "pattern": "著魔",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 0、跨界斷裂 1 處"
+    },
+    {
+      "pattern": "給體",
+      "category": "tail-rule",
+      "reason": "語料低頻(1 處)且證據不利:g2pW 淨同意度 -1、跨界斷裂 0 處"
+    }
+  ],
+  "guards": [
+    {
+      "pattern": "會計較",
+      "phones": [
+        "hui4",
+        "ji4",
+        "jiao4"
+      ],
+      "reason": "保護「不會計較」等 會+計較 跨界,語料 22 例"
+    },
+    {
+      "pattern": "會計算",
+      "phones": [
+        "hui4",
+        "ji4",
+        "suan4"
+      ],
+      "reason": "保護「會+計算」跨界,語料 1 例"
+    },
+    {
+      "pattern": "會計入",
+      "phones": [
+        "hui4",
+        "ji4",
+        "ru4"
+      ],
+      "reason": "保護「會+計入」跨界,語料 2 例"
+    },
+    {
+      "pattern": "會計時",
+      "phones": [
+        "hui4",
+        "ji4",
+        "shi2"
+      ],
+      "reason": "保護「會+計時」跨界,語料 1 例"
+    },
+    {
+      "pattern": "會計數",
+      "phones": [
+        "hui4",
+        "ji4",
+        "shu4"
+      ],
+      "reason": "保護「會+計數」跨界,語料 1 例"
+    },
+    {
+      "pattern": "有著急",
+      "phones": [
+        "you3",
+        "zhao1",
+        "ji2"
+      ],
+      "reason": "保護「沒有+著急」跨界,語料 83 例"
+    },
+    {
+      "pattern": "有著落",
+      "phones": [
+        "you3",
+        "zhuo2",
+        "luo4"
+      ],
+      "reason": "保護「沒有+著落」跨界;著落一詞因語料跨界為主遭排除,本 guard 直接標教育部讀音 zhuo2 luo4"
+    },
+    {
+      "pattern": "一覺得",
+      "phones": [
+        "yi1",
+        "jue2",
+        "de5"
+      ],
+      "reason": "保護「林守一/萬一+覺得」跨界,語料 6 例"
+    },
+    {
+      "pattern": "父親家",
+      "phones": [
+        "fu4",
+        "qin1",
+        "jia1"
+      ],
+      "reason": "保護「父親+家」跨界,避免誤讀為親家 qing4"
+    },
+    {
+      "pattern": "母親家",
+      "phones": [
+        "mu3",
+        "qin1",
+        "jia1"
+      ],
+      "reason": "保護「母親+家」跨界,避免誤讀為親家 qing4"
+    },
+    {
+      "pattern": "退還是",
+      "phones": [
+        "tui4",
+        "hai2",
+        "shi4"
+      ],
+      "reason": "保護「退+還是」跨界,語料樣本實見"
+    },
+    {
+      "pattern": "奉還是",
+      "phones": [
+        "feng4",
+        "hai2",
+        "shi4"
+      ],
+      "reason": "保護「侍奉+還是」跨界"
+    }
+  ]
+}

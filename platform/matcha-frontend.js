@@ -213,6 +213,7 @@
 
   function createFrontend({
     lexiconText,
+    lexiconSupplementText = '',
     tokensText,
     convertTraditional = (text) => text,
     pronunciationOverrides = {},
@@ -222,6 +223,19 @@
     const {lexicon, maxKeyLength: sourceMaxKeyLength} = parseLexicon(lexiconText);
     const tokens = parseTokens(tokensText);
     let maxKeyLength = sourceMaxKeyLength;
+    let lexiconSupplementSize = 0;
+
+    if (lexiconSupplementText) {
+      // 補充詞條(繁體鏡像)不得覆寫主詞典既有條目;主詞典優先、
+      // pronunciationOverrides 最後套用仍可蓋過補充詞條。
+      const {lexicon: supplementLexicon} = parseLexicon(lexiconSupplementText);
+      for (const [word, phones] of supplementLexicon) {
+        if (lexicon.has(word)) continue;
+        lexicon.set(word, phones);
+        lexiconSupplementSize += 1;
+        maxKeyLength = Math.max(maxKeyLength, word.length);
+      }
+    }
 
     for (const [word, phones] of Object.entries(pronunciationOverrides)) {
       const list = Array.isArray(phones) ? phones : String(phones).trim().split(/\s+/u);
@@ -329,6 +343,7 @@
       prepareText,
       tokensFor,
       lexiconSize: lexicon.size,
+      lexiconSupplementSize,
       tokenCount: tokens.size,
       ruleFstCount: ruleNormalizer ? 3 : 0,
     };

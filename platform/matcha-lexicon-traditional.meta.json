@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "generator": "platform/generate-matcha-lexicon-traditional.mjs",
+  "openccJsVersion": "1.4.1",
+  "inputs": {
+    "lexiconSha256": "599efdcdaff4df2a123ce988c2cb90abcd59b919ef609ce36eb587d68b7ca2c0",
+    "tokensSha256": "77fee8e5e5dd96b3547119e6159292c648e99e065c54c97777722e3ce710b9a4",
+    "reviewSha256": "94d73919656f84a1c683a7623f5fbf887850e61548f6da7562a29d49befcef3d",
+    "curationSha256": "c022118563d54258edf783ae58c5ff77a455f02fa14100a4c85719f96258bbd9"
+  },
+  "entryCount": 2144,
+  "stats": {
+    "sourceEntries": 68037,
+    "multiCharacterEntries": 47113,
+    "identity": 13894,
+    "alreadyInSource": 25,
+    "conversionCollision": 11,
+    "redundant": 26763,
+    "toneLevelOnly": 4065,
+    "lengthMismatch": 0,
+    "curationExcluded": 166,
+    "charPhoneExcluded": 10,
+    "baseFixEntries": 2132,
+    "guards": 12
+  },
+  "outputSha256": "8e2fd21e143435758f33b53c8124da2c5e2d9287de4209ba1d96c3d2b9832a26"
+}
