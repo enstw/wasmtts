@@ -28,7 +28,7 @@ iOS 產品路徑採用「背景逐句合成、單一媒體 timeline」：使用�
 
 Piper Worker、MP3 encoder 與上述播放 transport 已由先行專案驗證；不要在本 repository 重做 Piper 整合或把 fixture transport 數字當成研究結果。Matcha 必須使用 `mobile-host` 的既有 producer 契約完成整合；iPhone/PWA 實機驗收不屬於本 repository 的 release gate，既有實機紀錄僅為歷史相容性證據。
 
-Matcha `matcha-icefall-zh-en` 是目前選定模型：相同文本盲測為 Matcha `90`、Kokoro `80`、Piper `60`，Piper 被標記有外國腔。正式文字路徑固定為「繁體直輸 → 官方 `phone/date/number` FST → Matcha」，採 `noise_scale=0.667`。目前 pilot 由獨立 kaldifst + OpenFST text-normalizer WASM 執行三個原始 FST；Matcha/Vocos 共用 ORT Web WASM，兩個 module 各自使用 linear memory。`platform/matcha-fst.js` 保留為 JavaScript golden/診斷基線，不載入固定 512 MiB heap 的 sherpa-onnx frontend bundle；修改時必須維持 phone、date、number 順序及 OpenFST tie-break。桌面 Worker／MP3／MediaSource 整合已通過有效 waveform 與零 underflow／append error 驗證，但記憶體數字仍只是快照，不得寫成真正 peak 或 iPhone 結果。前端尚未涵蓋英文 eSpeak。
+Matcha `matcha-icefall-zh-en` 是目前選定模型：相同文本盲測為 Matcha `90`、Kokoro `80`、Piper `60`，Piper 被標記有外國腔。正式文字路徑固定為「繁體直輸 → 官方 `phone/date/number` FST → Matcha」；benchmark 採 `noise_scale=0.667`，產品播放參數以 `platform/matcha-assets.json` 的 `synthesis` 區塊為準（實機聽測定案，不得在下游自持副本）。目前 pilot 由獨立 kaldifst + OpenFST text-normalizer WASM 執行三個原始 FST；Matcha/Vocos 共用 ORT Web WASM，兩個 module 各自使用 linear memory。`platform/matcha-fst.js` 保留為 JavaScript golden/診斷基線，不載入固定 512 MiB heap 的 sherpa-onnx frontend bundle；修改時必須維持 phone、date、number 順序及 OpenFST tie-break。桌面 Worker／MP3／MediaSource 整合已通過有效 waveform 與零 underflow／append error 驗證，但記憶體數字仍只是快照，不得寫成真正 peak 或 iPhone 結果。前端尚未涵蓋英文 eSpeak。
 
 ## Conventions
 

@@ -1,5 +1,10 @@
 {
   "schemaVersion": 3,
+  "synthesis": {
+    "noiseScale": 1,
+    "lengthScale": 1,
+    "silenceScale": 1
+  },
   "matcha": {
     "repository": "https://huggingface.co/csukuangfj/matcha-icefall-zh-en.git",
     "revision": "fbe59d77057428c32111d5f3ea4ed67a7d440c61",

@@ -6,7 +6,7 @@
 
 將已選定的 Matcha `matcha-icefall-zh-en` 完成為可在 iOS Safari 與 Home Screen PWA 離線執行、並在鎖屏期間持續朗讀長篇小說的中文 TTS。選型階段已結束；除非產品需求或實機驗收證明 Matcha 不可行，本 repository 不再主動搜尋、下載或最佳化其他模型。
 
-選定的合成與文字路徑是「繁體直輸 → 官方 `phone/date/number` FST → Matcha acoustic model → Vocos → ISTFT → silence scaling → MP3 encode」，Matcha 生成配置採 `noise_scale=0.667`。目前 pilot 以獨立的小型 kaldifst + OpenFST WASM 套用三個原始 FST tables；Matcha 與 Vocos 共用 ORT Web WASM，兩個 runtime 各自使用獨立 linear memory，不需固定 512 MiB heap 的 sherpa-onnx frontend bundle。
+選定的合成與文字路徑是「繁體直輸 → 官方 `phone/date/number` FST → Matcha acoustic model → Vocos → ISTFT → silence scaling → MP3 encode」，選型與 benchmark 量測採 `noise_scale=0.667`（sherpa 對齊）；產品播放參數以 [`platform/matcha-assets.json`](platform/matcha-assets.json) 的 `synthesis` 區塊為準（實機聽測定案 noise/length/silence 均為 `1`，理由見 [platform/README.md](platform/README.md)）。目前 pilot 以獨立的小型 kaldifst + OpenFST WASM 套用三個原始 FST tables；Matcha 與 Vocos 共用 ORT Web WASM，兩個 runtime 各自使用獨立 linear memory，不需固定 512 MiB heap 的 sherpa-onnx frontend bundle。
 
 - 輸出正確性：waveform 必須全為有限值，且 peak、RMS 皆不可為零。
 - 單線程效能：以產生 10 秒音訊所需的 CPU／task time 比較；產品串流另量端到端 `RTF = 產生可 append 音訊的 wall time ÷ 音訊長度`，必須小於 `1`。
