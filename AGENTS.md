@@ -40,6 +40,10 @@ Matcha `matcha-icefall-zh-en` 是目前選定模型：相同文本盲測為 Matc
 - 預設基準為單一 WASM thread；多執行緒結果必須確認 `crossOriginIsolated` 與 `SharedArrayBuffer`，不可默默 fallback。
 - `RTF` 固定表示「產生可 append 音訊的 wall time ÷ 音訊長度」；另以 `realtime multiplier = 1 / RTF` 回報速度，不可互換名稱。
 
+- 改動後、push 或開 PR 前,先在本地跑 `pnpm test:release-gates`(模型在 `platform/models/`、kaldifst dist 已提交,全套可本地重現),全綠才推;純文字層改動可先用較快的 `pnpm test:matcha-frontend` / `pnpm test:matcha-fst`,但 gate runner、CI、依賴等 release 級改動一律全套。CI 一輪約 6 分鐘還會排隊,不要拿紅燈當本地測試(owner 要求,2026-08-10)。
+- candidate/release 紅燈先看 `release-gates.json` 的 `attempts` 欄位與 console 的 `RETRY` 行(README 的 flake 吸收段):骰運只失敗一組,真退化每一組重跑都會失敗。
+- `platform/models/` 是本 repo 的工作快照,owner 隨時會換檔;repo 外的實驗或 harness 不得直接讀取,應依 `platform/upstreams.yaml` 的 pin 自行下載私有副本並驗證 SHA-256(owner 要求,2026-08-15)。
+
 ## Commands
 
 ```sh
