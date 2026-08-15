@@ -3,9 +3,15 @@
 # the downstream roll-up looks for the newest tag): renovate opens or refreshes the single
 # grouped PR, this job runs the candidate gate on it, merges on green, and
 # dispatches the release run on main — one gated release a week.
-# A second six-hour schedule checks GitHub Dependabot alerts. Confirmed
-# vulnerability fixes skip only the 30-day quarantine, take priority over the
-# weekly roll-up, and still pass the identical candidate gate before merge.
+# A second six-hour schedule picks up vulnerability fixes. The alert source
+# is the OSV database (osvVulnerabilityAlerts in renovate.json, fetched by
+# renovate itself) — NOT GitHub Dependabot alerts: the workflow's
+# GITHUB_TOKEN structurally cannot read those ("Resource not accessible by
+# integration"; no workflow permission grants them — verified 2026-08-15,
+# with repo Dependabot alerts enabled), and a PAT secret would be a standing
+# credential this repo does not need. Confirmed vulnerability fixes skip only
+# the 30-day quarantine, take priority over the weekly roll-up, and still
+# pass the identical candidate gate before merge.
 #
 # The explicit candidate dispatch is load-bearing: a PR created with
 # GITHUB_TOKEN fires no pull_request workflows (GitHub's recursion guard),
@@ -29,7 +35,6 @@ permissions:
   pull-requests: write
   issues: write # the dependency dashboard is an issue
   actions: write
-  security-events: read # Renovate reads GitHub Dependabot alerts
 
 jobs:
   roll-up:
@@ -41,14 +46,6 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - name: Require Dependabot alert access
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if ! gh api repos/${GITHUB_REPOSITORY}/dependabot/alerts --paginate >/dev/null; then
-            echo "Enable Dependency graph and Dependabot alerts in Settings > Advanced Security; CVE quarantine bypass is fail-closed." >&2
-            exit 1
-          fi
       - name: Run Renovate
         run: pnpm dlx "renovate@${RENOVATE_VERSION}" --platform=github enstw/wasmtts
         env:

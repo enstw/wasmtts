@@ -10,6 +10,7 @@
   "internalChecksFilter": "strict",
   "rangeStrategy": "pin",
   "labels": ["dependencies"],
+  "osvVulnerabilityAlerts": true,
   "vulnerabilityAlerts": {
     "enabled": true,
     "minimumReleaseAge": null,
