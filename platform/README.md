@@ -12,6 +12,7 @@
 - `matcha-browser.html`、`run-matcha-browser.mjs`：Matcha acoustic model、Vocos 與 JavaScript ISTFT 的單執行緒 ORT Web 路徑。
 - `kaldifst-wasm/`、`kaldifst-normalizer.js`：獨立 kaldifst + OpenFST text-normalizer WASM、最小 C ABI 與 UTF-8 bridge；Matcha/Vocos 的 ORT Web memory 與此 module 的 memory 相互獨立。
 - `upstreams.yaml`：Renovate 追蹤的 Matcha acoustic、Vocos、lexicon/tokens、三個 FST、sherpa browser control、kaldifst/OpenFST 與 Emscripten 上游版本；版本 PR 只是通知，資產仍須人工驗證。
+- `matcha-assets.json`:語音包的正式定義(schemaVersion 3)——每個資產的來源 repository/revision、`packName`(下游供檔用的扁平檔名)、`bytes` 與 `sha256`。`fetch-matcha-assets.mjs` 逐檔驗證後才落地;下游消費者由此推導自己的檔案清單與資產名,不得自持會分岔的副本。不變量:資產 bytes 改變時 `packName` 必須跟著改變(下游以 cache-first 供檔,同名永不換 bytes)。
 - `asr-listening-gate.py`、`asr-baseline/`：以固定 revision 的 multilingual Whisper 聽回 Matcha WAV，計算正規化 CER，並同時套用絕對上限與相對正式 baseline 的退化上限。這是可懂度回歸 gate，不等同主觀自然度盲聽。
 - `matcha-fst.js`：從 Bookworm 移植的純 JavaScript OpenFST reader，保留作 golden A/B 與診斷基線。
 - `matcha-frontend.js`、`matcha-synthesis.js`：可供 Worker 與測試共用的繁體直輸／FST／lexicon 前端及 Matcha + Vocos 合成核心。

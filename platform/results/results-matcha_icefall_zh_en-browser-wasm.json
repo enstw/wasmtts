@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-14T16:09:42.119Z",
+  "generatedAt": "2026-08-15T06:49:11.280Z",
   "environment": {
     "browser": "Chrome/151.0.7922.108",
     "browserBinary": "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
@@ -101,22 +101,22 @@
     "waveformValidation": "all samples finite, peak > 0, RMS recorded"
   },
   "initialization": {
-    "initMs": 4946.525000095367,
+    "initMs": 3432.140000104904,
     "warmup": {
       "sampleRate": 16000,
-      "audioSeconds": 10.9283125,
-      "wallMs": 3547.5199999809265,
+      "audioSeconds": 10.917375,
+      "wallMs": 2455.4550001621246,
       "phases": {
-        "acousticMs": 2684.719999909401,
-        "vocoderMs": 817.6399999856949,
-        "istftMs": 38.09000015258789,
-        "silenceMs": 1.475000023841858
+        "acousticMs": 1866.7149999141693,
+        "vocoderMs": 557.3600001335144,
+        "istftMs": 25.87499976158142,
+        "silenceMs": 1.0149998664855957
       },
       "waveform": {
-        "samples": 174853,
-        "finiteSamples": 174853,
-        "peak": 0.8116549253463745,
-        "rms": 0.13326017919732436
+        "samples": 174678,
+        "finiteSamples": 174678,
+        "peak": 0.7683499455451965,
+        "rms": 0.1321327610901139
       }
     },
     "acousticInputs": [
@@ -141,98 +141,98 @@
     {
       "index": 1,
       "sampleRate": 16000,
-      "audioSeconds": 10.9301875,
-      "wallMs": 3398.4150000810623,
+      "audioSeconds": 10.925375,
+      "wallMs": 2364.914999961853,
       "phases": {
-        "acousticMs": 2555.395000219345,
-        "vocoderMs": 805.3099999427795,
-        "istftMs": 34.43499994277954,
-        "silenceMs": 0.75
+        "acousticMs": 1785.8649995326996,
+        "vocoderMs": 553.0950000286102,
+        "istftMs": 23.604999780654907,
+        "silenceMs": 0.5550003051757812
       },
       "waveform": {
-        "samples": 174883,
-        "finiteSamples": 174883,
-        "peak": 0.7978945970535278,
-        "rms": 0.13347490660200964
+        "samples": 174806,
+        "finiteSamples": 174806,
+        "peak": 0.7944270968437195,
+        "rms": 0.1346618617599391
       },
-      "taskMs": 3400.248,
-      "taskMsPer10s": 3110.8780155875643,
-      "taskRtf": 0.3110878015587564,
-      "wallRtf": 0.31092010087485344
+      "taskMs": 2365.3120000000004,
+      "taskMsPer10s": 2164.9709964188874,
+      "taskRtf": 0.21649709964188874,
+      "wallRtf": 0.2164607622129083
     },
     {
       "index": 2,
       "sampleRate": 16000,
-      "audioSeconds": 10.928375,
-      "wallMs": 3541.655000090599,
+      "audioSeconds": 10.91325,
+      "wallMs": 2401.0750000476837,
       "phases": {
-        "acousticMs": 2676.4400000572205,
-        "vocoderMs": 830.3100000619888,
-        "istftMs": 31.369999885559082,
-        "silenceMs": 0.8200000524520874
+        "acousticMs": 1821.664999961853,
+        "vocoderMs": 557.0349998474121,
+        "istftMs": 20.200000047683716,
+        "silenceMs": 0.5500001907348633
       },
       "waveform": {
-        "samples": 174854,
-        "finiteSamples": 174854,
-        "peak": 0.9092312455177307,
-        "rms": 0.13416344967866467
+        "samples": 174612,
+        "finiteSamples": 174612,
+        "peak": 0.8144491910934448,
+        "rms": 0.1319202253108219
       },
-      "taskMs": 3544.274000000001,
-      "taskMsPer10s": 3243.1848284854796,
-      "taskRtf": 0.324318482848548,
-      "wallRtf": 0.32407883149055544
+      "taskMs": 2402.293,
+      "taskMsPer10s": 2201.262685267908,
+      "taskRtf": 0.22012626852679085,
+      "wallRtf": 0.22001466108150036
     },
     {
       "index": 3,
       "sampleRate": 16000,
-      "audioSeconds": 10.9224375,
-      "wallMs": 3542.945000052452,
+      "audioSeconds": 10.920375,
+      "wallMs": 2382.409999847412,
       "phases": {
-        "acousticMs": 2672.3400000333786,
-        "vocoderMs": 832.6399999856949,
-        "istftMs": 30.56500005722046,
-        "silenceMs": 3.034999966621399
+        "acousticMs": 1799.9349999427795,
+        "vocoderMs": 556.7849998474121,
+        "istftMs": 21.27999997138977,
+        "silenceMs": 1.7699999809265137
       },
       "waveform": {
-        "samples": 174759,
-        "finiteSamples": 174759,
-        "peak": 0.77197265625,
-        "rms": 0.13389354755868735
+        "samples": 174726,
+        "finiteSamples": 174726,
+        "peak": 0.8142096996307373,
+        "rms": 0.13239473612205482
       },
-      "taskMs": 3543.1480000000006,
-      "taskMsPer10s": 3243.9169370390086,
-      "taskRtf": 0.32439169370390086,
-      "wallRtf": 0.32437310811368364
+      "taskMs": 2390.359999999999,
+      "taskMsPer10s": 2188.899190732918,
+      "taskRtf": 0.21888991907329183,
+      "wallRtf": 0.21816192208119337
     }
   ],
   "summary": {
-    "medianTaskMsPer10s": 3243.1848284854796,
-    "medianTaskRtf": 0.324318482848548,
-    "medianWallRtf": 0.32407883149055544,
-    "medianTaskRealtimeMultiplier": 3.0833888689192763,
-    "medianWallRealtimeMultiplier": 3.085668988007144,
-    "medianAudioSeconds": 10.928375,
+    "medianTaskMsPer10s": 2188.899190732918,
+    "medianTaskRtf": 0.21888991907329183,
+    "medianWallRtf": 0.21816192208119337,
+    "medianTaskRealtimeMultiplier": 4.568506417443399,
+    "medianWallRealtimeMultiplier": 4.583751327730922,
+    "medianAudioSeconds": 10.920375,
     "medianPhasesMs": {
-      "acoustic": 2672.3400000333786,
-      "vocoder": 830.3100000619888,
-      "istft": 31.369999885559082,
-      "silence": 0.8200000524520874
+      "acoustic": 1799.9349999427795,
+      "vocoder": 556.7849998474121,
+      "istft": 21.27999997138977,
+      "silence": 0.5550003051757812
     },
     "capture": {
       "sampleRate": 16000,
-      "audioSeconds": 10.9090625,
-      "wallMs": 3457.6699999570847,
+      "audioSeconds": 10.9255,
+      "wallMs": 2383.625,
       "phases": {
-        "acousticMs": 2612.9400000572205,
-        "vocoderMs": 812.5299999713898,
-        "istftMs": 29.194999933242798,
-        "silenceMs": 0.6699999570846558
+        "acousticMs": 1808.2400000095367,
+        "vocoderMs": 552.985000371933,
+        "istftMs": 20.144999742507935,
+        "silenceMs": 0.5399999618530273
       },
       "waveform": {
-        "samples": 174545,
-        "finiteSamples": 174545,
-        "peak": 0.7973594069480896,
-        "rms": 0.1324228887512299
+        "samples": 174808,
+        "finiteSamples": 174808,
+        "peak": 0.834439218044281,
+        "rms": 0.13193816960596086
       }
     }
   }
