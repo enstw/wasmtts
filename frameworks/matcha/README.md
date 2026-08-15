@@ -6,7 +6,7 @@
 
 `matcha-icefall-zh-en` 是本專案目前選定的 TTS 模型。它已通過中文朗讀試聽品質 gate，也完成正式桌面瀏覽器單執行緒 benchmark；在相同五句中文文本的三方盲測中得到 `90/100`，高於 Kokoro 的 `80/100` 與 Piper HuaYan medium 的 `60/100`，Piper 另被標記有外國腔。
 
-上游建議的 browser WASM＋中文 FST 配置中位 task `RTF` 為 `0.1411`，約 `7.09x realtime`；繁體小說原文不經 OpenCC 亦能生成，試聽品質已獲接受。選定的文字路徑為「繁體直輸 → `phone/date/number` FST → Matcha」，生成配置採 `noise_scale=0.667`，繁簡轉換不是必要前處理。目前 pilot 由獨立 kaldifst + OpenFST WASM 執行三個 FST，Matcha/Vocos 則共用 ORT Web WASM；兩者各自使用 linear memory，不再載入固定 512 MiB heap 的官方 frontend bundle。Repository release gate 只涵蓋中文 frontend 與桌面 browser；eSpeak 與 iPhone 實機不在範圍內。
+上游建議的 browser WASM＋中文 FST 配置中位 task `RTF` 為 `0.1411`，約 `7.09x realtime`；繁體小說原文不經 OpenCC 亦能生成，試聽品質已獲接受。選定的文字路徑為「繁體直輸 → `phone/date/number` FST → Matcha」，benchmark 生成配置採 `noise_scale=0.667`（產品播放參數另以 `platform/matcha-assets.json` 的 `synthesis` 區塊為準），繁簡轉換不是必要前處理。目前 pilot 由獨立 kaldifst + OpenFST WASM 執行三個 FST，Matcha/Vocos 則共用 ORT Web WASM；兩者各自使用 linear memory，不再載入固定 512 MiB heap 的官方 frontend bundle。Repository release gate 只涵蓋中文 frontend 與桌面 browser；eSpeak 與 iPhone 實機不在範圍內。
 
 ## 模型與資產
 
