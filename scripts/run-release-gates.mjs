@@ -103,6 +103,24 @@ try {
       console.log(`RETRY matcha-core+asr-listening — 第 ${round} 組未全綠，重抽 noise`);
       results.length = before;
     }
+    // product-recipe 腿:同一頁面改讀 matcha-assets.json synthesis 區塊
+    // (noise/length/silence 產品值),ASR 聽回配獨立凍結 baseline。RTF 只做
+    // (0,1) sanity,不與研究序列比較;flake 吸收邏輯與研究腿相同。
+    for (let round = 1; round <= 3; round += 1) {
+      const before = results.length;
+      run('matcha-product', 'pnpm', ['benchmark:matcha-product'], {}, {attempts: 2, retryOn: LAUNCH_FLAKE});
+      run('asr-product', 'pnpm', ['test:matcha-asr-product'], {
+        UV_CACHE_DIR: process.env.UV_CACHE_DIR ?? '/tmp/wasmtts-uv-cache',
+        WASM_TTS_ASR_CACHE: process.env.WASM_TTS_ASR_CACHE ?? '/tmp/wasmtts-asr-cache',
+      });
+      const pair = results.slice(before);
+      if (pair.every((entry) => entry.status === 'passed') || round === 3) {
+        if (round > 1) pair.forEach((entry) => { entry.attempts = round; });
+        break;
+      }
+      console.log(`RETRY matcha-product+asr-product — 第 ${round} 組未全綠，重抽 noise`);
+      results.length = before;
+    }
     run('matcha-stream', 'pnpm', ['benchmark:matcha-stream'], {}, {attempts: 2, retryOn: LAUNCH_FLAKE});
     run('release-results', 'node', ['scripts/validate-release-results.mjs']);
   }

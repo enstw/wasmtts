@@ -47,6 +47,12 @@ const stream = hasExecutedGates
 const asr = hasExecutedGates
   ? readJson('platform/results/asr-listening-report.json')
   : null;
+const product = hasExecutedGates
+  ? readJson('platform/results/results-matcha_icefall_zh_en-product-browser-wasm.json')
+  : null;
+const asrProduct = hasExecutedGates
+  ? readJson('platform/results/asr-listening-product-report.json')
+  : null;
 const assets = readJson(path.join(artifacts, 'assets.json'));
 const manifest = readJson('platform/matcha-assets.json');
 const packageJson = readJson('package.json');
@@ -91,8 +97,11 @@ if (hasExecutedGates) {
     `| Append errors | ${stream?.summary?.appendErrors ?? '—'} | 0 |`,
     `| Producer errors | ${stream?.summary?.producerErrors ?? '—'} | 0 |`,
     `| Whisper ASR CER | ${Number.isFinite(asr?.metrics?.cer) ? `${(asr.metrics.cer * 100).toFixed(2)}%` : '—'} | ≤ ${Number.isFinite(asr?.metrics?.absoluteCerLimit) ? `${(asr.metrics.absoluteCerLimit * 100).toFixed(2)}%` : 'configured limit'} |`,
+    `| Product-recipe median wall RTF | ${number(product?.summary?.medianWallRtf)} | < 1 (sanity only) |`,
+    `| Product-recipe Whisper ASR CER | ${Number.isFinite(asrProduct?.metrics?.cer) ? `${(asrProduct.metrics.cer * 100).toFixed(2)}%` : '—'} | ≤ ${Number.isFinite(asrProduct?.metrics?.absoluteCerLimit) ? `${(asrProduct.metrics.absoluteCerLimit * 100).toFixed(2)}%` : 'configured limit'} |`,
     '',
     '> Memory figures are Chromium measurement snapshots, not true peak memory measurements and not iPhone results.',
+    '> Product-recipe rows use the `synthesis` block from `matcha-assets.json` (silenceScale 1 lengthens audio); they are a separate series and must not be compared with the research-series RTF above.',
     '',
     '## Tested configuration',
     '',

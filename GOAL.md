@@ -63,6 +63,7 @@ Matcha 的選型已完成；本 repository 的自動 Release 只採可由免費 
 - 初始化與串流記憶體快照均不得超過 512 MiB。
 - 串流 underflow、append error 與 producer error 均為零。
 - 固定 Whisper ASR 聽回同時通過絕對 CER 與相對正式 baseline 的退化上限。
+- 產品配方腿另以 `matcha-assets.json` `synthesis` 區塊的播放參數合成並通過獨立 baseline 的 ASR 聽回;其 `RTF` 只做 `(0, 1)` sanity,與研究序列(noise 1／silence 0.2)不可混報。
 - 記錄引擎、runtime、模型/FST revision、逐檔 SHA-256、下載大小及測試報告。
 - eSpeak 與 iPhone/PWA 實機驗收均不屬於本 repository 的 release gate；既有 iPhone 紀錄只保存為歷史產品相容性證據。
 

@@ -6,10 +6,18 @@ import {launch} from './cdp/cdp-client.mjs';
 const host = process.env.WASM_TTS_BENCH_HOST ?? '127.0.0.1';
 const serverPort = Number(process.env.WASM_TTS_BENCH_PORT ?? 8765);
 const cdpPort = Number(process.env.WASM_TTS_CDP_PORT ?? 9388);
-const url = `http://${host}:${serverPort}/platform/matcha-browser.html`;
+// research(預設)維持歷史序列;product 讓頁面改讀 matcha-assets.json 的
+// synthesis 區塊,結果寫到獨立檔案,兩個序列不可混報。
+const synthesisProfile = process.env.WASM_TTS_SYNTHESIS_PROFILE === 'product' ? 'product' : 'research';
+const url = `http://${host}:${serverPort}/platform/matcha-browser.html${
+  synthesisProfile === 'product' ? '?synthesis=product' : ''}`;
 const profile = path.join(os.tmpdir(), `wasmtts-matcha-cdp-${process.pid}`);
-const resultPath = new URL('./results/results-matcha_icefall_zh_en-browser-wasm.json', import.meta.url);
-const wavPath = new URL('./results/matcha_icefall_zh_en-browser-wasm.wav', import.meta.url);
+const resultPath = new URL(synthesisProfile === 'product'
+  ? './results/results-matcha_icefall_zh_en-product-browser-wasm.json'
+  : './results/results-matcha_icefall_zh_en-browser-wasm.json', import.meta.url);
+const wavPath = new URL(synthesisProfile === 'product'
+  ? './results/matcha_icefall_zh_en-product-browser-wasm.wav'
+  : './results/matcha_icefall_zh_en-browser-wasm.wav', import.meta.url);
 const acousticModelPath = new URL('./models/matcha-icefall-zh-en/model-steps-6.onnx', import.meta.url);
 const vocoderPath = new URL('./models/vocos-16khz-univ.onnx', import.meta.url);
 
@@ -119,6 +127,7 @@ try {
       acousticModelBytes: fs.statSync(acousticModelPath).size,
       vocoderBytes: fs.statSync(vocoderPath).size,
       totalModelBytes: fs.statSync(acousticModelPath).size + fs.statSync(vocoderPath).size,
+      synthesisProfile: metadata.synthesisProfile,
       noiseScale: metadata.noiseScale,
       lengthScale: metadata.lengthScale,
       silenceScale: metadata.silenceScale,
