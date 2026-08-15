@@ -73,3 +73,4 @@ Matcha 的選型已完成；本 repository 的自動 Release 只採可由免費 
 - 完成獨立 kaldifst WASM 與既有 JavaScript applier 的完整 golden A/B，維持 phone、date、number 固定順序；JavaScript 版本暫留作診斷基線。
 - 補齊貨幣／範圍／序號等中文文字正規化，以及可審核的臺灣讀音詞典。
 - 在產品採用前釐清 Matcha acoustic model、Vocos、lexicon、FST 與聲音資料的授權。
+- 評估把合成 producer(雙 ORT session 編排、kaldifst 實例化、mp3 unit 產出)整包以 gated artifact 出貨,讓下游消費者只保留播放、快取與 UI 殼——frontend/synthesis 已隨 release 出貨,編排層是僅存的漂移面。

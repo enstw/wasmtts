@@ -1,25 +1,49 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "matcha": {
     "repository": "https://huggingface.co/csukuangfj/matcha-icefall-zh-en.git",
     "revision": "fbe59d77057428c32111d5f3ea4ed67a7d440c61",
-    "files": [
-      "lexicon.txt",
-      "tokens.txt",
-      "phone-zh.fst",
-      "date-zh.fst",
-      "number-zh.fst"
-    ]
+    "files": {
+      "lexicon.txt": {
+        "packName": "matcha-lexicon.txt",
+        "bytes": 1400278,
+        "sha256": "599efdcdaff4df2a123ce988c2cb90abcd59b919ef609ce36eb587d68b7ca2c0"
+      },
+      "tokens.txt": {
+        "packName": "matcha-tokens.txt",
+        "bytes": 21146,
+        "sha256": "77fee8e5e5dd96b3547119e6159292c648e99e065c54c97777722e3ce710b9a4"
+      },
+      "phone-zh.fst": {
+        "packName": "phone-zh.fst",
+        "bytes": 88630,
+        "sha256": "1ac2b6fa56b1442320c4de7db08353bab8963a2b57f365eebcdd3a2d3562f8d7"
+      },
+      "date-zh.fst": {
+        "packName": "date-zh.fst",
+        "bytes": 59154,
+        "sha256": "eb8aa079ae3cb81d8f4404992f39d61a0cb990947512b5b8d1e54d1f6980e718"
+      },
+      "number-zh.fst": {
+        "packName": "number-zh.fst",
+        "bytes": 64482,
+        "sha256": "743f402181fcfebf76cc2f0546b71fa26476e626fbe4e460fb7b4c3a7a8bd5bd"
+      }
+    }
   },
   "acoustic": {
     "repository": "https://modelscope.cn/models/dengcunqin/matcha_tts_zh_en_20251010",
     "revision": "f9ec409de129ed1b05c9262cd5b29a1ccec050e4",
     "file": "model-steps-6.onnx",
+    "packName": "matcha-acoustic-steps6.onnx",
+    "bytes": 76385274,
     "sha256": "f69a099ebe0b576d08a329dac5076fdd2e09f6cbc51b771ee96f84dc8198d7fe",
     "target": "platform/models/matcha-icefall-zh-en/model-steps-6.onnx"
   },
   "vocos": {
     "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/vocoder-models/vocos-16khz-univ.onnx",
+    "packName": "matcha-vocos-16khz-univ.onnx",
+    "bytes": 53882848,
     "sha256": "b599142a1fb8ff03de3e84ac35ff537c619e56f4267a6fe894851a42844acf9e",
     "target": "platform/models/vocos-16khz-univ.onnx"
   }

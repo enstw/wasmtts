@@ -27,10 +27,18 @@ rmSync(temporary, {recursive: true, force: true});
 mkdirSync(temporary, {recursive: true});
 try {
   mkdirSync(modelDir, {recursive: true});
-  for (const file of manifest.matcha.files) {
+  for (const [file, meta] of Object.entries(manifest.matcha.files)) {
     const source = path.join(temporary, file);
     const repository = manifest.matcha.repository.replace(/\.git$/u, '');
     await download(`${repository}/resolve/${manifest.matcha.revision}/${file}`, source);
+    const hash = sha256(source);
+    if (hash !== meta.sha256) {
+      throw new Error(`${file} SHA-256 mismatch: ${hash} != ${meta.sha256}`);
+    }
+    const size = statSync(source).size;
+    if (size !== meta.bytes) {
+      throw new Error(`${file} byte-size mismatch: ${size} != ${meta.bytes}`);
+    }
     copyFileSync(source, path.join(modelDir, file));
   }
 
@@ -42,6 +50,10 @@ try {
   const acousticHash = sha256(acousticTarget);
   if (acousticHash !== manifest.acoustic.sha256) {
     throw new Error(`Acoustic model SHA-256 mismatch: ${acousticHash} != ${manifest.acoustic.sha256}`);
+  }
+  const acousticBytes = statSync(acousticTarget).size;
+  if (acousticBytes !== manifest.acoustic.bytes) {
+    throw new Error(`Acoustic model byte-size mismatch: ${acousticBytes} != ${manifest.acoustic.bytes}`);
   }
   for (const stale of readdirSync(modelDir)) {
     if (/^model-steps-\d+\.onnx$/u.test(stale) && stale !== manifest.acoustic.file) {
@@ -57,24 +69,29 @@ try {
   if (vocosHash !== manifest.vocos.sha256) {
     throw new Error(`Vocos SHA-256 mismatch: ${vocosHash} != ${manifest.vocos.sha256}`);
   }
+  const vocosBytes = statSync(vocosTarget).size;
+  if (vocosBytes !== manifest.vocos.bytes) {
+    throw new Error(`Vocos byte-size mismatch: ${vocosBytes} != ${manifest.vocos.bytes}`);
+  }
 
   const report = {
     matcha: {
       repository: manifest.matcha.repository,
       revision: manifest.matcha.revision,
-      files: Object.fromEntries(manifest.matcha.files.map((file) => {
+      files: Object.fromEntries(Object.entries(manifest.matcha.files).map(([file, meta]) => {
         const target = path.join(modelDir, file);
-        return [file, {bytes: statSync(target).size, sha256: sha256(target)}];
+        return [file, {packName: meta.packName, bytes: statSync(target).size, sha256: sha256(target)}];
       })),
     },
     acoustic: {
       repository: manifest.acoustic.repository,
       revision: manifest.acoustic.revision,
       file: manifest.acoustic.file,
+      packName: manifest.acoustic.packName,
       bytes: statSync(acousticTarget).size,
       sha256: acousticHash,
     },
-    vocos: {url: manifest.vocos.url, bytes: statSync(vocosTarget).size, sha256: vocosHash},
+    vocos: {url: manifest.vocos.url, packName: manifest.vocos.packName, bytes: statSync(vocosTarget).size, sha256: vocosHash},
   };
   const reportTarget = process.env.WASM_TTS_ASSET_REPORT;
   if (reportTarget) {
