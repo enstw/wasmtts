@@ -2,7 +2,7 @@
 
 此目錄提供一個從 repository 根目錄發布靜態檔案的 host，並加入 COOP、COEP 與 CORP headers。桌面 benchmark runner 也使用同一個 port。
 
-`stream-test.html` 與 `continuous-stream-player.mjs` 抽出 `bookworm` 已在 iOS PWA 驗證的播放框架：單一 `HTMLAudioElement`、單一 `ManagedMediaSource`／`MediaSource` sequence timeline、事件驅動 refill、有界 ahead buffer、舊 buffer 裁切與鎖屏 flight recorder。測試頁以重複的 HuaYan MP3 fixture 驗證 transport；選定的 Matcha adapter 以相同契約逐段回傳 `{ buffer: ArrayBuffer, meta }`。Fixture 與 Piper 不產生本專案的 TTS benchmark，也不需要重做 Piper Worker 或 encoder 實驗。
+`stream-test.html` 與 `continuous-stream-player.mjs` 抽出先行專案已在 iOS PWA 驗證的播放框架：單一 `HTMLAudioElement`、單一 `ManagedMediaSource`／`MediaSource` sequence timeline、事件驅動 refill、有界 ahead buffer、舊 buffer 裁切與鎖屏 flight recorder。測試頁以重複的 HuaYan MP3 fixture 驗證 transport；選定的 Matcha adapter 以相同契約逐段回傳 `{ buffer: ArrayBuffer, meta }`。Fixture 與 Piper 不產生本專案的 TTS benchmark，也不需要重做 Piper Worker 或 encoder 實驗。
 
 `matcha-stream-test.html` 是目前選定模型的實際 producer：Worker 逐句執行繁體直輸、獨立 kaldifst WASM `phone/date/number` FST、lexicon/token mapping、Matcha、Vocos、ISTFT、silence scaling 與 96 kbps MP3 encode，再交給同一個 continuous player。Matcha/Vocos 共用 ORT Web WASM；text normalizer 是另一個初始 16 MiB linear memory 的小型 WASM。三個原始 sherpa tables 合計約 208 KiB，不載入 512 MiB sherpa-onnx frontend bundle。`official` profile 保留上游 lexicon；可選 `taiwan` profile 由 [`matcha-taiwan-profile.js`](../platform/matcha-taiwan-profile.js) 集中組合「垃圾」與 [`matcha-g2p-review.json`](../platform/matcha-g2p-review.json) 的 `profiles.taiwan` 明列規則。contextual rule 只在 longest-match 仍落到單字「著」時生效，不是全域覆寫。模型、FST 與大字典採 cache-first；小型 review manifest 採 network-first、離線時才 cache fallback，因此詞典更新不需輪替大型 asset cache。
 

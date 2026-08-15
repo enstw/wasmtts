@@ -165,7 +165,7 @@
     return String(value).replace(/^[\s　]*[-－—–―─]{2,}[\s　]*$/gmu, '');
   }
 
-  // 保留 Bookworm 已驗證的臺灣格式修正：只重整 FST 已知會誤讀的外形，
+  // 保留先行專案已驗證的臺灣格式修正：只重整 FST 已知會誤讀的外形，
   // 一般數字仍由 sherpa 原始 phone/date/number tables 決定讀法。
   function normalizeLocalForms(value) {
     return value

@@ -77,7 +77,7 @@ Adapter 使用 sherpa-onnx 前端預先產生的固定 token；文字前處理�
 
 ### Matcha Worker／MP3／MediaSource 端到端結果
 
-2026-08-09 將 Bookworm 的 `matcha-fst.js` 移入統一平台。此實作以純 JavaScript 讀取 OpenFST vector archives，依 kaldifst `TextNormalizer::Normalize` 的拓撲 shortest-path 與 strict-improvement tie-break 套用 `phone-zh.fst,date-zh.fst,number-zh.fst`，不載入 sherpa-onnx 512 MiB frontend bundle。無資產 fixtures 全部通過，三個真實 tables 的 32 個 kaldifst golden cases 亦全部一致。產品前端另保留 Bookworm 已驗證的臺灣格式修正，避免 `%`、冒號、日期分隔符與 10 碼手機落入上游已知誤讀。
+2026-08-09 將先行專案的 `matcha-fst.js` 移入統一平台。此實作以純 JavaScript 讀取 OpenFST vector archives，依 kaldifst `TextNormalizer::Normalize` 的拓撲 shortest-path 與 strict-improvement tie-break 套用 `phone-zh.fst,date-zh.fst,number-zh.fst`，不載入 sherpa-onnx 512 MiB frontend bundle。無資產 fixtures 全部通過，三個真實 tables 的 32 個 kaldifst golden cases 亦全部一致。產品前端另保留先行專案已驗證的臺灣格式修正，避免 `%`、冒號、日期分隔符與 10 碼手機落入上游已知誤讀。
 
 同日以 Chromium 151、stable ORT Web `1.27.0` WASM 單一 thread 與 `noise_scale=0.667` 重測完整 desktop producer。計時邊界包含繁體直輸、獨立 kaldifst WASM FST、lexicon/token mapping、Matcha acoustic、Vocos、JavaScript ISTFT、silence scaling 與 lamejs 96 kbps MP3 encode；輸出逐句 append 到單一 `audio/mpeg` sequence SourceBuffer。10 段共 append 51.228 秒音訊，producer `RTF 0.1387`、`7.21 倍即時`，到達目標的整體 wall `RTF 0.1425`。underflow、append error、producer error 全為 0；所有 segment waveform 均為有限非靜音，MP3 bytes 皆大於零。`25.5%` 正規化為「百分之二十五点五」，沒有 unknown。
 
