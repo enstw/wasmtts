@@ -51,11 +51,15 @@ try {
     review,
     frontendApi,
     lexiconText: readFileSync(path.join(modelsDir, 'lexicon.txt'), 'utf8'),
+    lexiconSupplementText: readFileSync(path.join(extracted, 'matcha-lexicon-traditional.txt'), 'utf8'),
     tokensText: readFileSync(path.join(modelsDir, 'tokens.txt'), 'utf8'),
   });
   // 一條 base override、一條 review 規則 — 證明 tarball 的 js 與 review JSON 有接上。
   assert.deepEqual(taiwan.tokensFor('垃圾').phones, ['le4', 'se4']);
   assert.deepEqual(taiwan.tokensFor('帶著').phones, ['dai4', 'zhe5']);
+  // 一條鏡像詞條、一條 guard — 證明 tarball 的繁體補充詞典有接上且不誤傷跨界。
+  assert.deepEqual(taiwan.tokensFor('銀行').phones, ['yin2', 'hang2']);
+  assert.deepEqual(taiwan.tokensFor('不會計較').phones, ['bu4', 'hui4', 'ji4', 'jiao4']);
 
   // kaldifst 的 js＋wasm 成對可實例化（wasm bytes 也來自 tarball）。此 dist 以
   // ENVIRONMENT=web,worker 編譯、只會用 fetch 抓 wasm — Node 的 fetch 吃 data:
