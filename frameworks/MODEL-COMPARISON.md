@@ -1,6 +1,6 @@
 # 開放權重 neural TTS 模型比較
 
-更新日期：2026-08-12
+更新日期：2026-08-20
 
 本文件整理目前具代表性的開放權重 neural TTS，依英文、zh_CN 普通話與 zh_TW 臺灣華語區分。目的不是重新開啟本專案選型，而是保存 Matcha 決策所在的市場位置，以及未來 server teacher、聲線轉移與 edge student 的候選範圍。
 
@@ -29,7 +29,7 @@
 
 | 模型 | 參數量 | 聲線能力 | 授權摘要 | 品質／自然度的公開評價 |
 |---|---:|---|---|---|
-| Piper | 約 15M／voice | 固定聲線 | engine 與每個 voice 分開授權 | CPU 快、穩定、長文不易 hallucinate；自然度與表情通常落後 2025–2026 年模型，適合作 baseline／嵌入式產品。 |
+| Piper | 約 15M／voice | 固定聲線 | engine 與每個 voice 分開授權；`rhasspy/piper` 已轉唯讀並自 MIT 改為 GPL-3.0 | CPU 快、穩定、長文不易 hallucinate；自然度與表情通常落後 2025–2026 年模型，適合作 baseline／嵌入式產品。 |
 | [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) | 82M | 多個固定聲線 | Apache-2.0 weights | 小模型中最常被推薦的品質／速度折衷之一；音色乾淨、發音清楚，但沒有官方 zero-shot cloning，情緒與上下文控制有限。 |
 | [Supertonic 3](https://github.com/supertone-inc/supertonic) | 99M | 固定聲線、expression tags | code MIT；weights OpenRAIL-M | 44.1 kHz、準確且適合 ONNX／browser／iOS；表情標籤比一般固定聲線模型豐富。官方已公告 repository 將封存並停止後續支援。 |
 | [Pocket TTS](https://huggingface.co/kyutai/pocket-tts) | 100M | zero-shot cloning | code MIT；weights CC-BY-4.0、gated 使用條款 | CPU cloning 的代表；官方報告 M4 兩核心約 `6x realtime`、首段約 200 ms。聲線還原與串流性佳，但韻律上限通常低於大型 codec／flow 模型。 |
@@ -54,7 +54,7 @@
 | [IndexTTS2](https://github.com/index-tts/index-tts) | 約 1.5B | cloning、情緒與時長控制 | Bilibili Model Use License | 情緒、聲線和 dubbing 時長控制強；公開比較中 speaker similarity 佳，但自訂授權限制大型商業使用，且禁止部分以輸出改善其他商業 AI 模型的用途。 |
 | [VoxCPM2](https://github.com/OpenBMB/VoxCPM) | 2B | 30 語言 cloning、voice design | Apache-2.0 | 48 kHz、中文自然度與聲線還原強；官方稱 RTX 4090 原始 `RTF ≈ 0.3`、加速 runtime 約 `0.13`，仍屬 GPU/server 級。 |
 | dots.tts | 2B | multilingual zero-shot cloning | Apache-2.0 | 官方 Seed-TTS-Eval 報告中文 WER `0.94%`、SIM `81.0`，屬目前內容穩定與 cloning 的品質前緣。 |
-| [Fish Audio S2 Pro](https://huggingface.co/fishaudio/s2-pro) | 4B | 多語 cloning、inline 情緒／韻律控制 | Fish Audio Research License；非商業免費 | 中文、英文、日文為 Tier 1，細粒度表情控制很強；商用需另行取得授權，不是一般 permissive open-source model。 |
+| [Fish Audio S2 Pro](https://huggingface.co/fishaudio/s2-pro) | 5B | 多語 cloning、inline 情緒／韻律控制 | Fish Audio Research License；非商業免費 | 中文、英文、日文為 Tier 1，細粒度表情控制很強；商用需另行取得授權，不是一般 permissive open-source model。 |
 
 [CosyVoice 官方同條件比較](https://github.com/QwenAudio/CosyVoice#evaluation)顯示，0.5B CosyVoice3、0.5B VoxCPM、1.5B IndexTTS2 等模型的普通話內容錯誤與 speaker similarity 已進入接近區間。模型繼續放大帶來的主要差異逐漸轉向情緒、voice cloning、長文穩定性和可控性，而不只是朗讀正確率。
 
@@ -72,6 +72,42 @@
 | VoxCPM2／dots.tts | 2B | 否，可 cloning | server 級自然度和 cloning 很強，但目前缺乏足量、公開且固定 protocol 的 zh_TW 人類排名。 |
 
 [BreezyVoice 論文](https://arxiv.org/html/2501.17790v1)同時揭露優點與失敗尾端，現階段比單純官方 demo 更有判斷價值。另有一份涵蓋 BreezyVoice、CosyVoice3、Qwen3-TTS、VoxCPM2、Chatterbox 等系統的 [zh-TW 公開比較資料集](https://huggingface.co/datasets/JacobLinCool/zh-tw-tts-comparison)，保存 600 段臺灣華語／中英混讀音訊及 ASR、RTF、VRAM metadata；其 blind arena 仍應累積更多票數後再引用固定排名。
+
+## 能力與可訓練性矩陣
+
+前面三張表比較「合成品質」，這張表比較「能不能拿來做事」。本專案要的是 teacher／student 管線，因此 cloning 的最短參考長度、有沒有可續訓的 checkpoint，以及輸出與蒸餾的授權，比 MOS 排名更早成為 go／no-go 條件。
+
+「可訓練」分三級：`recipe` 表示官方釋出訓練或 fine-tune code 且有可續訓 checkpoint；`推論` 表示只有推論權重；`—` 表示不適用。授權欄分開記錄 code 與 weights，兩者經常不同。
+
+| 模型 | 聲音克隆 | 可訓練 | 授權（code／weights） | 輸出與蒸餾權利 |
+|---|---|---|---|---|
+| Matcha icefall zh-en | 無，固定單聲線 | 推論。只有 `model-steps-3.onnx`、`vocos-16khz-univ.onnx`、`tokens.txt`、`lexicon.txt`，無 PyTorch checkpoint，上游註明檔案來自 ModelScope | 未宣告 | 未宣告 |
+| [matcha-icefall-zh-baker](https://k2-fsa.github.io/sherpa/onnx/tts/all/Chinese/matcha-icefall-zh-baker.html)（同架構參考） | 無，固定單聲線 | recipe。由公開的 [icefall `egs/baker_zh/TTS/matcha`](https://github.com/k2-fsa/icefall/tree/master/egs/baker_zh/TTS/matcha) 訓練 | icefall Apache-2.0；Baker 資料集另有條款 | 依資料集條款 |
+| Breeze2-VITS | 無，固定單聲線 | 推論。只有 ONNX，由 BreezyVoice 蒸餾而來 | model card 未宣告 weights license | 未宣告 |
+| Piper | 無，固定單聲線 | recipe。`piper_train` 以 `--resume_from_checkpoint` 續訓，官方 checkpoints 在 [`rhasspy/piper-checkpoints`](https://huggingface.co/datasets/rhasspy/piper-checkpoints) | `rhasspy/piper` 於 2025-10 轉為唯讀並自 MIT 改為 GPL-3.0，維護移至 [OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl)；每個 voice dataset 另行授權 | 依 voice dataset 條款 |
+| Kokoro | 無，固定聲線 | 推論。官方 repository 只有推論 library，未釋出訓練 code | Apache-2.0 weights | 無額外限制 |
+| Supertonic 3 | 無，固定聲線＋expression tags | 推論 | code MIT；weights OpenRAIL-M | OpenRAIL-M 的 use-based 限制與標示義務 |
+| Pocket TTS | zero-shot，約 20 秒 | 支援 fine-tune 至自訂聲線 | CC-BY-4.0＋acceptable-use；cloning 權重另行 gated，非 cloning 權重在 [`pocket-tts-without-voice-cloning`](https://huggingface.co/kyutai/pocket-tts-without-voice-cloning) | 需標示 Kyutai Labs；不得未經當事人同意複製其聲音 |
+| BreezyVoice | zero-shot＋注音控制 | recipe。CosyVoice lineage | model card 宣告 Apache-2.0 | 訓練資料來源與 speaker prompt 權利仍須個別確認 |
+| F5-TTS | zero-shot | recipe | code MIT；weights CC-BY-NC-4.0（源自 Emilia 資料集），fine-tune 後仍不可商用 | 非商業；另有 Apache-2.0 重製版 [`OpenF5-TTS-Base`](https://huggingface.co/mrfakename/OpenF5-TTS-Base) |
+| Chatterbox Turbo | zero-shot，約 5 秒 | 有官方 code | MIT（code 與 weights） | 無額外限制 |
+| CosyVoice 3 | zero-shot，3–10 秒，跨語言與方言 | recipe。官方提供 training／inference／deployment 全端 | Apache-2.0 | 無額外限制 |
+| Qwen3-TTS | zero-shot cloning＋voice design | recipe。官方 [`finetuning/`](https://github.com/QwenLM/Qwen3-TTS/tree/main/finetuning)，Base 系列支援單聲線 fine-tune | Apache-2.0（weights 與 inference code） | 無額外限制 |
+| IndexTTS2 | zero-shot＋情緒與時長控制 | recipe。fine-tune、LoRA、量化均被明文列為 Derivative Work | code Apache-2.0，但另受 bilibili Model Use License 限制，商用需另行取得 | 明文禁止以本模型或其 Derivative Work 改善其他 AI 模型，僅 indextts2 本身、其 Derivative Works 與非商業 AI 模型除外 |
+| Dia | zero-shot | 支援 fine-tune | Apache-2.0 | 使用條款禁止未經同意的 cloning |
+| VoxCPM2 | cloning＋voice design，三種模式 | recipe。官方 SFT 與 LoRA script，5–10 分鐘音訊即可 | Apache-2.0 | 無額外限制 |
+| dots.tts | zero-shot 多語 | recipe。`scripts/train_dots_tts.py`，含 MeanFlow distillation 入口 | Apache-2.0（weights 與 code） | 無額外限制 |
+| Fish Audio S2 Pro | zero-shot，約 15 秒＋inline 情緒標籤 | recipe。官方釋出 fine-tune code 與 SGLang 推論引擎 | Fish Audio Research License：研究與非商業免費、商用另議、授權可撤銷，散布需標示 "Built with Fish Audio" | outputs 明文不屬於 Derivative Work；但以 outputs 訓練出的模型屬於，並繼承本授權。另禁止用於改善任何 foundational generative AI model |
+| MOSS-TTS v1.5 | zero-shot | recipe。官方 LoRA fine-tune scripts | Apache-2.0 | 無額外限制 |
+
+Fish Audio S2 Pro 的 5B 由 Dual-AR 架構拆成時間軸的 Slow AR 4B 與聲學維度的 Fast AR 400M；官方報告 RTF `0.195`、time-to-first-audio 低於 100 ms，並以 RVQ 壓縮 44.1 kHz 音訊。這些是 GPU 推論引擎的數字，與本專案的單一 WASM thread `RTF` 不可同表比較。
+
+### 對本專案的意義
+
+1. 現行 `matcha-icefall-zh-en` 沒有可續訓的 PyTorch checkpoint 也未宣告 license，[BreezyVoice 聲線轉移計畫](vits/BREEZYVOICE-MATCHA-PLAN.md)的 Gate 0 因此仍然成立。但同架構的 `matcha-icefall-zh-baker` 由公開 icefall recipe 訓練，是目前最接近的可訓練起點；還沒驗證的是它的 token inventory 與現行前端的 `tokens.txt`、`lexicon.txt` 是否相容，這應該排在任何 GPU 支出之前。
+1. teacher 的授權分成三群：Apache-2.0 群（CosyVoice 3、Qwen3-TTS、VoxCPM2、dots.tts、MOSS-TTS、BreezyVoice）對蒸餾沒有額外限制；Fish Audio S2 Pro 在非商業前提下可用，但 student 權重會繼承其可撤銷授權且需標示；IndexTTS2 明文禁止以其輸出改善其他 AI 模型，不適合作 teacher。
+1. 只有 cloning 模型能把使用者自己的聲音帶進管線。Piper、Kokoro、Supertonic 3、Breeze2-VITS 與現行 Matcha 都是固定聲線，新聲線只能靠訓練取得；這是「錄 30 秒就換聲線」與本專案 edge 模型之間的結構差異，不是品質差異。
+1. 表列的 cloning 能力與 speaker similarity 都是上游宣稱或論文數字，未經本專案 harness 重現。採用任何一項前仍須依既有慣例保存可重現命令、模型 revision、SHA-256 與量測邊界。
 
 ## 本專案的可採用結論
 
