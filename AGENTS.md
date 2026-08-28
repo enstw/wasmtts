@@ -65,7 +65,7 @@
 
 - `platform/`：引擎原始碼（`matcha-engine.js`、`matcha-frontend.js`、`matcha-taiwan-profile.js`、`matcha-synthesis.js`、`kaldifst-normalizer.js`、`kaldifst-wasm/`）、lexicon pipeline（`build-matcha-lexicon.mjs`、review／curation）、gate 測試，以及研究模式的 runner、分析工具與機器可讀結果。
 - `scripts/`：release 流程（`release-manifest.json`、`package-release.mjs`、`run-release-gates.mjs`、`test-package-smoke.mjs`、`generate-release-md.mjs`）、資產抓取（`fetch-matcha-assets.mjs`）與上游同步（`sync-matcha-upstream.mjs`）。
-- `mobile-host/`：提供 COOP／COEP headers 的測試 host，以及 tarball 元件（Worker／producer／player）的消費者示範頁；頁面只剩 DOM、telemetry、flight recorder 與 `matcha-stream` gate 用的 CDP hook。`pnpm vendor:mobile` 依 `matcha-assets.json` `runtime` 區塊把 ORT／lamejs 以 packName 放到 `mobile-host/vendor/runtime/`。測試頁的「研究對照」以第二個 Worker 覆寫 `lexicon`／`profile` URL 讀上游原檔，tarball 不含任何上游 lexicon 概念。
+- `mobile-host/`：提供 COOP／COEP headers 的測試 host，以及 tarball 元件（Worker／producer／player）的消費者示範頁；頁面只剩 DOM、telemetry、flight recorder 與 `matcha-stream` gate 用的 CDP hook；`mobile-host/reader-demo.{html,mjs}` 是給下游照抄的閱讀器示範（每個閱讀器契約各用一次），不進 gate 也不進 tarball（`ci-scope.mjs` 排除，改它不發版），新增閱讀器契約時要同步加進去。`pnpm vendor:mobile` 依 `matcha-assets.json` `runtime` 區塊把 ORT／lamejs 以 packName 放到 `mobile-host/vendor/runtime/`。測試頁的「研究對照」以第二個 Worker 覆寫 `lexicon`／`profile` URL 讀上游原檔，tarball 不含任何上游 lexicon 概念。
 - `GOAL.md`、`frameworks/`、`platform/RESULTS.md`、`frameworks/MODEL-COMPARISON.md`：研究模式文件；`README.md` 是消費端導覽，不在此複製實驗紀錄。
 
 正式文字路徑固定為「繁體直輸 → 官方 `phone/date/number` FST → wasmtts lexicon → Matcha」；`platform/matcha-fst.js` 保留為 JavaScript golden／診斷基線，修改時必須維持 phone、date、number 順序及 OpenFST tie-break。Matcha/Vocos 共用 ORT Web WASM，text normalizer 是另一個獨立 linear memory 的小型 WASM，不載入固定 512 MiB heap 的 sherpa-onnx frontend bundle。前端尚未涵蓋英文 eSpeak。

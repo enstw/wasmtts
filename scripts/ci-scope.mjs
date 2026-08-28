@@ -21,13 +21,19 @@ const EXACT_CI_CONFIG_PATHS = new Set([
   'scripts/test-ci-scope.mjs',
 ]);
 
+// mobile-host 裡不進任何 gate、也不進 tarball 的頁面(入口頁、閱讀器示範頁):改它們
+// 不必重跑 gate、不發版。matcha-stream-test.* 是 matcha-stream gate 的頁,仍算 artifact。
+const MOBILE_HOST_NON_ARTIFACT = [/^mobile-host\/index\.html$/u, /^mobile-host\/reader-demo\./u];
+
 function isArtifactPath(file) {
   if (EXACT_CI_CONFIG_PATHS.has(file)) return false;
   if (EXACT_ARTIFACT_PATHS.has(file) || file.startsWith('scripts/')) return true;
   if (file.startsWith('platform/')) {
     return !file.startsWith('platform/results/') && !file.endsWith('.md');
   }
-  if (file.startsWith('mobile-host/')) return !file.endsWith('.md');
+  if (file.startsWith('mobile-host/')) {
+    return !file.endsWith('.md') && !MOBILE_HOST_NON_ARTIFACT.some((pattern) => pattern.test(file));
+  }
   return false;
 }
 
