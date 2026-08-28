@@ -6,6 +6,8 @@
 
 `matcha-stream-test.html` 是 engine tarball 元件的消費者示範：`platform/matcha-producer.mjs` 以 `workerConfigFromAssets` 從 `platform/dist/matcha-assets.json` 組出 config（本 host 覆寫為 `/platform/`、`/platform/dist/`、`/platform/models/`、`/mobile-host/vendor/runtime/` 路徑），`platform/matcha-worker.js` 逐句執行繁體直輸、獨立 kaldifst WASM `phone/date/number` FST、wasmtts lexicon、Matcha、Vocos、ISTFT、silence scaling 與 96 kbps MP3 encode，再交給同一個 continuous player；頁面只負責 DOM、telemetry、flight recorder 與 CDP hook。Matcha/Vocos 共用 ORT Web WASM；text normalizer 是另一個初始 16 MiB linear memory 的小型 WASM。三個原始 sherpa tables 合計約 208 KiB，不載入 512 MiB sherpa-onnx frontend bundle。「產品」選項是產品路徑：讀 `pnpm lexicon:build` 編出的 `platform/dist/matcha-lexicon.txt`（phrase overrides 已烘入）與 `matcha-profile.runtime.json`（contextual rules），兩者採 network-first、離線時才 cache fallback，因此字典更新不需輪替大型 asset cache。「研究對照」以第二個 Worker 覆寫 `lexicon`／`profile` URL 讀上游原始 lexicon、空 profile（engine 仍套 `matcha-taiwan-profile.js` 的 `垃圾` base override，故 lexiconSize 為 68,038），只供 A/B。contextual rule 只在 longest-match 仍落到單字「著」時生效，不是全域覆寫。模型、tokens 與 FST 採 cache-first。
 
+`reader-demo.html`（＋ `reader-demo.mjs`）是給下游照抄的閱讀器示範：三章內建短文，開頁先 `packStatus(config)` 不開 Worker 就列出每個資產缺不缺（`labels` 給中文顯示名），▶ 前 `producer.prime({offset})` 先合成含書籤那句，`more`／`restore` 供章，`onSegment` 以 `meta.start/end/tag` 高亮、寫書籤、換 Media Session 章名，⏮⏭ 先在 `player.segments()` 找目標（跨章的段還在 buffer 就直接 seek）不在才 `restartFrom({tag, index})`，`onLog` 以 `code` 勾選過濾，`minUnitChars` 可在頁上切換（opt-in）。它不進任何 gate 也不進 tarball（`scripts/ci-scope.mjs` 排除），改它不會觸發發版。
+
 `frequency-ab-score.html` 是 16 kHz 箱音診斷的匿名評分頁。每位受試者看到隨機排序的四段音訊，頁面收集箱音／鼓聲、清晰度、自然度、整體偏好與播放設備；草稿保存在瀏覽器 localStorage，提交後由 host 驗證並追加至 `.cache/frequency-ab-scores.jsonl`。受試者資料不加入 Git，音訊版本的 SHA-256 會隨每筆評分保存。
 
 ## 啟動
@@ -19,6 +21,8 @@ pnpm host:mobile
 Fixture transport 頁：`http://127.0.0.1:8765/mobile-host/stream-test.html`。
 
 Matcha 端到端頁：`http://127.0.0.1:8765/mobile-host/matcha-stream-test.html`。以受裝置信任的 HTTPS 開啟、等待 Worker ready 後，可加入 iOS 主畫面並離線重開測試頁。
+
+閱讀器示範頁：`http://127.0.0.1:8765/mobile-host/reader-demo.html`（需先 `pnpm fetch:matcha-assets && pnpm lexicon:build`）。
 
 匿名評分頁：`http://127.0.0.1:8765/mobile-host/frequency-ab-score.html`。若從區域網路邀請其他裝置評分，請只在信任的網路短暫啟動 host；預設 `0.0.0.0` 會發布 repository 根目錄。
 
