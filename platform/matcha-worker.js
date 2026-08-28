@@ -8,9 +8,13 @@
 // 參數;Worker 在 configure 時才 importScripts。之後的協定:
 //   → {type: 'download-assets'}          ← download-progress… / download-complete
 //   → {type: 'init'}                      ← ready {initialization}
-//   → {type: 'synthesize', requestId, text, noiseScale?, capturePcm?, format?}
+//   → {type: 'synthesize', requestId, text, noiseScale?, capturePcm?, format?, allowUnknown?}
 //                                         ← result {requestId, buffer, meta} 或 error
+//   → {type: 'status'}                    ← status {assets: [{key, url, cached, bytes}], cachedBytes, missingBytes, complete}
+//                                            （不觸發任何下載——下游可據此先問使用者再抓 ~130 MB）
 //   → {type: 'dispose'}
+// config.progressEvents（預設 false）才會送逐句 progress；config.networkTimeoutMs（預設 1000）
+// 是 network-first 資產的逾時，逾時走 cache fallback，壞訊號不會讓 init 掛住。
 // 任何錯誤以 {type: 'error', action, requestId?, message, stack, unknown} 回報。
 
 'use strict';
@@ -26,6 +30,8 @@ const DEFAULTS = Object.freeze({
   versions: {},
   pronunciationOverrides: {},
   warmupText: '你好。',
+  networkTimeoutMs: 1000,
+  progressEvents: false,
 });
 
 let config = null;
@@ -35,6 +41,8 @@ let initialization = null;
 let downloadedAssets = null;
 
 function postProgress(stage, detail = {}) {
+  // 每句三則 progress 對飛行紀錄器是噪音;預設關,config.progressEvents 才開。
+  if (!config?.progressEvents) return;
   postMessage({type: 'progress', stage, detail});
 }
 
@@ -108,7 +116,9 @@ async function downloadResponse(url, onProgress, {networkFirst = false} = {}) {
   let source = 'network';
   if (networkFirst) {
     try {
-      response = await fetch(absolute, {cache: 'no-cache'});
+      // 壞訊號下 fetch 不是失敗而是掛住;逾時即走 cache fallback。
+      const signal = typeof AbortSignal?.timeout === 'function' ? AbortSignal.timeout(config.networkTimeoutMs) : undefined;
+      response = await fetch(absolute, {cache: 'no-cache', signal});
     } catch (error) {
       cached = await cache?.match(absolute);
       if (!cached) throw error;
@@ -158,21 +168,46 @@ async function downloadResponse(url, onProgress, {networkFirst = false} = {}) {
   return {buffer: bytes.buffer, source};
 }
 
-async function evictStaleModelCache() {
-  // 換模型(其他 ODE steps、新 revision)時移除 cache 裡不在本次清單的 .onnx,
-  // 避免裝置殘留數十 MiB。
-  if (!('caches' in self)) return;
+async function sweepCache() {
+  // keep-set 清掃:cache 內任何不在本次資產清單的 key 都刪(換模型、換 revision、
+  // 舊時代殘留),避免裝置殘留數百 MiB;不必再逐名維護。
+  if (!('caches' in self)) return [];
   const cache = await caches.open(config.cacheName);
-  const current = new Set(assetList().map((asset) => new URL(asset.url, self.location.href).href));
+  const keep = new Set(assetList().map((asset) => new URL(asset.url, self.location.href).href));
+  const evicted = [];
   for (const request of await cache.keys()) {
-    if (/\.onnx$/u.test(new URL(request.url).pathname) && !current.has(request.url)) await cache.delete(request);
+    if (!keep.has(request.url) && await cache.delete(request)) evicted.push(request.url);
   }
+  return evicted;
+}
+
+// 不下載就能回答狀態:每個資產是否已在 cache、bytes、共缺多少。
+async function status() {
+  requireConfigured();
+  const cache = 'caches' in self ? await caches.open(config.cacheName) : null;
+  const assets = [];
+  for (const asset of assetList()) {
+    const absolute = new URL(asset.url, self.location.href).href;
+    const cached = cache ? Boolean(await cache.match(absolute)) : false;
+    assets.push({key: asset.key, url: asset.url, label: asset.label, cached, bytes: Number.isFinite(asset.bytes) ? asset.bytes : null});
+  }
+  const sum = (list) => list.reduce((total, asset) => total + (asset.bytes ?? 0), 0);
+  return {
+    type: 'status',
+    cacheStorage: Boolean(cache),
+    assets,
+    cachedBytes: sum(assets.filter((asset) => asset.cached)),
+    missingBytes: sum(assets.filter((asset) => !asset.cached)),
+    complete: assets.every((asset) => asset.cached),
+    downloaded: Boolean(downloadedAssets) || Boolean(initialization),
+  };
 }
 
 async function downloadAssets() {
   requireConfigured();
   if (downloadedAssets) return downloadedAssets;
-  await evictStaleModelCache();
+  const evicted = await sweepCache();
+  if (evicted.length) postMessage({type: 'cache-swept', evicted});
   const assets = assetList();
   const expected = assets.reduce((sum, asset) => sum + (Number.isFinite(asset.bytes) ? asset.bytes : 0), 0);
   const completed = new Map();
@@ -316,7 +351,8 @@ async function synthesize(message) {
   postProgress(`合成第 ${message.requestId} 段：文字前端`);
   const totalStarted = performance.now();
   const noiseScale = Number.isFinite(message.noiseScale) ? message.noiseScale : config.defaultNoiseScale;
-  const synthesis = await engine.synthesize(message.text, {noiseScale});
+  const allowUnknown = message.allowUnknown !== false;
+  const synthesis = await engine.synthesize(message.text, {noiseScale, allowUnknown});
   if (synthesis.empty) {
     postMessage({type: 'result', requestId: message.requestId, empty: true, meta: {text: message.text, normalizedText: synthesis.tokenized.normalizedText}});
     return;
@@ -384,6 +420,10 @@ self.addEventListener('message', async (event) => {
       await synthesize(message);
       return;
     }
+    if (message.type === 'status') {
+      postMessage(await status());
+      return;
+    }
     if (message.type === 'dispose') {
       engine?.dispose();
       engine = null;
@@ -400,6 +440,7 @@ self.addEventListener('message', async (event) => {
       action: message?.type,
       requestId: message?.requestId,
       message: error?.message ?? String(error),
+      code: error?.code,
       stack: error?.stack ?? '',
       unknown: error?.unknown ?? [],
     });

@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
+import {createRequire} from 'node:module';
 import path from 'node:path';
+
+const require = createRequire(import.meta.url);
 
 const root = process.cwd();
 const artifacts = path.resolve(process.env.WASM_TTS_RELEASE_ARTIFACTS ?? 'release-artifacts');
@@ -64,6 +67,9 @@ const waveformValid = coreWaveforms.length > 0 && coreWaveforms.every((waveform)
   waveform?.finiteSamples === waveform?.samples && waveform?.peak > 0 && waveform?.rms > 0
 ));
 const releaseTag = process.env.RELEASE_TAG || 'unassigned';
+const previousTag = process.env.PREVIOUS_RELEASE_TAG || '';
+const major = (tag) => Number((/^v(\d+)\./u.exec(tag ?? '') ?? [])[1] ?? NaN);
+const majorBump = Number.isFinite(major(releaseTag)) && Number.isFinite(major(previousTag)) && major(releaseTag) > major(previousTag);
 const commit = gates?.commit || process.env.GITHUB_SHA || 'local';
 const runUrl = process.env.GITHUB_RUN_URL;
 const status = gates?.status ?? 'not run';
@@ -77,6 +83,23 @@ const lines = [
   `- Generated: ${gates?.generatedAt ?? new Date().toISOString()}`,
   ...(runUrl ? [`- GitHub Actions run: ${runUrl}`] : []),
   '',
+  ...(majorBump ? [
+    '## ⚠ 破壞性變更（major）',
+    '',
+    `本版由 \`${previousTag}\` 升至 \`${releaseTag}\`，下游契約有變。升版前請先讀本 repo 的 downstream-breaking issue 與 README「使用 tarball」；本版不應與其他升版一起自動 roll-up。`,
+    '',
+    '自前一版以來的變更：',
+    '',
+    ...(() => {
+      try {
+        const {execFileSync} = require('node:child_process');
+        return execFileSync('git', ['log', '--format=- %s', `${previousTag}..HEAD`], {encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore']}).trim().split('\n').filter(Boolean);
+      } catch {
+        return ['- （無法讀取 git log）'];
+      }
+    })(),
+    '',
+  ] : []),
   '## Release scope',
   '',
   '本 Release 驗證 Matcha browser engine（文字前端、編譯後 wasmtts lexicon、kaldifst normalizer、Matcha + Vocos 合成）的免費 GitHub runner 可重現桌面 gates。Worker／producer／streaming player 隨 tarball 出貨並由 `matcha-stream` gate 以產品路徑驗證；iPhone／PWA 實機驗收與英文 eSpeak frontend 不屬於自動 release gate。',

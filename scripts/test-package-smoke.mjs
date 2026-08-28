@@ -136,6 +136,14 @@ try {
   assert.equal(typeof producerApi.createMatchaProducer, 'function');
   assert.equal(typeof playerApi.createContinuousStreamPlayer, 'function');
   assert.deepEqual(producerApi.splitSentences('清晨的陽光。她說：「別急。」\n第二段'), ['清晨的陽光。', '她說：「別急。」', '第二段']);
+  // 閱讀器契約:切句 walk 唯一來源、span 連續覆蓋、start/end 與 walk 一致。
+  const spans = producerApi.sentenceSpans('甲。「乙！」\n丙');
+  assert.deepEqual(spans.map((s) => [s.start, s.end]), [[0, 2], [2, 7], [7, 8]]);
+  assert.equal(producerApi.sentenceStartFor('甲。「乙！」\n丙', 4), 2);
+  assert.equal(producerApi.sentenceEndFor('甲。「乙！」\n丙', 4), 6);
+  for (const name of ['ENDERS', 'CLOSERS', 'sentenceSpans', 'sentenceStartFor', 'sentenceEndFor', 'chunkIndexFor']) {
+    assert.ok(name in producerApi, `matcha-producer.mjs 缺 ${name}`);
+  }
   // 每個 engine 檔名都真的在 tarball 裡;每個 config URL 都對應到 manifest 帶 packName 的資產。
   for (const name of Object.values(producerApi.ENGINE_FILES)) assert.ok(actual.includes(name), `ENGINE_FILES.${name} 不在 tarball`);
   const config = producerApi.workerConfigFromAssets({

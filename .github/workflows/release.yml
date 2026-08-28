@@ -167,9 +167,14 @@ jobs:
       - name: Generate RELEASE.md
         if: always() && steps.release.outcome == 'success'
         env:
+          GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ steps.release.outputs.tag }}
           GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: node scripts/generate-release-md.mjs
+        run: |
+          # 前一個正式版 tag:major 升版時 RELEASE.md 加破壞性變更警示（下游契約）。
+          export PREVIOUS_RELEASE_TAG="$(gh release list --limit 50 --exclude-pre-releases --exclude-drafts --json tagName --jq '[.[] | select(.tagName | test("^v[0-9]+\\.[0-9]+\\.[0-9]+$"))][0].tagName // empty')"
+          git fetch --tags --quiet || true
+          node scripts/generate-release-md.mjs
       - if: always()
         uses: actions/upload-artifact@v7
         with:

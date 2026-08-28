@@ -117,6 +117,14 @@ function onProducerEvent(label) {
       addLog({message: `wasmtts Worker ready（${label}）`, detail: message.initialization});
       return;
     }
+    if (message.type === 'skipped') {
+      addLog({message: `跳過句子（${message.reason}）`, detail: {start: message.meta.start, end: message.meta.end, text: message.meta.text, error: message.error}});
+      return;
+    }
+    if (message.type === 'cache-swept') {
+      addLog({message: 'cache keep-set 清掃', detail: {evicted: message.evicted}});
+      return;
+    }
     if (message.type === 'error') {
       if (message.action === 'download-assets') {
         $('#downloadStage').textContent = `下載失敗：${message.message}`;
@@ -155,6 +163,7 @@ function makeConfig(overrides = {}) {
     runtimeBaseUrl: '/mobile-host/vendor/runtime/',
     overrides: {...baseOverrides, ...overrides, scripts: {...baseOverrides.scripts, ...(overrides.scripts ?? {})}},
     versions: {kaldifst: '1.8.0 / ab5bdd013bdf13921e6aeee77db5722ebf9955fb'},
+    progressEvents: true, // 測試頁要看逐句階段;下游預設關
   });
 }
 const WORKER_URL = '/platform/matcha-worker.js?v=20260828-engine-tarball';
@@ -247,6 +256,8 @@ async function start({
   }
   const sentences = activeProducer.setText(text);
   if (!sentences) throw new Error('請輸入測試文字');
+  const seekOffset = Number($('#seekOffset')?.value ?? 0);
+  if (seekOffset > 0) addLog({message: 'seekTo', detail: {offset: seekOffset, cursor: activeProducer.seekTo(seekOffset)}});
   addLog({message: 'producer reset', detail: {sentences, pronunciationProfile: useOfficial ? 'official' : 'product'}});
   audio.muted = muted;
   return player.start();

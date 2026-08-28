@@ -175,6 +175,10 @@ Taiwan profile 另以指定文字跑一個完整瀏覽器 append，實際得到 
 
 同日階段二把 Worker／producer／player 併入 tarball（16 檔）：`matcha-worker.js` 改為 `configure` 訊息接收全部 URL、內部走 `MatchaEngine.create`；`matcha-producer.mjs` 提供 `workerConfigFromAssets`（從 `matcha-assets.json` 機械組 config）、`splitSentences` 與 player 契約；`matcha-assets.json` 新增 `runtime` 區塊宣告 ORT `1.27.0`／lamejs `1.2.1` 的檔案、含版本 packName 與 sha256。`mobile-host` 降為消費者示範，`benchmark:matcha-stream` 預設改量產品路徑（研究對照需 `WASM_TTS_PRONUNCIATION_PROFILE=official`）。
 
+### 閱讀器契約與資產規則（2026-08-28，下游缺口清單 3a）
+
+下游比對 tarball 元件與其實機播放器後列出 21 項缺口；3a 處理 producer／engine／Worker 邊界：切句 walk（`ENDERS`／`CLOSERS`、`sentenceSpans`、`sentenceStartFor/EndFor`）成為上游唯一來源；`next()` 的 `meta.start/end/tag` 對回原文字元區間，空句／不可讀句折入下一單位（`skipped` 事件）而不讓 player 停住；`seekTo(offset)` 只從含該 offset 的那句起；`more()` host hook 跨章不斷流；`status()` 不下載就回缺幾 bytes；network-first 資產 1 s 逾時走 cache；cache 以 keep-set 清掃；`progress` 事件改 opt-in；`allowUnknown` 可關。流程面：major 發版前先開 `downstream-breaking` issue、單獨發版，`release.yml` 依前一版 tag 在 RELEASE.md 加破壞性變更段。驗證：新 `producer` gate（mock Worker）、package-smoke 切句 golden、本機串流 3 appends。player 側（目前 segment、⏮⏭、看門狗、鎖屏 chain death、Media Session 更新）留給 3b。
+
 ### 產品配方 gate 腿（2026-08-16）
 
 事實釐清：核心 benchmark 頁自建立起即為 `noise 1／length 1／silence 0.2`，`0.667` 只存在於 sherpa 上游 bundle 對照序列；因此 gate 與 `matcha-assets.json` `synthesis` 區塊（`1/1/1`）的實際差距只有 `silenceScale`。為讓 release gate 覆蓋出貨配方而不破壞歷史序列，新增 `matcha-product`＋`asr-product` 配對腿：同一 `matcha-browser.html` 以 `?synthesis=product` 直接讀取 manifest `synthesis` 區塊（不複製常數），結果寫入獨立的 product 檔案。首輪量測：音訊中位 13.248 秒（研究序列 10.920 秒，停頓保留使音訊長約 21%）、wall `RTF 0.1772`；`RTF` 天然低於研究序列，故 product 腿僅做 `(0, 1)` sanity、不與研究序列比較。ASR 聽回以同輪 WAV 凍結 `asr-baseline/product.json`：49 字錯 1 字（崭→展，與研究 baseline 同一混淆）、CER `2.04%`，之後每輪同時受絕對上限 `0.08` 與 baseline 退化上限 `+0.02` 約束。兩腿共用「成對重跑吸收 noise 骰運」的 flake 邏輯。
