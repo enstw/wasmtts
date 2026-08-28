@@ -79,7 +79,6 @@ try {
     mediaSource: globalThis.ManagedMediaSource ? 'ManagedMediaSource' : globalThis.MediaSource ? 'MediaSource' : 'none',
     mediaSourceSupported: globalThis.matchaStreamTest.player.capability.supported,
   })`);
-  const initialization = await evalJs('globalThis.matchaStreamTest.producer.initialization');
   const memoryAfterInit = await measureMemory(evalJs);
   if (streamText) {
     await evalJs(`document.querySelector('#novelText').value = ${JSON.stringify(streamText)}`);
@@ -97,6 +96,10 @@ try {
   if (startResult.exceptionDetails) {
     throw new Error(startResult.exceptionDetails.exception?.description ?? startResult.exceptionDetails.text);
   }
+  // start() 才決定實際使用的 Worker（產品或研究對照），initialization 必須在其後讀取，
+  // 否則研究對照的報告會誤記產品 Worker 的 lexiconSize。
+  const initialization = await evalJs('globalThis.matchaStreamTest.producer.initialization');
+  if (initialization?.frontend?.lexiconSize === undefined) throw new Error('start() 後取不到 producer.initialization');
 
   await waitFor(
     evalJs,
