@@ -126,6 +126,7 @@ const settle = async (n = 30) => { for (let i = 0; i < n; i += 1) await tick(); 
 
 const audio = new FakeAudio();
 const logs = [];
+const logCodes = new Set();
 const segmentEvents = [];
 const stallEvents = [];
 const timerCalls = [];
@@ -135,7 +136,7 @@ const player = createContinuousStreamPlayer({
   targetAheadSeconds: 12, // 12 s → 前 3 個單位(15 s)後停止 refill
   heartbeatSeconds: 10,
   mediaSession: {metadata: {title: '第一章'}, handlers: {nexttrack: () => {}, previoustrack: () => {}}},
-  onLog: (entry) => logs.push(entry.message),
+  onLog: (entry) => { logs.push(entry.message); logCodes.add(entry.code); },
   onSegment: (segment) => segmentEvents.push(segment.index),
   onStall: (event) => stallEvents.push(event.phase),
   timers: {setInterval: (fn, ms) => { timerCalls.push(ms); return 1; }, clearInterval: () => {}},
@@ -217,10 +218,15 @@ FakeMediaSource.last.dispatch('sourceopen');
 await settle();
 assert.ok(player.snapshot().appendCount >= 1);
 
-// seekToSegment:buffer 外 → rebuild(以 producerIndex)
+// seekToSegment:buffer 外 → rebuild(以 producerIndex);數字形式補上章別(這裡 producer 無 tag → undefined)
 const seek2 = await player.seekToSegment(99, {producerIndex: 7});
 assert.equal(seek2.mode, 'rebuild');
+assert.deepEqual(seek2.cursor, {tag: undefined, index: 7});
 assert.equal(cursorCalls[cursorCalls.length - 1], 7);
+// 每行 log 都有機器可比的 code
+for (const code of ['play', 'sourceopen', 'append', 'appended', 'heartbeat', 'stall-nudge', 'stall-rebuild', 'rebuild', 'seek', 'pause', 'resume', 'suspended', 'auto-resume', 'visibility']) {
+  assert.ok(logCodes.has(code), `缺 log code ${code}`);
+}
 
 player.stop();
 assert.equal(player.snapshot().status, 'stopped');
@@ -306,9 +312,10 @@ assert.equal(player.snapshot().status, 'stopped');
     },
   };
   const logs4 = [];
+  const heartbeats = [];
   const p4 = createContinuousStreamPlayer({
     audio: audio4, producer: chaptered, targetAheadSeconds: 25, heartbeatSeconds: 10,
-    onLog: (entry) => logs4.push(entry.message),
+    onLog: (entry) => { logs4.push(entry.message); if (entry.code === 'heartbeat') heartbeats.push(entry.detail); },
     timers: {setInterval: () => 1, clearInterval() {}},
   });
   await p4.start();
@@ -328,6 +335,7 @@ assert.equal(player.snapshot().status, 'stopped');
   audio4.currentTime = 7;
   audio4.dispatch('timeupdate');
   p4.heartbeat();
+  assert.equal(heartbeats.at(-1).tag, 'ch1'); // heartbeat detail 帶 tag,跨章診斷對得回哪一章
   assert.equal(p4.heartbeat().action, 'nudge');
   audio4.currentTime = 7.01;
   assert.equal(p4.heartbeat().action, 'rebuild');
@@ -342,6 +350,39 @@ assert.equal(player.snapshot().status, 'stopped');
   assert.equal(seek3.mode, 'rebuild');
   assert.deepEqual(calls[calls.length - 1], ['setCursor', 99]);
   p4.stop();
+
+  // 數字 producerIndex 補上章別:目標段不在 timeline → 用 producer 目前的 tag(ch2),同章不 restore
+  const seekNum = await p4.seekToSegment(42, {producerIndex: 1});
+  assert.deepEqual([seekNum.mode, seekNum.cursor], ['rebuild', {tag: 'ch2', index: 1}]);
+  assert.deepEqual(calls.at(-1), ['setCursor', 1]);
+  assert.ok(!calls.slice(-2).some(([name]) => name === 'restore'));
+  // 物件形式原樣透傳
+  const seekObj = await p4.seekToSegment(43, {producerIndex: {tag: 'ch1', index: 0}});
+  assert.deepEqual([seekObj.cursor, calls.at(-2), calls.at(-1)], [{tag: 'ch1', index: 0}, ['restore', 'ch1'], ['setCursor', 0]]);
+  p4.stop();
+
+  // restore 失敗(離線 fetch 不到章節):維持現有播放並 reject,timeline 不拆
+  const audio6 = new FakeAudio();
+  const flaky = {
+    tag: 'ch2', cursor: 0,
+    setCursor(index) { calls.push(['flaky-setCursor', index]); },
+    async restore() { throw new Error('offline'); },
+    async next() { if (this.cursor >= 2) return null; const i = this.cursor; this.cursor += 1; return {buffer: new ArrayBuffer(8), meta: {index: i, tag: 'ch2'}}; },
+  };
+  const logs6 = [];
+  const p6 = createContinuousStreamPlayer({audio: audio6, producer: flaky, heartbeatSeconds: 0, onLog: (entry) => logs6.push(entry.code)});
+  await p6.start();
+  FakeMediaSource.last.dispatch('sourceopen');
+  await settle();
+  audio6.dispatch('playing');
+  const appendsBefore = p6.snapshot().appendCount;
+  await assert.rejects(p6.restartFrom({tag: 'ch1', index: 3}), /offline/);
+  assert.equal(p6.snapshot().active, true);
+  assert.equal(p6.snapshot().appendCount, appendsBefore); // 沒被 stop() 歸零
+  assert.equal(p6.snapshot().status, 'playing');
+  assert.ok(logs6.includes('restore-failed') && !logs6.includes('rebuild'));
+  assert.ok(!calls.some(([name]) => name === 'flaky-setCursor'));
+  p6.stop();
 
   // 沒有 restore 的 producer:跨章明確 reject,而且不動現有播放;同 tag／無 tag 照常重建
   const audio5 = new FakeAudio();
