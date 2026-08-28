@@ -177,7 +177,7 @@ Taiwan profile 另以指定文字跑一個完整瀏覽器 append，實際得到 
 
 ### 閱讀器契約與資產規則（2026-08-28，下游缺口清單 3a）
 
-下游比對 tarball 元件與其實機播放器後列出 21 項缺口；3a 處理 producer／engine／Worker 邊界：切句 walk（`ENDERS`／`CLOSERS`、`sentenceSpans`、`sentenceStartFor/EndFor`）成為上游唯一來源；`next()` 的 `meta.start/end/tag` 對回原文字元區間，空句／不可讀句折入下一單位（`skipped` 事件）而不讓 player 停住；`seekTo(offset)` 只從含該 offset 的那句起；`more()` host hook 跨章不斷流；`status()` 不下載就回缺幾 bytes；network-first 資產 1 s 逾時走 cache；cache 以 keep-set 清掃；`progress` 事件改 opt-in；`allowUnknown` 可關。流程面：major 發版前先開 `downstream-breaking` issue、單獨發版，`release.yml` 依前一版 tag 在 RELEASE.md 加破壞性變更段。驗證：新 `producer` gate（mock Worker）、package-smoke 切句 golden、本機串流 3 appends。player 側（目前 segment、⏮⏭、看門狗、鎖屏 chain death、Media Session 更新）留給 3b。
+下游比對 tarball 元件與其實機播放器後列出 21 項缺口；3a 處理 producer／engine／Worker 邊界：切句 walk（`ENDERS`／`CLOSERS`、`sentenceSpans`、`sentenceStartFor/EndFor`）成為上游唯一來源；`next()` 的 `meta.start/end/tag` 對回原文字元區間，空句／不可讀句折入下一單位（`skipped` 事件）而不讓 player 停住；`seekTo(offset)` 只從含該 offset 的那句起；`more()` host hook 跨章不斷流；`status()` 不下載就回缺幾 bytes；network-first 資產 1 s 逾時走 cache；cache 以 keep-set 清掃；`progress` 事件改 opt-in；`allowUnknown` 可關。流程面：major 發版前先開 `downstream-breaking` issue、單獨發版，`release.yml` 依前一版 tag 在 RELEASE.md 加破壞性變更段。驗證：新 `producer` gate（mock Worker）、package-smoke 切句 golden、本機串流 3 appends。player 側（3b）：`currentSegment`／`onSegment` 由 currentTime 反查單位；`seekToSegment` 在 buffer 內 seek、否則 `restartFrom(producer cursor)` 重建；看門狗心跳每 10 s 一行、`playing` 但 currentTime 連續兩拍相同且 ahead > 2 s → 推一下（micro-seek + play）→ 再卡則於目前段重建（`onStall`）；只有 `pause()` 算使用者暫停，系統 pause 為 `suspended`，回前景自動 resume；`setMetadata` 隨時更新、Media Session `handlers` 可綁 ⏮⏭。新 `stream-player` gate（media element／MediaSource stub）驗上述序列。
 
 ### 產品配方 gate 腿（2026-08-16）
 

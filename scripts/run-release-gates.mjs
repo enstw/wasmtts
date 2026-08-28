@@ -48,6 +48,7 @@ run('frontend-fixtures', 'pnpm', ['test:matcha-frontend']);
 run('lexicon-build', 'pnpm', ['lexicon:build']);
 run('lexicon', 'pnpm', ['test:matcha-lexicon']);
 run('producer', 'pnpm', ['test:matcha-producer']);
+run('stream-player', 'pnpm', ['test:stream-player']);
 run('g2p-review', 'pnpm', ['test:matcha-g2p-review']);
 run('g2p-roi', 'pnpm', ['test:matcha-g2p-roi']);
 run('g2p-index', 'pnpm', ['test:matcha-g2pw-index']);

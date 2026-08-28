@@ -135,6 +135,16 @@ try {
   const playerApi = await import(pathToFileURL(path.join(extracted, 'continuous-stream-player.mjs')).href);
   assert.equal(typeof producerApi.createMatchaProducer, 'function');
   assert.equal(typeof playerApi.createContinuousStreamPlayer, 'function');
+  // player 實機規矩 API（3b）：以 stub 建構後檢查方法存在；行為由 stream-player gate 驗。
+  {
+    const stubAudio = {play: async () => {}, pause() {}, addEventListener() {}, removeAttribute() {}, load() {}, currentTime: 0, paused: true};
+    const stubPlayer = playerApi.createContinuousStreamPlayer({audio: stubAudio, producer: {next: async () => null, setCursor() {}}});
+    for (const name of ['seekToSegment', 'restartFrom', 'setMetadata', 'heartbeat', 'currentSegment', 'snapshot']) {
+      assert.equal(typeof stubPlayer[name], 'function', `player 缺 ${name}`);
+    }
+    assert.equal(stubPlayer.snapshot().userPaused, false);
+    assert.equal(stubPlayer.snapshot().currentSegment, null);
+  }
   assert.deepEqual(producerApi.splitSentences('清晨的陽光。她說：「別急。」\n第二段'), ['清晨的陽光。', '她說：「別急。」', '第二段']);
   // 閱讀器契約:切句 walk 唯一來源、span 連續覆蓋、start/end 與 walk 一致。
   const spans = producerApi.sentenceSpans('甲。「乙！」\n丙');
