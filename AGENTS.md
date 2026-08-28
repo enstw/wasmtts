@@ -33,7 +33,7 @@
 
 ### Worker／producer／player 契約
 
-`matcha-worker.js` 不寫死任何 URL：頁面 `new Worker(url)` 後第一則訊息必須是 `{type: 'configure', config}`，config 由 `matcha-producer.mjs` 的 `workerConfigFromAssets({assets, engineBaseUrl, assetBaseUrl, runtimeBaseUrl, overrides})` 從 `matcha-assets.json` 機械產生；Worker 在 configure 時才 `importScripts`，之後協定為 `download-assets`／`init`／`synthesize`／`dispose` → `download-progress`／`download-complete`／`ready`／`result`／`error`。`createMatchaProducer` 提供 player 契約 `next({index, signal}) → {buffer, meta} | null`（句子用盡回 `null`；`loop: true` 才循環），不碰 DOM。`pronunciationOverrides`（engine／worker config 皆可給）是下游本地讀音暫存層：整詞、最後套用、phone 須在 tokens 內；聽測修正確認後應回到 review／curation 進 lexicon，不是長期住在下游。runtime 為單一 WASM thread，不需 `crossOriginIsolated`；文件不得把 COOP／COEP 寫成必要條件。改 Worker 協定、config 欄位或 player `snapshot()` 形狀都是下游契約變更，須同步 README、package-smoke 與 `matcha-stream` gate。
+`matcha-worker.js` 不寫死任何 URL：頁面 `new Worker(url)` 後第一則訊息必須是 `{type: 'configure', config}`，config 由 `matcha-producer.mjs` 的 `workerConfigFromAssets({assets, engineBaseUrl, assetBaseUrl, runtimeBaseUrl, overrides})` 從 `matcha-assets.json` 機械產生；Worker 在 configure 時才 `importScripts`，之後協定為 `download-assets`／`init`／`synthesize`／`dispose` → `download-progress`／`download-complete`／`ready`／`result`／`error`。`createMatchaProducer` 提供 player 契約 `next({index, signal}) → {buffer, meta} | null`，不碰 DOM。閱讀器契約：`meta.start/end/tag` 對回原文字元區間（`setSegments` 接受 `{text, start, end, tag}`；空句／不可讀句折入下一單位，對應連續）；切句 walk（`ENDERS`／`CLOSERS`、`sentenceSpans`、`sentenceStartFor/EndFor`）是唯一來源，下游畫高亮必須用同一組函式；`seekTo(offset)` 只從含該 offset 的那句起；`more()` host hook 在句子用盡時要下一章（回 `null` 才結束，`loop` 才循環）；單句失敗 `onEvent({type: 'skipped'})` 跳過，只有 init／worker 失敗才 reject `ready`；`status()` 不下載就回每個資產 cached／缺幾 bytes。Worker：`progressEvents` 預設關、network-first 逾時 `networkTimeoutMs`（1000）走 cache、cache 以 keep-set 清掃。`pronunciationOverrides`（engine／worker config 皆可給）是下游本地讀音暫存層：整詞、最後套用、phone 須在 tokens 內；聽測修正確認後應回到 review／curation 進 lexicon，不是長期住在下游。runtime 為單一 WASM thread，不需 `crossOriginIsolated`；文件不得把 COOP／COEP 寫成必要條件。改 Worker 協定、config 欄位或 player `snapshot()` 形狀都是下游契約變更，須同步 README、package-smoke 與 `matcha-stream` gate。
 
 ### Lexicon pipeline
 
@@ -52,7 +52,7 @@
 
 ### 發版
 
-`push main`（artifact-sensitive paths）或 Renovate roll-up 觸發 `release.yml`：native WASM build → fetch 上游資產 → `lexicon:build` → `test:release-gates`（frontend／lexicon／profile／FST／package-smoke／browser benchmark／ASR CER）→ `scripts/package-release.mjs` 打包 → attest → 發布 `wasmtts-engine.tar.gz` 與 `RELEASE.md`（含 wasmtts lexicon 段與前一版 stats 對照）。破壞下游契約（`matcha-assets.json` schema、tarball 檔名、engine 參數）時必須在 RELEASE.md 與 README 明講。
+`push main`（artifact-sensitive paths）或 Renovate roll-up 觸發 `release.yml`：native WASM build → fetch 上游資產 → `lexicon:build` → `test:release-gates`（frontend／lexicon／profile／FST／package-smoke／browser benchmark／ASR CER）→ `scripts/package-release.mjs` 打包 → attest → 發布 `wasmtts-engine.tar.gz` 與 `RELEASE.md`（含 wasmtts lexicon 段與前一版 stats 對照）。破壞下游契約（`matcha-assets.json` schema、tarball 檔名、engine／producer／player 參數）時：先在本 repo 開 issue（label `downstream-breaking`）說明契約變更與遷移步驟，再以 `Release-Version: vN.0.0` 單獨發一個 major（不與同週其他升版合併）；`release.yml` 會依前一版 tag 在 RELEASE.md 頂部加「⚠ 破壞性變更」段列出變更。相容新增走 minor。
 
 ## Setup
 

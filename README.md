@@ -83,6 +83,7 @@ import {createContinuousStreamPlayer} from './continuous-stream-player.mjs';
 const assets = await (await fetch('/engine/matcha-assets.json')).json();
 const producer = createMatchaProducer({
   workerUrl: '/engine/matcha-worker.js',
+  more: async ({tag}) => nextChapterSpans(tag),     // 句子用盡時要下一章（回 null 才結束），timeline 不斷
   config: workerConfigFromAssets({
     assets,
     engineBaseUrl: '/engine/',     // tarball 檔案
@@ -92,10 +93,12 @@ const producer = createMatchaProducer({
   }),
   onEvent: (event) => console.log(event.type, event),   // progress／download-progress／download-complete／ready／error
 });
-producer.download();      // Cache API：模型 cache-first，lexicon／profile network-first
+const {missingBytes} = await producer.status();   // 不下載就能回答缺幾 MB——先問使用者，▶ 絕不偷偷抓 130 MB
+producer.download();      // Cache API：模型 cache-first，lexicon／profile network-first（1 s 逾時走 cache）
 producer.initialize();    // ready 後 producer.initialization 有 lexiconSize、runtime 版本等
 await producer.ready;
-producer.setText(chapterText);   // splitSentences 切句；句子用盡回 null 結束串流（loop: true 可循環）
+producer.setText(chapterText, {tag: chapterIndex});   // sentenceSpans 切句；每個單位 meta.start/end/tag 對回原文
+producer.seekTo(offset);                               // 從含該字元位置的那句起（不重播整段）
 
 const player = createContinuousStreamPlayer({
   audio: document.querySelector('audio'),   // 長駐、單一 element；WebKit 需 disableRemotePlayback
@@ -107,6 +110,8 @@ await player.start();     // 唯一一次 play()；之後只 pause()／resume()
 ```
 
 Worker 的 `configure` config 由 `workerConfigFromAssets` 機械產生（所有 script／wasm／資產 URL、bytes、cache 名稱、`synthesis` 參數、版本字串），Worker 在收到後才 `importScripts`；`synthesize` 亦可直接呼叫 `producer.synthesize(text)` 取得單句 MP3（或 `format: 'pcm'`）。
+
+**閱讀器契約**：`sentenceSpans(text)` 回 `[{start, end, text}]`（`ENDERS = 。！？；\n`、`CLOSERS = 」』”’）)】`，空白 span 折入前一段，超長句在 `，、：` 次切），`sentenceStartFor/EndFor(text, i)` 用同一個 walk——下游畫高亮請用這組函式，「唱到哪、畫到哪」才不會漂。`next()` 的 `meta.start/end` 是該單位對應的原文區間；空句或不可讀句不佔 timeline，其區間折入下一單位（`onEvent({type: 'skipped'})`），只有 init／Worker 失敗才會讓 `ready` reject。`progress` 事件預設關（`progressEvents: true` 才送）。
 
 **本地讀音暫存層**：`workerConfigFromAssets({..., pronunciationOverrides: {'詞': 'p1 p2'}})`（或直接給 `MatchaEngine.create`）會在 lexicon 與 review 之後以整詞 longest-match 套用；phone 不在 `tokens.txt` 或字數不符會在建立時 throw。這一層給下游聽出來、尚未進 `matcha-g2p-review.json` 的修正用；確認後請提 review／curation，讓它進下一版 lexicon。
 

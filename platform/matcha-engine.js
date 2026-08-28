@@ -32,6 +32,7 @@
     if (waveform.finiteSamples !== waveform.samples || waveform.peak === 0 || waveform.rms === 0) {
       const error = new Error(`waveform not audible (finite ${waveform.finiteSamples}/${waveform.samples}, peak ${waveform.peak}, rms ${waveform.rms})`);
       error.waveform = waveform;
+      error.code = 'inaudible'; // 單句層級:producer 跳過該句,不是引擎壞掉
       throw error;
     }
     return result;
