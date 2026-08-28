@@ -202,6 +202,17 @@ const player = createContinuousStreamPlayer({
   trimStepSeconds: 60,
   mediaSession: {
     metadata: {title: 'Matcha 長篇小說測試', artist: 'matcha-icefall-zh-en', album: '單一 MediaSource timeline'},
+    handlers: {
+      previoustrack: () => skipSegment(-1),
+      nexttrack: () => skipSegment(1),
+    },
+  },
+  onSegment(segment) {
+    $('#segmentNow').textContent = `#${segment.index} 字元 ${segment.meta.start ?? '—'}–${segment.meta.end ?? '—'}`;
+    addLog({message: '進入段', detail: {index: segment.index, start: segment.meta.start, end: segment.meta.end, sentence: segment.meta.sentence}});
+  },
+  onStall(event) {
+    addLog({message: `看門狗 ${event.phase}`, detail: event});
   },
   onLog: addLog,
   onUpdate(snapshot) {
@@ -228,6 +239,18 @@ const player = createContinuousStreamPlayer({
     document.body.dataset.rtf = String(snapshot.rtf ?? '');
   },
 });
+
+// ⏮⏭:目標段在 buffer 內就 seek,不在就以 producer cursor 重建。
+function skipSegment(delta) {
+  const current = player.currentSegment();
+  const target = (current?.index ?? 0) + delta;
+  if (target < 0) return;
+  player.seekToSegment(target, {producerIndex: (current?.meta?.index ?? 0) + delta})
+    .then((result) => addLog({message: `⏮⏭ ${result.mode}`, detail: result}))
+    .catch((error) => addLog({message: '⏮⏭ 失敗', detail: {error: error.message}}));
+}
+$('#prevBtn').addEventListener('click', () => skipSegment(-1));
+$('#nextBtn').addEventListener('click', () => skipSegment(1));
 
 $('#downloadModelsBtn').addEventListener('click', () => {
   $('#downloadModelsBtn').disabled = true;
@@ -310,20 +333,10 @@ addLog({
   },
 });
 
+// 心跳與看門狗已內建在 player(heartbeatSeconds 10);頁面只補一個 kick,
+// 讓背景 timer 被 iOS 節流時仍由播放事件驅動 refill。
 setInterval(() => {
-  if (!latest?.active) return;
-  addLog({
-    message: '♥ heartbeat',
-    detail: {
-      status: latest.status,
-      playhead: Number(latest.currentTime.toFixed(1)),
-      ahead: Number(latest.bufferAheadSeconds.toFixed(1)),
-      rtf: latest.rtf === null ? null : Number(latest.rtf.toFixed(3)),
-      appends: latest.appendCount,
-      underflows: latest.underflows,
-    },
-  });
-  player.kick('heartbeat');
+  if (latest?.active) player.kick('heartbeat');
 }, 10000);
 
 if ('serviceWorker' in navigator && window.isSecureContext) {

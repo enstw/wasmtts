@@ -103,13 +103,24 @@ producer.seekTo(offset);                               // 從含該字元位置�
 const player = createContinuousStreamPlayer({
   audio: document.querySelector('audio'),   // 長駐、單一 element；WebKit 需 disableRemotePlayback
   producer,
-  mediaSession: {metadata: {title: '第一章', artist: '書名'}},   // opt-in 鎖屏控制
-  onUpdate: (snapshot) => render(snapshot),
+  mediaSession: {                             // opt-in 鎖屏控制
+    metadata: {title: '第一章', artist: '書名'},
+    handlers: {previoustrack: () => player.seekToSegment(current.index - 1), nexttrack: () => player.seekToSegment(current.index + 1)},
+  },
+  onSegment: (segment) => {                   // 唱到哪：segment.meta.start/end/tag → 書籤、高亮、翻頁
+    highlight(segment.meta.start, segment.meta.end);
+    if (segment.meta.tag !== shownChapter) player.setMetadata({title: chapterTitle(segment.meta.tag)});
+  },
+  onStall: (event) => log(event.phase),       // 看門狗：'nudge'（推一下）→ 'rebuild'（於目前段重建）
+  onUpdate: (snapshot) => render(snapshot),   // snapshot.currentSegment／userPaused／stalls／nudges／rebuilds
 });
 await player.start();     // 唯一一次 play()；之後只 pause()／resume()
+player.seekToSegment(index);   // ⏮⏭：段仍在 buffer 內就 seek，否則以 producer cursor 重建
 ```
 
 Worker 的 `configure` config 由 `workerConfigFromAssets` 機械產生（所有 script／wasm／資產 URL、bytes、cache 名稱、`synthesis` 參數、版本字串），Worker 在收到後才 `importScripts`；`synthesize` 亦可直接呼叫 `producer.synthesize(text)` 取得單句 MP3（或 `format: 'pcm'`）。
+
+**實機規矩（player 內建）**：每 `heartbeatSeconds`（10）一行 `♥ heartbeat` log（vis／playhead／ahead／appends）；`playing` 但 `currentTime` 連續兩拍未動且 buffer 充足 → 先 `currentTime += 0.01; play()` 推一下，再一拍仍卡 → 於目前段 `restartFrom`；只有 `pause()` 算使用者暫停（`snapshot().userPaused`），鎖屏／系統造成的 pause 狀態為 `suspended`，回到前景時若非使用者暫停就自動 `resume()`（`autoResumeOnVisible`）；懸而未決的 `play()` promise 會在心跳中點名（`pendingPlay`）。這些都來自下游 iOS 實機紀錄，不要在下游重做一份。
 
 **閱讀器契約**：`sentenceSpans(text)` 回 `[{start, end, text}]`（`ENDERS = 。！？；\n`、`CLOSERS = 」』”’）)】`，空白 span 折入前一段，超長句在 `，、：` 次切），`sentenceStartFor/EndFor(text, i)` 用同一個 walk——下游畫高亮請用這組函式，「唱到哪、畫到哪」才不會漂。`next()` 的 `meta.start/end` 是該單位對應的原文區間；空句或不可讀句不佔 timeline，其區間折入下一單位（`onEvent({type: 'skipped'})`），只有 init／Worker 失敗才會讓 `ready` reject。`progress` 事件預設關（`progressEvents: true` 才送）。
 

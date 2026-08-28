@@ -34,6 +34,7 @@
     "test:matcha-frontend": "node platform/test-matcha-frontend.mjs",
     "test:matcha-lexicon": "node platform/test-matcha-lexicon.mjs",
     "test:matcha-producer": "node platform/test-matcha-producer.mjs",
+    "test:stream-player": "node platform/test-continuous-stream-player.mjs",
     "test:matcha-g2p-review": "node platform/test-matcha-g2p-review.mjs",
     "test:matcha-g2p-roi": "node platform/test-matcha-g2p-roi.mjs",
     "test:matcha-g2pw-sqlite-roi": "node platform/test-matcha-g2pw-sqlite-roi.mjs",

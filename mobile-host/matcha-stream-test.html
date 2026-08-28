@@ -58,6 +58,12 @@
         <span>從第幾個字元開始（seekTo；0 = 從頭）</span>
         <input id="seekOffset" type="number" min="0" value="0">
       </label>
+      <div class="field">
+        <span>段落控制（⏮⏭ 也綁 Media Session previoustrack／nexttrack）</span>
+        <button id="prevBtn" type="button">⏮ 上一段</button>
+        <button id="nextBtn" type="button">⏭ 下一段</button>
+        <span id="segmentNow">—</span>
+      </div>
       <audio id="streamAudio" controls preload="none" disableremoteplayback></audio>
     </section>
 
