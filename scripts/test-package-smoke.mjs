@@ -144,6 +144,7 @@ try {
     }
     assert.equal(stubPlayer.snapshot().userPaused, false);
     assert.equal(stubPlayer.snapshot().currentSegment, null);
+    assert.equal(stubPlayer.snapshot().drained, false);
   }
   assert.deepEqual(producerApi.splitSentences('清晨的陽光。她說：「別急。」\n第二段'), ['清晨的陽光。', '她說：「別急。」', '第二段']);
   // 閱讀器契約:切句 walk 唯一來源、span 連續覆蓋、start/end 與 walk 一致。
@@ -169,6 +170,9 @@ try {
     ...config.assets.fsts.map((fst) => fst.url), config.scripts.ort, config.scripts.lamejs, config.ortWasmPaths.mjs, config.ortWasmPaths.wasm];
   for (const url of packed) assert.ok(packNames.has(url.split('/').pop()), `${url} 不是 manifest 宣告的 packName`);
   assert.ok(!packed.some((url) => url.endsWith('/lexicon.txt')), 'config 不得指向上游 lexicon.txt');
+  assert.equal(config.assets.lexicon.networkFirst, false, 'lexicon packName 含內容 hash,應 cache-first');
+  assert.equal(config.assets.ortWasm?.url, config.ortWasmPaths.wasm, 'ORT wasm 應進 Worker 資產清單');
+  assert.equal(config.assets.ortWasm.bytes, assets.runtime['onnxruntime-web'].files['dist/ort-wasm-simd-threaded.wasm'].bytes);
   assert.deepEqual(config.assets.fsts.map((fst) => fst.label), ['phone-zh.fst', 'date-zh.fst', 'number-zh.fst']);
   assert.equal(config.versions.ort, assets.runtime['onnxruntime-web'].version);
   assert.equal(config.synthesis.silenceScale, assets.synthesis.silenceScale);

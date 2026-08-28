@@ -1,11 +1,39 @@
 // producer 契約測試(Node,mock Worker):切句 walk、span 折入、seekTo、more()、
-// 單句失敗跳過不 reject、status() 形狀。不碰真 Worker／ORT。
+// restore(tag)、單句失敗跳過不 reject、status() 形狀、workerConfigFromAssets 的
+// lexicon cache-first 與 ortWasm 資產。不碰真 Worker／ORT。
 import assert from 'node:assert/strict';
 
 import {
   ENDERS, CLOSERS, sentenceSpans, sentenceStartFor, sentenceEndFor, chunkIndexFor, splitSentences,
-  createMatchaProducer,
+  createMatchaProducer, workerConfigFromAssets,
 } from './matcha-producer.mjs';
+
+// ---- workerConfigFromAssets:lexicon packName 含 hash → cache-first;ORT wasm 進資產清單 ----
+{
+  const assets = {
+    schemaVersion: 4, stage: 'complete',
+    lexicon: {packName: 'matcha-lexicon-abcd1234.txt', bytes: 10},
+    matcha: {files: {'tokens.txt': {packName: 'tokens.txt', bytes: 1}, 'phone-zh.fst': {packName: 'phone-zh.fst', bytes: 1}, 'date-zh.fst': {packName: 'date-zh.fst', bytes: 1}, 'number-zh.fst': {packName: 'number-zh.fst', bytes: 1}}},
+    acoustic: {packName: 'model.onnx', bytes: 1}, vocos: {packName: 'vocos.onnx', bytes: 1},
+    runtime: {
+      'onnxruntime-web': {version: '1.27.0', files: {'dist/ort.wasm.min.js': {packName: 'ort-1.27.0-wasm.min.js'}, 'dist/ort-wasm-simd-threaded.mjs': {packName: 'ort-1.27.0-wasm-simd-threaded.mjs'}, 'dist/ort-wasm-simd-threaded.wasm': {packName: 'ort-1.27.0-wasm-simd-threaded.wasm', bytes: 13000000}}},
+      lamejs: {version: '1.2.1', files: {'lame.min.js': {packName: 'lamejs-1.2.1.min.js'}}},
+    },
+  };
+  const base = {assets, engineBaseUrl: '/e/', assetBaseUrl: '/a/', runtimeBaseUrl: '/r/'};
+  const cfg = workerConfigFromAssets(base);
+  assert.equal(cfg.assets.lexicon.networkFirst, false);
+  assert.equal(cfg.assets.profile.networkFirst, true);
+  assert.deepEqual(cfg.assets.ortWasm, {url: '/r/ort-1.27.0-wasm-simd-threaded.wasm', bytes: 13000000});
+  assert.equal(cfg.assets.ortWasm.url, cfg.ortWasmPaths.wasm);
+  // 覆寫 lexicon 成沒有 hash 的 URL → network-first;覆寫 ortWasmPaths 成字串前綴 → 交回 ORT 自己抓
+  const over = workerConfigFromAssets({...base, overrides: {lexicon: '/research/lexicon.txt', ortWasmPaths: '/r/'}});
+  assert.equal(over.assets.lexicon.networkFirst, true);
+  assert.equal(over.assets.ortWasm, undefined);
+  // 覆寫成別的 wasm URL → 仍進清單但 bytes 未知
+  const other = workerConfigFromAssets({...base, overrides: {ortWasmPaths: {mjs: '/x/a.mjs', wasm: '/x/a.wasm'}}});
+  assert.deepEqual(other.assets.ortWasm, {url: '/x/a.wasm', bytes: undefined});
+}
 
 // ---- 切句 walk ----
 {
@@ -158,6 +186,39 @@ assert.ok(!producer.worker.posted.some((message, i) => message.type === 'downloa
 producer.setSegments([{text: '甲。', start: 100, end: 102}, {text: '乙。', start: 102, end: 104}], {tag: 'raw'});
 const u6 = await producer.next({index: 0});
 assert.deepEqual([u6.meta.start, u6.meta.end, u6.meta.tag], [100, 102, 'raw']);
+
+// restore(tag):player 跨章重建時把某章要回來。沒有 hook → 跨 tag throw、同 tag 不動。
+await assert.rejects(producer.restore('ch1'), /restore/);
+assert.equal(producer.tag, 'raw');
+assert.equal(await producer.restore('raw'), 2);
+{
+  const restoreCalls = [];
+  const book = createMatchaProducer({
+    workerUrl: 'mock://worker',
+    config,
+    more: async () => ({segments: sentenceSpans(chapters[1]), tag: 'c2'}),
+    restore: async (tag) => {
+      restoreCalls.push(tag);
+      return tag === 'c1' ? {segments: sentenceSpans(chapters[0]), tag} : null;
+    },
+  });
+  await book.initialize();
+  book.setText(chapters[0], {tag: 'c1'});
+  await book.next({index: 0});
+  await book.next({index: 1});
+  const c2 = await book.next({index: 2}); // more() 換到 c2
+  assert.equal(c2.meta.tag, 'c2');
+  assert.equal(book.tag, 'c2');
+  // 看門狗要在 c1 第 2 句重建:restore('c1') 後 setCursor(1) → 下一單位是 c1 的第 4 句(空／壞句折入)
+  assert.equal(await book.restore('c1'), 4);
+  assert.equal(book.tag, 'c1');
+  assert.deepEqual(restoreCalls, ['c1']);
+  book.setCursor(1);
+  const back = await book.next({index: 0});
+  assert.deepEqual([back.meta.tag, back.meta.start, back.meta.text], ['c1', 4, '第四句。']);
+  // host 給不出來 → throw
+  await assert.rejects(book.restore('c9'), /沒有回段落/);
+}
 
 // allowUnknown 可關;透傳到 worker 訊息。
 const strict = createMatchaProducer({workerUrl: 'mock://worker', config, allowUnknown: false});

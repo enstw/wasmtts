@@ -15,6 +15,11 @@
 // - 鎖屏 chain death：只有 pause() 才算使用者暫停；回到前景時若不是使用者暫停
 //   就自動 resume；懸而未決的 play() promise 會在心跳中被點名。
 // - Media Session：setMetadata 隨時可更新；handlers 可綁 previoustrack／nexttrack 等。
+// - producer 用盡 ≠ 播完：producer 以數倍實時領先，回 null 時 element 還有整個 buffer
+//   要唸；只 endOfStream() 一次並記 snapshot().drained，status 留給 element 的 ended 事件。
+// - 跨章重建：段的 meta.index 是「當時那一章」的句序；restartFrom({tag, index}) 在
+//   producer 已被 more() 換章時先 producer.restore(tag) 要回那章，沒有 restore 就明確
+//   reject，絕不默默指到錯章的同序句。
 
 const DEFAULT_MIME = 'audio/mpeg';
 const doc = () => globalThis.document ?? null;
@@ -86,6 +91,7 @@ export function createContinuousStreamPlayer({
     hasPlayed: false,
     userPaused: false,
     pendingPlay: null,
+    drained: false,
     currentSegmentIndex: null,
     heartbeat: null,
     lastBeatTime: -1,
@@ -151,6 +157,7 @@ export function createContinuousStreamPlayer({
       realtimeMultiplier: rtf > 0 ? 1 / rtf : null,
       userPaused: state.userPaused,
       pendingPlay: Boolean(state.pendingPlay),
+      drained: state.drained,
       currentSegment: segment ? {index: segment.index, start: segment.start, end: segment.end, meta: segment.meta} : null,
       ...state.stats,
     };
@@ -205,7 +212,7 @@ export function createContinuousStreamPlayer({
   async function feed(trigger = 'manual') {
     const generation = state.generation;
     state.lastTrigger = trigger;
-    if (!state.active || !state.sourceBuffer || state.sourceBuffer.updating || state.producing) {
+    if (!state.active || !state.sourceBuffer || state.sourceBuffer.updating || state.producing || state.drained) {
       update();
       return;
     }
@@ -231,9 +238,14 @@ export function createContinuousStreamPlayer({
       });
       if (!state.active || generation !== state.generation) return;
       if (unit === null) {
+        // producer 用盡 ≠ 播完：只 endOfStream 一次、記 drained，之後每個 timeupdate 不再問
+        // producer；status 交給 element 的 ended 事件。一個單位都沒有時 element 永遠不會
+        // ended，才直接標 ended。
+        state.drained = true;
         if (state.source.readyState === 'open') state.source.endOfStream();
-        setStatus('ended');
-        log('producer 已結束');
+        log('producer 已用盡，等 element 播完', {appended: state.stats.appendCount});
+        if (state.stats.appendCount === 0 && !state.pendingAppend) setStatus('ended');
+        else update();
         return;
       }
       if (!(unit.buffer instanceof ArrayBuffer)) throw new TypeError('producer 必須回傳 ArrayBuffer');
@@ -318,6 +330,7 @@ export function createContinuousStreamPlayer({
     state.waiting = false;
     state.hasPlayed = false;
     state.userPaused = false;
+    state.drained = false;
     state.currentSegmentIndex = null;
     state.lastBeatTime = -1;
     state.stuckBeats = 0;
@@ -396,6 +409,7 @@ export function createContinuousStreamPlayer({
       appends: snap.appendCount,
       underflows: snap.underflows,
       segment: snap.currentSegment?.index ?? null,
+      drained: state.drained,
       pendingPlay: state.pendingPlay ? Number(((now() - state.pendingPlay.since) / 1000).toFixed(1)) : null,
     };
     log('♥ heartbeat', detail);
@@ -429,7 +443,8 @@ export function createContinuousStreamPlayer({
         const segment = currentSegment();
         log('卡死未解 — 重建', {playhead: time, segment: segment?.index ?? null});
         safeCall(onStall, {phase: 'rebuild', playhead: time, segment: segment ? {index: segment.index, meta: segment.meta} : null});
-        restartFrom(segment?.meta?.index ?? segment?.index ?? 0).catch((error) => log('重建失敗', {error: error?.message ?? String(error)}));
+        restartFrom({tag: segment?.meta?.tag, index: segment?.meta?.index ?? segment?.index ?? 0})
+          .catch((error) => log('重建失敗', {error: error?.message ?? String(error)}));
       }
     } else {
       state.stuckBeats = 0;
@@ -459,19 +474,38 @@ export function createContinuousStreamPlayer({
       notifySegmentChange();
       return Promise.resolve({mode: 'seek', index});
     }
-    const cursor = producerIndex ?? segment?.meta?.index ?? index;
+    // 段還記得自己是哪一章的第幾句；host 明確給 producerIndex 時由 host 負責章別。
+    const cursor = producerIndex ?? (segment ? {tag: segment.meta?.tag, index: segment.meta?.index ?? segment.index} : index);
     return restartFrom(cursor).then(() => ({mode: 'rebuild', index, cursor}));
   }
 
+  // producer 目前在哪一章（matcha-producer.mjs 有 tag getter；自訂 producer 沒有就不查）。
+  function producerTag() {
+    if ('tag' in producer) return producer.tag;
+    return producer.segments?.[0]?.tag;
+  }
+
   // 以 producer cursor 重建：需要 producer.setCursor（matcha-producer.mjs 有）。
-  function restartFrom(cursor) {
-    if (typeof producer.setCursor !== 'function') {
-      return Promise.reject(new TypeError('producer 沒有 setCursor，無法重建'));
+  // cursor 可為句序（數字）或 {tag, index}：段的 index 是「當時那一章」的句序，producer
+  // 若已被 more() 換到別章，先 producer.restore(tag) 要回那章；沒有 restore 就 reject
+  // 讓 host 自己重建（此時不動現有播放）。
+  async function restartFrom(cursor) {
+    if (typeof producer.setCursor !== 'function') throw new TypeError('producer 沒有 setCursor，無法重建');
+    const target = cursor !== null && typeof cursor === 'object' ? cursor : {index: cursor};
+    const index = Number.isFinite(target.index) ? target.index : 0;
+    const currentTag = producerTag();
+    const crossTag = target.tag !== undefined && currentTag !== undefined && target.tag !== currentTag;
+    if (crossTag && typeof producer.restore !== 'function') {
+      throw new Error(`producer 已在 tag=${JSON.stringify(currentTag)}，目標段屬於 tag=${JSON.stringify(target.tag)}；producer 沒有 restore(tag)，請 host 自行重建`);
     }
     const preservedStats = {...state.stats};
     stop({ preserveStatus: true });
-    producer.setCursor(cursor);
-    log('重建 timeline', {cursor});
+    if (crossTag) {
+      log('重建前先要回目標章', {from: currentTag, to: target.tag});
+      await producer.restore(target.tag);
+    }
+    producer.setCursor(index);
+    log('重建 timeline', {cursor: index, tag: target.tag});
     const promise = start();
     // 重建不歸零看門狗計數：它們是同一場播放的診斷。
     state.stats.stalls = preservedStats.stalls;
@@ -581,6 +615,7 @@ export function createContinuousStreamPlayer({
     feed('playing');
   });
   audio.addEventListener('pause', () => {
+    if (audio.ended) return; // 播完的 pause 緊接著 ended 事件，不是 suspended
     if (state.active && state.status !== 'opening' && state.status !== 'buffering' && state.status !== 'ended') {
       setStatus(state.userPaused ? 'paused' : 'suspended');
       if (!state.userPaused) log('非使用者暫停（鎖屏／系統）', {visibility: visibility()});
@@ -606,7 +641,7 @@ export function createContinuousStreamPlayer({
   });
   audio.addEventListener('ended', () => {
     setStatus('ended');
-    log('media element ended');
+    log('media element ended', {drained: state.drained});
   });
   audio.addEventListener('error', () => {
     setStatus('error');
@@ -617,7 +652,7 @@ export function createContinuousStreamPlayer({
     feed('visibilitychange');
     // 鎖屏 chain death：play() 可能永不 settle；回到前景若不是使用者主動暫停就踢一下。
     if (visibility() === 'visible' && autoResumeOnVisible && state.active && !state.userPaused
-      && audio.paused && !['ended', 'error', 'stopped', 'opening'].includes(state.status)) {
+      && audio.paused && !audio.ended && !['ended', 'error', 'stopped', 'opening'].includes(state.status)) {
       state.stats.autoResumes += 1;
       log('visible 恢復踢');
       resume().catch(() => {});

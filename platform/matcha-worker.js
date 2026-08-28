@@ -15,6 +15,9 @@
 //   → {type: 'dispose'}
 // config.progressEvents（預設 false）才會送逐句 progress；config.networkTimeoutMs（預設 1000）
 // 是 network-first 資產的逾時，逾時走 cache fallback，壞訊號不會讓 init 掛住。
+// config.assets.ortWasm（選填，{url, bytes}）把 ORT 的 wasm 納入同一條資產管線（status／
+// 清掃／download-progress 都算得到它），init 時以 ort.env.wasm.wasmBinary 注入；沒給則 ORT
+// 自己按 ortWasmPaths 抓。
 // 任何錯誤以 {type: 'error', action, requestId?, message, stack, unknown} 回報。
 
 'use strict';
@@ -101,6 +104,9 @@ function assetList() {
     {key: 'profile', url: assets.profile.url, bytes: assets.profile.bytes, label: '臺灣讀音 runtime profile', networkFirst: assets.profile.networkFirst ?? true},
     {key: 'tokens', url: assets.tokens.url, bytes: assets.tokens.bytes, label: 'Tokens'},
     ...assets.fsts.map((fst, index) => ({key: `fst${index}`, url: fst.url, bytes: fst.bytes, label: fst.label ?? `規則 FST ${index + 1}`})),
+    ...(typeof assets.ortWasm?.url === 'string'
+      ? [{key: 'ortWasm', url: assets.ortWasm.url, bytes: assets.ortWasm.bytes, label: 'ORT WASM runtime'}]
+      : []),
     {key: 'acoustic', url: assets.acoustic.url, bytes: assets.acoustic.bytes, label: 'Matcha acoustic model'},
     {key: 'vocoder', url: assets.vocoder.url, bytes: assets.vocoder.bytes, label: 'Vocos'},
   ];
@@ -278,6 +284,8 @@ async function initialize() {
     const decoder = new TextDecoder();
     const fstKeys = config.assets.fsts.map((_, index) => `fst${index}`);
     postProgress('建立文字前端、text-normalizer 與 ORT session');
+    // ORT wasm 走了資產管線就直接注入,ORT 不再自己按 URL 抓(.mjs 仍由 ortWasmPaths.mjs 載入)。
+    if (downloadedAssets.ortWasm) ort.env.wasm.wasmBinary = downloadedAssets.ortWasm.buffer;
     engine = await MatchaEngine.create({
       lexiconText: decoder.decode(downloadedAssets.lexicon.buffer),
       tokensText: decoder.decode(downloadedAssets.tokens.buffer),
@@ -297,6 +305,8 @@ async function initialize() {
     // ORT session 建立後不再保留原始 ONNX buffers;手機第一句合成需要額外
     // tensor 空間,重複保留模型會造成不必要的記憶體壓力。
     downloadedAssets = null;
+    // ORT 的 wasm 只在 backend 第一次初始化時讀一次,之後同樣放掉。
+    ort.env.wasm.wasmBinary = undefined;
 
     postProgress('暖機文字前端、推論與 MP3 encoder');
     const warmup = await engine.synthesize(config.warmupText, {noiseScale: config.defaultNoiseScale});

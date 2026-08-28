@@ -10,6 +10,8 @@
 //   sentenceEndFor 用同一個 walk,下游畫高亮與上游切音訊不會互相漂移。
 // - seekTo(offset) 只從「含該 offset 的那句」起合成;more() 讓句子用盡時向
 //   host 要下一章,timeline 不 endOfStream;meta.tag 原樣回傳給 host。
+// - restore(tag) 讓 player 跨章重建(⏮ 回前一章、看門狗)時把那章要回來;
+//   tag 是段落集合的身分,chapter 只是交給 producer 的段落集合計數。
 
 // tarball 內 engine 檔案的固定檔名(release-manifest.json 的 basename)。
 export const ENGINE_FILES = Object.freeze({
@@ -85,6 +87,11 @@ export function workerConfigFromAssets({
   const ortMjs = runtimeEntry(assets, 'ortMjs');
   const ortWasm = runtimeEntry(assets, 'ortWasm');
   const lame = runtimeEntry(assets, 'lamejs');
+  const ortWasmPaths = overrides.ortWasmPaths ?? {
+    mjs: joinUrl(runtimeBaseUrl, ortMjs.entry.packName),
+    wasm: joinUrl(runtimeBaseUrl, ortWasm.entry.packName),
+  };
+  const lexiconUrl = overrides.lexicon ?? pack(assets.lexicon, 'lexicon');
   const fsts = FST_ORDER.map((file, index) => {
     const entry = assets.matcha?.files?.[file];
     return {
@@ -104,18 +111,22 @@ export function workerConfigFromAssets({
       synthesis: engineFile('synthesis'),
       engine: engineFile('engine'),
     },
-    ortWasmPaths: overrides.ortWasmPaths ?? {
-      mjs: joinUrl(runtimeBaseUrl, ortMjs.entry.packName),
-      wasm: joinUrl(runtimeBaseUrl, ortWasm.entry.packName),
-    },
+    ortWasmPaths,
     kaldifstWasmUrl: overrides.kaldifstWasmUrl ?? joinUrl(engineBaseUrl, ENGINE_FILES.kaldifstWasm),
     assets: {
-      lexicon: {url: overrides.lexicon ?? pack(assets.lexicon, 'lexicon'), bytes: assets.lexicon.bytes, networkFirst: true},
+      // lexicon packName 含內容 hash,同名即同 bytes → cache-first;覆寫成沒有 hash 的 URL 才 network-first。
+      lexicon: {url: lexiconUrl, bytes: assets.lexicon.bytes, networkFirst: !lexiconUrl.endsWith(assets.lexicon.packName)},
       profile: {url: overrides.profile ?? joinUrl(engineBaseUrl, ENGINE_FILES.profileRuntime), networkFirst: true},
       tokens: {url: overrides.tokens ?? pack(assets.matcha?.files?.['tokens.txt'], 'tokens.txt'), bytes: assets.matcha?.files?.['tokens.txt']?.bytes},
       fsts,
       acoustic: {url: overrides.acoustic ?? pack(assets.acoustic, 'acoustic'), bytes: assets.acoustic?.bytes},
       vocoder: {url: overrides.vocoder ?? pack(assets.vocos, 'vocos'), bytes: assets.vocos?.bytes},
+      // ORT 的 wasm 也走 Worker 的資產管線(status() 算得到、keep-set 清掃認得),init 時以
+      // ort.env.wasm.wasmBinary 注入;ortWasmPaths 覆寫成字串前綴時交回 ORT 自己抓。
+      ...(typeof ortWasmPaths?.wasm === 'string' ? {ortWasm: {
+        url: ortWasmPaths.wasm,
+        bytes: ortWasmPaths.wasm.endsWith(ortWasm.entry.packName) ? ortWasm.entry.bytes : undefined,
+      }} : {}),
     },
     ...(cacheName ? {cacheName} : {}),
     ...(mp3 ? {mp3} : {}),
@@ -249,6 +260,7 @@ export function createMatchaProducer({
   config,
   loop = false,
   more = null,
+  restore = null,
   allowUnknown = true,
   noiseScale,
   format = 'mp3',
@@ -258,6 +270,7 @@ export function createMatchaProducer({
   if (!workerUrl) throw new TypeError('createMatchaProducer 需要 workerUrl');
   if (!config?.scripts) throw new TypeError('createMatchaProducer 需要 config(workerConfigFromAssets 的結果)');
   if (more !== null && typeof more !== 'function') throw new TypeError('more 必須是 async 函式或 null');
+  if (restore !== null && typeof restore !== 'function') throw new TypeError('restore 必須是 async 函式或 null');
   const worker = new Worker(workerUrl, workerOptions);
   const pending = new Map();
   const state = {
@@ -484,6 +497,9 @@ export function createMatchaProducer({
     get cursor() {
       return state.cursor;
     },
+    get tag() {
+      return state.tag;
+    },
     get skipped() {
       return state.skipped;
     },
@@ -518,6 +534,17 @@ export function createMatchaProducer({
       state.cursor = Math.max(0, Math.min(state.segments.length, Math.trunc(index)));
       state.held = -1;
       return state.cursor;
+    },
+    // 把某個 tag 的段落要回來(player 跨章重建用):已在該 tag 就不動;否則問 host 的
+    // restore(tag),回 {segments, tag} 或陣列;沒有 hook 或 host 給不出來就 throw,
+    // player 據此明確失敗,不會默默在錯章的同序句重建。
+    async restore(tag) {
+      if (state.segments.length && state.tag === tag) return state.segments.length;
+      if (!restore) throw new Error(`producer 已在 tag=${JSON.stringify(state.tag)},沒有 restore hook 可取回 tag=${JSON.stringify(tag)}`);
+      const next = await restore(tag);
+      const list = Array.isArray(next) ? next : next?.segments;
+      if (!Array.isArray(list) || !list.length) throw new Error(`restore(${JSON.stringify(tag)}) 沒有回段落`);
+      return setSegments(list, {tag: Array.isArray(next) ? tag : (next.tag ?? tag)});
     },
     setNoiseScale(value) {
       state.noiseScale = Number.isFinite(value) ? value : undefined;
