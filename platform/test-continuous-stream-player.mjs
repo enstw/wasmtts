@@ -152,10 +152,12 @@ assert.deepEqual(mediaSessionCalls.map(([action]) => action).sort(), ['nexttrack
 assert.ok(player.setMetadata({title: '第二章'}));
 assert.equal(navigator.mediaSession.metadata.title, '第二章');
 
-// currentSegment:currentTime 反查
+// currentSegment:currentTime 反查;segments():buffer 內全部段(形狀同 currentSegment)
 audio.currentTime = 7;
 audio.dispatch('timeupdate');
 assert.equal(player.snapshot().currentSegment.index, 1);
+assert.deepEqual(player.segments().map((segment) => [segment.index, segment.start, segment.end, segment.meta.tag]), [[0, 0, 5, 'ch'], [1, 5, 10, 'ch'], [2, 10, 15, 'ch']]);
+assert.ok(!('segments' in player.snapshot())); // 清單不進 snapshot(會嵌進每行 log)
 assert.equal(player.snapshot().currentSegment.meta.start, 10);
 assert.deepEqual(segmentEvents, [0, 1]);
 
@@ -317,6 +319,14 @@ assert.equal(player.snapshot().status, 'stopped');
   audio4.dispatch('timeupdate');
   audio4.dispatch('playing');
   assert.equal(p4.currentSegment().meta.tag, 'ch1');
+  // ⏮ 回前一章:segments() 列出 buffer 內兩章的段,host 挑到目標後 seek 不必重建
+  assert.deepEqual(p4.segments().map((segment) => segment.meta.tag), ['ch1', 'ch1', 'ch1', 'ch2', 'ch2']);
+  audio4.currentTime = 22; // 在 ch2
+  const lastOfCh1 = p4.segments().filter((segment) => segment.meta.tag === 'ch1').at(-1);
+  assert.equal((await p4.seekToSegment(lastOfCh1.index)).mode, 'seek');
+  assert.equal(p4.currentSegment().meta.tag, 'ch1');
+  audio4.currentTime = 7;
+  audio4.dispatch('timeupdate');
   p4.heartbeat();
   assert.equal(p4.heartbeat().action, 'nudge');
   audio4.currentTime = 7.01;

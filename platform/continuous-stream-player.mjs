@@ -20,6 +20,8 @@
 // - 跨章重建：段的 meta.index 是「當時那一章」的句序；restartFrom({tag, index}) 在
 //   producer 已被 more() 換章時先 producer.restore(tag) 要回那章，沒有 restore 就明確
 //   reject，絕不默默指到錯章的同序句。
+// - segments()：timeline 上仍在 buffer 內的段（含前一章的），host 據此挑 ⏮ 目標直接
+//   seek，不必重建。不放進 snapshot()：snapshot 會嵌進每一行 log 與 gate 結果。
 
 const DEFAULT_MIME = 'audio/mpeg';
 const doc = () => globalThis.document ?? null;
@@ -118,6 +120,15 @@ export function createContinuousStreamPlayer({
       rebuilds: 0,
       autoResumes: 0,
     };
+  }
+
+  function publicSegment(segment) {
+    return {index: segment.index, start: segment.start, end: segment.end, meta: segment.meta};
+  }
+
+  // buffer 內（尚未裁掉）的段，依 timeline 順序；跨章的段也在，⏮ 回前一章可直接 seek。
+  function listSegments() {
+    return state.segments.map(publicSegment);
   }
 
   // 由 currentTime 反查目前單位；播到最後一段之後仍回最後一段。
@@ -671,8 +682,9 @@ export function createContinuousStreamPlayer({
     snapshot,
     currentSegment: () => {
       const segment = currentSegment();
-      return segment ? {index: segment.index, start: segment.start, end: segment.end, meta: segment.meta} : null;
+      return segment ? publicSegment(segment) : null;
     },
+    segments: listSegments,
     seekToSegment,
     restartFrom,
     setMetadata,
