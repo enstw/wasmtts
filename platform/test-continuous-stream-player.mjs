@@ -1,6 +1,6 @@
 // player 實機規矩測試(Node,最小 media element／MediaSource stub):currentSegment、
 // seekToSegment 兩條路徑、userPaused／suspended、看門狗 nudge→rebuild、
-// visible 自動 resume、Media Session。
+// visible 自動 resume、Media Session、producer 用盡 ≠ 播完(drained)、跨章重建(restore)。
 import assert from 'node:assert/strict';
 
 // ---- stubs ----
@@ -84,6 +84,7 @@ class FakeAudio extends Emitter {
     super();
     this.currentTime = 0;
     this.paused = true;
+    this.ended = false;
     this.src = '';
     this.playCalls = 0;
   }
@@ -221,4 +222,128 @@ assert.equal(cursorCalls[cursorCalls.length - 1], 7);
 
 player.stop();
 assert.equal(player.snapshot().status, 'stopped');
-console.log(JSON.stringify({gate: 'player', appends: 'ok', stalls: stallEvents, segments: segmentEvents.slice(0, 3)}, null, 2));
+
+// ---- producer 用盡 ≠ 播完:只 endOfStream 一次、記 drained,status 等 element ended ----
+{
+  const audio2 = new FakeAudio();
+  let nextCalls = 0;
+  const short = {
+    cursor: 0,
+    setCursor(index) { this.cursor = index; },
+    async next() {
+      nextCalls += 1;
+      if (this.cursor >= 2) return null;
+      const i = this.cursor;
+      this.cursor += 1;
+      return {buffer: new ArrayBuffer(8), meta: {index: i, start: i * 10, end: i * 10 + 10}};
+    },
+  };
+  const logs2 = [];
+  const p2 = createContinuousStreamPlayer({audio: audio2, producer: short, targetAheadSeconds: 90, heartbeatSeconds: 0, onLog: (entry) => logs2.push(entry.message)});
+  await p2.start();
+  FakeMediaSource.last.dispatch('sourceopen');
+  await settle();
+  audio2.dispatch('playing'); // 實機順序:sourceopen → append → playing
+  const snap = p2.snapshot();
+  assert.equal(snap.appendCount, 2);
+  assert.equal(snap.drained, true);
+  assert.equal(snap.status, 'playing'); // element 還有 10 s 要唸,不是 ended
+  assert.equal(FakeMediaSource.last.readyState, 'ended'); // endOfStream 已呼叫
+  const callsAfterDrain = nextCalls;
+  audio2.currentTime = 3;
+  audio2.dispatch('timeupdate');
+  audio2.currentTime = 6;
+  audio2.dispatch('timeupdate');
+  await settle(3);
+  assert.equal(nextCalls, callsAfterDrain); // drained 後每個 timeupdate 不再打 producer.next
+  assert.equal(logs2.filter((message) => message.startsWith('producer 已用盡')).length, 1);
+  assert.equal(p2.snapshot().currentSegment.index, 1); // stub 每單位 5 s → 6 s 在第 1 段
+  // element 播完:pause 先於 ended,不得記成 suspended
+  audio2.ended = true;
+  audio2.paused = true;
+  audio2.dispatch('pause');
+  assert.equal(p2.snapshot().status, 'playing');
+  audio2.dispatch('ended');
+  assert.equal(p2.snapshot().status, 'ended');
+  assert.ok(!logs2.includes('非使用者暫停（鎖屏／系統）'));
+  // 播完後回前景也不踢
+  document.dispatch('visibilitychange');
+  await settle(3);
+  assert.equal(p2.snapshot().autoResumes, 0);
+  p2.stop();
+
+  // 一個單位都沒有:element 永遠不會 ended,直接標 ended
+  const audio3 = new FakeAudio();
+  const p3 = createContinuousStreamPlayer({audio: audio3, producer: {next: async () => null, setCursor() {}}, heartbeatSeconds: 0});
+  await p3.start();
+  FakeMediaSource.last.dispatch('sourceopen');
+  await settle();
+  assert.equal(p3.snapshot().status, 'ended');
+  assert.equal(p3.snapshot().drained, true);
+  p3.stop();
+}
+
+// ---- 跨章重建:段記得自己的 tag;producer 已被 more() 換章 → 先 restore(tag) 再 setCursor ----
+{
+  const audio4 = new FakeAudio();
+  const calls = [];
+  const chaptered = {
+    tag: 'ch1',
+    cursor: 0,
+    setCursor(index) { calls.push(['setCursor', index]); this.cursor = index; },
+    async restore(tag) { calls.push(['restore', tag]); this.tag = tag; this.cursor = 0; },
+    async next() {
+      if (this.cursor >= 3) {
+        if (this.tag !== 'ch1') return null;
+        this.tag = 'ch2'; // more() 換章
+        this.cursor = 0;
+      }
+      const i = this.cursor;
+      this.cursor += 1;
+      return {buffer: new ArrayBuffer(8), meta: {index: i, tag: this.tag, start: i * 10, end: i * 10 + 10}};
+    },
+  };
+  const logs4 = [];
+  const p4 = createContinuousStreamPlayer({
+    audio: audio4, producer: chaptered, targetAheadSeconds: 25, heartbeatSeconds: 10,
+    onLog: (entry) => logs4.push(entry.message),
+    timers: {setInterval: () => 1, clearInterval() {}},
+  });
+  await p4.start();
+  FakeMediaSource.last.dispatch('sourceopen');
+  await settle();
+  assert.equal(chaptered.tag, 'ch2'); // producer 已領先到下一章
+  audio4.currentTime = 7; // playhead 仍在 ch1 第 2 句
+  audio4.dispatch('timeupdate');
+  audio4.dispatch('playing');
+  assert.equal(p4.currentSegment().meta.tag, 'ch1');
+  p4.heartbeat();
+  assert.equal(p4.heartbeat().action, 'nudge');
+  audio4.currentTime = 7.01;
+  assert.equal(p4.heartbeat().action, 'rebuild');
+  await settle();
+  assert.deepEqual(calls.slice(-2), [['restore', 'ch1'], ['setCursor', 1]]);
+  assert.equal(chaptered.tag, 'ch1');
+  assert.ok(logs4.includes('重建前先要回目標章'));
+  // seekToSegment 出 buffer 且段已被裁掉 → 以 index 數字重建(無 tag 可查,不問 restore)
+  FakeMediaSource.last.dispatch('sourceopen');
+  await settle();
+  const seek3 = await p4.seekToSegment(99);
+  assert.equal(seek3.mode, 'rebuild');
+  assert.deepEqual(calls[calls.length - 1], ['setCursor', 99]);
+  p4.stop();
+
+  // 沒有 restore 的 producer:跨章明確 reject,而且不動現有播放;同 tag／無 tag 照常重建
+  const audio5 = new FakeAudio();
+  const noRestore = {tag: 'ch2', setCursor(index) { calls.push(['plain', index]); }, next: async () => null};
+  const p5 = createContinuousStreamPlayer({audio: audio5, producer: noRestore, heartbeatSeconds: 0});
+  await p5.start();
+  await assert.rejects(p5.restartFrom({tag: 'ch1', index: 0}), /restore/);
+  assert.equal(p5.snapshot().active, true);
+  await p5.restartFrom({tag: 'ch2', index: 4});
+  await p5.restartFrom(5);
+  assert.deepEqual(calls.slice(-2), [['plain', 4], ['plain', 5]]);
+  p5.stop();
+}
+
+console.log(JSON.stringify({gate: 'player', appends: 'ok', stalls: stallEvents, segments: segmentEvents.slice(0, 3), drained: 'ok', restore: 'ok'}, null, 2));

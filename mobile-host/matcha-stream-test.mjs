@@ -186,8 +186,14 @@ function officialProducer() {
   return producers.official;
 }
 let activeProducer = producers.product;
-// player 綁一個 proxy,切換研究對照時不必重建 player。
-const producerProxy = {next: (args) => activeProducer.next(args)};
+// player 綁一個 proxy,切換研究對照時不必重建 player;重建(⏮⏭ 出 buffer、看門狗)
+// 需要的 setCursor／restore／tag 一併透傳。
+const producerProxy = {
+  next: (args) => activeProducer.next(args),
+  setCursor: (index) => activeProducer.setCursor(index),
+  restore: (tag) => activeProducer.restore(tag),
+  get tag() { return activeProducer.tag; },
+};
 
 restoreLogs();
 const audio = $('#streamAudio');
