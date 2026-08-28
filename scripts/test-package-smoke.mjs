@@ -16,6 +16,8 @@ import {createRequire} from 'node:module';
 import {spawnSync} from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
+import {pathToFileURL} from 'node:url';
+import vm from 'node:vm';
 
 import {packageRelease} from './package-release.mjs';
 
@@ -98,6 +100,41 @@ try {
   const withFst = frontendApi.createFrontend({lexiconText, tokensText, ruleNormalizer: normalizer, ...profileApi.createConfig(profile, frontendApi)});
   assert.equal(withFst.ruleFstCount, 3);
   normalizer.dispose();
+
+  // Worker／producer／player:下游的播放路徑也來自 tarball。
+  // worker 是 classic script(importScripts),Node 只做語法檢查、不執行。
+  const workerSource = readFileSync(path.join(extracted, 'matcha-worker.js'), 'utf8');
+  new vm.Script(workerSource, {filename: 'matcha-worker.js'});
+  assert.ok(!/importScripts\(\s*['"]/u.test(workerSource), 'matcha-worker.js 不得寫死 importScripts URL');
+  const producerApi = await import(pathToFileURL(path.join(extracted, 'matcha-producer.mjs')).href);
+  const playerApi = await import(pathToFileURL(path.join(extracted, 'continuous-stream-player.mjs')).href);
+  assert.equal(typeof producerApi.createMatchaProducer, 'function');
+  assert.equal(typeof playerApi.createContinuousStreamPlayer, 'function');
+  assert.deepEqual(producerApi.splitSentences('清晨的陽光。她說：「別急。」\n第二段'), ['清晨的陽光。', '她說：「別急。」', '第二段']);
+  // 每個 engine 檔名都真的在 tarball 裡;每個 config URL 都對應到 manifest 帶 packName 的資產。
+  for (const name of Object.values(producerApi.ENGINE_FILES)) assert.ok(actual.includes(name), `ENGINE_FILES.${name} 不在 tarball`);
+  const config = producerApi.workerConfigFromAssets({
+    assets, engineBaseUrl: 'https://cdn.example/engine/', assetBaseUrl: 'https://cdn.example/assets/', runtimeBaseUrl: 'https://cdn.example/runtime/',
+  });
+  const packNames = new Set([
+    assets.lexicon.packName,
+    ...Object.values(assets.matcha.files).map((entry) => entry.packName).filter(Boolean),
+    assets.acoustic.packName, assets.vocos.packName,
+    ...Object.values(assets.runtime).flatMap((pkg) => Object.values(pkg.files).map((entry) => entry.packName)),
+  ]);
+  const packed = [config.assets.lexicon.url, config.assets.tokens.url, config.assets.acoustic.url, config.assets.vocoder.url,
+    ...config.assets.fsts.map((fst) => fst.url), config.scripts.ort, config.scripts.lamejs, config.ortWasmPaths.mjs, config.ortWasmPaths.wasm];
+  for (const url of packed) assert.ok(packNames.has(url.split('/').pop()), `${url} 不是 manifest 宣告的 packName`);
+  assert.ok(!packed.some((url) => url.endsWith('/lexicon.txt')), 'config 不得指向上游 lexicon.txt');
+  assert.deepEqual(config.assets.fsts.map((fst) => fst.label), ['phone-zh.fst', 'date-zh.fst', 'number-zh.fst']);
+  assert.equal(config.versions.ort, assets.runtime['onnxruntime-web'].version);
+  assert.equal(config.synthesis.silenceScale, assets.synthesis.silenceScale);
+  for (const [pkg, {files}] of Object.entries(assets.runtime)) {
+    for (const [file, entry] of Object.entries(files)) {
+      const actualBytes = readFileSync(path.join(root, 'node_modules', pkg, file));
+      assert.equal(actualBytes.byteLength, entry.bytes, `runtime ${pkg}/${file} bytes 與 node_modules 不符`);
+    }
+  }
 
   console.log(JSON.stringify({
     gate: 'package-smoke',

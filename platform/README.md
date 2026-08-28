@@ -17,6 +17,7 @@
 - `benchmark:matcha-product`／`test:matcha-asr-product`:同一個 `matcha-browser.html` 加 `?synthesis=product` 改讀 `matcha-assets.json` 的 `synthesis` 區塊(不複製常數,manifest 改值 gate 自動跟),結果寫入獨立的 `results-matcha_icefall_zh_en-product-browser-wasm.json` 與 wav。`silenceScale 1` 讓音訊比研究序列長約 21%,`RTF` 天然偏低,因此 product 腿的 `RTF` 只做 `(0, 1)` sanity 檢查、不設歷史比較;可懂度由獨立 baseline 的 ASR 聽回把關。
 - `matcha-fst.js`：從先行專案移植的純 JavaScript OpenFST reader，保留作 golden A/B 與診斷基線。
 - `matcha-frontend.js`、`matcha-synthesis.js`：可供 Worker 與測試共用的繁體直輸／FST／lexicon 前端及 Matcha + Vocos 合成核心。
+- `matcha-worker.js`、`matcha-producer.mjs`、`continuous-stream-player.mjs`：隨 tarball 出貨的背景逐句合成 Worker（不寫死 URL，`configure` 訊息接收 `workerConfigFromAssets` 產生的 config，內部走 `MatchaEngine.create`）、頁面端 producer（斷句、player 契約）與單一 `ManagedMediaSource` timeline 的 streaming player；`mobile-host/matcha-stream-test.html` 是消費者示範，`matcha-stream` gate 直接驗這三檔。
 - `matcha-engine.js`：引擎入口 `MatchaEngine.create()`，把編譯後 lexicon、runtime profile、kaldifst normalizer 與 Matcha + Vocos 一次組好；lexicon／tokens／profile／FST／模型缺一即 throw，waveform 驗證集中在此。隨 tarball 發布。
 - `matcha-taiwan-profile.js`：臺灣讀音 profile adapter；從 review（或其 runtime 子集 `matcha-profile.runtime.json`）取 phrase overrides 與 contextual rules。隨 tarball 發布。
 - `audit-matcha-g2p.mjs`、`run-g2pw-pilot.py`：對外部小說 ZIP 執行現況 frontend trace 與開發期 contextual G2P 差異掃描；小說、g2pW 模型與 `*.local.json` 報告皆不提交。
@@ -135,7 +136,7 @@ tar xjf platform/models/sherpa-onnx-wasm-simd-1.12.20-matcha-icefall-zh-en.tar.b
 - 長篇模式逐句輸出可 append 的編碼片段，並以單一長駐 `HTMLAudioElement`、單一 `ManagedMediaSource`／`SourceBuffer` sequence timeline 跨越句子及章節；不得為每段建立新 element 或再次呼叫 `play()`。
 - 串流 adapter 必須回報 buffer ahead 秒數、最高／最低水位、underflow 次數、append 錯誤、已裁切音訊與佇列大小；buffer 必須有界，refill 不可只依賴背景 timer。
 
-播放 transport 的參考實作位於 [`mobile-host/continuous-stream-player.mjs`](../mobile-host/continuous-stream-player.mjs)，立即可用的 fixture 頁面為 [`mobile-host/stream-test.html`](../mobile-host/stream-test.html)。新的 TTS adapter 應實作相同 producer 契約，不要各自複製 MediaSource 狀態機。
+播放 transport 隨 tarball 出貨，原始碼位於 [`continuous-stream-player.mjs`](continuous-stream-player.mjs)，立即可用的 fixture 頁面為 [`mobile-host/stream-test.html`](../mobile-host/stream-test.html)。新的 TTS adapter 應實作相同 producer 契約，不要各自複製 MediaSource 狀態機。
 
 Fixture 與 Piper transport 只驗證共同播放基礎設施，不產生可排名的 TTS 結果。Matcha producer 使用相同 transport 契約完成端到端 RTF 量測；鎖屏與實機行為不屬於本 repository 的 release gate。
 
@@ -161,13 +162,13 @@ pnpm benchmark:matcha-stream
 pnpm audit:matcha-g2p -- ~/Downloads/novel.zip
 ```
 
-首次使用先執行 `pnpm build:matcha-kaldifst` 產生小型 normalizer dist；`pnpm host:mobile` 會將它與 ORT Web 一起複製到本機 vendor 目錄。`benchmark:matcha-stream` 使用另一個終端機已啟動的 host，採單一 thread，量測 kaldifst WASM FST、lexicon、推論、ISTFT、silence scaling 與 MP3 encode。eSpeak 不屬於本 repository 範圍。
+首次使用先執行 `pnpm build:matcha-kaldifst` 產生小型 normalizer dist，並 `pnpm fetch:matcha-assets && pnpm lexicon:build`；`pnpm host:mobile` 會依 `matcha-assets.json` `runtime` 區塊把 ORT Web／lamejs 以 packName 複製到 `mobile-host/vendor/runtime/`。`benchmark:matcha-stream` 使用另一個終端機已啟動的 host，採單一 thread，量測 kaldifst WASM FST、lexicon、推論、ISTFT、silence scaling 與 MP3 encode。eSpeak 不屬於本 repository 範圍。
 
-要單獨驗證可選 Taiwan pronunciation profile，請把結果寫到未追蹤路徑，避免覆蓋 official benchmark：
+`benchmark:matcha-stream` 預設量測產品路徑（tarball 元件＋編譯後 wasmtts lexicon）。要跑研究對照（上游原始 lexicon、無 profile），請把結果寫到未追蹤路徑，避免覆蓋產品 benchmark：
 
 ```sh
-WASM_TTS_PRONUNCIATION_PROFILE=taiwan \
-WASM_TTS_STREAM_RESULT=/tmp/matcha-stream-taiwan.json \
+WASM_TTS_PRONUNCIATION_PROFILE=official \
+WASM_TTS_STREAM_RESULT=/tmp/matcha-stream-official.json \
 pnpm benchmark:matcha-stream
 ```
 

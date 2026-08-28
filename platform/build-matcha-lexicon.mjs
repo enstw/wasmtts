@@ -40,6 +40,31 @@ const openccVersion = require('../package.json').devDependencies['opencc-js'];
 const frontendApi = require('./matcha-frontend.js');
 const profileApi = require('./matcha-taiwan-profile.js');
 
+// tarball 不含 ORT／lamejs bytes(ort wasm 13.5 MB);matcha-assets.json 的 runtime
+// 區塊宣告版本、檔案、含版本的 packName 與 sha256,下游依此從 npm 取得並驗證。
+export const RUNTIME_FILES = Object.freeze([
+  {pkg: 'onnxruntime-web', file: 'dist/ort.wasm.min.js', packName: (v) => `ort-${v}-wasm.min.js`},
+  {pkg: 'onnxruntime-web', file: 'dist/ort-wasm-simd-threaded.mjs', packName: (v) => `ort-${v}-wasm-simd-threaded.mjs`},
+  {pkg: 'onnxruntime-web', file: 'dist/ort-wasm-simd-threaded.wasm', packName: (v) => `ort-${v}-wasm-simd-threaded.wasm`},
+  {pkg: 'lamejs', file: 'lame.min.js', packName: (v) => `lamejs-${v}.min.js`},
+]);
+
+export function runtimeManifest(root = path.resolve(here, '..')) {
+  const pins = require('../package.json').dependencies;
+  const runtime = {};
+  for (const {pkg, file, packName} of RUNTIME_FILES) {
+    const packageRoot = path.join(root, 'node_modules', pkg);
+    const {version} = JSON.parse(readFileSync(path.join(packageRoot, 'package.json'), 'utf8'));
+    if (pins[pkg] !== version) {
+      throw new Error(`${pkg} 安裝版本 ${version} 與 package.json 精確 pin ${pins[pkg]} 不符`);
+    }
+    const bytes = readFileSync(path.join(packageRoot, file));
+    runtime[pkg] ??= {version, files: {}};
+    runtime[pkg].files[file] = {packName: packName(version), bytes: bytes.byteLength, sha256: sha256(bytes)};
+  }
+  return runtime;
+}
+
 export const RUNTIME_PROFILE_ENTRY_FIELDS = Object.freeze([
   'pattern', 'target', 'implementation', 'status', 'previousCharacters', 'followingCharacters',
 ]);
@@ -267,6 +292,7 @@ export function buildAndWrite({root, outDir} = {}) {
   });
   const assets = {
     ...inputs.assets,
+    runtime: runtimeManifest(inputs.root),
     lexicon: {
       file: 'matcha-lexicon.txt',
       packName: meta.packName,

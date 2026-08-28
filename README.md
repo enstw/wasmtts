@@ -23,11 +23,12 @@ Matcha 與 Vocos 共用 ONNX Runtime Web；text normalizer 使用另一個獨立
 | 檔案 | 用途 |
 |---|---|
 | `matcha-engine.js` | 入口 `MatchaEngine.create()` |
+| `matcha-worker.js`、`matcha-producer.mjs`、`continuous-stream-player.mjs` | 背景逐句合成 Worker（classic script，`configure` 訊息接收全部 URL）、頁面端 producer 封裝（含 `workerConfigFromAssets`、`splitSentences`）、單一 `ManagedMediaSource` timeline 的 streaming player |
 | `matcha-frontend.js`、`matcha-taiwan-profile.js`、`matcha-synthesis.js`、`kaldifst-normalizer.js` | engine 的組成模組；以 `importScripts`／`<script>` 依序載入，或在 Node 以 `require` 取得後注入 |
 | `matcha-kaldifst-normalizer.js`、`matcha-kaldifst-normalizer.wasm` | text-normalizer WASM 與 Emscripten glue |
 | `matcha-lexicon.txt`、`matcha-lexicon.meta.json` | **wasmtts lexicon**：單一字典檔即完整，不需上游 `lexicon.txt`；meta 記錄上游 revision、輸入 hash 與統計 |
 | `matcha-profile.runtime.json` | 臺灣讀音 runtime profile（contextual rules；phrase overrides 已烘進 lexicon） |
-| `matcha-assets.json` | 語音包定義（schemaVersion 4）：acoustic／Vocos／tokens／FST 的下載來源、`packName`、`bytes`、`sha256`，以及 `lexicon` 區塊（`packName` 含內容 hash）。只有帶 `packName` 的條目需要供檔；`matcha.files.lexicon.txt` 標 `role: build-input`，下游不需下載 |
+| `matcha-assets.json` | 語音包定義（schemaVersion 4）：acoustic／Vocos／tokens／FST 的下載來源、`packName`、`bytes`、`sha256`；`lexicon` 區塊（`packName` 含內容 hash）；`runtime` 區塊宣告 ONNX Runtime Web 與 lamejs 的 npm 版本、檔案、含版本的 `packName` 與 `sha256`（bytes 不在 tarball，下游從 npm 取並驗 hash）。只有帶 `packName` 的條目需要供檔；`matcha.files.lexicon.txt` 標 `role: build-input`，下游不需下載 |
 
 模型權重（acoustic、Vocos）、`tokens.txt` 與三個 FST 依 `matcha-assets.json` 自行下載並驗 `sha256`；資產 bytes 改變時 `packName` 必跟著改，下游可放心 cache-first。
 
@@ -48,7 +49,43 @@ const engine = await MatchaEngine.create({
 const {samples, sampleRate, audioSeconds, tokenized} = await engine.synthesize('孫道長久久不語。');
 ```
 
-`lexiconText`、`tokensText`、`profile`、`fstBuffers`、模型缺一即 throw——沒有可漏傳就靜默降級的字典參數。waveform 若含 NaN／Infinity、peak 或 RMS 為零，`synthesize` 會 throw 而不是回傳無聲。Worker 與 streaming player（背景逐句合成、單一 `ManagedMediaSource` timeline）目前以 [`mobile-host/`](mobile-host/) 為參考實作，尚未併入 tarball。
+`lexiconText`、`tokensText`、`profile`、`fstBuffers`、模型缺一即 throw——沒有可漏傳就靜默降級的字典參數。waveform 若含 NaN／Infinity、peak 或 RMS 為零，`synthesize` 會 throw 而不是回傳無聲。
+
+### 背景逐句合成與串流播放
+
+長篇朗讀（含 iOS 鎖屏）走 tarball 內的 Worker ＋ producer ＋ player：使用者手勢只啟動一次長駐 `HTMLAudioElement`，Worker 逐句產生 MP3 append 到同一個 `ManagedMediaSource`／`SourceBuffer` sequence，buffer 有界並以 media／append 事件驅動 refill。下游只提供三個 base URL 與 UI：
+
+```js
+import {createMatchaProducer, workerConfigFromAssets} from './matcha-producer.mjs';
+import {createContinuousStreamPlayer} from './continuous-stream-player.mjs';
+
+const assets = await (await fetch('/engine/matcha-assets.json')).json();
+const producer = createMatchaProducer({
+  workerUrl: '/engine/matcha-worker.js',
+  config: workerConfigFromAssets({
+    assets,
+    engineBaseUrl: '/engine/',     // tarball 檔案
+    assetBaseUrl: '/assets/',      // 依 packName 供檔的模型／tokens／FST／lexicon
+    runtimeBaseUrl: '/runtime/',   // 依 runtime packName 供檔的 ORT／lamejs
+    // overrides: {lexicon: '/engine/matcha-lexicon.txt'}  任一 URL 可覆寫
+  }),
+  onEvent: (event) => console.log(event.type, event),   // progress／download-progress／download-complete／ready／error
+});
+producer.download();      // Cache API：模型 cache-first，lexicon／profile network-first
+producer.initialize();    // ready 後 producer.initialization 有 lexiconSize、runtime 版本等
+await producer.ready;
+producer.setText(chapterText);   // splitSentences 切句；句子用盡回 null 結束串流（loop: true 可循環）
+
+const player = createContinuousStreamPlayer({
+  audio: document.querySelector('audio'),   // 長駐、單一 element；WebKit 需 disableRemotePlayback
+  producer,
+  mediaSession: {metadata: {title: '第一章', artist: '書名'}},   // opt-in 鎖屏控制
+  onUpdate: (snapshot) => render(snapshot),
+});
+await player.start();     // 唯一一次 play()；之後只 pause()／resume()
+```
+
+Worker 的 `configure` config 由 `workerConfigFromAssets` 機械產生（所有 script／wasm／資產 URL、bytes、cache 名稱、`synthesis` 參數、版本字串），Worker 在收到後才 `importScripts`；`synthesize` 亦可直接呼叫 `producer.synthesize(text)` 取得單句 MP3（或 `format: 'pcm'`）。Host 需回應 COOP／COEP headers（本 repo 的 `mobile-host/server.mjs` 是參考）。
 
 ## Lexicon pipeline
 

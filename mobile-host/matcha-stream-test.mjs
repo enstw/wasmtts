@@ -1,10 +1,18 @@
+// 測試頁:engine tarball 元件(matcha-worker.js、matcha-producer.mjs、
+// continuous-stream-player.mjs)的消費者示範。頁面只負責 DOM、telemetry、
+// flight recorder 與 CDP hook;合成與播放邏輯全部來自 /platform/ 的出貨檔。
+import {
+  createMatchaProducer,
+  splitSentences,
+  workerConfigFromAssets,
+} from '/platform/matcha-producer.mjs';
 import {
   createContinuousStreamPlayer,
   mediaSourceSupport,
-} from './continuous-stream-player.mjs';
+} from '/platform/continuous-stream-player.mjs';
 
 const LOG_KEY = 'wasmtts-matcha-stream-flight-recorder-v1';
-const BUILD_VERSION = '2026-08-08 02:22:58 +0800';
+const BUILD_VERSION = '2026-08-28 engine tarball';
 const $ = (selector) => document.querySelector(selector);
 const startedAt = performance.now();
 const telemetrySession = Math.random().toString(36).slice(2, 8);
@@ -12,20 +20,6 @@ const events = [];
 let logLines = [];
 let latest = null;
 let latestMeta = null;
-
-function splitNovelText(text) {
-  const compact = String(text).replace(/\r/gu, '').trim();
-  if (!compact) throw new Error('請輸入測試文字');
-  const sentences = compact.match(/[^。！？!?；;\n]+[。！？!?；;]?[」』”’）》】]*/gu)
-    ?.map((sentence) => sentence.trim())
-    .filter(Boolean) ?? [];
-  if (!sentences.length) throw new Error('無法切出測試句子');
-  return sentences.flatMap((sentence) => {
-    if (sentence.length <= 72) return [sentence];
-    const parts = sentence.match(/.{1,60}(?:[，,、]|$)/gu)?.map((part) => part.trim()).filter(Boolean);
-    return parts?.length ? parts : [sentence];
-  });
-}
 
 function fmt(value, digits = 1) {
   return Number.isFinite(value) ? value.toFixed(digits) : '—';
@@ -90,38 +84,16 @@ function restoreLogs() {
   $('#flightLog').textContent = logLines.join('\n');
 }
 
-class MatchaWorkerProducer {
-  constructor() {
-    this.worker = new Worker('/mobile-host/matcha-worker.js?v=9');
-    this.pending = new Map();
-    this.nextRequestId = 1;
-    this.segments = [];
-    this.pronunciationProfile = 'official';
-    this.inputNormalization = 'traditional-direct';
-    this.noiseScale = 0.667;
-    this.results = [];
-    this.initialization = null;
-    this.downloaded = false;
-    this.ready = new Promise((resolve, reject) => {
-      this.resolveReady = resolve;
-      this.rejectReady = reject;
-    });
-    this.worker.addEventListener('message', (event) => this.onMessage(event.data));
-    this.worker.addEventListener('error', (event) => {
-      const error = new Error(event.message || 'Matcha Worker 啟動失敗');
-      this.rejectReady(error);
-      addLog({message: 'Worker error', detail: {error: error.message}});
-    });
-  }
-
-  onMessage(message) {
+// Worker 事件 → DOM。producer 本身不碰 DOM。
+function onProducerEvent(label) {
+  return (message) => {
     if (message.type === 'progress') {
       $('#workerState').textContent = message.stage;
-      addLog({message: `Worker：${message.stage}`, detail: message.detail ?? {}});
+      addLog({message: `Worker(${label})：${message.stage}`, detail: message.detail ?? {}});
       return;
     }
     if (message.type === 'download-progress') {
-      const total = message.total || 129599930;
+      const total = message.total || 1;
       const fraction = Math.min(1, message.loaded / total);
       $('#downloadStage').textContent = `下載：${message.asset}`;
       $('#downloadAmount').textContent = `${fmt(message.loaded / 1048576)} / ${fmt(total / 1048576)} MiB（${fmt(fraction * 100, 0)}%）`;
@@ -130,135 +102,98 @@ class MatchaWorkerProducer {
       return;
     }
     if (message.type === 'download-complete') {
-      this.downloaded = true;
       $('#downloadStage').textContent = '模型下載完成';
       $('#downloadProgress').value = 1;
       $('#downloadModelsBtn').disabled = true;
       $('#initializeBtn').disabled = false;
       $('#workerState').textContent = '等待初始化';
-      addLog({message: '模型下載完成', detail: message.sources});
+      addLog({message: `模型下載完成（${label}）`, detail: message.sources});
       return;
     }
     if (message.type === 'ready') {
-      this.initialization = message.initialization;
       $('#workerState').textContent = 'ready';
       $('#startBtn').disabled = !mediaSourceSupport().supported;
       $('#initializeBtn').disabled = true;
-      addLog({message: 'Matcha Worker ready', detail: message.initialization});
-      this.resolveReady(message.initialization);
+      addLog({message: `wasmtts Worker ready（${label}）`, detail: message.initialization});
       return;
     }
-
-    if (message.type === 'error' && message.requestId === undefined) {
-      const error = new Error(message.message);
+    if (message.type === 'error') {
       if (message.action === 'download-assets') {
-        $('#downloadStage').textContent = `下載失敗：${error.message}`;
+        $('#downloadStage').textContent = `下載失敗：${message.message}`;
         $('#downloadModelsBtn').disabled = false;
         $('#workerState').textContent = '下載失敗';
-        addLog({message: '模型下載失敗', detail: {error: error.message}});
+        addLog({message: '模型下載失敗', detail: {error: message.message}});
         return;
       }
       $('#workerState').textContent = 'error';
       $('#state').textContent = 'error';
-      addLog({message: 'Matcha Worker 初始化失敗', detail: {error: error.message}});
-      this.rejectReady(error);
-      return;
+      addLog({message: `wasmtts Worker 錯誤（${label}／${message.action}）`, detail: {error: message.message}});
     }
-
-    const pending = this.pending.get(message.requestId);
-    if (!pending) return;
-    this.pending.delete(message.requestId);
-    pending.cleanup();
-    if (message.type === 'error') {
-      pending.reject(new Error(message.message));
-      return;
-    }
-    this.results.push(message.meta);
-    pending.resolve({
-      buffer: message.buffer,
-      pcmBuffer: message.pcmBuffer,
-      meta: message.meta,
-    });
-  }
-
-  download() {
-    this.worker.postMessage({type: 'download-assets'});
-  }
-
-  initialize() {
-    this.worker.postMessage({type: 'init'});
-  }
-
-  reset({
-    text = $('#novelText').value,
-    pronunciationProfile = $('#pronunciationProfile').value,
-    inputNormalization = 'traditional-direct',
-    noiseScale = 0.667,
-  } = {}) {
-    this.segments = splitNovelText(text);
-    this.pronunciationProfile = pronunciationProfile === 'taiwan' ? 'taiwan' : 'official';
-    this.inputNormalization = 'traditional-direct';
-    this.noiseScale = Number.isFinite(noiseScale) ? noiseScale : 0.667;
-    this.results = [];
-    addLog({
-      message: 'producer reset',
-      detail: {
-        sentences: this.segments.length,
-        pronunciationProfile: this.pronunciationProfile,
-        inputNormalization: this.inputNormalization,
-        noiseScale: this.noiseScale,
-      },
-    });
-  }
-
-  async next({index, signal, capturePcm = false}) {
-    await this.ready;
-    if (!this.segments.length) this.reset();
-    if (signal.aborted) throw new DOMException('已停止', 'AbortError');
-    const requestId = this.nextRequestId;
-    this.nextRequestId += 1;
-    const sentenceIndex = index % this.segments.length;
-    const chapter = Math.floor(index / this.segments.length) + 1;
-    const text = this.segments[sentenceIndex];
-    return new Promise((resolve, reject) => {
-      const onAbort = () => {
-        this.pending.delete(requestId);
-        reject(new DOMException('已停止', 'AbortError'));
-      };
-      signal.addEventListener('abort', onAbort, {once: true});
-      this.pending.set(requestId, {
-        resolve: (unit) => resolve({
-          ...unit,
-          meta: {...unit.meta, chapter, sentence: sentenceIndex + 1},
-        }),
-        reject,
-        cleanup: () => signal.removeEventListener('abort', onAbort),
-      });
-      this.worker.postMessage({
-        type: 'synthesize',
-        requestId,
-        text,
-        pronunciationProfile: this.pronunciationProfile,
-        inputNormalization: this.inputNormalization,
-        noiseScale: this.noiseScale,
-        capturePcm,
-      });
-    });
-  }
+  };
 }
+
+// 本 host 從 repository 根目錄供檔:engine 檔在 /platform/,建置產物在
+// /platform/dist/,上游資產以原檔名放在 /platform/models/,ORT／lamejs 由
+// vendor-mobile 以 packName 放在 /mobile-host/vendor/runtime/。
+const assets = await (await fetch('/platform/dist/matcha-assets.json', {cache: 'no-cache'})).json();
+const MODEL_ROOT = '/platform/models/matcha-icefall-zh-en';
+const baseOverrides = {
+  lexicon: '/platform/dist/matcha-lexicon.txt',
+  profile: '/platform/dist/matcha-profile.runtime.json',
+  tokens: `${MODEL_ROOT}/tokens.txt`,
+  fsts: [`${MODEL_ROOT}/phone-zh.fst`, `${MODEL_ROOT}/date-zh.fst`, `${MODEL_ROOT}/number-zh.fst`],
+  acoustic: `${MODEL_ROOT}/${assets.acoustic.file}`,
+  vocoder: '/platform/models/vocos-16khz-univ.onnx',
+  kaldifstWasmUrl: '/mobile-host/vendor/kaldifst/matcha-kaldifst-normalizer.wasm',
+  scripts: {kaldifstModule: '/mobile-host/vendor/kaldifst/matcha-kaldifst-normalizer.js'},
+};
+function makeConfig(overrides = {}) {
+  return workerConfigFromAssets({
+    assets,
+    engineBaseUrl: '/platform/',
+    assetBaseUrl: MODEL_ROOT,
+    runtimeBaseUrl: '/mobile-host/vendor/runtime/',
+    overrides: {...baseOverrides, ...overrides, scripts: {...baseOverrides.scripts, ...(overrides.scripts ?? {})}},
+    versions: {kaldifst: '1.8.0 / ab5bdd013bdf13921e6aeee77db5722ebf9955fb'},
+  });
+}
+const WORKER_URL = '/platform/matcha-worker.js?v=20260828-engine-tarball';
+const producers = {
+  // 產品路徑:tarball 元件 ＋ 編譯後 wasmtts lexicon。
+  product: createMatchaProducer({workerUrl: WORKER_URL, config: makeConfig(), loop: true, onEvent: onProducerEvent('product')}),
+  // 研究對照:上游原始 lexicon、空 profile;只在選擇時才建立(多一份模型記憶體)。
+  official: null,
+};
+const EMPTY_PROFILE_URL = URL.createObjectURL(new Blob([JSON.stringify({
+  schemaVersion: 3, locale: 'zh-TW', profiles: {taiwan: {phraseOverrides: [], contextualRules: []}}, entries: [],
+})], {type: 'application/json'}));
+function officialProducer() {
+  producers.official ??= createMatchaProducer({
+    workerUrl: WORKER_URL,
+    config: makeConfig({lexicon: `${MODEL_ROOT}/lexicon.txt`, profile: EMPTY_PROFILE_URL}),
+    loop: true,
+    onEvent: onProducerEvent('official'),
+  });
+  return producers.official;
+}
+let activeProducer = producers.product;
+// player 綁一個 proxy,切換研究對照時不必重建 player。
+const producerProxy = {next: (args) => activeProducer.next(args)};
 
 restoreLogs();
 const audio = $('#streamAudio');
 audio.disableRemotePlayback = true;
 const support = mediaSourceSupport();
-const producer = new MatchaWorkerProducer();
 const player = createContinuousStreamPlayer({
   audio,
-  producer,
+  producer: producerProxy,
   targetAheadSeconds: 90,
   inactiveAheadSeconds: 45,
   retainBehindSeconds: 30,
   trimStepSeconds: 60,
+  mediaSession: {
+    metadata: {title: 'Matcha 長篇小說測試', artist: 'matcha-icefall-zh-en', album: '單一 MediaSource timeline'},
+  },
   onLog: addLog,
   onUpdate(snapshot) {
     latest = snapshot;
@@ -271,7 +206,7 @@ const player = createContinuousStreamPlayer({
       : '—';
     $('#ahead').textContent = `${fmt(snapshot.bufferAheadSeconds)} 秒`;
     $('#underflows').textContent = String(snapshot.underflows);
-    $('#startBtn').disabled = snapshot.active || !snapshot.supported || !producer.initialization;
+    $('#startBtn').disabled = snapshot.active || !snapshot.supported || !producers.product.initialization;
     $('#stopBtn').disabled = !snapshot.active;
     $('#pauseBtn').disabled = !snapshot.active;
     $('#pauseBtn').textContent = snapshot.status === 'paused' ? '繼續播放' : '暫停';
@@ -288,22 +223,31 @@ const player = createContinuousStreamPlayer({
 $('#downloadModelsBtn').addEventListener('click', () => {
   $('#downloadModelsBtn').disabled = true;
   $('#downloadStage').textContent = '準備下載…';
-  producer.download();
+  producers.product.download();
 });
 
 $('#initializeBtn').addEventListener('click', () => {
   $('#initializeBtn').disabled = true;
   $('#workerState').textContent = '初始化中';
-  producer.initialize();
+  producers.product.initialize();
 });
 
-function start({
+async function start({
   muted = false,
   text = $('#novelText').value,
   pronunciationProfile = $('#pronunciationProfile').value,
 } = {}) {
-  if (!producer.initialization) return Promise.reject(new Error('Matcha Worker 尚未初始化完成'));
-  producer.reset({text, pronunciationProfile});
+  if (!producers.product.initialization) throw new Error('wasmtts Worker 尚未初始化完成');
+  const useOfficial = pronunciationProfile === 'official';
+  activeProducer = useOfficial ? officialProducer() : producers.product;
+  if (useOfficial && !activeProducer.initialization) {
+    addLog({message: '建立研究對照 Worker（上游 lexicon）'});
+    await activeProducer.download();
+    await activeProducer.initialize();
+  }
+  const sentences = activeProducer.setText(text);
+  if (!sentences) throw new Error('請輸入測試文字');
+  addLog({message: 'producer reset', detail: {sentences, pronunciationProfile: useOfficial ? 'official' : 'product'}});
   audio.muted = muted;
   return player.start();
 }
@@ -334,16 +278,6 @@ $('#downloadLogBtn').addEventListener('click', () => {
   URL.revokeObjectURL(url);
 });
 
-if ('mediaSession' in navigator) {
-  navigator.mediaSession.metadata = new MediaMetadata({
-    title: 'Matcha 長篇小說測試',
-    artist: 'matcha-icefall-zh-en',
-    album: '單一 MediaSource timeline',
-  });
-  navigator.mediaSession.setActionHandler('play', () => player.resume().catch(() => {}));
-  navigator.mediaSession.setActionHandler('pause', () => player.pause());
-}
-
 const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 $('#buildVersion').textContent = BUILD_VERSION;
 $('#secure').textContent = String(window.isSecureContext);
@@ -361,6 +295,7 @@ addLog({
     standalone,
     sourceKind: support.kind,
     sourceSupported: support.supported,
+    lexiconPackName: assets.lexicon.packName,
   },
 });
 
@@ -387,12 +322,16 @@ if ('serviceWorker' in navigator && window.isSecureContext) {
 }
 navigator.storage?.persist?.().catch(() => {});
 
+// CDP hook(platform/run-matcha-stream-browser.mjs 依賴):形狀維持不變。
 globalThis.matchaStreamTest = {
   events,
   player,
-  producer,
-  ready: producer.ready,
-  splitNovelText,
+  get producer() {
+    return activeProducer;
+  },
+  producers,
+  ready: producers.product.ready,
+  splitNovelText: splitSentences,
   start,
   snapshot: () => player.snapshot(),
   latestMeta: () => latestMeta,

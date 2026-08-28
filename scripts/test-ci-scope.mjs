@@ -10,7 +10,7 @@ const cases = [
   {files: ['mobile-host/README.md'], artifact: false, renovateConfig: false},
   {files: ['platform/matcha-assets.json'], artifact: true, renovateConfig: false},
   {files: ['platform/asr-baseline/current.json'], artifact: true, renovateConfig: false},
-  {files: ['mobile-host/matcha-worker.js'], artifact: true, renovateConfig: false},
+  {files: ['platform/matcha-worker.js'], artifact: true, renovateConfig: false},
   {files: ['frameworks/matcha/samples/quality.txt'], artifact: true, renovateConfig: false},
   {files: ['package.json'], artifact: true, renovateConfig: false},
   {files: ['renovate.json'], artifact: false, renovateConfig: true},
