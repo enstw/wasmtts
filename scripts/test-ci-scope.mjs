@@ -8,7 +8,7 @@ const cases = [
   {files: ['platform/RESULTS.md'], artifact: false, renovateConfig: false},
   {files: ['platform/results/example.json'], artifact: false, renovateConfig: false},
   {files: ['mobile-host/README.md'], artifact: false, renovateConfig: false},
-  {files: ['platform/matcha-assets.json'], artifact: true, renovateConfig: false},
+  {files: ['platform/matcha-assets.source.json'], artifact: true, renovateConfig: false},
   {files: ['platform/asr-baseline/current.json'], artifact: true, renovateConfig: false},
   {files: ['platform/matcha-worker.js'], artifact: true, renovateConfig: false},
   {files: ['frameworks/matcha/samples/quality.txt'], artifact: true, renovateConfig: false},

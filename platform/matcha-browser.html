@@ -24,12 +24,13 @@ const HOP_LENGTH = 256;
 const NUM_BINS = N_FFT / 2 + 1;
 const SILENCE_SCALE = 0.2;
 // 研究序列固定 noise 1／silence 0.2 保持歷史可比性;?synthesis=product 改讀
-// matcha-assets.json 的 synthesis 區塊(產品播放參數唯一正本,不複製常數)。
+// matcha-assets.source.json 的 synthesis 區塊(產品播放參數唯一正本,不複製常數;
+// 與 tarball 內 stage: complete 的 matcha-assets.json 同值)。
 // 兩個序列的結果不可混報。
 const SYNTHESIS_PROFILE = new URLSearchParams(location.search).get('synthesis') === 'product'
   ? 'product' : 'research';
 const SYNTHESIS = SYNTHESIS_PROFILE === 'product'
-  ? (await (await fetch('/platform/matcha-assets.json')).json()).synthesis
+  ? (await (await fetch('/platform/matcha-assets.source.json')).json()).synthesis
   : {noiseScale: 1, lengthScale: 1, silenceScale: SILENCE_SCALE};
 const WINDOW = Float64Array.from(
   {length: N_FFT},

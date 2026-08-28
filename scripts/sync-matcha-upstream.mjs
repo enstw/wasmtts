@@ -3,8 +3,8 @@
 // 上游 matcha-icefall-zh-en 追蹤:lexicon／tokens／FST 是該模型 release 的一部分,
 // 模型出新版時整組換 pin、以新 lexicon 重編 wasmtts lexicon。
 //
-// 1. 查 HuggingFace 最新 revision,與 platform/matcha-assets.json 的 pin 比對。
-// 1. 有更新:改寫 matcha-assets.json 與 platform/upstreams.yaml 的 revision,
+// 1. 查 HuggingFace 最新 revision,與 platform/matcha-assets.source.json 的 pin 比對。
+// 1. 有更新:改寫 matcha-assets.source.json 與 platform/upstreams.yaml 的 revision,
 //    重抓上游檔(scripts/fetch-matcha-assets.mjs 同一條驗證路徑)並回填
 //    bytes／sha256。
 // 1. 以舊 pin 的編譯結果為基準重建 wasmtts lexicon,輸出 diff 報告:上游詞條
@@ -28,7 +28,7 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {buildMatchaLexicon, readBuildInputs} from '../platform/build-matcha-lexicon.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const assetsPath = path.join(root, 'platform/matcha-assets.json');
+const assetsPath = path.join(root, 'platform/matcha-assets.source.json');
 const upstreamsPath = path.join(root, 'platform/upstreams.yaml');
 const modelDir = path.join(root, 'platform/models/matcha-icefall-zh-en');
 const distDir = path.join(root, 'platform/dist');

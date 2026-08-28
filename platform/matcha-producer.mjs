@@ -57,8 +57,14 @@ export function workerConfigFromAssets({
   defaultNoiseScale,
   versions = {},
   synthesis,
+  pronunciationOverrides,
 }) {
   if (assets?.schemaVersion !== 4) throw new Error(`matcha-assets.json schemaVersion ${assets?.schemaVersion} — 本 producer 只認 4`);
+  // 同名兩形的陷阱:git tree 的 platform/matcha-assets.source.json(stage: source)沒有
+  // lexicon／runtime 區塊;只有 tarball 內 pnpm lexicon:build 產出的檔是 stage: complete。
+  if (assets.stage !== 'complete') {
+    throw new Error(`matcha-assets.json stage=${JSON.stringify(assets.stage)} — 請使用 tarball 內 stage: complete 的檔,不是 repo 裡的 matcha-assets.source.json`);
+  }
   if (!assets.lexicon?.packName) throw new Error('matcha-assets.json 缺 lexicon 區塊(需先 pnpm lexicon:build 的產物)');
   const engineFile = (key) => overrides.scripts?.[key] ?? joinUrl(engineBaseUrl, ENGINE_FILES[key]);
   const pack = (entry, label) => {
@@ -106,6 +112,8 @@ export function workerConfigFromAssets({
     ...(ort ? {ort} : {}),
     ...(Number.isFinite(defaultNoiseScale) ? {defaultNoiseScale} : {}),
     synthesis: synthesis ?? assets.synthesis ?? {},
+    // 下游本地讀音暫存層(尚未進 review 的聽測修正),原樣交給 Worker → MatchaEngine.create。
+    ...(pronunciationOverrides ? {pronunciationOverrides} : {}),
     versions: {ort: ortMain.version, lamejs: lame.version, ...versions},
   };
 }

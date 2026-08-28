@@ -183,6 +183,7 @@ jobs:
         run: |
           gh release create "$RELEASE_TAG" \
             release-artifacts/wasmtts-engine.tar.gz \
+            release-artifacts/wasmtts-engine.tar.gz.sha256 \
             release-artifacts/package/matcha-lexicon.meta.json \
             release-artifacts/RELEASE.md \
             release-artifacts/release-gates.json \

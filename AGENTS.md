@@ -22,7 +22,7 @@
 | `kaldifst-normalizer.js`、`matcha-kaldifst-normalizer.{js,wasm}` | 獨立 kaldifst + OpenFST text-normalizer（`phone/date/number` FST，順序固定） |
 | `matcha-lexicon.txt`、`matcha-lexicon.meta.json` | **編譯後的 wasmtts lexicon**（單一檔即完整）與其 provenance |
 | `matcha-profile.runtime.json` | review 的 runtime 子集（contextual rules；phrase overrides 已烘進 lexicon） |
-| `matcha-assets.json` | 語音包定義（schemaVersion 4）：模型／tokens／FST 的來源、`packName`、`bytes`、`sha256`，`lexicon` 區塊，以及 `runtime` 區塊（ORT／lamejs 的 npm 版本、含版本的 `packName`、`sha256`；bytes 不進 tarball） |
+| `matcha-assets.json` | 語音包定義（schemaVersion 4，`stage: complete`）：模型／tokens／FST 的來源、`packName`、`bytes`、`sha256`，`lexicon` 區塊，以及 `runtime` 區塊（ORT／lamejs 的 npm 版本、含版本的 `packName`、`sha256`；bytes 不進 tarball）。由 `pnpm lexicon:build` 從 in-tree 的 `platform/matcha-assets.source.json`（`stage: source`，只有 pin 與來源）產生；同名兩形是刻意的：消費者讀到 `stage !== 'complete'` 必 throw |
 | `README.md`、`LICENSE` | 消費端文件與授權 |
 
 模型權重、tokens 與 FST 不在 tarball 內，下游依 `matcha-assets.json` 自行下載；`packName` 不變量：資產 bytes 改變時 `packName` 必須跟著改變（編譯後 lexicon 的 `packName` 含內容 hash，自動滿足）。只有帶 `packName` 的條目是下游要供檔的資產；`matcha.files.lexicon.txt` 標 `role: build-input`，**下游不需要也不應看到上游 lexicon**。
@@ -33,12 +33,12 @@
 
 ### Worker／producer／player 契約
 
-`matcha-worker.js` 不寫死任何 URL：頁面 `new Worker(url)` 後第一則訊息必須是 `{type: 'configure', config}`，config 由 `matcha-producer.mjs` 的 `workerConfigFromAssets({assets, engineBaseUrl, assetBaseUrl, runtimeBaseUrl, overrides})` 從 `matcha-assets.json` 機械產生；Worker 在 configure 時才 `importScripts`，之後協定為 `download-assets`／`init`／`synthesize`／`dispose` → `download-progress`／`download-complete`／`ready`／`result`／`error`。`createMatchaProducer` 提供 player 契約 `next({index, signal}) → {buffer, meta} | null`（句子用盡回 `null`；`loop: true` 才循環），不碰 DOM。改 Worker 協定、config 欄位或 player `snapshot()` 形狀都是下游契約變更，須同步 README、package-smoke 與 `matcha-stream` gate。
+`matcha-worker.js` 不寫死任何 URL：頁面 `new Worker(url)` 後第一則訊息必須是 `{type: 'configure', config}`，config 由 `matcha-producer.mjs` 的 `workerConfigFromAssets({assets, engineBaseUrl, assetBaseUrl, runtimeBaseUrl, overrides})` 從 `matcha-assets.json` 機械產生；Worker 在 configure 時才 `importScripts`，之後協定為 `download-assets`／`init`／`synthesize`／`dispose` → `download-progress`／`download-complete`／`ready`／`result`／`error`。`createMatchaProducer` 提供 player 契約 `next({index, signal}) → {buffer, meta} | null`（句子用盡回 `null`；`loop: true` 才循環），不碰 DOM。`pronunciationOverrides`（engine／worker config 皆可給）是下游本地讀音暫存層：整詞、最後套用、phone 須在 tokens 內；聽測修正確認後應回到 review／curation 進 lexicon，不是長期住在下游。runtime 為單一 WASM thread，不需 `crossOriginIsolated`；文件不得把 COOP／COEP 寫成必要條件。改 Worker 協定、config 欄位或 player `snapshot()` 形狀都是下游契約變更，須同步 README、package-smoke 與 `matcha-stream` gate。
 
 ### Lexicon pipeline
 
 ```text
-上游 matcha-icefall-zh-en（簡體 lexicon.txt，revision 由 matcha-assets.json 釘定）
+上游 matcha-icefall-zh-en（簡體 lexicon.txt，revision 由 matcha-assets.source.json 釘定）
   + platform/matcha-g2p-review.json（臺灣讀音審核帳本）
   + platform/matcha-lexicon-traditional-curation.json（鏡像 curation）
   → pnpm lexicon:build（platform/build-matcha-lexicon.mjs）
@@ -48,7 +48,7 @@
 1. 編譯內容：上游簡體全量原樣 ＋ **全量**繁體鏡像（OpenCC 詞組級 cn→tw）＋ review phrase overrides 烘入。鏡像讀音：base 音節修正條目取逐位合併讀音，其餘一律取現行 taiwan frontend 讀音——鏡像只補 longest-match 邊界（`道長`＋`久久` 不再被切成 `道／長久`），不引入新讀音裁決；curation `exclusions`／`charPhoneExclusions`／`guards` 生效。
 1. 產物**不提交 git**（`platform/dist/` 已忽略）；CI 在 `pnpm fetch:matcha-assets` 後 `pnpm lexicon:build`，再跑 gates 並打包。`test:matcha-lexicon` gate 驗證決定性（建置兩次 sha 相同）、上游詞條完整、phones 在 tokens 內、固定正反例，且只用「編譯後 lexicon ＋ runtime profile」建前端。
 1. 讀音決策只改 `matcha-g2p-review.json`（有教育部來源）與 curation 檔；**不要**手改編譯產物，也不要再建「補充詞典」這種第二層字典。
-1. 上游追蹤：lexicon／tokens／FST 是模型 release 的一部分，Renovate 每週以 `git-refs` 追蹤 HF revision（`platform/upstreams.yaml`、`matcha-assets.json`），開 PR → candidate gate 重編 lexicon → 綠燈合併 → release。本機用 `pnpm lexicon:sync`（`--check` 只比對）查最新 revision、換 pin、重抓、重編並產 `platform/dist/lexicon-diff.md`。
+1. 上游追蹤：lexicon／tokens／FST 是模型 release 的一部分，Renovate 每週以 `git-refs` 追蹤 HF revision（`platform/upstreams.yaml`、`matcha-assets.source.json`），開 PR → candidate gate 重編 lexicon → 綠燈合併 → release。本機用 `pnpm lexicon:sync`（`--check` 只比對）查最新 revision、換 pin、重抓、重編並產 `platform/dist/lexicon-diff.md`。
 
 ### 發版
 

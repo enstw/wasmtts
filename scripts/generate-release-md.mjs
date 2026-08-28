@@ -54,7 +54,7 @@ const asrProduct = hasExecutedGates
   ? readJson('platform/results/asr-listening-product-report.json')
   : null;
 const assets = readJson(path.join(artifacts, 'assets.json'));
-const manifest = readJson('platform/dist/matcha-assets.json') ?? readJson('platform/matcha-assets.json');
+const manifest = readJson('platform/dist/matcha-assets.json') ?? readJson('platform/matcha-assets.source.json');
 const lexiconMeta = readJson('platform/dist/matcha-lexicon.meta.json');
 const previousLexiconMeta = readJson(path.join(artifacts, 'previous-lexicon.meta.json'));
 const packageJson = readJson('package.json');

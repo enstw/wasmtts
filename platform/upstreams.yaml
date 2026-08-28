@@ -10,7 +10,7 @@ upstreams:
 
   # Matcha lexicon、tokens 與三個中文 FST 是同一個模型 release 的一部分，必須同
   # commit 更新；revision 變動時 CI 以新 lexicon 重編 wasmtts lexicon（pnpm lexicon:build）。
-  # acoustic model 另由 matcha-assets.json 釘 ModelScope revision。
+  # acoustic model 另由 matcha-assets.source.json 釘 ModelScope revision。
   # renovate: datasource=git-refs depName=matcha-frontend packageName=https://huggingface.co/csukuangfj/matcha-icefall-zh-en.git versioning=loose
   - version: fbe59d77057428c32111d5f3ea4ed67a7d440c61
     assets:
@@ -19,7 +19,7 @@ upstreams:
       - matcha-icefall-zh-en/phone-zh.fst
       - matcha-icefall-zh-en/date-zh.fst
       - matcha-icefall-zh-en/number-zh.fst
-      - platform/matcha-assets.json
+      - platform/matcha-assets.source.json
 
   # 完整 512 MiB frontend bundle 只保留為上游 control，仍需收到更新通知。
   # renovate: datasource=github-releases depName=sherpa-onnx-browser-control packageName=k2-fsa/sherpa-onnx

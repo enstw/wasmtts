@@ -22,7 +22,8 @@ import vm from 'node:vm';
 import {packageRelease} from './package-release.mjs';
 
 const root = process.cwd();
-const {manifest, tarball} = packageRelease({root});
+const {manifest, tarball, checksum, sha256} = packageRelease({root});
+assert.match(readFileSync(checksum, 'utf8'), new RegExp(`^${sha256}  ${path.basename(tarball)}\\n$`, 'u'), 'sha256 sidecar 格式須為 sha256sum');
 
 const extracted = mkdtempSync(path.join(os.tmpdir(), 'wasmtts-package-smoke-'));
 try {
@@ -43,6 +44,10 @@ try {
   const meta = JSON.parse(readFileSync(path.join(extracted, 'matcha-lexicon.meta.json'), 'utf8'));
   const profile = JSON.parse(readFileSync(path.join(extracted, 'matcha-profile.runtime.json'), 'utf8'));
   assert.equal(assets.schemaVersion, 4);
+  assert.equal(assets.stage, 'complete');
+  // in-tree 的 source manifest 不得被消費者誤用:producer 讀到必 throw。
+  const sourceAssets = JSON.parse(readFileSync(path.join(root, 'platform/matcha-assets.source.json'), 'utf8'));
+  assert.equal(sourceAssets.stage, 'source');
   assert.equal(assets.lexicon.file, 'matcha-lexicon.txt');
   assert.equal(assets.lexicon.packName, meta.packName);
   assert.equal(assets.matcha.files['lexicon.txt'].role, 'build-input');
@@ -71,6 +76,26 @@ try {
   // 缺 profile／lexicon 必 throw：沒有可漏傳就靜默降級的字典參數。
   await assert.rejects(() => engineApi.create({tokensText, profile, fstBuffers: [new Uint8Array(1)], frontendApi, profileApi, kaldifstApi, synthesisApi}), /lexiconText/u);
   await assert.rejects(() => engineApi.create({lexiconText, tokensText, fstBuffers: [new Uint8Array(1)], frontendApi, profileApi, kaldifstApi, synthesisApi}), /profile/u);
+
+  // 本地 pronunciationOverrides 暫存層：整詞覆寫生效；phone 不在 tokens 或字數不符即 throw。
+  const overridden = await engineApi.create({
+    lexiconText, tokensText, profile, fstBuffers: [new Uint8Array(1)],
+    frontendApi, profileApi, synthesisApi,
+    kaldifstApi: {createNormalizer: async () => Object.assign((text) => text, {dispose() {}, fstCount: 1})},
+    ORT: {InferenceSession: {create: async () => ({inputNames: [], outputNames: []})}, Tensor: class {}},
+    acousticModel: new Uint8Array(1), vocoderModel: new Uint8Array(1),
+    pronunciationOverrides: {'孫道長': 'sun1 dao4 zhang3', '測試詞': ['ce4', 'shi4', 'ci2']},
+  });
+  assert.deepEqual(overridden.tokensFor('測試詞').phones, ['ce4', 'shi4', 'ci2']);
+  assert.deepEqual(overridden.info.localOverrides, ['孫道長', '測試詞']);
+  const badOverride = (pronunciationOverrides) => engineApi.create({
+    lexiconText, tokensText, profile, fstBuffers: [new Uint8Array(1)], frontendApi, profileApi, synthesisApi,
+    kaldifstApi: {createNormalizer: async () => Object.assign((text) => text, {dispose() {}, fstCount: 1})},
+    ORT: {InferenceSession: {create: async () => ({inputNames: [], outputNames: []})}, Tensor: class {}},
+    acousticModel: new Uint8Array(1), vocoderModel: new Uint8Array(1), pronunciationOverrides,
+  });
+  await assert.rejects(() => badOverride({'測試': 'ce4 nope9'}), /不在 tokens/u);
+  await assert.rejects(() => badOverride({'測試': 'ce4'}), /字數/u);
 
   // 文字前端：只用 tarball 的 lexicon ＋ runtime profile。
   const taiwan = profileApi.createFrontend({review: profile, frontendApi, lexiconText, tokensText});

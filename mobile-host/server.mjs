@@ -308,9 +308,13 @@ async function handleScoreRequest(request, response) {
 
 http.createServer(async (request, response) => {
   const pathname = decodeURIComponent(new URL(request.url, 'http://127.0.0.1').pathname);
-  response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-  response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
-  response.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+  // 單一 WASM thread 的 runtime 不需要 crossOriginIsolated;這組 headers 只為多執行緒量測。
+  // WASM_TTS_ISOLATION=off 可關掉,用來驗證一般靜態 host(非 isolated)也能跑完整路徑。
+  if (process.env.WASM_TTS_ISOLATION !== 'off') {
+    response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+    response.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+  }
   if (pathname === scoreEndpoint) {
     try {
       await handleScoreRequest(request, response);

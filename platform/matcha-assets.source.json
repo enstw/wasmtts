@@ -1,5 +1,7 @@
 {
   "schemaVersion": 4,
+  "stage": "source",
+  "purpose": "上游 pin 與語音包來源定義；不含 lexicon／runtime 區塊。下游只能用 pnpm lexicon:build 產出、隨 tarball 出貨的 matcha-assets.json（stage: complete）",
   "synthesis": {
     "noiseScale": 1,
     "lengthScale": 1,
