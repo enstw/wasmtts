@@ -2,10 +2,12 @@
 // restore(tag)、單句失敗跳過不 reject、status() 形狀、workerConfigFromAssets 的
 // lexicon cache-first 與 ortWasm 資產。不碰真 Worker／ORT。
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
 
 import {
   ENDERS, CLOSERS, sentenceSpans, sentenceStartFor, sentenceEndFor, chunkIndexFor, splitSentences,
-  createMatchaProducer, workerConfigFromAssets,
+  createMatchaProducer, workerConfigFromAssets, assetListFromConfig, packStatus, DEFAULT_CACHE_NAME,
 } from './matcha-producer.mjs';
 
 // ---- workerConfigFromAssets:lexicon packName 含 hash → cache-first;ORT wasm 進資產清單 ----
@@ -26,13 +28,47 @@ import {
   assert.equal(cfg.assets.profile.networkFirst, true);
   assert.deepEqual(cfg.assets.ortWasm, {url: '/r/ort-1.27.0-wasm-simd-threaded.wasm', bytes: 13000000});
   assert.equal(cfg.assets.ortWasm.url, cfg.ortWasmPaths.wasm);
-  // 覆寫 lexicon 成沒有 hash 的 URL → network-first;覆寫 ortWasmPaths 成字串前綴 → 交回 ORT 自己抓
-  const over = workerConfigFromAssets({...base, overrides: {lexicon: '/research/lexicon.txt', ortWasmPaths: '/r/'}});
+  // 覆寫 lexicon 成沒有 hash 的 URL → network-first;ortWasm 不靠後綴推斷:字串前綴、加 query string 都列入
+  const over = workerConfigFromAssets({...base, overrides: {lexicon: '/research/lexicon.txt', ortWasmPaths: '/cdn/'}});
   assert.equal(over.assets.lexicon.networkFirst, true);
-  assert.equal(over.assets.ortWasm, undefined);
-  // 覆寫成別的 wasm URL → 仍進清單但 bytes 未知
-  const other = workerConfigFromAssets({...base, overrides: {ortWasmPaths: {mjs: '/x/a.mjs', wasm: '/x/a.wasm'}}});
-  assert.deepEqual(other.assets.ortWasm, {url: '/x/a.wasm', bytes: undefined});
+  assert.deepEqual(over.assets.ortWasm, {url: '/cdn/ort-1.27.0-wasm-simd-threaded.wasm', bytes: 13000000});
+  const query = workerConfigFromAssets({...base, overrides: {ortWasmPaths: {mjs: '/x/a.mjs', wasm: '/r/ort-1.27.0-wasm-simd-threaded.wasm?v=3'}}});
+  assert.deepEqual(query.assets.ortWasm, {url: '/r/ort-1.27.0-wasm-simd-threaded.wasm?v=3', bytes: 13000000});
+  // opt-out 才交回 ORT 自己抓
+  assert.equal(workerConfigFromAssets({...base, ortWasm: false}).assets.ortWasm, undefined);
+  // labels 以資產 key 覆寫顯示名,進 assetList
+  const labeled = workerConfigFromAssets({...base, labels: {lexicon: '詞典', 'phone-zh.fst': '電話', ortWasm: '推論引擎'}});
+  const list = assetListFromConfig(labeled);
+  assert.deepEqual(list.map((asset) => asset.key), ['lexicon', 'profile', 'tokens', 'fst0', 'fst1', 'fst2', 'ortWasm', 'acoustic', 'vocoder']);
+  assert.equal(list.find((asset) => asset.key === 'lexicon').label, '詞典');
+  assert.equal(list.find((asset) => asset.key === 'fst0').label, '電話');
+  assert.equal(list.find((asset) => asset.key === 'ortWasm').label, '推論引擎');
+  assert.equal(list.find((asset) => asset.key === 'profile').label, '臺灣讀音 runtime profile');
+
+  // Worker 的 assetList() 與 assetListFromConfig 必須逐項一致(Worker 是 classic script,用 vm 跑它)
+  const sandbox = {
+    importScripts() {}, ort: {env: {wasm: {}}}, postMessage() {}, addEventListener() {},
+    self: {addEventListener() {}, location: {href: 'https://host.example/app/'}},
+    performance, TextDecoder, URL, console,
+  };
+  sandbox.globalThis = sandbox;
+  vm.runInNewContext(`${readFileSync(new URL('./matcha-worker.js', import.meta.url), 'utf8')}\n;configure(__config); __list = assetList();`, Object.assign(sandbox, {__config: labeled, __list: null}));
+  assert.deepEqual(JSON.parse(JSON.stringify(sandbox.__list)), JSON.parse(JSON.stringify(list)), 'matcha-worker.js assetList 與 assetListFromConfig 不一致'); // vm 另一個 realm,只比內容
+
+  // packStatus:主執行緒、只用 Cache API,形狀同 Worker status()(少 downloaded);cache key 是絕對 URL
+  const stored = new Set(['https://host.example/a/matcha-lexicon-abcd1234.txt', 'https://host.example/e/matcha-profile.runtime.json']);
+  const fakeCaches = {opened: [], async open(name) { this.opened.push(name); return {async match(url) { return stored.has(url) ? {} : undefined; }}; }};
+  const status = await packStatus(cfg, {caches: fakeCaches, baseUrl: 'https://host.example/app/'});
+  assert.deepEqual(fakeCaches.opened, [DEFAULT_CACHE_NAME]);
+  assert.equal(status.cacheStorage, true);
+  assert.equal(status.complete, false);
+  assert.equal(status.cachedBytes, 10);
+  assert.equal(status.missingBytes, 13000000 + 1 * 6);
+  assert.deepEqual(status.assets.filter((asset) => asset.cached).map((asset) => asset.key), ['lexicon', 'profile']);
+  assert.equal(status.assets.find((asset) => asset.key === 'profile').bytes, null);
+  assert.deepEqual(await packStatus({...cfg, cacheName: 'custom'}, {caches: fakeCaches, baseUrl: 'https://host.example/'}).then((r) => fakeCaches.opened.at(-1)), 'custom');
+  const noCache = await packStatus(cfg, {caches: undefined, baseUrl: 'https://host.example/'});
+  assert.deepEqual([noCache.cacheStorage, noCache.complete, noCache.cachedBytes], [false, false, 0]);
 }
 
 // ---- 切句 walk ----
@@ -218,6 +254,56 @@ assert.equal(await producer.restore('raw'), 2);
   assert.deepEqual([back.meta.tag, back.meta.start, back.meta.text], ['c1', 4, '第四句。']);
   // host 給不出來 → throw
   await assert.rejects(book.restore('c9'), /沒有回段落/);
+}
+
+// minUnitChars(opt-in):相鄰短句併成一單位,meta.start/end 涵蓋合併 span、sentences 記句數;預設不併。
+{
+  const merged = createMatchaProducer({workerUrl: 'mock://worker', config, minUnitChars: 8, maxUnitChars: 12});
+  await merged.initialize();
+  // 句長:3、3、3、7 → [甲乙丙 9 ≥ 8 停] [第四句長 7 <8 但併下一句會超 12?無下一句] → 2 單位
+  merged.setText('甲甲。乙乙。丙丙。第四句很長。', {tag: 'm'});
+  const m1 = await merged.next({index: 0});
+  assert.deepEqual([m1.meta.start, m1.meta.end, m1.meta.sentences, m1.meta.index, m1.meta.text], [0, 9, 3, 0, '甲甲。乙乙。丙丙。']);
+  const m2 = await merged.next({index: 1});
+  assert.deepEqual([m2.meta.start, m2.meta.end, m2.meta.sentences, m2.meta.index], [9, 15, 1, 3]);
+  assert.equal(await merged.next({index: 2}), null);
+  // 合併單位失敗 → 整個 span 折入下一單位
+  merged.setText('壞句。乙乙。丙丙。丁丁。', {tag: 'm'});
+  const m3 = await merged.next({index: 0});
+  assert.deepEqual([m3.meta.start, m3.meta.end, m3.meta.sentences], [0, 12, 1]);
+  // setCursor 仍以句序為單位:從第 2 句起併
+  merged.setText('甲甲。乙乙。丙丙。丁丁。', {tag: 'm'});
+  merged.setCursor(1);
+  const m4 = await merged.next({index: 0});
+  assert.deepEqual([m4.meta.start, m4.meta.end, m4.meta.index, m4.meta.sentences], [3, 12, 1, 3]);
+  // 預設不併
+  assert.equal((await (async () => { producer.setText('甲甲。乙乙。'); return producer.next({index: 0}); })()).meta.sentences, 1);
+}
+
+// prime():▶ 之前先合成含書籤那句;next() 直接交出;外部動 cursor 就作廢。
+{
+  let synthCalls = 0;
+  const counting = createMatchaProducer({workerUrl: 'mock://worker', config, onEvent: () => {}});
+  const origPost = counting.worker.postMessage.bind(counting.worker);
+  counting.worker.postMessage = (message) => { if (message.type === 'synthesize') synthCalls += 1; return origPost(message); };
+  await counting.initialize();
+  counting.setText('甲句。乙句。丙句。', {tag: 'p'});
+  const primedMeta = await counting.prime({offset: 4});
+  assert.deepEqual([primedMeta.start, primedMeta.index, primedMeta.text, synthCalls], [3, 1, '乙句。', 1]);
+  assert.equal(await counting.prime(), primedMeta); // 重複 prime 不重合成
+  assert.equal(synthCalls, 1);
+  const p1 = await counting.next({index: 0});
+  assert.deepEqual([p1.meta.index, p1.meta.playerIndex, synthCalls, counting.results.length], [1, 0, 1, 1]);
+  const p2 = await counting.next({index: 1});
+  assert.deepEqual([p2.meta.index, synthCalls], [2, 2]);
+  // prime 後 seekTo → 作廢,next 重新合成 cursor 那句
+  await counting.prime({offset: 0});
+  assert.equal(synthCalls, 3);
+  counting.seekTo(7);
+  const p3 = await counting.next({index: 2});
+  assert.deepEqual([p3.meta.index, synthCalls], [2, 4]);
+  // 句子用盡 prime 回 null
+  assert.equal(await counting.prime(), null);
 }
 
 // allowUnknown 可關;透傳到 worker 訊息。

@@ -153,7 +153,7 @@ try {
   assert.deepEqual(spans.map((s) => [s.start, s.end]), [[0, 2], [2, 7], [7, 8]]);
   assert.equal(producerApi.sentenceStartFor('甲。「乙！」\n丙', 4), 2);
   assert.equal(producerApi.sentenceEndFor('甲。「乙！」\n丙', 4), 6);
-  for (const name of ['ENDERS', 'CLOSERS', 'sentenceSpans', 'sentenceStartFor', 'sentenceEndFor', 'chunkIndexFor']) {
+  for (const name of ['ENDERS', 'CLOSERS', 'sentenceSpans', 'sentenceStartFor', 'sentenceEndFor', 'chunkIndexFor', 'assetListFromConfig', 'packStatus', 'DEFAULT_CACHE_NAME']) {
     assert.ok(name in producerApi, `matcha-producer.mjs 缺 ${name}`);
   }
   // 每個 engine 檔名都真的在 tarball 裡;每個 config URL 都對應到 manifest 帶 packName 的資產。
@@ -174,6 +174,12 @@ try {
   assert.equal(config.assets.lexicon.networkFirst, false, 'lexicon packName 含內容 hash,應 cache-first');
   assert.equal(config.assets.ortWasm?.url, config.ortWasmPaths.wasm, 'ORT wasm 應進 Worker 資產清單');
   assert.equal(config.assets.ortWasm.bytes, assets.runtime['onnxruntime-web'].files['dist/ort-wasm-simd-threaded.wasm'].bytes);
+  assert.equal(config.assets.ortWasm.sha256, assets.runtime['onnxruntime-web'].files['dist/ort-wasm-simd-threaded.wasm'].sha256);
+  // 主執行緒 packStatus 與 Worker 清單同一份:key 集合、bytes 總和一致
+  const listed = producerApi.assetListFromConfig(config);
+  assert.deepEqual(listed.map((asset) => asset.key), ['lexicon', 'profile', 'tokens', 'fst0', 'fst1', 'fst2', 'ortWasm', 'acoustic', 'vocoder']);
+  const offline = await producerApi.packStatus(config, {caches: undefined, baseUrl: 'https://cdn.example/'});
+  assert.equal(offline.missingBytes, listed.reduce((sum, asset) => sum + (Number.isFinite(asset.bytes) ? asset.bytes : 0), 0));
   assert.deepEqual(config.assets.fsts.map((fst) => fst.label), ['phone-zh.fst', 'date-zh.fst', 'number-zh.fst']);
   assert.equal(config.versions.ort, assets.runtime['onnxruntime-web'].version);
   assert.equal(config.synthesis.silenceScale, assets.synthesis.silenceScale);

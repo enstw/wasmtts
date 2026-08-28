@@ -12,6 +12,9 @@
 //   host 要下一章,timeline 不 endOfStream;meta.tag 原樣回傳給 host。
 // - restore(tag) 讓 player 跨章重建(⏮ 回前一章、看門狗)時把那章要回來;
 //   tag 是段落集合的身分,chapter 只是交給 producer 的段落集合計數。
+// - packStatus(config) 在主執行緒、不開 Worker 就回答快取齊不齊(與 Worker 同一份
+//   assetListFromConfig);prime() 在 ▶ 之前先把含書籤那句合成好,第一聲不用等;
+//   minUnitChars(opt-in)把相鄰短句併成一個單位,接縫停頓交給模型自己。
 
 // tarball 內 engine 檔案的固定檔名(release-manifest.json 的 basename)。
 export const ENGINE_FILES = Object.freeze({
@@ -36,6 +39,47 @@ export const RUNTIME_FILES = Object.freeze({
 });
 
 const FST_ORDER = Object.freeze(['phone-zh.fst', 'date-zh.fst', 'number-zh.fst']);
+export const DEFAULT_CACHE_NAME = 'wasmtts-assets-v1'; // 與 matcha-worker.js DEFAULTS.cacheName 相同
+
+// Worker 的資產清單(與 matcha-worker.js assetList 同一份推導;Worker 是 classic script
+// 不能 import,測試以 vm 驗兩者逐項一致)。只有這份清單裡的東西會被下載、計入 status、
+// 留在 keep-set 清掃之後。
+export function assetListFromConfig(config) {
+  const {assets} = config;
+  return [
+    {key: 'lexicon', url: assets.lexicon.url, bytes: assets.lexicon.bytes, label: assets.lexicon.label ?? 'wasmtts 詞典', networkFirst: assets.lexicon.networkFirst ?? true},
+    {key: 'profile', url: assets.profile.url, bytes: assets.profile.bytes, label: assets.profile.label ?? '臺灣讀音 runtime profile', networkFirst: assets.profile.networkFirst ?? true},
+    {key: 'tokens', url: assets.tokens.url, bytes: assets.tokens.bytes, label: assets.tokens.label ?? 'Tokens'},
+    ...assets.fsts.map((fst, index) => ({key: `fst${index}`, url: fst.url, bytes: fst.bytes, label: fst.label ?? `規則 FST ${index + 1}`})),
+    ...(typeof assets.ortWasm?.url === 'string'
+      ? [{key: 'ortWasm', url: assets.ortWasm.url, bytes: assets.ortWasm.bytes, label: assets.ortWasm.label ?? 'ORT WASM runtime'}]
+      : []),
+    {key: 'acoustic', url: assets.acoustic.url, bytes: assets.acoustic.bytes, label: assets.acoustic.label ?? 'Matcha acoustic model'},
+    {key: 'vocoder', url: assets.vocoder.url, bytes: assets.vocoder.bytes, label: assets.vocoder.label ?? 'Vocos'},
+  ];
+}
+
+// 不開 Worker 就回答 pack 狀態(主執行緒、只用 Cache API):形狀同 Worker 的 status()
+// (少 downloaded)。cache key 是絕對 URL,config 的 URL 應為絕對或根相對,主執行緒與
+// Worker 才會解析到同一個 key。
+export async function packStatus(config, {caches = globalThis.caches, baseUrl = globalThis.location?.href} = {}) {
+  if (!config?.assets) throw new TypeError('packStatus 需要 workerConfigFromAssets 的結果');
+  const cache = caches ? await caches.open(config.cacheName ?? DEFAULT_CACHE_NAME) : null;
+  const assets = [];
+  for (const asset of assetListFromConfig(config)) {
+    const absolute = /^https?:/u.test(asset.url) || !baseUrl ? asset.url : new URL(asset.url, baseUrl).href;
+    const cached = cache ? Boolean(await cache.match(absolute)) : false;
+    assets.push({key: asset.key, url: asset.url, label: asset.label, cached, bytes: Number.isFinite(asset.bytes) ? asset.bytes : null});
+  }
+  const sum = (list) => list.reduce((total, asset) => total + (asset.bytes ?? 0), 0);
+  return {
+    cacheStorage: Boolean(cache),
+    assets,
+    cachedBytes: sum(assets.filter((asset) => asset.cached)),
+    missingBytes: sum(assets.filter((asset) => !asset.cached)),
+    complete: assets.every((asset) => asset.cached),
+  };
+}
 
 function joinUrl(base, name) {
   if (typeof base !== 'string' || !base) throw new TypeError(`缺 base URL,無法解析 ${name}`);
@@ -54,7 +98,10 @@ function runtimeEntry(assets, key) {
 //   lexicon/tokens/FST/模型 → assetBaseUrl + packName
 //   ORT/lamejs → runtimeBaseUrl + runtime packName
 // overrides 以 key 覆寫任一 URL:scripts.*、ortWasmPaths、kaldifstWasmUrl、
-// lexicon、profile、tokens、fsts[]、acoustic、vocoder。
+// lexicon、profile、tokens、fsts[]、acoustic、vocoder。labels 以資產 key(lexicon、
+// profile、tokens、phone-zh.fst…、ortWasm、acoustic、vocoder)覆寫顯示名。
+// ortWasm(預設 true)把 ORT 的 wasm 列為資產;bytes／sha256 取自 manifest,覆寫成
+// 別的檔案時請給 ortWasm: false 交回 ORT 自己抓。
 export function workerConfigFromAssets({
   assets,
   engineBaseUrl,
@@ -70,6 +117,8 @@ export function workerConfigFromAssets({
   pronunciationOverrides,
   networkTimeoutMs,
   progressEvents,
+  labels = {},
+  ortWasm = true,
 }) {
   if (assets?.schemaVersion !== 4) throw new Error(`matcha-assets.json schemaVersion ${assets?.schemaVersion} — 本 producer 只認 4`);
   // 同名兩形的陷阱:git tree 的 platform/matcha-assets.source.json(stage: source)沒有
@@ -85,19 +134,21 @@ export function workerConfigFromAssets({
   };
   const ortMain = runtimeEntry(assets, 'ort');
   const ortMjs = runtimeEntry(assets, 'ortMjs');
-  const ortWasm = runtimeEntry(assets, 'ortWasm');
+  const ortWasmEntry = runtimeEntry(assets, 'ortWasm');
   const lame = runtimeEntry(assets, 'lamejs');
   const ortWasmPaths = overrides.ortWasmPaths ?? {
     mjs: joinUrl(runtimeBaseUrl, ortMjs.entry.packName),
-    wasm: joinUrl(runtimeBaseUrl, ortWasm.entry.packName),
+    wasm: joinUrl(runtimeBaseUrl, ortWasmEntry.entry.packName),
   };
+  const ortWasmUrl = typeof ortWasmPaths === 'string' ? joinUrl(ortWasmPaths, ortWasmEntry.entry.packName) : ortWasmPaths?.wasm;
   const lexiconUrl = overrides.lexicon ?? pack(assets.lexicon, 'lexicon');
+  const label = (key) => (labels[key] ? {label: labels[key]} : {});
   const fsts = FST_ORDER.map((file, index) => {
     const entry = assets.matcha?.files?.[file];
     return {
       url: overrides.fsts?.[index] ?? pack(entry, file),
       bytes: entry?.bytes,
-      label: file,
+      label: labels[file] ?? file,
     };
   });
   return {
@@ -115,17 +166,19 @@ export function workerConfigFromAssets({
     kaldifstWasmUrl: overrides.kaldifstWasmUrl ?? joinUrl(engineBaseUrl, ENGINE_FILES.kaldifstWasm),
     assets: {
       // lexicon packName 含內容 hash,同名即同 bytes → cache-first;覆寫成沒有 hash 的 URL 才 network-first。
-      lexicon: {url: lexiconUrl, bytes: assets.lexicon.bytes, networkFirst: !lexiconUrl.endsWith(assets.lexicon.packName)},
-      profile: {url: overrides.profile ?? joinUrl(engineBaseUrl, ENGINE_FILES.profileRuntime), networkFirst: true},
-      tokens: {url: overrides.tokens ?? pack(assets.matcha?.files?.['tokens.txt'], 'tokens.txt'), bytes: assets.matcha?.files?.['tokens.txt']?.bytes},
+      lexicon: {url: lexiconUrl, bytes: assets.lexicon.bytes, networkFirst: !lexiconUrl.endsWith(assets.lexicon.packName), ...label('lexicon')},
+      profile: {url: overrides.profile ?? joinUrl(engineBaseUrl, ENGINE_FILES.profileRuntime), networkFirst: true, ...label('profile')},
+      tokens: {url: overrides.tokens ?? pack(assets.matcha?.files?.['tokens.txt'], 'tokens.txt'), bytes: assets.matcha?.files?.['tokens.txt']?.bytes, ...label('tokens')},
       fsts,
-      acoustic: {url: overrides.acoustic ?? pack(assets.acoustic, 'acoustic'), bytes: assets.acoustic?.bytes},
-      vocoder: {url: overrides.vocoder ?? pack(assets.vocos, 'vocos'), bytes: assets.vocos?.bytes},
-      // ORT 的 wasm 也走 Worker 的資產管線(status() 算得到、keep-set 清掃認得),init 時以
-      // ort.env.wasm.wasmBinary 注入;ortWasmPaths 覆寫成字串前綴時交回 ORT 自己抓。
-      ...(typeof ortWasmPaths?.wasm === 'string' ? {ortWasm: {
-        url: ortWasmPaths.wasm,
-        bytes: ortWasmPaths.wasm.endsWith(ortWasm.entry.packName) ? ortWasm.entry.bytes : undefined,
+      acoustic: {url: overrides.acoustic ?? pack(assets.acoustic, 'acoustic'), bytes: assets.acoustic?.bytes, ...label('acoustic')},
+      vocoder: {url: overrides.vocoder ?? pack(assets.vocos, 'vocos'), bytes: assets.vocos?.bytes, ...label('vocoder')},
+      // ORT 的 wasm 一律走 Worker 的資產管線(status() 算得到、keep-set 清掃認得),init 時以
+      // ort.env.wasm.wasmBinary 注入;不靠 URL 後綴推斷,要 opt-out 才給 ortWasm: false。
+      ...(ortWasm && typeof ortWasmUrl === 'string' ? {ortWasm: {
+        url: ortWasmUrl,
+        bytes: ortWasmEntry.entry.bytes,
+        ...(ortWasmEntry.entry.sha256 ? {sha256: ortWasmEntry.entry.sha256} : {}),
+        ...label('ortWasm'),
       }} : {}),
     },
     ...(cacheName ? {cacheName} : {}),
@@ -262,6 +315,8 @@ export function createMatchaProducer({
   more = null,
   restore = null,
   allowUnknown = true,
+  minUnitChars = 0, // > 0:相鄰短句併成一個單位(總長 < minUnitChars 就繼續併,不超過 maxUnitChars)
+  maxUnitChars = 72,
   noiseScale,
   format = 'mp3',
   onEvent = () => {},
@@ -271,6 +326,7 @@ export function createMatchaProducer({
   if (!config?.scripts) throw new TypeError('createMatchaProducer 需要 config(workerConfigFromAssets 的結果)');
   if (more !== null && typeof more !== 'function') throw new TypeError('more 必須是 async 函式或 null');
   if (restore !== null && typeof restore !== 'function') throw new TypeError('restore 必須是 async 函式或 null');
+  if (!(minUnitChars >= 0) || !(maxUnitChars > 0)) throw new TypeError('minUnitChars 須 ≥ 0、maxUnitChars 須 > 0');
   const worker = new Worker(workerUrl, workerOptions);
   const pending = new Map();
   const state = {
@@ -282,6 +338,8 @@ export function createMatchaProducer({
     nextRequestId: 1,
     results: [],
     skipped: 0,
+    primed: null, // prime() 先合成好的單位:{generation, promise}
+    cursorGeneration: 0, // 任何外部移動 cursor／換段落都 +1,primed 隨之失效
     initialization: null,
     downloaded: false,
     configured: false,
@@ -407,6 +465,12 @@ export function createMatchaProducer({
     return state.segments.length;
   }
 
+  // 外部移動 cursor／換段落:prime() 先合成好的單位不再對應 cursor,作廢。
+  function invalidatePrimed() {
+    state.cursorGeneration += 1;
+    state.primed = null;
+  }
+
   // 句子用盡:先問 host 要下一段(下一章);host 回 null 才結束(loop 則回頭)。
   async function replenish() {
     if (more) {
@@ -432,10 +496,25 @@ export function createMatchaProducer({
     return false;
   }
 
-  // player 契約:逐句回傳可 append 的音訊;句子用盡回 null。
+  // 從 cursor 取一個單位的句子:預設一句;minUnitChars > 0 時相鄰短句併成一單位
+  // (併到總長 ≥ minUnitChars 為止,且不超過 maxUnitChars),接縫停頓交給模型自己。
+  function takeSegments() {
+    const first = state.cursor;
+    let end = first + 1;
+    if (minUnitChars > 0) {
+      let chars = state.segments[first].text.length;
+      while (chars < minUnitChars && end < state.segments.length && chars + state.segments[end].text.length <= maxUnitChars) {
+        chars += state.segments[end].text.length;
+        end += 1;
+      }
+    }
+    state.cursor = end;
+    return state.segments.slice(first, end);
+  }
+
+  // 合成下一個單位(不記入 results):句子用盡回 null。
   // 空句／不可讀句不佔 timeline,其 span 折入下一單位,對應永遠連續。
-  async function next({index, signal} = {}) {
-    await ready;
+  async function produceUnit(signal) {
     while (true) {
       if (signal?.aborted) throw abortError();
       if (state.cursor >= state.segments.length) {
@@ -443,40 +522,76 @@ export function createMatchaProducer({
         continue;
       }
       const sentenceIndex = state.cursor;
-      const segment = state.segments[sentenceIndex];
-      state.cursor += 1;
+      const group = takeSegments();
+      const first = group[0];
+      const last = group[group.length - 1];
+      const text = group.map((segment) => segment.text).join('');
+      const skipMeta = {index: sentenceIndex, sentences: group.length, start: first.start, end: last.end, tag: first.tag, text};
       let unit;
       try {
-        unit = await synthesize(segment.text, {signal});
+        unit = await synthesize(text, {signal});
       } catch (error) {
         if (error?.name === 'AbortError') throw error;
         // 單句失敗(無聲、NaN、未知字過多…)跳過;只有 init／worker 失敗才 reject ready。
         state.skipped += 1;
-        if (state.held < 0) state.held = segment.start;
-        emit({type: 'skipped', reason: 'error', error: error.message, code: error.code, meta: {index: sentenceIndex, start: segment.start, end: segment.end, tag: segment.tag, text: segment.text}});
+        if (state.held < 0) state.held = first.start;
+        emit({type: 'skipped', reason: 'error', error: error.message, code: error.code, meta: skipMeta});
         continue;
       }
       if (unit.empty) {
         state.skipped += 1;
-        if (state.held < 0) state.held = segment.start;
-        emit({type: 'skipped', reason: 'empty', meta: {index: sentenceIndex, start: segment.start, end: segment.end, tag: segment.tag, text: segment.text}});
+        if (state.held < 0) state.held = first.start;
+        emit({type: 'skipped', reason: 'empty', meta: skipMeta});
         continue;
       }
-      const start = state.held >= 0 ? state.held : segment.start;
+      const start = state.held >= 0 ? state.held : first.start;
       state.held = -1;
       const meta = {
         ...unit.meta,
         index: sentenceIndex,
-        playerIndex: index,
         sentence: sentenceIndex + 1,
+        sentences: group.length,
         chapter: state.chapter,
         start,
-        end: segment.end,
-        tag: segment.tag,
+        end: last.end,
+        tag: first.tag,
       };
-      state.results.push(meta); // results = 實際交給 player 的單位(含字元區間)
       return {buffer: unit.buffer, pcmBuffer: unit.pcmBuffer, meta};
     }
+  }
+
+  // player 契約:逐單位回傳可 append 的音訊;句子用盡回 null。
+  // prime() 先合成好的單位(cursor 未被外部動過)直接交出,第一聲不用等。
+  async function next({index, signal} = {}) {
+    await ready;
+    const primed = state.primed?.generation === state.cursorGeneration ? state.primed : null;
+    state.primed = null;
+    const unit = primed ? await primed.promise : await produceUnit(signal);
+    if (!unit) return null;
+    unit.meta.playerIndex = index;
+    state.results.push(unit.meta); // results = 實際交給 player 的單位(含字元區間)
+    return unit;
+  }
+
+  // ▶ 之前先把 cursor 那個單位合成好(不 append);回該單位的 meta,句子用盡回 null。
+  // 之後任何 seekTo／setCursor／setSegments／restore 都會讓它作廢。
+  async function prime({offset, signal} = {}) {
+    await ready;
+    if (Number.isFinite(offset)) seekTo(offset);
+    if (state.primed?.generation === state.cursorGeneration) return (await state.primed.promise)?.meta ?? null;
+    const primed = {generation: state.cursorGeneration, promise: produceUnit(signal)};
+    primed.promise.catch(() => {});
+    state.primed = primed;
+    const unit = await primed.promise;
+    return unit?.meta ?? null;
+  }
+
+  function seekTo(offset) {
+    invalidatePrimed();
+    if (!state.segments.length) return 0;
+    state.cursor = chunkIndexFor(state.segments, offset);
+    state.held = -1;
+    return state.cursor;
   }
 
   return {
@@ -520,21 +635,22 @@ export function createMatchaProducer({
       });
     },
     setText(text, {tag, ...spanOptions} = {}) {
+      invalidatePrimed();
       return setSegments(sentenceSpans(text, spanOptions), {tag});
     },
-    setSegments,
-    // 從任意字元位置開始:只合成含該 offset 的那句起。
-    seekTo(offset) {
-      if (!state.segments.length) return 0;
-      state.cursor = chunkIndexFor(state.segments, offset);
-      state.held = -1;
-      return state.cursor;
+    setSegments(list, options) {
+      invalidatePrimed();
+      return setSegments(list, options);
     },
+    // 從任意字元位置開始:只合成含該 offset 的那句起。
+    seekTo,
     setCursor(index) {
+      invalidatePrimed();
       state.cursor = Math.max(0, Math.min(state.segments.length, Math.trunc(index)));
       state.held = -1;
       return state.cursor;
     },
+    prime,
     // 把某個 tag 的段落要回來(player 跨章重建用):已在該 tag 就不動;否則問 host 的
     // restore(tag),回 {segments, tag} 或陣列;沒有 hook 或 host 給不出來就 throw,
     // player 據此明確失敗,不會默默在錯章的同序句重建。
@@ -544,12 +660,14 @@ export function createMatchaProducer({
       const next = await restore(tag);
       const list = Array.isArray(next) ? next : next?.segments;
       if (!Array.isArray(list) || !list.length) throw new Error(`restore(${JSON.stringify(tag)}) 沒有回段落`);
+      invalidatePrimed();
       return setSegments(list, {tag: Array.isArray(next) ? tag : (next.tag ?? tag)});
     },
     setNoiseScale(value) {
       state.noiseScale = Number.isFinite(value) ? value : undefined;
     },
     rewind() {
+      invalidatePrimed();
       state.cursor = 0;
       state.held = -1;
     },

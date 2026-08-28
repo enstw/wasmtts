@@ -97,18 +97,20 @@ function configure(next) {
   };
 }
 
+// 與 matcha-producer.mjs 的 assetListFromConfig 同一份推導（Worker 是 classic script 不能
+// import，test-matcha-producer 以 vm 驗兩者逐項一致）；config.assets.<key>.label 可覆寫顯示名。
 function assetList() {
   const {assets} = config;
   return [
-    {key: 'lexicon', url: assets.lexicon.url, bytes: assets.lexicon.bytes, label: 'wasmtts 詞典', networkFirst: assets.lexicon.networkFirst ?? true},
-    {key: 'profile', url: assets.profile.url, bytes: assets.profile.bytes, label: '臺灣讀音 runtime profile', networkFirst: assets.profile.networkFirst ?? true},
-    {key: 'tokens', url: assets.tokens.url, bytes: assets.tokens.bytes, label: 'Tokens'},
+    {key: 'lexicon', url: assets.lexicon.url, bytes: assets.lexicon.bytes, label: assets.lexicon.label ?? 'wasmtts 詞典', networkFirst: assets.lexicon.networkFirst ?? true},
+    {key: 'profile', url: assets.profile.url, bytes: assets.profile.bytes, label: assets.profile.label ?? '臺灣讀音 runtime profile', networkFirst: assets.profile.networkFirst ?? true},
+    {key: 'tokens', url: assets.tokens.url, bytes: assets.tokens.bytes, label: assets.tokens.label ?? 'Tokens'},
     ...assets.fsts.map((fst, index) => ({key: `fst${index}`, url: fst.url, bytes: fst.bytes, label: fst.label ?? `規則 FST ${index + 1}`})),
     ...(typeof assets.ortWasm?.url === 'string'
-      ? [{key: 'ortWasm', url: assets.ortWasm.url, bytes: assets.ortWasm.bytes, label: 'ORT WASM runtime'}]
+      ? [{key: 'ortWasm', url: assets.ortWasm.url, bytes: assets.ortWasm.bytes, label: assets.ortWasm.label ?? 'ORT WASM runtime'}]
       : []),
-    {key: 'acoustic', url: assets.acoustic.url, bytes: assets.acoustic.bytes, label: 'Matcha acoustic model'},
-    {key: 'vocoder', url: assets.vocoder.url, bytes: assets.vocoder.bytes, label: 'Vocos'},
+    {key: 'acoustic', url: assets.acoustic.url, bytes: assets.acoustic.bytes, label: assets.acoustic.label ?? 'Matcha acoustic model'},
+    {key: 'vocoder', url: assets.vocoder.url, bytes: assets.vocoder.bytes, label: assets.vocoder.label ?? 'Vocos'},
   ];
 }
 

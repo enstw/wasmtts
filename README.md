@@ -77,7 +77,7 @@ const {samples, sampleRate, audioSeconds, tokenized} = await engine.synthesize('
 長篇朗讀（含 iOS 鎖屏）走 tarball 內的 Worker ＋ producer ＋ player：使用者手勢只啟動一次長駐 `HTMLAudioElement`，Worker 逐句產生 MP3 append 到同一個 `ManagedMediaSource`／`SourceBuffer` sequence，buffer 有界並以 media／append 事件驅動 refill。下游只提供三個 base URL 與 UI：
 
 ```js
-import {createMatchaProducer, workerConfigFromAssets} from './matcha-producer.mjs';
+import {createMatchaProducer, workerConfigFromAssets, packStatus} from './matcha-producer.mjs';
 import {createContinuousStreamPlayer} from './continuous-stream-player.mjs';
 
 const assets = await (await fetch('/engine/matcha-assets.json')).json();
@@ -95,11 +95,13 @@ const producer = createMatchaProducer({
   onEvent: (event) => console.log(event.type, event),   // progress／download-progress／download-complete／ready／error
 });
 const {missingBytes} = await producer.status();   // 不下載就能回答缺幾 MB——先問使用者，▶ 絕不偷偷抓 130 MB
+// 或不開 Worker：await packStatus(config) 在主執行緒只查 Cache API，形狀相同（開書選引擎時用這個）
 producer.download();      // Cache API：模型、lexicon（packName 含內容 hash）與 ORT wasm 都 cache-first，profile network-first（1 s 逾時走 cache）
 producer.initialize();    // ready 後 producer.initialization 有 lexiconSize、runtime 版本等
 await producer.ready;
 producer.setText(chapterText, {tag: chapterIndex});   // sentenceSpans 切句；每個單位 meta.start/end/tag 對回原文
 producer.seekTo(offset);                               // 從含該字元位置的那句起（不重播整段）
+await producer.prime({offset});                        // ▶ 之前先把含書籤那句合成好（不 append）；start() 的第一個 next() 直接交出
 
 const player = createContinuousStreamPlayer({
   audio: document.querySelector('audio'),   // 長駐、單一 element；WebKit 需 disableRemotePlayback
@@ -113,6 +115,7 @@ const player = createContinuousStreamPlayer({
     if (segment.meta.tag !== shownChapter) player.setMetadata({title: chapterTitle(segment.meta.tag)});
   },
   onStall: (event) => log(event.phase),       // 看門狗：'nudge'（推一下）→ 'rebuild'（於目前段重建）
+  onLog: ({code, message, detail}) => rec(code, detail),   // code 機器可比（'drained'、'append'、'heartbeat'、'stall-nudge'…），message 只給人看
   onUpdate: (snapshot) => render(snapshot),   // snapshot.currentSegment／userPaused／drained／stalls／nudges／rebuilds
 });
 await player.start();     // 唯一一次 play()；之後只 pause()／resume()
@@ -122,9 +125,13 @@ player.segments();             // buffer 內全部段 [{index, start, end, meta}
 
 Worker 的 `configure` config 由 `workerConfigFromAssets` 機械產生（所有 script／wasm／資產 URL、bytes、cache 名稱、`synthesis` 參數、版本字串），Worker 在收到後才 `importScripts`；`synthesize` 亦可直接呼叫 `producer.synthesize(text)` 取得單句 MP3（或 `format: 'pcm'`）。
 
-**實機規矩（player 內建）**：每 `heartbeatSeconds`（10）一行 `♥ heartbeat` log（vis／playhead／ahead／appends）；`playing` 但 `currentTime` 連續兩拍未動且 buffer 充足 → 先 `currentTime += 0.01; play()` 推一下，再一拍仍卡 → 於目前段 `restartFrom`；只有 `pause()` 算使用者暫停（`snapshot().userPaused`），鎖屏／系統造成的 pause 狀態為 `suspended`，回到前景時若非使用者暫停就自動 `resume()`（`autoResumeOnVisible`）；懸而未決的 `play()` promise 會在心跳中點名（`pendingPlay`）。**producer 用盡 ≠ 播完**：producer 以數倍實時領先，回 `null` 時 element 還有整個 buffer（預設 90 s）要唸——player 只 `endOfStream()` 一次並記 `snapshot().drained`，之後不再問 producer；`status` 要到 element 真正 `ended` 才變 `ended`，位置同步以 `status === 'playing'` 判斷即可（一個單位都沒有時才直接 `ended`）。**跨章重建**：段的 `meta.index` 是「當時那一章」的句序，`restartFrom({tag, index})`（看門狗與出 buffer 的 `seekToSegment` 都走這裡）在 producer 已被 `more()` 換章時先 `producer.restore(tag)` 要回那章再 `setCursor`；沒給 `restore` hook 就 reject 且不動現有播放，絕不默默在錯章的同序句重建。`player.segments()` 列出 buffer 內（尚未裁掉）的全部段，跨章的也在——⏮ 回前一章先在這裡找目標，找到就 `seekToSegment` 直接 seek；它刻意不放進 `snapshot()`（snapshot 會嵌進每一行 log）。這些都來自下游 iOS 實機紀錄，不要在下游重做一份。
+**實機規矩（player 內建）**：每 `heartbeatSeconds`（10）一行 `♥ heartbeat` log（vis／playhead／ahead／appends）；`playing` 但 `currentTime` 連續兩拍未動且 buffer 充足 → 先 `currentTime += 0.01; play()` 推一下，再一拍仍卡 → 於目前段 `restartFrom`；只有 `pause()` 算使用者暫停（`snapshot().userPaused`），鎖屏／系統造成的 pause 狀態為 `suspended`，回到前景時若非使用者暫停就自動 `resume()`（`autoResumeOnVisible`）；懸而未決的 `play()` promise 會在心跳中點名（`pendingPlay`）。**producer 用盡 ≠ 播完**：producer 以數倍實時領先，回 `null` 時 element 還有整個 buffer（預設 90 s）要唸——player 只 `endOfStream()` 一次並記 `snapshot().drained`，之後不再問 producer；`status` 要到 element 真正 `ended` 才變 `ended`，位置同步以 `status === 'playing'` 判斷即可（一個單位都沒有時才直接 `ended`）。**跨章重建**：段的 `meta.index` 是「當時那一章」的句序，`restartFrom({tag, index})`（看門狗與出 buffer 的 `seekToSegment` 都走這裡）在 producer 已被 `more()` 換章時先 `producer.restore(tag)` 要回那章再 `setCursor`；沒給 `restore` hook 就 reject 且不動現有播放，絕不默默在錯章的同序句重建。`player.segments()` 列出 buffer 內（尚未裁掉）的全部段，跨章的也在——⏮ 回前一章先在這裡找目標，找到就 `seekToSegment` 直接 seek；它刻意不放進 `snapshot()`（snapshot 會嵌進每一行 log）。跨章 `restore` 先於 `stop`：`producer.restore(tag)` 成功才拆 timeline，失敗（離線 fetch 不到章節）維持現有播放並 reject（log code `restore-failed`）。`seekToSegment(index, {producerIndex})` 的 `producerIndex` 建議給 `{tag, index}`；給數字時 player 會補上章別（目標段還在 timeline 就用它的 tag，否則用 producer 目前的 tag），不再有「沒 tag 就當同章」的靜默路徑。這些都來自下游 iOS 實機紀錄，不要在下游重做一份。
 
-**資產管線**：`status()`／`download()`／keep-set 清掃看的是同一份清單：lexicon、profile、tokens、三個 FST、acoustic、Vocos，以及 **ORT 的 wasm**（`config.assets.ortWasm`，`workerConfigFromAssets` 自動填入；init 時以 `ort.env.wasm.wasmBinary` 注入，ORT 不再自己按 URL 抓）——下游不必另外為它開 cache。`missingBytes` 因此含這 13 MB。
+**`onLog` code 表**（`{at, code, message, detail, snapshot}`；比 `code`，別比 `message`）：`play`、`sourceopen`、`sourcebuffer-failed`、`sourcebuffer-error`、`startstreaming`／`endstreaming`／`sourceended`／`sourceclose`、`append`／`appended`、`producer-error`、`drained`、`trim`／`trim-failed`、`heartbeat`（detail：`visibility`、`status`、`playhead`、`ahead`、`appends`、`underflows`、`segment`、`tag`、`drained`、`pendingPlay`）、`stall-nudge`／`nudge-failed`／`stall-rebuild`／`rebuild-failed`、`seek`、`restore`／`restore-failed`／`rebuild`、`pause`／`resume`／`playing`／`suspended`／`auto-resume`、`underflow`／`stalled`、`ended`、`media-error`、`visibility`、`mediasession-failed`／`metadata-failed`。
+
+**資產管線**：`status()`／`download()`／keep-set 清掃看的是同一份清單（`assetListFromConfig(config)`，Worker 內同一份推導）：lexicon、profile、tokens、三個 FST、acoustic、Vocos，以及 **ORT 的 wasm**（`config.assets.ortWasm`，`workerConfigFromAssets` 一律填入，bytes／sha256 取自 manifest，不靠 URL 後綴推斷；覆寫成別的檔案時給 `ortWasm: false` 交回 ORT 自己抓；init 時以 `ort.env.wasm.wasmBinary` 注入）——下游不必另外為它開 cache，`missingBytes` 含這 13 MB。`packStatus(config, {caches?, baseUrl?})` 在主執行緒、不開 Worker 就回同形狀的狀態（cache key 是絕對 URL，config 的 URL 請用絕對或根相對）；`workerConfigFromAssets({labels: {lexicon: '詞典', 'phone-zh.fst': '電話', ortWasm: '推論引擎', …}})` 覆寫每個資產的顯示名，`status()`／`packStatus()`／`download-progress` 都用它。
+
+**單位合併（opt-in）**：`createMatchaProducer({minUnitChars, maxUnitChars = 72})`——相鄰短句併成一個單位合成（併到總長 ≥ `minUnitChars`、不超過 `maxUnitChars`），接縫的停頓交給模型自己（量測：孤立句接縫約 740 ms，同一次合成內約 300 ms）；`meta.start/end` 涵蓋合併後的 span、`meta.sentences` 記句數，`sentenceSpans` 與高亮的句界不變。預設 `0`（不併）：合併的聽感尚未進上游 ASR／聽感 gate，開啟與否由下游聽測決定。
 
 **閱讀器契約**：`sentenceSpans(text)` 回 `[{start, end, text}]`（`ENDERS = 。！？；\n`、`CLOSERS = 」』”’）)】`，空白 span 折入前一段，超長句在 `，、：` 次切），`sentenceStartFor/EndFor(text, i)` 用同一個 walk——下游畫高亮請用這組函式，「唱到哪、畫到哪」才不會漂。`next()` 的 `meta.start/end` 是該單位對應的原文區間；空句或不可讀句不佔 timeline，其區間折入下一單位（`onEvent({type: 'skipped'})`），只有 init／Worker 失敗才會讓 `ready` reject。`progress` 事件預設關（`progressEvents: true` 才送）。
 

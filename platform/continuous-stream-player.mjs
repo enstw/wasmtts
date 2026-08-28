@@ -22,6 +22,10 @@
 //   reject，絕不默默指到錯章的同序句。
 // - segments()：timeline 上仍在 buffer 內的段（含前一章的），host 據此挑 ⏮ 目標直接
 //   seek，不必重建。不放進 snapshot()：snapshot 會嵌進每一行 log 與 gate 結果。
+// - 跨章 restore 先於 stop：producer.restore(tag) 成功才拆 timeline，restore 失敗（離線
+//   fetch 不到章節）維持現有播放並 reject。
+// - onLog 每行帶機器可比的 code（'drained'、'append'、'heartbeat'、'stall-nudge'…），
+//   message 留給人看；heartbeat detail 帶 tag。
 
 const DEFAULT_MIME = 'audio/mpeg';
 const doc = () => globalThis.document ?? null;
@@ -94,6 +98,7 @@ export function createContinuousStreamPlayer({
     userPaused: false,
     pendingPlay: null,
     drained: false,
+    restoring: false,
     currentSegmentIndex: null,
     heartbeat: null,
     lastBeatTime: -1,
@@ -178,8 +183,9 @@ export function createContinuousStreamPlayer({
     onUpdate(snapshot());
   }
 
-  function log(message, detail = {}) {
-    onLog({ at: now(), message, detail, snapshot: snapshot() });
+  // code 是給 host 比對的穩定字串（README 列全表），message 只給人看、措辭可改。
+  function log(code, message, detail = {}) {
+    onLog({ at: now(), code, message, detail, snapshot: snapshot() });
   }
 
   function setStatus(status) {
@@ -212,10 +218,10 @@ export function createContinuousStreamPlayer({
       state.stats.trims += 1;
       state.stats.trimmedSeconds += Math.max(0, cut - start);
       state.segments = state.segments.filter((segment) => segment.end > cut);
-      log('裁切已播放音訊', { start, cut });
+      log('trim', '裁切已播放音訊', { start, cut });
       return true;
     } catch (error) {
-      log('裁切失敗，等待下一次事件重試', { error: error?.name ?? String(error) });
+      log('trim-failed', '裁切失敗，等待下一次事件重試', { error: error?.name ?? String(error) });
       return false;
     }
   }
@@ -223,7 +229,7 @@ export function createContinuousStreamPlayer({
   async function feed(trigger = 'manual') {
     const generation = state.generation;
     state.lastTrigger = trigger;
-    if (!state.active || !state.sourceBuffer || state.sourceBuffer.updating || state.producing || state.drained) {
+    if (!state.active || !state.sourceBuffer || state.sourceBuffer.updating || state.producing || state.drained || state.restoring) {
       update();
       return;
     }
@@ -254,7 +260,7 @@ export function createContinuousStreamPlayer({
         // ended，才直接標 ended。
         state.drained = true;
         if (state.source.readyState === 'open') state.source.endOfStream();
-        log('producer 已用盡，等 element 播完', {appended: state.stats.appendCount});
+        log('drained', 'producer 已用盡，等 element 播完', {appended: state.stats.appendCount});
         if (state.stats.appendCount === 0 && !state.pendingAppend) setStatus('ended');
         else update();
         return;
@@ -270,7 +276,7 @@ export function createContinuousStreamPlayer({
       };
       state.nextIndex += 1;
       state.sourceBuffer.appendBuffer(unit.buffer);
-      log('append 開始', {
+      log('append', 'append 開始', {
         index: state.pendingAppend.index,
         bytes: state.pendingAppend.bytes,
         producerWallMs,
@@ -280,7 +286,7 @@ export function createContinuousStreamPlayer({
       if (error?.name === 'AbortError') return;
       state.stats.producerErrors += 1;
       setStatus('error');
-      log('producer 或 append 失敗', { error: error?.message ?? String(error), trigger });
+      log('producer-error', 'producer 或 append 失敗', { error: error?.message ?? String(error), trigger });
     } finally {
       if (generation === state.generation) {
         state.producing = false;
@@ -307,7 +313,7 @@ export function createContinuousStreamPlayer({
       state.stats.appendedAudioSeconds += audioSeconds;
       state.stats.producerWallMs += pending.producerWallMs;
       state.stats.bytes += pending.bytes;
-      log('append 完成', { index: pending.index, audioSeconds, start, end, meta: pending.meta });
+      log('appended', 'append 完成', { index: pending.index, audioSeconds, start, end, meta: pending.meta });
       notifySegmentChange();
     }
     update();
@@ -367,28 +373,28 @@ export function createContinuousStreamPlayer({
         sourceBuffer.addEventListener('error', () => {
           state.stats.appendErrors += 1;
           setStatus('error');
-          log('SourceBuffer error');
+          log('sourcebuffer-error', 'SourceBuffer error');
         });
         state.sourceBuffer = sourceBuffer;
         setStatus('buffering');
-        log('media source 已開啟', { kind: capability.kind, mimeType });
+        log('sourceopen', 'media source 已開啟', { kind: capability.kind, mimeType });
         feed('sourceopen');
       } catch (error) {
         setStatus('error');
-        log('建立 SourceBuffer 失敗', { error: error?.message ?? String(error) });
+        log('sourcebuffer-failed', '建立 SourceBuffer 失敗', { error: error?.message ?? String(error) });
       }
     }, { once: true });
     source.addEventListener('startstreaming', () => {
-      log('ManagedMediaSource startstreaming');
+      log('startstreaming', 'ManagedMediaSource startstreaming');
       feed('startstreaming');
     });
-    source.addEventListener('endstreaming', () => log('ManagedMediaSource endstreaming'));
-    source.addEventListener('sourceended', () => log('media source ended'));
-    source.addEventListener('sourceclose', () => log('media source closed'));
+    source.addEventListener('endstreaming', () => log('endstreaming', 'ManagedMediaSource endstreaming'));
+    source.addEventListener('sourceended', () => log('sourceended', 'media source ended'));
+    source.addEventListener('sourceclose', () => log('sourceclose', 'media source closed'));
 
     audio.src = objectUrl;
     const playPromise = trackPlay(audio.play(), 'start');
-    log('唯一一次初始 play() 已呼叫', {disableRemotePlayback: audio.disableRemotePlayback});
+    log('play', '唯一一次初始 play() 已呼叫', {disableRemotePlayback: audio.disableRemotePlayback});
     installMediaSession();
     startHeartbeat();
     update();
@@ -420,10 +426,11 @@ export function createContinuousStreamPlayer({
       appends: snap.appendCount,
       underflows: snap.underflows,
       segment: snap.currentSegment?.index ?? null,
+      tag: snap.currentSegment?.meta?.tag ?? null,
       drained: state.drained,
       pendingPlay: state.pendingPlay ? Number(((now() - state.pendingPlay.since) / 1000).toFixed(1)) : null,
     };
-    log('♥ heartbeat', detail);
+    log('heartbeat', '♥ heartbeat', detail);
 
     // 實機紀錄：鎖屏 pause/resume 後 element 自稱 playing、currentTime 凍結、
     // buffer 還有 90 s，可以持續數分鐘。ran-dry 不算（沒有 ahead）、暫停不算。
@@ -439,12 +446,12 @@ export function createContinuousStreamPlayer({
         action = 'nudge';
         state.stats.stalls += 1;
         state.stats.nudges += 1;
-        log('卡死 — 推一下', {playhead: time, ahead: detail.ahead});
+        log('stall-nudge', '卡死 — 推一下', {playhead: time, ahead: detail.ahead});
         try {
           audio.currentTime = time + 0.01;
           trackPlay(audio.play(), 'nudge').catch?.(() => {});
         } catch (error) {
-          log('推一下失敗', {error: error?.message ?? String(error)});
+          log('nudge-failed', '推一下失敗', {error: error?.message ?? String(error)});
         }
         safeCall(onStall, {phase: 'nudge', playhead: time, ahead: detail.ahead});
       } else {
@@ -452,10 +459,10 @@ export function createContinuousStreamPlayer({
         state.stats.rebuilds += 1;
         state.stuckBeats = 0;
         const segment = currentSegment();
-        log('卡死未解 — 重建', {playhead: time, segment: segment?.index ?? null});
+        log('stall-rebuild', '卡死未解 — 重建', {playhead: time, segment: segment?.index ?? null});
         safeCall(onStall, {phase: 'rebuild', playhead: time, segment: segment ? {index: segment.index, meta: segment.meta} : null});
         restartFrom({tag: segment?.meta?.tag, index: segment?.meta?.index ?? segment?.index ?? 0})
-          .catch((error) => log('重建失敗', {error: error?.message ?? String(error)}));
+          .catch((error) => log('rebuild-failed', '重建失敗', {error: error?.message ?? String(error)}));
       }
     } else {
       state.stuckBeats = 0;
@@ -474,19 +481,25 @@ export function createContinuousStreamPlayer({
 
   // ---- ⏮⏭ ----
   // 目標段仍在 buffer 內就 seek；不在就以 producer cursor 重建 timeline。
+  // producerIndex 可為 {tag, index} 或數字；數字一律補上章別（目標段還在 timeline 就用它的
+  // tag，否則用 producer 目前的 tag），不再有「沒 tag 就當同章」的靜默路徑。
   function seekToSegment(index, {producerIndex} = {}) {
     const segment = state.segments.find((entry) => entry.index === index);
     const inBuffer = segment && state.sourceBuffer
       && segment.start >= bufferedStart(state.sourceBuffer) - 0.01 && segment.start < bufferedEnd(state.sourceBuffer);
     if (inBuffer) {
       audio.currentTime = segment.start + 0.01;
-      log('seek 到 buffer 內的段', {index, time: segment.start});
+      log('seek', 'seek 到 buffer 內的段', {index, time: segment.start});
       trackPlay(audio.play(), 'seek').catch?.(() => {});
       notifySegmentChange();
       return Promise.resolve({mode: 'seek', index});
     }
-    // 段還記得自己是哪一章的第幾句；host 明確給 producerIndex 時由 host 負責章別。
-    const cursor = producerIndex ?? (segment ? {tag: segment.meta?.tag, index: segment.meta?.index ?? segment.index} : index);
+    const tag = segment?.meta?.tag ?? producerTag();
+    let cursor;
+    if (producerIndex !== null && typeof producerIndex === 'object') cursor = producerIndex;
+    else if (Number.isFinite(producerIndex)) cursor = {tag, index: producerIndex};
+    else if (segment) cursor = {tag, index: segment.meta?.index ?? segment.index};
+    else cursor = {tag, index};
     return restartFrom(cursor).then(() => ({mode: 'rebuild', index, cursor}));
   }
 
@@ -498,8 +511,9 @@ export function createContinuousStreamPlayer({
 
   // 以 producer cursor 重建：需要 producer.setCursor（matcha-producer.mjs 有）。
   // cursor 可為句序（數字）或 {tag, index}：段的 index 是「當時那一章」的句序，producer
-  // 若已被 more() 換到別章，先 producer.restore(tag) 要回那章；沒有 restore 就 reject
-  // 讓 host 自己重建（此時不動現有播放）。
+  // 若已被 more() 換到別章，先 producer.restore(tag) 要回那章；沒有 restore 或 restore
+  // 失敗（離線 fetch 不到章節）都 reject 讓 host 自己處理，此時不動現有播放——timeline
+  // 只在 restore 成功後才拆。
   async function restartFrom(cursor) {
     if (typeof producer.setCursor !== 'function') throw new TypeError('producer 沒有 setCursor，無法重建');
     const target = cursor !== null && typeof cursor === 'object' ? cursor : {index: cursor};
@@ -509,14 +523,24 @@ export function createContinuousStreamPlayer({
     if (crossTag && typeof producer.restore !== 'function') {
       throw new Error(`producer 已在 tag=${JSON.stringify(currentTag)}，目標段屬於 tag=${JSON.stringify(target.tag)}；producer 沒有 restore(tag)，請 host 自行重建`);
     }
+    if (crossTag) {
+      // restore 期間不 feed：producer 的段落正在換，不能把新章的單位 append 到舊 timeline。
+      state.restoring = true;
+      log('restore', '重建前先要回目標章', {from: currentTag, to: target.tag});
+      try {
+        await producer.restore(target.tag);
+      } catch (error) {
+        state.restoring = false;
+        log('restore-failed', '要回目標章失敗，維持現有播放', {tag: target.tag, error: error?.message ?? String(error)});
+        feed('restore-failed');
+        throw error;
+      }
+      state.restoring = false;
+    }
     const preservedStats = {...state.stats};
     stop({ preserveStatus: true });
-    if (crossTag) {
-      log('重建前先要回目標章', {from: currentTag, to: target.tag});
-      await producer.restore(target.tag);
-    }
     producer.setCursor(index);
-    log('重建 timeline', {cursor: index, tag: target.tag});
+    log('rebuild', '重建 timeline', {cursor: index, tag: target.tag});
     const promise = start();
     // 重建不歸零看門狗計數：它們是同一場播放的診斷。
     state.stats.stalls = preservedStats.stalls;
@@ -551,7 +575,7 @@ export function createContinuousStreamPlayer({
         }
       }
     } catch (error) {
-      log('Media Session 設定失敗', { error: error?.message ?? String(error) });
+      log('mediasession-failed', 'Media Session 設定失敗', { error: error?.message ?? String(error) });
     }
   }
 
@@ -562,7 +586,7 @@ export function createContinuousStreamPlayer({
       session.metadata = typeof MediaMetadata === 'function' ? new MediaMetadata(metadata) : metadata;
       return true;
     } catch (error) {
-      log('Media Session metadata 失敗', { error: error?.message ?? String(error) });
+      log('metadata-failed', 'Media Session metadata 失敗', { error: error?.message ?? String(error) });
       return false;
     }
   }
@@ -588,6 +612,7 @@ export function createContinuousStreamPlayer({
     state.abortController?.abort();
     state.abortController = null;
     state.producing = false;
+    state.restoring = false;
     state.pendingAppend = null;
     state.pendingPlay = null;
     state.sourceBuffer = null;
@@ -608,13 +633,13 @@ export function createContinuousStreamPlayer({
     state.userPaused = true;
     audio.pause();
     setStatus('paused');
-    log('使用者暫停');
+    log('pause', '使用者暫停');
   }
 
   function resume() {
     state.userPaused = false;
     const promise = trackPlay(audio.play(), 'resume');
-    log('既有 media element 恢復 play()');
+    log('resume', '既有 media element 恢復 play()');
     return promise;
   }
 
@@ -622,26 +647,26 @@ export function createContinuousStreamPlayer({
     state.hasPlayed = true;
     state.waiting = false;
     setStatus('playing');
-    log('開始／恢復播放');
+    log('playing', '開始／恢復播放');
     feed('playing');
   });
   audio.addEventListener('pause', () => {
     if (audio.ended) return; // 播完的 pause 緊接著 ended 事件，不是 suspended
     if (state.active && state.status !== 'opening' && state.status !== 'buffering' && state.status !== 'ended') {
       setStatus(state.userPaused ? 'paused' : 'suspended');
-      if (!state.userPaused) log('非使用者暫停（鎖屏／系統）', {visibility: visibility()});
+      if (!state.userPaused) log('suspended', '非使用者暫停（鎖屏／系統）', {visibility: visibility()});
     }
   });
   audio.addEventListener('waiting', () => {
     if (state.active && state.hasPlayed && !state.waiting) {
       state.waiting = true;
       state.stats.underflows += 1;
-      log('buffer underflow／waiting');
+      log('underflow', 'buffer underflow／waiting');
     }
     feed('waiting');
   });
   audio.addEventListener('stalled', () => {
-    log('media stalled');
+    log('stalled', 'media stalled');
     feed('stalled');
   });
   audio.addEventListener('timeupdate', () => {
@@ -652,20 +677,20 @@ export function createContinuousStreamPlayer({
   });
   audio.addEventListener('ended', () => {
     setStatus('ended');
-    log('media element ended', {drained: state.drained});
+    log('ended', 'media element ended', {drained: state.drained});
   });
   audio.addEventListener('error', () => {
     setStatus('error');
-    log('media element error', { code: audio.error?.code, message: audio.error?.message });
+    log('media-error', 'media element error', { code: audio.error?.code, message: audio.error?.message });
   });
   doc()?.addEventListener('visibilitychange', () => {
-    log(`visibility=${visibility()}`);
+    log('visibility', `visibility=${visibility()}`, {visibility: visibility()});
     feed('visibilitychange');
     // 鎖屏 chain death：play() 可能永不 settle；回到前景若不是使用者主動暫停就踢一下。
     if (visibility() === 'visible' && autoResumeOnVisible && state.active && !state.userPaused
       && audio.paused && !audio.ended && !['ended', 'error', 'stopped', 'opening'].includes(state.status)) {
       state.stats.autoResumes += 1;
-      log('visible 恢復踢');
+      log('auto-resume', 'visible 恢復踢');
       resume().catch(() => {});
     }
   });
