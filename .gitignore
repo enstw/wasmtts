@@ -34,3 +34,6 @@ platform/results/fanchen_vits_wnj-browser-wasm.wav
 .agents/
 .gstack/
 release-artifacts/
+
+# lexicon pipeline 建置產物,由 CI 建置並隨 tarball 出貨,不提交。
+platform/dist/

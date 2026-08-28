@@ -167,6 +167,12 @@ Taiwan profile 另以指定文字跑一個完整瀏覽器 append，實際得到 
 
 最終 `matcha-lexicon-traditional.txt` 收 2,132 條 base 音節修正＋12 條明列讀音 guard（會計較、有著急、一覺得等），共 2,144 條。全文重跑 A/B：10,508 句、11,070 處讀音改變，僅餘 7 組「舊多字詞讀音被改變」的斷裂且全部是誤分詞修正（洩露天機⇐露天、一語中的⇐中的、東躲西藏⇐西藏、山重水複⇐重水、頂呱呱⇐呱呱、出差錯⇐出差、行道樹⇐行道）。高頻修正包含 `類似 lei4 si4` 1,098、`模樣 mu2 yang4` 978、`剎那 cha4 na4` 353、`調侃 tiao2 kan3` 301、`摻和 chan1 huo5` 197（前輪明確擱置的繁體 lexicon 缺口）；`銀行`、`會計` 於本語料 0 現、由單元測試固定。語料、SQLite 與 A/B 報告均為本機忽略產物。
 
+### 編譯式 wasmtts lexicon（2026-08-28）
+
+聽測發現「孫道長」的長讀成 `chang2`。`道長` 孤立時讀 `dao4 zhang3` 無誤，出錯的是後面接上 `久久`、`生`、`遠`、`命`、`袍`、`達`（taiwan profile phrase overrides）、`嘆`（鏡像詞條 `長嘆`）或 `眉`／`壽`／`刀`（`長` 的後字 contextual rule）時，longest-match 從 `長` 起步先命中 `長久` 等詞而跨過「道｜長」邊界；上游簡體路徑因為 lexicon 有 `道长` 整詞，同一句切成 `道长／久久`。根因是 8/16 的 diff 式補充詞典把「讀音與逐字輸出相同」的 26,763 條鏡像判為冗餘不收，只比對孤立讀音、忽略了整詞作為 longest-match 邊界的作用；同時發現 tarball 只放 frontend 層、補充詞典是 optional 參數，消費端漏接不會報錯。
+
+決策：repo 定位改為引擎套件，字典改為單一編譯檔。`platform/build-matcha-lexicon.mjs` 把上游簡體全量原樣、全量繁體鏡像與 review phrase overrides 編成 `matcha-lexicon.txt`：base 音節修正 2,132 條取逐位合併讀音，其餘鏡像 30,828 條（讀音相同 26,736、只差聲調 4,092）一律取現行 taiwan frontend 讀音、只補分詞邊界，不引入新讀音裁決；curation 166 條排除、10 條 charPhone 排除、12 條 guard 與 120 條 overrides 照舊生效。結果 101,051 條、2,280,376 bytes（相對 130 MB 模型可忽略），建置決定性（sha256 `480ff389…`）、耗時約 1 秒。runtime 只剩 contextual rules（`matcha-profile.runtime.json`）；`MatchaEngine.create` 缺字典或 profile 即 throw。`孫道長`＋`久久／生／遠／命／袍／達／嘆／眉` 全部回到 `dao4 zhang3`，`道長`／`長久`／`長眉` 單獨出現讀音不變。本輪 315,593 句語料不在本機（忽略產物），未重跑全文 A/B；repo 內樣本文本 15 句零讀音改變，`lexicon`、`frontend-fixtures`、`taiwan-profile`、`g2p-review`、`package-smoke`（從 tarball 以 `MatchaEngine.create` 建前端、不碰上游 lexicon）gate 全綠。上游追蹤：`pnpm lexicon:sync` 以 initial commit `68ad6923` → `fbe59d77` 模擬換 pin、重抓、重編與 diff 報告成功。
+
 ### 產品配方 gate 腿（2026-08-16）
 
 事實釐清：核心 benchmark 頁自建立起即為 `noise 1／length 1／silence 0.2`，`0.667` 只存在於 sherpa 上游 bundle 對照序列；因此 gate 與 `matcha-assets.json` `synthesis` 區塊（`1/1/1`）的實際差距只有 `silenceScale`。為讓 release gate 覆蓋出貨配方而不破壞歷史序列，新增 `matcha-product`＋`asr-product` 配對腿：同一 `matcha-browser.html` 以 `?synthesis=product` 直接讀取 manifest `synthesis` 區塊（不複製常數），結果寫入獨立的 product 檔案。首輪量測：音訊中位 13.248 秒（研究序列 10.920 秒，停頓保留使音訊長約 21%）、wall `RTF 0.1772`；`RTF` 天然低於研究序列，故 product 腿僅做 `(0, 1)` sanity、不與研究序列比較。ASR 聽回以同輪 WAV 凍結 `asr-baseline/product.json`：49 字錯 1 字（崭→展，與研究 baseline 同一混淆）、CER `2.04%`，之後每輪同時受絕對上限 `0.08` 與 baseline 退化上限 `+0.02` 約束。兩腿共用「成對重跑吸收 noise 骰運」的 flake 邏輯。

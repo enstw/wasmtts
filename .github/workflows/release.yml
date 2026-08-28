@@ -89,9 +89,14 @@ jobs:
         run: pnpm fetch:matcha-assets
         env:
           WASM_TTS_ASSET_REPORT: release-artifacts/assets.json
+      - name: Build wasmtts lexicon from the pinned upstream
+        id: lexicon
+        if: steps.assets.outcome == 'success'
+        continue-on-error: true
+        run: pnpm lexicon:build
       - name: Run complete release gate
         id: gates
-        if: steps.assets.outcome == 'success'
+        if: steps.lexicon.outcome == 'success'
         continue-on-error: true
         run: pnpm test:release-gates
       - name: Record infrastructure failure
@@ -101,23 +106,24 @@ jobs:
           DEPENDENCY_RESULT: ${{ steps.dependencies.outcome }}
           BROWSER_RESULT: ${{ steps.browser.outcome }}
           ASSET_RESULT: ${{ steps.assets.outcome }}
+          LEXICON_RESULT: ${{ steps.lexicon.outcome }}
         run: |
           mkdir -p release-artifacts
-          printf '{"schemaVersion":1,"commit":"%s","status":"failed","combinations":[{"name":"native-wasm","status":"%s"},{"name":"dependencies","status":"%s"},{"name":"browser","status":"%s"},{"name":"assets","status":"%s"}]}\n' "$GITHUB_SHA" "$NATIVE_RESULT" "$DEPENDENCY_RESULT" "$BROWSER_RESULT" "$ASSET_RESULT" > release-artifacts/release-gates.json
-      - name: Package tested frontend
+          printf '{"schemaVersion":1,"commit":"%s","status":"failed","combinations":[{"name":"native-wasm","status":"%s"},{"name":"dependencies","status":"%s"},{"name":"browser","status":"%s"},{"name":"assets","status":"%s"},{"name":"lexicon-build","status":"%s"}]}\n' "$GITHUB_SHA" "$NATIVE_RESULT" "$DEPENDENCY_RESULT" "$BROWSER_RESULT" "$ASSET_RESULT" "$LEXICON_RESULT" > release-artifacts/release-gates.json
+      - name: Package tested engine
         id: package
         if: steps.gates.outcome == 'success'
         continue-on-error: true
         # 打包內容由 scripts/release-manifest.json 定義，與 package-smoke gate
         # 共用同一條組包路徑 — 出貨的 tarball 就是 gate 測過的那套邏輯產出的。
         run: node scripts/package-release.mjs
-      - name: Attest tested frontend
+      - name: Attest tested engine
         id: attest
         if: steps.package.outcome == 'success'
         continue-on-error: true
         uses: actions/attest@v4
         with:
-          subject-path: release-artifacts/wasmtts-frontend.tar.gz
+          subject-path: release-artifacts/wasmtts-engine.tar.gz
       - name: Record packaging or attestation failure
         if: steps.gates.outcome == 'success' && (steps.package.outcome != 'success' || steps.attest.outcome != 'success')
         env:
@@ -151,6 +157,13 @@ jobs:
             fi
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - name: Fetch previous release lexicon meta for the diff summary
+        if: always() && steps.release.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # 前一版沒有 meta（首版）時 RELEASE.md 標「首版」，不影響發版。
+        run: gh release download --pattern matcha-lexicon.meta.json --output release-artifacts/previous-lexicon.meta.json || true
       - name: Generate RELEASE.md
         if: always() && steps.release.outcome == 'success'
         env:
@@ -169,8 +182,8 @@ jobs:
           RELEASE_TAG: ${{ steps.release.outputs.tag }}
         run: |
           gh release create "$RELEASE_TAG" \
-            release-artifacts/wasmtts-frontend.tar.gz \
-            release-artifacts/package/matcha-taiwan-profile.js \
+            release-artifacts/wasmtts-engine.tar.gz \
+            release-artifacts/package/matcha-lexicon.meta.json \
             release-artifacts/RELEASE.md \
             release-artifacts/release-gates.json \
             release-artifacts/assets.json \
@@ -178,7 +191,7 @@ jobs:
             platform/results/results-matcha_icefall_zh_en-stream-browser-wasm.json \
             platform/results/asr-listening-report.json \
             --target "$GITHUB_SHA" \
-            --title "$RELEASE_TAG — Matcha browser frontend" \
+            --title "$RELEASE_TAG — Matcha browser engine" \
             --notes-file release-artifacts/RELEASE.md \
             --latest
       - name: Publish failed candidate record

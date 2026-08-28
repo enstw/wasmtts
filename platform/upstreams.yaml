@@ -8,11 +8,12 @@ upstreams:
     assets:
       - Systran/faster-whisper-small
 
-  # Matcha acoustic model、lexicon、tokens 與三個中文 FST 必須同 commit 更新。
+  # Matcha lexicon、tokens 與三個中文 FST 是同一個模型 release 的一部分，必須同
+  # commit 更新；revision 變動時 CI 以新 lexicon 重編 wasmtts lexicon（pnpm lexicon:build）。
+  # acoustic model 另由 matcha-assets.json 釘 ModelScope revision。
   # renovate: datasource=git-refs depName=matcha-frontend packageName=https://huggingface.co/csukuangfj/matcha-icefall-zh-en.git versioning=loose
   - version: fbe59d77057428c32111d5f3ea4ed67a7d440c61
     assets:
-      - matcha-icefall-zh-en/model-steps-3.onnx
       - matcha-icefall-zh-en/lexicon.txt
       - matcha-icefall-zh-en/tokens.txt
       - matcha-icefall-zh-en/phone-zh.fst

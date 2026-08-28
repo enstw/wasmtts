@@ -50,7 +50,7 @@ Kokoro fp32 已通過主觀品質門檻，但單執行緒只有約 `0.70x realti
 
 Matcha `matcha-icefall-zh-en` 使用相同五句中文做三方盲測後得到 `90/100`，高於 Kokoro 的 `80/100` 與 Piper 的 `60/100`；Piper 另被標記有外國腔。上游 `sherpa-onnx 1.12.20` 官方 browser SIMD bundle 以建議的 `phone-zh.fst,date-zh.fst,number-zh.fst`、`noise_scale=0.667`、單一 thread 測得小說 task `RTF 0.1411`，約 `7.09x realtime`；含日期、時間、電話及百分比的原始數字語料同為 `RTF 0.1411`。繁體小說原文不經 OpenCC 亦成功產生 26.73 秒有效音訊，使用者已確認品質沒有問題；這些證據構成目前選定 Matcha 的依據。2026-08-09 升級至 stable ORT Web `1.27.0` 後，獨立 kaldifst WASM 的完整 desktop producer 測得 `RTF 0.1387`、`7.21x realtime`，10 個 append、51.228 秒音訊且無 underflow 或錯誤。初始化記憶體快照為 341,536,495 bytes（325.7 MiB），較 `1.26.0-dev` 增加約 48.7 MiB；其中 normalizer 的獨立 linear memory 仍為 16 MiB。此路徑不承擔官方 frontend bundle 固定 512 MiB heap；所有桌面記憶體數字只是快照，不是真正 peak，iPhone 上的記憶體行為未在本 repository 驗證。
 
-2026-08-08 的 iPhone Safari LAN HTTP 初測確認低記憶體 JavaScript lexicon adapter 可完成模型下載、初始化、繁體直輸、前景播放與鎖屏播放；`ManagedMediaSource` 必須依 WebKit 要求在長駐 media element 設定 `disableRemotePlayback=true`。本輪不是 secure context 或 standalone PWA，且未達 2 小時／3 章、熱與耗電門檻，只能視為初步相容性證據。實聽發現引號 acoustic tokens 會發音後，已改為在 tokenization 前移除中英文開閉引號並加入迴歸測試。臺灣讀音覆寫目前只有「垃圾」；完整、有來源的詞典與「堤壩」等區域讀音留待另案開發。
+2026-08-08 的 iPhone Safari LAN HTTP 初測確認低記憶體 JavaScript lexicon adapter 可完成模型下載、初始化、繁體直輸、前景播放與鎖屏播放；`ManagedMediaSource` 必須依 WebKit 要求在長駐 media element 設定 `disableRemotePlayback=true`。本輪不是 secure context 或 standalone PWA，且未達 2 小時／3 章、熱與耗電門檻，只能視為初步相容性證據。實聽發現引號 acoustic tokens 會發音後，已改為在 tokenization 前移除中英文開閉引號並加入迴歸測試。臺灣讀音覆寫其後已發展為 `matcha-g2p-review.json`（教育部來源的 phrase overrides 與 contextual rules）與編譯式 wasmtts lexicon（2026-08-28 起，見 `platform/README.md`）。
 
 ## Matcha repository release 條件
 

@@ -55,6 +55,7 @@
       while (handles.length) module._kaldifst_normalizer_destroy(handles.pop());
     };
     normalize.runtime = module;
+    normalize.fstCount = handles.length;
     return normalize;
   }
 
