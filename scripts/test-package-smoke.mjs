@@ -139,12 +139,13 @@ try {
   {
     const stubAudio = {play: async () => {}, pause() {}, addEventListener() {}, removeAttribute() {}, load() {}, currentTime: 0, paused: true};
     const stubPlayer = playerApi.createContinuousStreamPlayer({audio: stubAudio, producer: {next: async () => null, setCursor() {}}});
-    for (const name of ['seekToSegment', 'restartFrom', 'setMetadata', 'heartbeat', 'currentSegment', 'snapshot']) {
+    for (const name of ['seekToSegment', 'restartFrom', 'setMetadata', 'heartbeat', 'currentSegment', 'segments', 'snapshot']) {
       assert.equal(typeof stubPlayer[name], 'function', `player 缺 ${name}`);
     }
     assert.equal(stubPlayer.snapshot().userPaused, false);
     assert.equal(stubPlayer.snapshot().currentSegment, null);
     assert.equal(stubPlayer.snapshot().drained, false);
+    assert.deepEqual(stubPlayer.segments(), []);
   }
   assert.deepEqual(producerApi.splitSentences('清晨的陽光。她說：「別急。」\n第二段'), ['清晨的陽光。', '她說：「別急。」', '第二段']);
   // 閱讀器契約:切句 walk 唯一來源、span 連續覆蓋、start/end 與 walk 一致。

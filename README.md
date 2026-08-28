@@ -117,11 +117,12 @@ const player = createContinuousStreamPlayer({
 });
 await player.start();     // 唯一一次 play()；之後只 pause()／resume()
 player.seekToSegment(index);   // ⏮⏭：段仍在 buffer 內就 seek，否則以該段的 {tag, index} 重建（跨章先 producer.restore(tag)）
+player.segments();             // buffer 內全部段 [{index, start, end, meta}]（含前一章的）：⏮ 回前一章先在這裡找，找到就 seekToSegment 直接 seek
 ```
 
 Worker 的 `configure` config 由 `workerConfigFromAssets` 機械產生（所有 script／wasm／資產 URL、bytes、cache 名稱、`synthesis` 參數、版本字串），Worker 在收到後才 `importScripts`；`synthesize` 亦可直接呼叫 `producer.synthesize(text)` 取得單句 MP3（或 `format: 'pcm'`）。
 
-**實機規矩（player 內建）**：每 `heartbeatSeconds`（10）一行 `♥ heartbeat` log（vis／playhead／ahead／appends）；`playing` 但 `currentTime` 連續兩拍未動且 buffer 充足 → 先 `currentTime += 0.01; play()` 推一下，再一拍仍卡 → 於目前段 `restartFrom`；只有 `pause()` 算使用者暫停（`snapshot().userPaused`），鎖屏／系統造成的 pause 狀態為 `suspended`，回到前景時若非使用者暫停就自動 `resume()`（`autoResumeOnVisible`）；懸而未決的 `play()` promise 會在心跳中點名（`pendingPlay`）。**producer 用盡 ≠ 播完**：producer 以數倍實時領先，回 `null` 時 element 還有整個 buffer（預設 90 s）要唸——player 只 `endOfStream()` 一次並記 `snapshot().drained`，之後不再問 producer；`status` 要到 element 真正 `ended` 才變 `ended`，位置同步以 `status === 'playing'` 判斷即可（一個單位都沒有時才直接 `ended`）。**跨章重建**：段的 `meta.index` 是「當時那一章」的句序，`restartFrom({tag, index})`（看門狗與出 buffer 的 `seekToSegment` 都走這裡）在 producer 已被 `more()` 換章時先 `producer.restore(tag)` 要回那章再 `setCursor`；沒給 `restore` hook 就 reject 且不動現有播放，絕不默默在錯章的同序句重建。這些都來自下游 iOS 實機紀錄，不要在下游重做一份。
+**實機規矩（player 內建）**：每 `heartbeatSeconds`（10）一行 `♥ heartbeat` log（vis／playhead／ahead／appends）；`playing` 但 `currentTime` 連續兩拍未動且 buffer 充足 → 先 `currentTime += 0.01; play()` 推一下，再一拍仍卡 → 於目前段 `restartFrom`；只有 `pause()` 算使用者暫停（`snapshot().userPaused`），鎖屏／系統造成的 pause 狀態為 `suspended`，回到前景時若非使用者暫停就自動 `resume()`（`autoResumeOnVisible`）；懸而未決的 `play()` promise 會在心跳中點名（`pendingPlay`）。**producer 用盡 ≠ 播完**：producer 以數倍實時領先，回 `null` 時 element 還有整個 buffer（預設 90 s）要唸——player 只 `endOfStream()` 一次並記 `snapshot().drained`，之後不再問 producer；`status` 要到 element 真正 `ended` 才變 `ended`，位置同步以 `status === 'playing'` 判斷即可（一個單位都沒有時才直接 `ended`）。**跨章重建**：段的 `meta.index` 是「當時那一章」的句序，`restartFrom({tag, index})`（看門狗與出 buffer 的 `seekToSegment` 都走這裡）在 producer 已被 `more()` 換章時先 `producer.restore(tag)` 要回那章再 `setCursor`；沒給 `restore` hook 就 reject 且不動現有播放，絕不默默在錯章的同序句重建。`player.segments()` 列出 buffer 內（尚未裁掉）的全部段，跨章的也在——⏮ 回前一章先在這裡找目標，找到就 `seekToSegment` 直接 seek；它刻意不放進 `snapshot()`（snapshot 會嵌進每一行 log）。這些都來自下游 iOS 實機紀錄，不要在下游重做一份。
 
 **資產管線**：`status()`／`download()`／keep-set 清掃看的是同一份清單：lexicon、profile、tokens、三個 FST、acoustic、Vocos，以及 **ORT 的 wasm**（`config.assets.ortWasm`，`workerConfigFromAssets` 自動填入；init 時以 `ort.env.wasm.wasmBinary` 注入，ORT 不再自己按 URL 抓）——下游不必另外為它開 cache。`missingBytes` 因此含這 13 MB。
 
