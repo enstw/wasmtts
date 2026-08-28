@@ -1,8 +1,12 @@
-// 從先行專案已通過 iOS 鎖屏實測的播放路徑抽出的通用 transport。
-// Producer 只負責逐段回傳可 append 的編碼音訊；本模組維持單一
-// HTMLAudioElement、單一 MediaSource timeline、有界 buffer 與事件驅動 refill。
+// 已通過 iOS 鎖屏實測的播放 transport（隨 engine tarball 發布）。
+// Producer 只負責逐段回傳可 append 的編碼音訊（matcha-producer.mjs 的
+// createMatchaProducer 即是）；本模組維持單一 HTMLAudioElement、單一
+// MediaSource timeline、有界 buffer 與事件驅動 refill。不強制需要 document；
+// mediaSession 為 opt-in 選項。
 
 const DEFAULT_MIME = 'audio/mpeg';
+const doc = () => globalThis.document ?? null;
+const visibility = () => doc()?.visibilityState ?? 'visible';
 
 function bufferedEnd(sourceBuffer) {
   if (!sourceBuffer?.buffered.length) return 0;
@@ -32,6 +36,7 @@ export function createContinuousStreamPlayer({
   inactiveAheadSeconds = 45,
   retainBehindSeconds = 30,
   trimStepSeconds = 60,
+  mediaSession = null,
   onUpdate = () => {},
   onLog = () => {},
 }) {
@@ -84,7 +89,7 @@ export function createContinuousStreamPlayer({
       sourceKind: capability.kind,
       mimeType,
       supported: capability.supported,
-      visibility: document.visibilityState,
+      visibility: visibility(),
       currentTime: audio.currentTime || 0,
       bufferAheadSeconds: ahead,
       bufferStart: bufferedStart(state.sourceBuffer),
@@ -279,11 +284,40 @@ export function createContinuousStreamPlayer({
     audio.src = objectUrl;
     const playPromise = audio.play();
     log('唯一一次初始 play() 已呼叫', {disableRemotePlayback: audio.disableRemotePlayback});
+    installMediaSession();
     update();
     return playPromise;
   }
 
+  // 鎖屏／耳機控制：opt-in，metadata 與 handlers 由呼叫端提供內容，播放動作
+  // 一律走同一個 media element 的 resume／pause，不建立新 element。
+  function installMediaSession() {
+    const session = globalThis.navigator?.mediaSession;
+    if (!mediaSession || !session) return;
+    try {
+      if (mediaSession.metadata && typeof MediaMetadata === 'function') {
+        session.metadata = new MediaMetadata(mediaSession.metadata);
+      }
+      session.setActionHandler('play', () => resume().catch(() => {}));
+      session.setActionHandler('pause', () => pause());
+    } catch (error) {
+      log('Media Session 設定失敗', { error: error?.message ?? String(error) });
+    }
+  }
+
+  function clearMediaSession() {
+    const session = globalThis.navigator?.mediaSession;
+    if (!mediaSession || !session) return;
+    try {
+      session.setActionHandler('play', null);
+      session.setActionHandler('pause', null);
+    } catch {
+      // 不支援的動作型別忽略。
+    }
+  }
+
   function stop({ preserveStatus = false } = {}) {
+    clearMediaSession();
     state.active = false;
     state.generation += 1;
     state.abortController?.abort();
@@ -349,8 +383,8 @@ export function createContinuousStreamPlayer({
     setStatus('error');
     log('media element error', { code: audio.error?.code, message: audio.error?.message });
   });
-  document.addEventListener('visibilitychange', () => {
-    log(`visibility=${document.visibilityState}`);
+  doc()?.addEventListener('visibilitychange', () => {
+    log(`visibility=${visibility()}`);
     feed('visibilitychange');
   });
 

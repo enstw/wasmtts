@@ -18,10 +18,11 @@
 | `matcha-engine.js` | 入口：`MatchaEngine.create({...})` 一次組好前端、normalizer 與合成 |
 | `matcha-frontend.js`、`matcha-taiwan-profile.js` | 繁體直輸文字前端與臺灣讀音 profile adapter |
 | `matcha-synthesis.js` | Matcha acoustic + Vocos + ISTFT + silence scaling |
+| `matcha-worker.js`、`matcha-producer.mjs`、`continuous-stream-player.mjs` | 背景逐句合成 Worker（`configure` 訊息接收全部 URL，內部走 `MatchaEngine.create`）、頁面端 producer（`workerConfigFromAssets`、`splitSentences`、player 契約 `next()`）、單一 `ManagedMediaSource` timeline 的 streaming player（`mediaSession` opt-in） |
 | `kaldifst-normalizer.js`、`matcha-kaldifst-normalizer.{js,wasm}` | 獨立 kaldifst + OpenFST text-normalizer（`phone/date/number` FST，順序固定） |
 | `matcha-lexicon.txt`、`matcha-lexicon.meta.json` | **編譯後的 wasmtts lexicon**（單一檔即完整）與其 provenance |
 | `matcha-profile.runtime.json` | review 的 runtime 子集（contextual rules；phrase overrides 已烘進 lexicon） |
-| `matcha-assets.json` | 語音包定義（schemaVersion 4）：模型／tokens／FST 的來源、`packName`、`bytes`、`sha256`，以及 `lexicon` 區塊 |
+| `matcha-assets.json` | 語音包定義（schemaVersion 4）：模型／tokens／FST 的來源、`packName`、`bytes`、`sha256`，`lexicon` 區塊，以及 `runtime` 區塊（ORT／lamejs 的 npm 版本、含版本的 `packName`、`sha256`；bytes 不進 tarball） |
 | `README.md`、`LICENSE` | 消費端文件與授權 |
 
 模型權重、tokens 與 FST 不在 tarball 內，下游依 `matcha-assets.json` 自行下載；`packName` 不變量：資產 bytes 改變時 `packName` 必須跟著改變（編譯後 lexicon 的 `packName` 含內容 hash，自動滿足）。只有帶 `packName` 的條目是下游要供檔的資產；`matcha.files.lexicon.txt` 標 `role: build-input`，**下游不需要也不應看到上游 lexicon**。
@@ -29,6 +30,10 @@
 ### `MatchaEngine.create` 契約
 
 `lexiconText`、`tokensText`、`profile`（`matcha-profile.runtime.json` 物件）、`fstBuffers`、`acousticModel`、`vocoderModel` 缺一即 throw；沒有任何可漏傳就靜默降級的 optional 字典參數。waveform 驗證（finite／peak／RMS）在 engine 內一處完成。`platform/matcha-engine.js` 的載入順序與參數見檔頭註解；消費端範例見 [README.md](README.md)。
+
+### Worker／producer／player 契約
+
+`matcha-worker.js` 不寫死任何 URL：頁面 `new Worker(url)` 後第一則訊息必須是 `{type: 'configure', config}`，config 由 `matcha-producer.mjs` 的 `workerConfigFromAssets({assets, engineBaseUrl, assetBaseUrl, runtimeBaseUrl, overrides})` 從 `matcha-assets.json` 機械產生；Worker 在 configure 時才 `importScripts`，之後協定為 `download-assets`／`init`／`synthesize`／`dispose` → `download-progress`／`download-complete`／`ready`／`result`／`error`。`createMatchaProducer` 提供 player 契約 `next({index, signal}) → {buffer, meta} | null`（句子用盡回 `null`；`loop: true` 才循環），不碰 DOM。改 Worker 協定、config 欄位或 player `snapshot()` 形狀都是下游契約變更，須同步 README、package-smoke 與 `matcha-stream` gate。
 
 ### Lexicon pipeline
 
@@ -60,7 +65,7 @@
 
 - `platform/`：引擎原始碼（`matcha-engine.js`、`matcha-frontend.js`、`matcha-taiwan-profile.js`、`matcha-synthesis.js`、`kaldifst-normalizer.js`、`kaldifst-wasm/`）、lexicon pipeline（`build-matcha-lexicon.mjs`、review／curation）、gate 測試，以及研究模式的 runner、分析工具與機器可讀結果。
 - `scripts/`：release 流程（`release-manifest.json`、`package-release.mjs`、`run-release-gates.mjs`、`test-package-smoke.mjs`、`generate-release-md.mjs`）、資產抓取（`fetch-matcha-assets.mjs`）與上游同步（`sync-matcha-upstream.mjs`）。
-- `mobile-host/`：提供 COOP／COEP headers 的測試 host、Worker 與 streaming player 參考實作（背景逐句合成、單一媒體 timeline）；階段二會把 Worker／player 參數化後併入 tarball。Worker 的 `taiwan` profile 走編譯後 lexicon，`official` 只保留給研究 A/B 讀上游原檔。
+- `mobile-host/`：提供 COOP／COEP headers 的測試 host，以及 tarball 元件（Worker／producer／player）的消費者示範頁；頁面只剩 DOM、telemetry、flight recorder 與 `matcha-stream` gate 用的 CDP hook。`pnpm vendor:mobile` 依 `matcha-assets.json` `runtime` 區塊把 ORT／lamejs 以 packName 放到 `mobile-host/vendor/runtime/`。測試頁的「研究對照」以第二個 Worker 覆寫 `lexicon`／`profile` URL 讀上游原檔，tarball 不含任何上游 lexicon 概念。
 - `GOAL.md`、`frameworks/`、`platform/RESULTS.md`、`frameworks/MODEL-COMPARISON.md`：研究模式文件；`README.md` 是消費端導覽，不在此複製實驗紀錄。
 
 正式文字路徑固定為「繁體直輸 → 官方 `phone/date/number` FST → wasmtts lexicon → Matcha」；`platform/matcha-fst.js` 保留為 JavaScript golden／診斷基線，修改時必須維持 phone、date、number 順序及 OpenFST tie-break。Matcha/Vocos 共用 ORT Web WASM，text normalizer 是另一個獨立 linear memory 的小型 WASM，不載入固定 512 MiB heap 的 sherpa-onnx frontend bundle。前端尚未涵蓋英文 eSpeak。

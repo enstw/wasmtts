@@ -1,5 +1,9 @@
-const CACHE = 'wasmtts-mobile-stream-v9';
+// ORT／lamejs 以 packName 供檔,清單由 vendor-mobile 產生。
+importScripts('/mobile-host/vendor/runtime-manifest.js');
+
+const CACHE = 'wasmtts-mobile-stream-v10';
 const SHELL = [
+  ...self.WASMTTS_RUNTIME_FILES,
   '/mobile-host/',
   '/mobile-host/index.html',
   '/mobile-host/stream-test.html',
@@ -10,20 +14,19 @@ const SHELL = [
   '/mobile-host/stream-test.css',
   '/mobile-host/stream-test.mjs',
   '/mobile-host/matcha-stream-test.mjs',
-  '/mobile-host/matcha-worker.js',
-  '/mobile-host/continuous-stream-player.mjs',
   '/mobile-host/manifest.webmanifest',
   '/mobile-host/assets/huayan-medium-segment.mp3',
-  '/mobile-host/vendor/ort/ort.min.js',
-  '/mobile-host/vendor/ort/ort-wasm-simd-threaded.mjs',
-  '/mobile-host/vendor/ort/ort-wasm-simd-threaded.wasm',
-  '/mobile-host/vendor/lame.min.js',
+  '/mobile-host/vendor/runtime-manifest.js',
   '/mobile-host/vendor/kaldifst/matcha-kaldifst-normalizer.js',
   '/mobile-host/vendor/kaldifst/matcha-kaldifst-normalizer.wasm',
   '/platform/matcha-frontend.js',
   '/platform/matcha-taiwan-profile.js',
   '/platform/kaldifst-normalizer.js',
   '/platform/matcha-synthesis.js',
+  '/platform/matcha-engine.js',
+  '/platform/matcha-worker.js',
+  '/platform/matcha-producer.mjs',
+  '/platform/continuous-stream-player.mjs',
 ];
 
 const SHARED_PATHS = new Set([
@@ -31,6 +34,10 @@ const SHARED_PATHS = new Set([
   '/platform/matcha-taiwan-profile.js',
   '/platform/kaldifst-normalizer.js',
   '/platform/matcha-synthesis.js',
+  '/platform/matcha-engine.js',
+  '/platform/matcha-worker.js',
+  '/platform/matcha-producer.mjs',
+  '/platform/continuous-stream-player.mjs',
 ]);
 
 self.addEventListener('install', (event) => {

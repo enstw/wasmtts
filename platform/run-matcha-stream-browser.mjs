@@ -7,9 +7,10 @@ const host = process.env.WASM_TTS_BENCH_HOST ?? '127.0.0.1';
 const serverPort = Number(process.env.WASM_TTS_BENCH_PORT ?? 8765);
 const cdpPort = Number(process.env.WASM_TTS_CDP_PORT ?? 9390);
 const targetAppendCount = Number(process.env.WASM_TTS_STREAM_APPENDS ?? 10);
-const pronunciationProfile = process.env.WASM_TTS_PRONUNCIATION_PROFILE === 'taiwan'
-  ? 'taiwan'
-  : 'official';
+// 預設量測產品路徑(tarball 的 wasmtts lexicon);'official' 只給研究對照(上游原始 lexicon)。
+const pronunciationProfile = process.env.WASM_TTS_PRONUNCIATION_PROFILE === 'official'
+  ? 'official'
+  : 'taiwan';
 const streamText = process.env.WASM_TTS_STREAM_TEXT;
 const url = `http://${host}:${serverPort}/mobile-host/matcha-stream-test.html`;
 const profile = path.join(os.tmpdir(), `wasmtts-matcha-stream-cdp-${process.pid}`);

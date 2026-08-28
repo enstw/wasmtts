@@ -79,7 +79,7 @@ const lines = [
   '',
   '## Release scope',
   '',
-  '本 Release 驗證 Matcha browser engine（文字前端、編譯後 wasmtts lexicon、kaldifst normalizer、Matcha + Vocos 合成）的免費 GitHub runner 可重現桌面 gates。iPhone／PWA 實機驗收、Worker／player 封裝與英文 eSpeak frontend 不屬於自動 release gate。',
+  '本 Release 驗證 Matcha browser engine（文字前端、編譯後 wasmtts lexicon、kaldifst normalizer、Matcha + Vocos 合成）的免費 GitHub runner 可重現桌面 gates。Worker／producer／streaming player 隨 tarball 出貨並由 `matcha-stream` gate 以產品路徑驗證；iPhone／PWA 實機驗收與英文 eSpeak frontend 不屬於自動 release gate。',
   '',
 ];
 

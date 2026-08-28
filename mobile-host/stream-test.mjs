@@ -1,7 +1,7 @@
 import {
   createContinuousStreamPlayer,
   mediaSourceSupport,
-} from './continuous-stream-player.mjs';
+} from '/platform/continuous-stream-player.mjs';
 
 const SEGMENT_URL = '/mobile-host/assets/huayan-medium-segment.mp3';
 const LOG_KEY = 'wasmtts-stream-flight-recorder-v1';
