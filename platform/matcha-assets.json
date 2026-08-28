@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "synthesis": {
     "noiseScale": 1,
     "lengthScale": 1,
@@ -10,7 +10,7 @@
     "revision": "fbe59d77057428c32111d5f3ea4ed67a7d440c61",
     "files": {
       "lexicon.txt": {
-        "packName": "matcha-lexicon.txt",
+        "role": "build-input",
         "bytes": 1400278,
         "sha256": "599efdcdaff4df2a123ce988c2cb90abcd59b919ef609ce36eb587d68b7ca2c0"
       },

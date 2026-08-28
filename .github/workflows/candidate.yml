@@ -85,6 +85,8 @@ jobs:
         run: pnpm fetch:matcha-assets
         env:
           WASM_TTS_ASSET_REPORT: release-artifacts/assets.json
+      - name: Build wasmtts lexicon from the pinned upstream
+        run: pnpm lexicon:build
       - name: Run complete candidate gate
         run: pnpm test:release-gates
       - if: always()

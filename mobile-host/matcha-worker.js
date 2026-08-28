@@ -5,8 +5,8 @@ importScripts(
   '/mobile-host/vendor/lame.min.js',
   '/mobile-host/vendor/kaldifst/matcha-kaldifst-normalizer.js',
   '/platform/kaldifst-normalizer.js',
-  '/platform/matcha-frontend.js?v=20260816-lexicon-supplement',
-  '/platform/matcha-taiwan-profile.js?v=20260812-release',
+  '/platform/matcha-frontend.js?v=20260828-compiled-lexicon',
+  '/platform/matcha-taiwan-profile.js?v=20260828-compiled-lexicon',
   '/platform/matcha-synthesis.js',
 );
 
@@ -14,10 +14,11 @@ const ASSET_CACHE = 'wasmtts-matcha-assets-v1';
 const MODEL_ROOT = '/platform/models/matcha-icefall-zh-en';
 const ACOUSTIC_URL = `${MODEL_ROOT}/model-steps-6.onnx`;
 const VOCODER_URL = '/platform/models/vocos-16khz-univ.onnx';
-const LEXICON_URL = `${MODEL_ROOT}/lexicon.txt`;
+// 產品字典是 pnpm lexicon:build 編出的單一檔;上游原檔只給研究用的 official 對照。
+const LEXICON_URL = '/platform/dist/matcha-lexicon.txt';
+const PROFILE_URL = '/platform/dist/matcha-profile.runtime.json';
+const UPSTREAM_LEXICON_URL = `${MODEL_ROOT}/lexicon.txt`;
 const TOKENS_URL = `${MODEL_ROOT}/tokens.txt`;
-const G2P_REVIEW_URL = '/platform/matcha-g2p-review.json';
-const LEXICON_SUPPLEMENT_URL = '/platform/matcha-lexicon-traditional.txt';
 const RULE_FSTS = [
   {key: 'phoneFst', url: `${MODEL_ROOT}/phone-zh.fst`, label: '電話規則 FST'},
   {key: 'dateFst', url: `${MODEL_ROOT}/date-zh.fst`, label: '日期規則 FST'},
@@ -112,10 +113,10 @@ async function downloadAssets() {
   if (downloadedAssets) return downloadedAssets;
   await evictStaleAcousticCache();
   const assets = [
-    {key: 'lexicon', url: LEXICON_URL, label: '前端詞典'},
+    {key: 'lexicon', url: LEXICON_URL, label: 'wasmtts 詞典', networkFirst: true},
+    {key: 'profile', url: PROFILE_URL, label: '臺灣讀音 runtime profile', networkFirst: true},
+    {key: 'upstreamLexicon', url: UPSTREAM_LEXICON_URL, label: '上游 lexicon（official 對照）'},
     {key: 'tokens', url: TOKENS_URL, label: 'Tokens'},
-    {key: 'g2pReview', url: G2P_REVIEW_URL, label: '臺灣讀音審核資料', networkFirst: true},
-    {key: 'lexiconSupplement', url: LEXICON_SUPPLEMENT_URL, label: '繁體鏡像補充詞典', networkFirst: true},
     ...RULE_FSTS,
     {key: 'acoustic', url: ACOUSTIC_URL, label: 'Matcha acoustic model'},
     {key: 'vocoder', url: VOCODER_URL, label: 'Vocos'},
@@ -131,8 +132,8 @@ async function downloadAssets() {
         type: 'download-progress',
         asset: asset.label,
         loaded: [...completed.values()].reduce((sum, value) => sum + value, 0),
-        total: EXPECTED_LARGE_ASSET_BYTES + (totals.get('g2pReview') || 0)
-          + (totals.get('lexiconSupplement') || 0),
+        total: EXPECTED_LARGE_ASSET_BYTES + (totals.get('lexicon') || 0)
+          + (totals.get('profile') || 0),
       });
     }, {networkFirst: asset.networkFirst});
   }
@@ -184,10 +185,10 @@ async function initialize() {
     const tokens = downloadedAssets.tokens;
     const decoder = new TextDecoder();
     const lexiconText = decoder.decode(lexicon.buffer);
+    const upstreamLexiconText = decoder.decode(downloadedAssets.upstreamLexicon.buffer);
     const tokensText = decoder.decode(tokens.buffer);
-    const lexiconSupplementText = decoder.decode(downloadedAssets.lexiconSupplement.buffer);
-    const g2pReview = JSON.parse(decoder.decode(downloadedAssets.g2pReview.buffer));
-    const taiwanProfile = MatchaTaiwanProfile.createConfig(g2pReview);
+    const profile = JSON.parse(decoder.decode(downloadedAssets.profile.buffer));
+    const taiwanProfile = MatchaTaiwanProfile.createConfig(profile);
     postProgress('載入 kaldifst text-normalizer WASM');
     const ruleNormalizer = await MatchaKaldifst.createNormalizer({
       moduleFactory: KaldifstNormalizerModule,
@@ -200,15 +201,15 @@ async function initialize() {
     });
     postProgress('建立文字前端');
     frontends = {
+      // official 只給研究 A/B:上游原始 lexicon、無任何 profile。
       official: MatchaFrontend.createFrontend({
-        lexiconText,
+        lexiconText: upstreamLexiconText,
         tokensText,
         ruleNormalizer,
       }),
-      // 繁體鏡像補充詞典只進產品 profile;official 保持上游 golden 可對照。
+      // 產品路徑:編譯後 wasmtts lexicon(overrides 已烘入)＋ runtime contextual rules。
       taiwan: MatchaFrontend.createFrontend({
         lexiconText,
-        lexiconSupplementText,
         tokensText,
         ruleNormalizer,
         ...taiwanProfile,
@@ -226,9 +227,9 @@ async function initialize() {
     });
     const assetSources = {
       lexicon: lexicon.source,
+      profile: downloadedAssets.profile.source,
+      upstreamLexicon: downloadedAssets.upstreamLexicon.source,
       tokens: tokens.source,
-      g2pReview: downloadedAssets.g2pReview.source,
-      lexiconSupplement: downloadedAssets.lexiconSupplement.source,
       phoneFst: downloadedAssets.phoneFst.source,
       dateFst: downloadedAssets.dateFst.source,
       numberFst: downloadedAssets.numberFst.source,
@@ -250,8 +251,8 @@ async function initialize() {
       session,
       sources: assetSources,
       frontend: {
-        lexiconSize: frontends.official.lexiconSize,
-        lexiconSupplementSize: frontends.taiwan.lexiconSupplementSize,
+        lexiconSize: frontends.taiwan.lexiconSize,
+        upstreamLexiconSize: frontends.official.lexiconSize,
         tokenCount: frontends.official.tokenCount,
         traditionalConversion: false,
         inputNormalization: 'traditional-direct',
@@ -266,7 +267,7 @@ async function initialize() {
             ...Object.keys(taiwanProfile.pronunciationOverrides),
             ...taiwanProfile.contextualRules.map((rule) => `${rule.pattern}（contextual）`),
           ],
-          reviewSchemaVersion: g2pReview.schemaVersion,
+          reviewSchemaVersion: profile.schemaVersion,
         },
       },
       warmup: {

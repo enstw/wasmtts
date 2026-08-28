@@ -2,93 +2,87 @@
 
 # wasmtts
 
-以 Matcha、Vocos 與獨立 FST WASM 打造可在瀏覽器離線執行的中文 TTS。
+以 Matcha、Vocos 與獨立 FST WASM 打造可在瀏覽器離線執行的中文 TTS **引擎套件**。
 
-`wasmtts` 研究並實作不依賴伺服器的中文語音合成路徑，目標是在 Safari／PWA 以單一 WASM thread 背景逐句產生音訊，持續 append 到同一條媒體 timeline。現行選定模型是 `matcha-icefall-zh-en`；Piper HuaYan medium 是 frozen 基準，Kokoro 與其他歷史方案只保留作選型證據。
-
-目前的 frontend pilot 為：
+`wasmtts` 把 `matcha-icefall-zh-en` 打包成 release tarball `wasmtts-engine.tar.gz`：繁體直輸文字前端、編譯後的 wasmtts lexicon、臺灣讀音 runtime profile、kaldifst text-normalizer WASM 與 Matcha + Vocos 合成核心，一個 `MatchaEngine.create()` 組好。下游應用只需提供 UI、hosting 與模型下載，目標場景是 Safari／PWA 以單一 WASM thread 背景逐句產生音訊、持續 append 到同一條媒體 timeline。
 
 ```text
-繁體中文
-  → kaldifst + OpenFST text-normalizer WASM
-  → phone/date/number FST
-  → lexicon/tokens
-  → Matcha acoustic model
-  → Vocos + ISTFT
-  → MP3 segments
-  → 單一 MediaSource timeline
+繁體中文（簡體亦可直輸）
+  → kaldifst + OpenFST text-normalizer WASM（phone/date/number FST）
+  → wasmtts lexicon（單一編譯檔）＋ runtime contextual rules
+  → Matcha acoustic model → Vocos + ISTFT → silence scaling
+  → PCM（下游自行編碼／串流）
 ```
 
 Matcha 與 Vocos 共用 ONNX Runtime Web；text normalizer 使用另一個獨立 WASM linear memory，不載入 sherpa-onnx frontend bundle 的固定 512 MiB heap。
 
-正式 Release 的 `wasmtts-frontend.tar.gz` 會包含 `matcha-taiwan-profile.js`。依序載入 `matcha-frontend.js` 與該檔案後，可用同包的 `matcha-g2p-review.json` 與 `matcha-lexicon-traditional.txt`（繁體鏡像補充詞典）直接建立完整臺灣讀音 frontend；不需另外補上產品內部覆寫：
+## 使用 tarball
+
+每個 [Release](https://github.com/enstw/wasmtts/releases) 附 `wasmtts-engine.tar.gz`（內容由 [`scripts/release-manifest.json`](scripts/release-manifest.json) 定義）：
+
+| 檔案 | 用途 |
+|---|---|
+| `matcha-engine.js` | 入口 `MatchaEngine.create()` |
+| `matcha-frontend.js`、`matcha-taiwan-profile.js`、`matcha-synthesis.js`、`kaldifst-normalizer.js` | engine 的組成模組；以 `importScripts`／`<script>` 依序載入，或在 Node 以 `require` 取得後注入 |
+| `matcha-kaldifst-normalizer.js`、`matcha-kaldifst-normalizer.wasm` | text-normalizer WASM 與 Emscripten glue |
+| `matcha-lexicon.txt`、`matcha-lexicon.meta.json` | **wasmtts lexicon**：單一字典檔即完整，不需上游 `lexicon.txt`；meta 記錄上游 revision、輸入 hash 與統計 |
+| `matcha-profile.runtime.json` | 臺灣讀音 runtime profile（contextual rules；phrase overrides 已烘進 lexicon） |
+| `matcha-assets.json` | 語音包定義（schemaVersion 4）：acoustic／Vocos／tokens／FST 的下載來源、`packName`、`bytes`、`sha256`，以及 `lexicon` 區塊（`packName` 含內容 hash）。只有帶 `packName` 的條目需要供檔；`matcha.files.lexicon.txt` 標 `role: build-input`，下游不需下載 |
+
+模型權重（acoustic、Vocos）、`tokens.txt` 與三個 FST 依 `matcha-assets.json` 自行下載並驗 `sha256`；資產 bytes 改變時 `packName` 必跟著改，下游可放心 cache-first。
 
 ```js
-const taiwanFrontend = MatchaTaiwanProfile.createFrontend({
-  review,
-  lexiconText,
-  lexiconSupplementText,
-  tokensText,
-  ruleNormalizer,
+// 載入順序：matcha-frontend.js → matcha-taiwan-profile.js → kaldifst-normalizer.js
+//          → matcha-synthesis.js → matcha-kaldifst-normalizer.js → matcha-engine.js
+const engine = await MatchaEngine.create({
+  lexiconText,                     // matcha-lexicon.txt（tarball）
+  tokensText,                      // tokens.txt（依 matcha-assets.json 下載）
+  profile,                         // JSON.parse(matcha-profile.runtime.json)
+  fstBuffers: [phoneFst, dateFst, numberFst],   // 順序固定
+  kaldifstModuleFactory: KaldifstNormalizerModule,
+  wasmUrl: '/vendor/matcha-kaldifst-normalizer.wasm',
+  ORT: ort,                        // onnxruntime-web；建議 numThreads 1、proxy false
+  acousticModel, vocoderModel,     // Uint8Array
+  synthesis: assets.synthesis,     // matcha-assets.json 的播放參數定案
 });
+const {samples, sampleRate, audioSeconds, tokenized} = await engine.synthesize('孫道長久久不語。');
 ```
 
-## 目前結果
+`lexiconText`、`tokensText`、`profile`、`fstBuffers`、模型缺一即 throw——沒有可漏傳就靜默降級的字典參數。waveform 若含 NaN／Infinity、peak 或 RMS 為零，`synthesize` 會 throw 而不是回傳無聲。Worker 與 streaming player（背景逐句合成、單一 `ManagedMediaSource` timeline）目前以 [`mobile-host/`](mobile-host/) 為參考實作，尚未併入 tarball。
 
-- 相同文本盲測：Matcha `90`、Kokoro `80`、Piper `60`。
-- Chromium 單執行緒完整 producer：RTF `0.1387`，約 `7.21x realtime`。
-- 10 個 MP3 append、51.228 秒音訊，無 underflow、append error 或 producer error。
-- 固定 Whisper small 聽回 baseline：49 字錯 1 字，CER `2.04%`。
-- ORT Web `1.27.0` 初始化後記憶體為快照而非真正 peak；release gate 採桌面 browser 的 512 MiB 上限。
+## Lexicon pipeline
 
-測試硬體、瀏覽器版本、量測邊界與限制請以 [GOAL.md](GOAL.md) 和 [platform/RESULTS.md](platform/RESULTS.md) 為準。
+wasmtts lexicon ＝ f(上游簡體 `lexicon.txt`, [`platform/matcha-g2p-review.json`](platform/matcha-g2p-review.json), [`platform/matcha-lexicon-traditional-curation.json`](platform/matcha-lexicon-traditional-curation.json))。`pnpm lexicon:build` 把上游簡體全量、全量繁體鏡像（OpenCC 詞組級 cn→tw；讀音只取現行 taiwan 讀音，補的是 longest-match 邊界）與 review phrase overrides 編成一個決定性的 `platform/dist/matcha-lexicon.txt`；產物不提交 git，由 CI 在抓上游資產後建置並隨 tarball 出貨。lexicon／tokens／FST 是 `matcha-icefall-zh-en` 模型 release 的一部分：Renovate 每週追蹤 HF revision 開 PR，candidate gate 以新版重編後才合併發版；本機可用 `pnpm lexicon:sync --check` 查最新 revision，`pnpm lexicon:sync` 換 pin、重抓、重編並產 `platform/dist/lexicon-diff.md`。讀音決策一律改 review／curation 檔（附教育部來源），不手改產物。
 
-## 快速開始
+## 開發
 
-需求：Node.js、`pnpm`、Emscripten，以及執行 Python 工具時使用的 `uv`。
+需求：Node.js、`pnpm`、Emscripten（建 kaldifst WASM），以及執行 Python 工具時使用的 `uv`。
 
 ```sh
 pnpm install
 pnpm build:matcha-kaldifst
-pnpm host:mobile
-```
-
-另開終端機執行：
-
-```sh
-pnpm test:matcha-frontend
-pnpm test:matcha-fst
-pnpm test:matcha-fst:tables
-pnpm test:matcha-kaldifst-wasm
-pnpm benchmark:matcha
-pnpm benchmark:matcha-stream
-pnpm test:matcha-asr
-```
-
-第三方模型不會提交至 repository。請依 [platform/README.md](platform/README.md) 將 Matcha acoustic model、Vocos、lexicon、tokens 與 FST 放入已忽略的 `platform/models/`。
-
-## 自動上游追蹤
-
-[Renovate](renovate.json) 追蹤 npm、ONNX Runtime Web、Matcha/Vocos 資產來源、FST、kaldifst、OpenFST、Emscripten 與固定 ASR oracle。普通 upstream 版本必須有可驗證的發布時間且發行滿 30 天；缺少 timestamp 時 fail-closed。OSV 資料庫確認的 CVE／GHSA 修補（`renovate.json` 的 `osvVulnerabilityAlerts`，由 Renovate 自行抓取，無需任何外部存取）可略過這段 quarantine，但只採最低已修補版本，且不略過任何 candidate gate。不以 GitHub Dependabot alerts 作來源：workflow 的 GITHUB_TOKEN 沒有任何權限組合能讀取該 API（Resource not accessible by integration，2026-08-15 驗證），而 PAT secret 是本 repository 不需要的常駐憑證。每週一早上 [renovate workflow](.github/workflows/renovate.yml) 處理單一 roll-up，另每六小時拾取 security fix 並優先處理；只有會改變 build／test artifact 的程式碼、manifest、依賴或 fixture 變更才執行完整 candidate gates，純文件與歷史 results 只回報成功的輕量 required check，`renovate.json`／Renovate workflow 變更則只執行官方 config validator。candidate 必須通過 native WASM build、FST golden、有效 waveform、RTF、512 MiB 記憶體上限與 ASR CER gate，workflow 才合併並發版。`main` 也只有 artifact-sensitive paths 變更才重跑相同 gates；成功時發布正式 Release，失敗時以 pre-release 保存版本組合、原因、logs 與機器可讀報告。eSpeak 與 iPhone 測試不屬於本 repository 的 release gate。
-
-未明確指定 `Release-Version` 時，自動版本會從所有非 draft、非 prerelease 的最高 SemVer 增加 patch；例如最高版本為 `v1.0.0` 時，下一版是 `v1.0.1`。GitHub Actions run number 不再充當版本號。
-
-```sh
 pnpm fetch:matcha-assets
-pnpm test:release-gates
+pnpm lexicon:build
+pnpm test:matcha-lexicon
+pnpm test:release-gates      # 完整 gates：frontend、lexicon、profile、FST、package-smoke、browser benchmark、ASR CER
+pnpm host:mobile             # 本機 COOP/COEP host；mobile-host/matcha-stream-test.html 為 Worker + player 參考頁
 ```
 
-兩類已證實與程式碼無關的基建噪音由 gate runner 吸收：瀏覽器 CDP 啟動逾時（單項重試一次）與 Matcha 合成抽樣導致的 ASR 聽回壓線（`matcha-core`＋`asr-listening` 成對重跑、取第一組全綠、至多三組）。真正的退化每一組都會失敗；重試次數記錄在 `release-gates.json` 的 `attempts` 欄位。
+第三方模型不會提交至 repository；`platform/models/` 與 `platform/dist/` 均已忽略。
+
+## 自動上游追蹤與發版
+
+[Renovate](renovate.json) 追蹤 npm、ONNX Runtime Web、Matcha/Vocos 資產來源、FST、kaldifst、OpenFST、Emscripten 與固定 ASR oracle。普通 upstream 版本必須有可驗證的發布時間且發行滿 30 天；缺少 timestamp 時 fail-closed。OSV 資料庫確認的 CVE／GHSA 修補可略過這段 quarantine，但只採最低已修補版本，且不略過任何 candidate gate。每週一早上 [renovate workflow](.github/workflows/renovate.yml) 處理單一 roll-up，另每六小時拾取 security fix；只有會改變 build／test artifact 的變更才執行完整 candidate gates。candidate 必須通過 native WASM build、lexicon 重編與 gate、FST golden、有效 waveform、RTF、512 MiB 記憶體上限與 ASR CER gate，workflow 才合併並發版。`main` 也只有 artifact-sensitive paths 變更才重跑相同 gates；成功時發布正式 Release（tarball、`RELEASE.md` 含 wasmtts lexicon 段與前一版 stats 對照、gate 報告），失敗時以 pre-release 保存版本組合、原因、logs 與機器可讀報告。eSpeak 與 iPhone 實機測試不屬於 release gate。
+
+未明確指定 `Release-Version` 時，自動版本會從所有非 draft、非 prerelease 的最高 SemVer 增加 patch。
 
 ## Repository 結構
 
-- [`GOAL.md`](GOAL.md)：canonical 產品目標、選型結論與完成條件。
-- [`frameworks/MODEL-COMPARISON.md`](frameworks/MODEL-COMPARISON.md)：英文、zh_CN、zh_TW 開放權重 TTS 的尺寸、授權與公開品質證據。
-- [`frameworks/matcha/`](frameworks/matcha/)：Matcha 架構、品質與限制。
-- [`platform/`](platform/)：WASM harness、browser runners、分析工具及結果。
-- [`mobile-host/`](mobile-host/)：COOP／COEP host 與長駐 MediaSource transport。
-- [`platform/upstreams.yaml`](platform/upstreams.yaml)：非 npm 上游版本 manifest。
+- [`platform/`](platform/)：引擎原始碼、lexicon pipeline、gate 測試；研究模式的 runner、分析工具與結果也在此。
+- [`scripts/`](scripts/)：release 打包、gates、資產抓取與上游同步。
+- [`mobile-host/`](mobile-host/)：COOP／COEP host 與 Worker／長駐 MediaSource transport 參考實作。
+- 研究紀錄（只在研究模式參照）：[`GOAL.md`](GOAL.md) 選型結論與完成條件、[`platform/RESULTS.md`](platform/RESULTS.md) benchmark 與稽核紀錄、[`frameworks/`](frameworks/) 各模型細節與 [`MODEL-COMPARISON.md`](frameworks/MODEL-COMPARISON.md)。
 
 ## 授權與第三方資產
 
-本 repository 自有程式碼與文件採 [MIT License](LICENSE)。第三方模型、模型輸出、FST、字典、runtime、套件及下載資產不因本 LICENSE 而重新授權，仍分別受其上游條款約束；使用者必須在下載、散布或產品採用前自行確認授權。本 repository 不發布 Matcha 或 Vocos 模型權重。
+本 repository 自有程式碼與文件採 [MIT License](LICENSE)。第三方模型、模型輸出、FST、字典、runtime、套件及下載資產不因本 LICENSE 而重新授權，仍分別受其上游條款約束；使用者必須在下載、散布或產品採用前自行確認授權。本 repository 不發布 Matcha 或 Vocos 模型權重；編譯後的 wasmtts lexicon 衍生自上游 `matcha-icefall-zh-en` 的 lexicon，其授權同樣以上游為準。

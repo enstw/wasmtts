@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // 依 scripts/release-manifest.json（發布內容的唯一事實來源）組出釋出套件：
-// 把清單檔案複製到 <output>/package/ 並打包成 <output>/wasmtts-frontend.tar.gz。
+// 把清單檔案複製到 <output>/package/ 並打包成 <output>/wasmtts-engine.tar.gz。
 // release.yml 的打包步驟與 package-smoke gate 共用這條路徑，確保「測過的組包」
 // 與「出貨的組包」是同一份邏輯 — 過去 release 不完整就是因為打包是工作流程裡
 // 一份沒人驗證的 cp 清單。
@@ -32,7 +32,7 @@ export function packageRelease({
   if (missing.length > 0) {
     throw new Error([
       `清單檔案不存在：${missing.join('、')}`,
-      '（kaldifst dist 需先 pnpm build:matcha-kaldifst，或由 CI 的 native-wasm artifact 下載）',
+      '（kaldifst dist 需先 pnpm build:matcha-kaldifst，或由 CI 的 native-wasm artifact 下載；platform/dist 需先 pnpm lexicon:build）',
     ].join('\n'));
   }
   // 先清掉 package/，避免上一輪的殘留檔混進 tarball。

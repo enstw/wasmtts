@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "purpose": "繁體 lexicon 鏡像補充詞條的審核決策:exclusions 維持現行單字 fallback,guards 以明列讀音凍結跨詞邊界字串;鏡像產生器依本檔與 matcha-g2p-review.json 決定最終輸出",
+  "purpose": "wasmtts lexicon 編譯(platform/build-matcha-lexicon.mjs)的審核決策:exclusions 維持現行單字 fallback、不以整詞鏡像收錄;charPhoneExclusions 擋上游系統性錯讀;guards 以明列讀音凍結跨詞邊界字串。編譯器依本檔與 matcha-g2p-review.json 決定最終輸出",
   "corpusEvidence": {
     "description": "以外部繁體小說語料 315,593 句對 taiwan profile 現行 frontend 與加鏡像版本做全文 A/B,並以既有 g2pW SQLite index 的逐字意見輔助裁決;語料、SQLite 與 A/B 報告均為本機忽略產物,不提交",
     "analyzedAt": "2026-08-16",

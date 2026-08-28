@@ -345,7 +345,7 @@
       lexiconSize: lexicon.size,
       lexiconSupplementSize,
       tokenCount: tokens.size,
-      ruleFstCount: ruleNormalizer ? 3 : 0,
+      ruleFstCount: ruleNormalizer ? (ruleNormalizer.fstCount ?? 1) : 0,
     };
   }
 

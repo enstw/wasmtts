@@ -14,7 +14,7 @@
 - Vocoder：`vocos-16khz-univ.onnx`，約 51 MB。
 - 輸出：16 kHz、單聲道。
 - lexicon、tokens 與中文 FST 仍由 HF 鏡像依 `platform/matcha-assets.json` 釘定 revision 下載；steps 匯出共用同一套 tokens 與 lexicon，發音路徑不受 steps 切換影響。
-- 繁體鏡像補充詞典 `platform/matcha-lexicon-traditional.txt`（2,144 條，隨 frontend tarball 發布）：上游 lexicon 多字詞條只有簡體，繁體直輸落到單字 fallback 會產生 `會計 hui4`、`銀行 xing2` 這類 base 音節錯讀；補充詞典是建置期資產，不是 runtime 繁簡轉換，「繁體直輸」的選定配置不變。只進 taiwan profile frontend，official 保持上游 golden；生成方法與語料驗證見 `platform/README.md` 與 `platform/RESULTS.md`。
+- wasmtts lexicon `matcha-lexicon.txt`（101,051 條、2.28 MB，隨 engine tarball 發布，不提交 git）：上游 lexicon 多字詞條只有簡體，繁體直輸落到單字 fallback 會產生 `會計 hui4`、`銀行 xing2` 這類 base 音節錯讀，也讓 `道長`＋`久久` 被後面的 `長久` 跨界吃成 `chang2`（簡體路徑有 `道长` 整詞不會發生）。`pnpm lexicon:build` 把上游簡體全量、全量繁體鏡像與 review phrase overrides 編成單一檔；這是建置期資產，不是 runtime 繁簡轉換，「繁體直輸」的選定配置不變。研究用的 `official` 對照仍讀上游原檔；編譯方法與語料驗證見 `platform/README.md` 與 `platform/RESULTS.md`。
 - Acoustic model SHA-256：`f69a099ebe0b576d08a329dac5076fdd2e09f6cbc51b771ee96f84dc8198d7fe`。
 - Vocos SHA-256：`b599142a1fb8ff03de3e84ac35ff537c619e56f4267a6fe894851a42844acf9e`。
 - 既有 benchmark 快照與盲測分數皆以 `model-steps-3` 量測；`model-steps-6` 的 flow decoder 需跑兩倍 ODE steps，RTF 與試聽結論必須經 candidate gate 與聽感驗證重新建立後才能引用。

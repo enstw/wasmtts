@@ -1,17 +1,19 @@
 {
   "schemaVersion": 1,
-  "tarball": "wasmtts-frontend.tar.gz",
+  "tarball": "wasmtts-engine.tar.gz",
   "files": [
     "LICENSE",
     "README.md",
-    "platform/upstreams.yaml",
-    "platform/matcha-assets.json",
+    "platform/dist/matcha-assets.json",
+    "platform/matcha-engine.js",
     "platform/matcha-frontend.js",
     "platform/matcha-taiwan-profile.js",
-    "platform/matcha-g2p-review.json",
-    "platform/matcha-lexicon-traditional.txt",
-    "platform/matcha-lexicon-traditional.meta.json",
+    "platform/matcha-synthesis.js",
+    "platform/kaldifst-normalizer.js",
     "platform/kaldifst-wasm/dist/matcha-kaldifst-normalizer.js",
-    "platform/kaldifst-wasm/dist/matcha-kaldifst-normalizer.wasm"
+    "platform/kaldifst-wasm/dist/matcha-kaldifst-normalizer.wasm",
+    "platform/dist/matcha-lexicon.txt",
+    "platform/dist/matcha-lexicon.meta.json",
+    "platform/dist/matcha-profile.runtime.json"
   ]
 }

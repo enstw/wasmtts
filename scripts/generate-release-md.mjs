@@ -54,7 +54,9 @@ const asrProduct = hasExecutedGates
   ? readJson('platform/results/asr-listening-product-report.json')
   : null;
 const assets = readJson(path.join(artifacts, 'assets.json'));
-const manifest = readJson('platform/matcha-assets.json');
+const manifest = readJson('platform/dist/matcha-assets.json') ?? readJson('platform/matcha-assets.json');
+const lexiconMeta = readJson('platform/dist/matcha-lexicon.meta.json');
+const previousLexiconMeta = readJson(path.join(artifacts, 'previous-lexicon.meta.json'));
 const packageJson = readJson('package.json');
 
 const coreWaveforms = Array.isArray(core?.runs) ? core.runs.map(({waveform}) => waveform) : [];
@@ -77,7 +79,7 @@ const lines = [
   '',
   '## Release scope',
   '',
-  '本 Release 驗證 Matcha browser frontend 的免費 GitHub runner 可重現桌面 gates。iPhone／PWA 實機驗收與英文 eSpeak frontend 不屬於自動 release gate。',
+  '本 Release 驗證 Matcha browser engine（文字前端、編譯後 wasmtts lexicon、kaldifst normalizer、Matcha + Vocos 合成）的免費 GitHub runner 可重現桌面 gates。iPhone／PWA 實機驗收、Worker／player 封裝與英文 eSpeak frontend 不屬於自動 release gate。',
   '',
 ];
 
@@ -135,6 +137,29 @@ lines.push(
     : ['| release-gates | NOT RUN | — | release-gates.json unavailable |']),
   '',
 );
+
+if (lexiconMeta && !lexiconMeta.readError) {
+  const statRows = Object.entries(lexiconMeta.stats ?? {}).map(([key, value]) => {
+    const previous = previousLexiconMeta?.stats?.[key];
+    return `| ${cell(key)} | ${cell(previous ?? '—')} | ${cell(value)} |`;
+  });
+  lines.push(
+    '## wasmtts lexicon',
+    '',
+    '編譯後的單一字典檔隨 tarball 出貨；下游只需 `matcha-lexicon.txt`，不需上游 `lexicon.txt`。',
+    '',
+    `- Pack name: \`${lexiconMeta.packName}\`（${bytes(lexiconMeta.bytes)}，${Number(lexiconMeta.entryCount).toLocaleString('en-US')} 條）`,
+    `- SHA-256: \`${lexiconMeta.outputSha256}\``,
+    `- Upstream: \`${lexiconMeta.upstream?.repository ?? '—'}\` @ \`${lexiconMeta.upstream?.revision ?? '—'}\``,
+    `- Inputs: lexicon \`${lexiconMeta.inputs?.lexiconSha256?.slice(0, 12) ?? '—'}\`、review \`${lexiconMeta.inputs?.reviewSha256?.slice(0, 12) ?? '—'}\`、curation \`${lexiconMeta.inputs?.curationSha256?.slice(0, 12) ?? '—'}\`、opencc-js \`${lexiconMeta.openccJsVersion}\``,
+    `- Previous release: ${previousLexiconMeta?.packName ? `\`${previousLexiconMeta.packName}\` @ upstream \`${previousLexiconMeta.upstream?.revision ?? '—'}\`` : '（首版或無法取得前一版 meta）'}`,
+    '',
+    '| stat | previous | this release |',
+    '|---|---:|---:|',
+    ...statRows,
+    '',
+  );
+}
 
 if (assets?.matcha?.files || assets?.acoustic || assets?.vocos) {
   const assetRows = Object.entries(assets?.matcha?.files ?? {}).map(([name, metadata]) => (
