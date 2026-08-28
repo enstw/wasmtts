@@ -2,6 +2,26 @@
 
 # wasmtts
 
+<p align="center">
+  <a href="https://github.com/enstw/wasmtts/releases/latest"><img alt="release" src="https://img.shields.io/github/v/release/enstw/wasmtts?label=release&color=1f6feb"></a>
+  <a href="LICENSE"><img alt="License MIT" src="https://img.shields.io/badge/License-MIT-d4a72c"></a>
+  <a href="https://github.com/enstw/wasmtts/actions/workflows/release.yml"><img alt="release gates" src="https://img.shields.io/github/actions/workflow/status/enstw/wasmtts/release.yml?branch=main&label=release%20gates"></a>
+  <a href="https://github.com/enstw/wasmtts/attestations"><img alt="releases attested" src="https://img.shields.io/badge/releases-attested%20(Sigstore)-2ea043"></a>
+  <a href="https://github.com/enstw/wasmtts/releases/latest"><img alt="tarball" src="https://img.shields.io/badge/tarball-wasmtts--engine.tar.gz-2ea043"></a>
+</p>
+<p align="center">
+  <a href="https://huggingface.co/csukuangfj/matcha-icefall-zh-en"><img alt="model" src="https://img.shields.io/badge/model-matcha--icefall--zh--en-1f6feb"></a>
+  <a href="package.json"><img alt="ONNX Runtime Web" src="https://img.shields.io/github/package-json/dependency-version/enstw/wasmtts/onnxruntime-web?label=ONNX%20Runtime%20Web&color=1f6feb"></a>
+  <img alt="text input" src="https://img.shields.io/badge/%E6%96%87%E5%AD%97-%E7%B9%81%E9%AB%94%E7%9B%B4%E8%BC%B8%20%C2%B7%20%E7%B0%A1%E9%AB%94%E4%BA%A6%E5%8F%AF-1f6feb">
+  <a href="renovate.json"><img alt="upstream tracking" src="https://img.shields.io/badge/upstream-Renovate%20weekly-1f6feb"></a>
+</p>
+<p align="center">
+  <img alt="Chromium" src="https://img.shields.io/badge/Chromium-release%20gated-8250df">
+  <img alt="iOS Safari / PWA" src="https://img.shields.io/badge/iOS%20Safari%20%2F%20PWA-tested-8250df">
+  <img alt="Node.js" src="https://img.shields.io/badge/Node.js-runtime%20none%20required%20%C2%B7%20build%20only-8250df">
+  <img alt="WASM" src="https://img.shields.io/badge/WASM-single%20thread%20%C2%B7%20offline-8250df">
+</p>
+
 以 Matcha、Vocos 與獨立 FST WASM 打造可在瀏覽器離線執行的中文 TTS **引擎套件**。
 
 `wasmtts` 把 `matcha-icefall-zh-en` 打包成 release tarball `wasmtts-engine.tar.gz`：繁體直輸文字前端、編譯後的 wasmtts lexicon、臺灣讀音 runtime profile、kaldifst text-normalizer WASM 與 Matcha + Vocos 合成核心，一個 `MatchaEngine.create()` 組好。下游應用只需提供 UI、hosting 與模型下載，目標場景是 Safari／PWA 以單一 WASM thread 背景逐句產生音訊、持續 append 到同一條媒體 timeline。
