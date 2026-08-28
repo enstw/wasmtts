@@ -6,14 +6,14 @@
 
 `matcha-icefall-zh-en` 是本專案目前選定的 TTS 模型。它已通過中文朗讀試聽品質 gate，也完成正式桌面瀏覽器單執行緒 benchmark；在相同五句中文文本的三方盲測中得到 `90/100`，高於 Kokoro 的 `80/100` 與 Piper HuaYan medium 的 `60/100`，Piper 另被標記有外國腔。
 
-上游建議的 browser WASM＋中文 FST 配置中位 task `RTF` 為 `0.1411`，約 `7.09x realtime`；繁體小說原文不經 OpenCC 亦能生成，試聽品質已獲接受。選定的文字路徑為「繁體直輸 → `phone/date/number` FST → Matcha」，benchmark 生成配置採 `noise_scale=0.667`（產品播放參數另以 `platform/matcha-assets.json` 的 `synthesis` 區塊為準），繁簡轉換不是必要前處理。目前 pilot 由獨立 kaldifst + OpenFST WASM 執行三個 FST，Matcha/Vocos 則共用 ORT Web WASM；兩者各自使用 linear memory，不再載入固定 512 MiB heap 的官方 frontend bundle。Repository release gate 只涵蓋中文 frontend 與桌面 browser；eSpeak 與 iPhone 實機不在範圍內。
+上游建議的 browser WASM＋中文 FST 配置中位 task `RTF` 為 `0.1411`，約 `7.09x realtime`；繁體小說原文不經 OpenCC 亦能生成，試聽品質已獲接受。選定的文字路徑為「繁體直輸 → `phone/date/number` FST → Matcha」，benchmark 生成配置採 `noise_scale=0.667`（產品播放參數另以 `platform/matcha-assets.source.json` 的 `synthesis` 區塊為準），繁簡轉換不是必要前處理。目前 pilot 由獨立 kaldifst + OpenFST WASM 執行三個 FST，Matcha/Vocos 則共用 ORT Web WASM；兩者各自使用 linear memory，不再載入固定 512 MiB heap 的官方 frontend bundle。Repository release gate 只涵蓋中文 frontend 與桌面 browser；eSpeak 與 iPhone 實機不在範圍內。
 
 ## 模型與資產
 
 - Acoustic model：`matcha-icefall-zh-en/model-steps-6.onnx`，單一聲線，約 73 MB；自 ModelScope 上游 [`dengcunqin/matcha_tts_zh_en_20251010`](https://modelscope.cn/models/dengcunqin/matcha_tts_zh_en_20251010) 以 commit 釘版下載。上游提供 `model-steps-2` 至 `model-steps-6` 全套 ODE steps 匯出；HF 鏡像 `csukuangfj/matcha-icefall-zh-en` 只含 `model-steps-3`（SHA-256 與上游一致，同一權重），本專案 2026-08-15 起改採 `model-steps-6`。
 - Vocoder：`vocos-16khz-univ.onnx`，約 51 MB。
 - 輸出：16 kHz、單聲道。
-- lexicon、tokens 與中文 FST 仍由 HF 鏡像依 `platform/matcha-assets.json` 釘定 revision 下載；steps 匯出共用同一套 tokens 與 lexicon，發音路徑不受 steps 切換影響。
+- lexicon、tokens 與中文 FST 仍由 HF 鏡像依 `platform/matcha-assets.source.json` 釘定 revision 下載；steps 匯出共用同一套 tokens 與 lexicon，發音路徑不受 steps 切換影響。
 - wasmtts lexicon `matcha-lexicon.txt`（101,051 條、2.28 MB，隨 engine tarball 發布，不提交 git）：上游 lexicon 多字詞條只有簡體，繁體直輸落到單字 fallback 會產生 `會計 hui4`、`銀行 xing2` 這類 base 音節錯讀，也讓 `道長`＋`久久` 被後面的 `長久` 跨界吃成 `chang2`（簡體路徑有 `道长` 整詞不會發生）。`pnpm lexicon:build` 把上游簡體全量、全量繁體鏡像與 review phrase overrides 編成單一檔；這是建置期資產，不是 runtime 繁簡轉換，「繁體直輸」的選定配置不變。研究用的 `official` 對照仍讀上游原檔；編譯方法與語料驗證見 `platform/README.md` 與 `platform/RESULTS.md`。
 - Acoustic model SHA-256：`f69a099ebe0b576d08a329dac5076fdd2e09f6cbc51b771ee96f84dc8198d7fe`。
 - Vocos SHA-256：`b599142a1fb8ff03de3e84ac35ff537c619e56f4267a6fe894851a42844acf9e`。

@@ -260,7 +260,8 @@ export function readBuildInputs(root = path.resolve(here, '..')) {
       throw new Error(`缺上游資產 ${path.relative(root, path.join(modelDir, file))} — 先跑 pnpm fetch:matcha-assets`);
     }
   }
-  const assets = JSON.parse(readFileSync(path.join(root, 'platform/matcha-assets.json'), 'utf8'));
+  const assets = JSON.parse(readFileSync(path.join(root, 'platform/matcha-assets.source.json'), 'utf8'));
+  if (assets.stage !== 'source') throw new Error('platform/matcha-assets.source.json 的 stage 必須是 source');
   return {
     root,
     assets,
@@ -272,7 +273,8 @@ export function readBuildInputs(root = path.resolve(here, '..')) {
 }
 
 // 建置並落地:matcha-lexicon.txt、matcha-lexicon.meta.json、
-// matcha-profile.runtime.json 與含 lexicon 區塊的 matcha-assets.json。
+// matcha-profile.runtime.json 與含 lexicon／runtime 區塊的 matcha-assets.json(stage: complete;
+// in-tree 的 platform/matcha-assets.source.json 是 stage: source,只有 pin 與來源)。
 export function buildAndWrite({root, outDir} = {}) {
   const inputs = readBuildInputs(root);
   const output = path.resolve(inputs.root, outDir ?? 'platform/dist');
@@ -290,8 +292,11 @@ export function buildAndWrite({root, outDir} = {}) {
       revision: inputs.assets.matcha.revision,
     },
   });
+  const {purpose: _sourcePurpose, ...sourceAssets} = inputs.assets;
   const assets = {
-    ...inputs.assets,
+    ...sourceAssets,
+    // 唯一完整版:含 lexicon 與 runtime 區塊;消費者以 stage === 'complete' 判斷讀對檔。
+    stage: 'complete',
     runtime: runtimeManifest(inputs.root),
     lexicon: {
       file: 'matcha-lexicon.txt',

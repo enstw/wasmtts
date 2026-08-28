@@ -24,6 +24,7 @@ const DEFAULTS = Object.freeze({
   defaultNoiseScale: 0.667,
   ort: {numThreads: 1},
   versions: {},
+  pronunciationOverrides: {},
   warmupText: '你好。',
 });
 
@@ -253,6 +254,7 @@ async function initialize() {
       acousticModel: new Uint8Array(downloadedAssets.acoustic.buffer),
       vocoderModel: new Uint8Array(downloadedAssets.vocoder.buffer),
       synthesis: config.synthesis,
+      pronunciationOverrides: config.pronunciationOverrides,
     });
     const sources = Object.fromEntries(
       Object.entries(downloadedAssets).map(([key, value]) => [key, value.source]),
@@ -281,6 +283,7 @@ async function initialize() {
         numericNormalization: 'sherpa zh rule FSTs applied by standalone kaldifst WASM',
         englishFrontend: false,
         contextualRules: engine.info.contextualRules,
+        localOverrides: engine.info.localOverrides,
         profileSchemaVersion: engine.info.profileSchemaVersion,
       },
       warmup: {

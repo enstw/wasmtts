@@ -49,7 +49,7 @@
     },
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^platform\\/matcha-assets\\.json$/"],
+      "managerFilePatterns": ["/^platform\\/matcha-assets\\.source\\.json$/"],
       "matchStrings": [
         "\\\"repository\\\": \\\"(?<packageName>https://huggingface\\.co/csukuangfj/matcha-icefall-zh-en\\.git)\\\",\\s+\\\"revision\\\": \\\"(?<currentValue>[0-9a-f]+)\\\""
       ],

@@ -8,7 +8,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const manifest = JSON.parse(readFileSync(path.join(root, 'platform/matcha-assets.json'), 'utf8'));
+const manifest = JSON.parse(readFileSync(path.join(root, 'platform/matcha-assets.source.json'), 'utf8'));
 const modelDir = path.join(root, 'platform/models/matcha-icefall-zh-en');
 const temporary = path.join(os.tmpdir(), `wasmtts-matcha-assets-${process.pid}`);
 

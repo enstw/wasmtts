@@ -48,7 +48,7 @@ Matcha 與 Vocos 共用 ONNX Runtime Web；text normalizer 使用另一個獨立
 | `matcha-kaldifst-normalizer.js`、`matcha-kaldifst-normalizer.wasm` | text-normalizer WASM 與 Emscripten glue |
 | `matcha-lexicon.txt`、`matcha-lexicon.meta.json` | **wasmtts lexicon**：單一字典檔即完整，不需上游 `lexicon.txt`；meta 記錄上游 revision、輸入 hash 與統計 |
 | `matcha-profile.runtime.json` | 臺灣讀音 runtime profile（contextual rules；phrase overrides 已烘進 lexicon） |
-| `matcha-assets.json` | 語音包定義（schemaVersion 4）：acoustic／Vocos／tokens／FST 的下載來源、`packName`、`bytes`、`sha256`；`lexicon` 區塊（`packName` 含內容 hash）；`runtime` 區塊宣告 ONNX Runtime Web 與 lamejs 的 npm 版本、檔案、含版本的 `packName` 與 `sha256`（bytes 不在 tarball，下游從 npm 取並驗 hash）。只有帶 `packName` 的條目需要供檔；`matcha.files.lexicon.txt` 標 `role: build-input`，下游不需下載 |
+| `matcha-assets.json` | 語音包定義（schemaVersion 4，`stage: complete`）：acoustic／Vocos／tokens／FST 的下載來源、`packName`、`bytes`、`sha256`；`lexicon` 區塊（`packName` 含內容 hash）；`runtime` 區塊宣告 ONNX Runtime Web 與 lamejs 的 npm 版本、檔案、含版本的 `packName` 與 `sha256`（bytes 不在 tarball，下游從 npm 取並驗 hash）。只有帶 `packName` 的條目需要供檔；`matcha.files.lexicon.txt` 標 `role: build-input`，下游不需下載。**只用 tarball 內這一份**：repo 裡的 `platform/matcha-assets.source.json` 是 `stage: source`（只有 pin 與來源，沒有 `lexicon`／`runtime`），`workerConfigFromAssets` 讀到會直接 throw |
 
 模型權重（acoustic、Vocos）、`tokens.txt` 與三個 FST 依 `matcha-assets.json` 自行下載並驗 `sha256`；資產 bytes 改變時 `packName` 必跟著改，下游可放心 cache-first。
 
@@ -65,6 +65,7 @@ const engine = await MatchaEngine.create({
   ORT: ort,                        // onnxruntime-web；建議 numThreads 1、proxy false
   acousticModel, vocoderModel,     // Uint8Array
   synthesis: assets.synthesis,     // matcha-assets.json 的播放參數定案
+  pronunciationOverrides: {'某人名': 'mou3 ren2 ming2'},   // 選用：本地暫存層，聽測修正尚未進 review 時放這裡
 });
 const {samples, sampleRate, audioSeconds, tokenized} = await engine.synthesize('孫道長久久不語。');
 ```
@@ -105,7 +106,11 @@ const player = createContinuousStreamPlayer({
 await player.start();     // 唯一一次 play()；之後只 pause()／resume()
 ```
 
-Worker 的 `configure` config 由 `workerConfigFromAssets` 機械產生（所有 script／wasm／資產 URL、bytes、cache 名稱、`synthesis` 參數、版本字串），Worker 在收到後才 `importScripts`；`synthesize` 亦可直接呼叫 `producer.synthesize(text)` 取得單句 MP3（或 `format: 'pcm'`）。Host 需回應 COOP／COEP headers（本 repo 的 `mobile-host/server.mjs` 是參考）。
+Worker 的 `configure` config 由 `workerConfigFromAssets` 機械產生（所有 script／wasm／資產 URL、bytes、cache 名稱、`synthesis` 參數、版本字串），Worker 在收到後才 `importScripts`；`synthesize` 亦可直接呼叫 `producer.synthesize(text)` 取得單句 MP3（或 `format: 'pcm'`）。
+
+**本地讀音暫存層**：`workerConfigFromAssets({..., pronunciationOverrides: {'詞': 'p1 p2'}})`（或直接給 `MatchaEngine.create`）會在 lexicon 與 review 之後以整詞 longest-match 套用；phone 不在 `tokens.txt` 或字數不符會在建立時 throw。這一層給下游聽出來、尚未進 `matcha-g2p-review.json` 的修正用；確認後請提 review／curation，讓它進下一版 lexicon。
+
+**COOP／COEP**：tarball 的 runtime 是單一 WASM thread（`ort.env.wasm.numThreads = 1`、`proxy = false`），**不需要** `crossOriginIsolated`，一般靜態 host 即可；只有自行改成多執行緒 ORT（`SharedArrayBuffer`）才需要 `Cross-Origin-Opener-Policy: same-origin` 與 `Cross-Origin-Embedder-Policy: require-corp`。`mobile-host/server.mjs` 預設開這組 headers 是為了量測多執行緒；`WASM_TTS_ISOLATION=off` 可關掉以驗證非 isolated 路徑。
 
 ## Lexicon pipeline
 

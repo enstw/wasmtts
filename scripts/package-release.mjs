@@ -6,7 +6,8 @@
 // 與「出貨的組包」是同一份邏輯 — 過去 release 不完整就是因為打包是工作流程裡
 // 一份沒人驗證的 cp 清單。
 
-import {cpSync, existsSync, mkdirSync, readFileSync, rmSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
 import path from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
@@ -47,7 +48,12 @@ export function packageRelease({
   if (tar.status !== 0) {
     throw new Error(`tar 打包失敗：${(tar.stderr ?? '').trim() || tar.error?.message}`);
   }
-  return {manifest, packageDir, tarball};
+  // sha256 sidecar(sha256sum 格式)隨 release 附上,下游 vendor 時可 `shasum -a 256 -c` 驗;
+  // GitHub release asset 另有 Sigstore attestation(gh attestation verify)。
+  const sha256 = createHash('sha256').update(readFileSync(tarball)).digest('hex');
+  const checksum = `${tarball}.sha256`;
+  writeFileSync(checksum, `${sha256}  ${path.basename(tarball)}\n`);
+  return {manifest, packageDir, tarball, checksum, sha256};
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

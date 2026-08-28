@@ -37,6 +37,25 @@
     return result;
   }
 
+  function normalizeOverrides(overrides, tokens) {
+    if (!overrides || typeof overrides !== 'object') throw new TypeError('pronunciationOverrides 必須是 {詞: "p1 p2" | ["p1", "p2"]}');
+    const normalized = {};
+    for (const [word, value] of Object.entries(overrides)) {
+      const phones = Array.isArray(value) ? value.map(String) : String(value).trim().split(/\s+/u);
+      if (!word.trim() || !phones.length || phones.some((phone) => !phone)) {
+        throw new TypeError(`pronunciationOverrides[${JSON.stringify(word)}] 讀音為空`);
+      }
+      if ([...word].length !== phones.length) {
+        throw new TypeError(`pronunciationOverrides[${JSON.stringify(word)}] 字數 ${[...word].length} 與 phone 數 ${phones.length} 不符`);
+      }
+      for (const phone of phones) {
+        if (!tokens.has(phone)) throw new TypeError(`pronunciationOverrides[${JSON.stringify(word)}] 的 ${phone} 不在 tokens.txt`);
+      }
+      normalized[word] = phones;
+    }
+    return normalized;
+  }
+
   async function create({
     lexiconText,
     tokensText,
@@ -48,6 +67,7 @@
     acousticModel,
     vocoderModel,
     synthesis = {},
+    pronunciationOverrides = {},
     frontendApi = null,
     profileApi = null,
     kaldifstApi = null,
@@ -78,11 +98,15 @@
     // phrase overrides 已烘進編譯後 lexicon;createConfig 再套一次是冪等的,
     // contextual rules 則只有 runtime 能套。
     const profileConfig = profileLib.createConfig(profile, frontendLib);
+    // 本地暫存層:下游聽出來、尚未進 review 的讀音;整詞 longest-match、最後套用,
+    // phone 必須存在於 tokens,否則在這裡 throw 而不是合成時默默丟字。
+    const localOverrides = normalizeOverrides(pronunciationOverrides, frontendLib.parseTokens(tokensText));
     const frontend = frontendLib.createFrontend({
       lexiconText,
       tokensText,
       ruleNormalizer,
-      ...profileConfig,
+      contextualRules: profileConfig.contextualRules,
+      pronunciationOverrides: {...profileConfig.pronunciationOverrides, ...localOverrides},
     });
 
     const engine = synthesisLib.createEngine({ORT, ...synthesis});
@@ -112,6 +136,7 @@
         tokenCount: frontend.tokenCount,
         ruleFstCount: frontend.ruleFstCount,
         contextualRules: profileConfig.contextualRules.map((rule) => rule.pattern),
+        localOverrides: Object.keys(localOverrides),
         profileSchemaVersion: profile.schemaVersion,
         synthesis: {
           noiseScale: synthesis.noiseScale ?? 1,
