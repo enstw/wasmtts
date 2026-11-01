@@ -42,6 +42,8 @@
 
 英文實用分層：edge／CPU 先看 Kokoro、Pocket 或 Supertonic；中型 GPU voice agent 先看 Chatterbox Turbo、Qwen3-TTS 0.6B；追求自然度上限才看 dots.tts、Qwen3-TTS 1.7B 或 MOSS。
 
+MOSS 家族另有 0.1B 的 MOSS-TTS-Nano，是其中唯一以 CPU／browser 為目標的版本；2026-11-01 的查證結論與證據見 [MOSS-TTS 評估紀錄](moss/README.md)。
+
 ## zh_CN 普通話
 
 | 模型 | 參數量／資產 | 聲線能力 | 授權摘要 | 品質／自然度的公開評價 |
